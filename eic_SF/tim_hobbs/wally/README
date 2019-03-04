@@ -1,0 +1,88 @@
+to comepile 3Var_x.f
+
+
+
+| for kaon TDIS compile
+g77 -fno-globals -o 3KVar_x 3KVar_x.f
+
+| for pion TDIS compile
+g77 -fno-globals -o 3Var_x 3Var_x.f
+
+
+
+** using the code from Wally and calculate f2pi as a function of:
+x, theta, momentum(k)
+
+In particular, x-dependent is important and crucial to determine the
+regularization function.
+In order to have a splitting function, yiou have to fit 5th order 
+polynomial function f2pi(x) for different x range.
+
+# Step-1: modifiy code
+------------------------------------------------------
+
+Change the regularization function:
+
+*****************************************************
+***********     Code: 3Var_x.f      *****************
+*****************************************************
+
+!	L = 1.33  ! this is for choice of s-dependent exp. - PRD93,054011(2016)
+	L = 0.85  ! this is for choice of t-dependent exp. - PRD93,054011(2016)
+! 	L = 0.27  ! this is for choice of Pauli-Villar. - Use this for Kaon as well.
+
+!       typ = 2 !s-dependent EXPONENTIAL FORM FACTOR
+!       typ = 3 !COV. DIPOLE FORM FACTOR
+	typ = 5			!t-dependent EXPONENTIAL FORM FACTOR
+!	typ = 6			!Pauli-Villar FORM FACTOR
+
+
+and change k(momentum) range
+
+! DEFINE THE BOUNDS OF THE |k| INTEGRAL -- |k1| TO |k2|
+	  ik = 0
+	  kmin = 0.30D0
+	  kmax = 0.50D0    !SHARP k BOUNDS (FROM THIA!) [GeV]
+	  kint = (kmax-kmin)/100.D0
+
+
+
+
+
+
+
+
+# Step-2: compile
+------------------------------------------------------
+g77 -fno-globals -o 3Var_x 3Var_x.f
+
+
+
+
+
+
+# Step-3: 
+------------------------------------------------------
+run and fit data...
+
+
+
+
+
+
+
+
+####
+###   About the kaon structure function 
+###
+
+*/ splitting function can be calculated in the similar spirit of pion case.
+read article : arXiv1610.03333 X.G.Wang
+- using K\Lanbda coupling constant (?)
+- using pion PDFs with 20% more uncertainty
+- using different regularization functions (Paul-Villas, s-exp)
+Wally told me:
+Paul-Villas Regularization has some what benefit in terms of thoery....
+I don't know what exactly mean....less/smoother dependent of t than others ?
+
+

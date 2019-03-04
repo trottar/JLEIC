@@ -1,0 +1,11 @@
+ ve/del *
+ close 0
+ 
+ ve/cre q2(3) r 15 60 240
+ ve/cre xmin(3) r 0.021 0.091 0.36
+* ve/cre xmax(3) r 1 1 1 
+ ve/cre xmax(3) r 0.985 0.985 0.985
+ 
+ ve/cre nxmin(3) r 69255 2307 151
+ ve/cre nxmax(3) r 740 3344 10998
+ 

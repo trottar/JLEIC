@@ -1,0 +1,5 @@
+void batch()
+{
+    gROOT->ProcessLine(".L TDISMC_EIC.cpp+");
+    gROOT->ProcessLine("mainx(0.001,1.,28.8,31.2,10001)");
+}

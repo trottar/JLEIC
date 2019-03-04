@@ -1,0 +1,73 @@
+This code is very compact and stand-alone (almost dependent system)
+So it is not so fancy option.
+If you need change something, you have to change the code.
+
+
+
+
+
+
+What you need:
+====================================
+ROOT 5.34/35
+gcc compiler(general)
+
+
+
+
+
+
+Codes:
+====================================
+TDISMC_EIC.cpp  :  pion structure function with ep scattering at JLEIC
+TDISMC_EICn.cpp :  pion structure function with eD scattering at JLEIC
+TDISMC_EICK.cpp :  kaon structure function with ep scattering at JLEIC
+cteq/           :  cteqpdf.h and data based call files (c++ wrapper)
+cteq-tbls/      :  nucleon PDFs table
+tim_hobbs/      :  various regularization form for pion FF 
+
+
+
+
+
+
+How to run:
+====================================
+> root -q -b batch.cc
+> ls -lt
+total 1168
+-rw-r--r--   1 parkkj  JLAB\clas  210892 Dec 15 12:06 TDIS-MC05x100.root  (This is ROOT output)
+
+
+** mainx(0.01,0.3,1,100,10001)
+                          |-------- for creating random number seed
+	              |------------ Q2 max
+		  |---------------- Q2 min
+		|------------------ xBj max
+	   |----------------------- xBj min
+
+
+*** You can turn on the Lund text output for GEMC simulation
+
+Uncomment out following line 
+	  //  OUTPUT FOR GEMC 
+	     remove the comment sign;
+	     /*
+	        .........
+	                      */
+
+*** For GEMC installation
+(assume one has the GEMC or know how to install/run)
+
+
+
+
+How to change;
+====================================
+1) number of gen.event
+2) incoming beam energy: PBeam, kBeam
+3) beam emittances:
+4) define the regularization form
+
+modify "TDISMC_EIC.h"
+

@@ -1,0 +1,7 @@
+fit of x-dependence with given momentum range
+
+!       typ = 1  ! DIPOLE FORM FACTOR
+!       typ = 2  ! s-dependent EXPONENTIAL regularization form
+!       typ = 3  ! COV. DIPOLE FORM FACTOR
+!	typ = 5  ! t-dependent monopole regularization FACTOR
+!	typ = 6  ! Pauli-Villar regularization FACTOR

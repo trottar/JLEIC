@@ -1,0 +1,544 @@
+  GJEINI: INITIALISATION OF LUDAT1,2,3,4,R FOR JETSET 7.404 PERFORMED.
+ H1RN initialized from seed:       213123
+ Full initialization of H1RN with 25 integers:
+  BLOCK DATA for RAPGAP  initialised
+  HERACLES 4.6.1 BLOCK DATA initialized 
+     CHAF(C100)     changed from                to       pomeron 
+     PMAS(4,1)      changed from        1.35000 to        1.50000
+  GRAINI: initialisation of RAPGAP 
+ before ariadne init
+
+              The Lund Monte Carlo - Ariadne version 4 revision 03
+                       Latest date of change: 16 Jul 1992
+                  Initialization done for running with RAPGAP
+ before rapgap call
+     PARU(11)       changed from        0.00100 to        0.01000
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0    0.000    0.000   -5.000    5.000    0.001
+    2  !p+!         21   2212    0    0.000    0.000   50.000   50.009    0.938
+                   sum:  0.00         0.000    0.000    0.000    0.000    0.000
+ *****************************************************
+ *                                                   *
+ *     You are using the RAPGAP MC generator         *
+ *           version   2.08/06                       *
+ *    neutral current interaction selected           *
+ *  gamma + q_pi+     --> q  (DIS diffractive)       *
+ *  no cut on max angle of scattered electron        *
+ *  no cut on min angle of scattered electron        *
+ *  Q^2 _min =  59.200                               *
+ *  Q^2 _max =  60.800                               *
+ *  y _min =   0.040                                 *
+ *  y_max according to kinematics                    *
+ *  Nr of flavours in target sea  =    4             *
+ *  Nr of flavours for QCDC  =    3                  *
+ *  no p_t ^2 cut imposed for IPRO =   12            *
+ ***         diffractive hard scattering           ***
+ * parameters for pion distribution:                 *
+ * t_max  =   1.000                                  *
+ * cut on x_f:  0.000                                *
+ *****************************************************
+ #####################################################
+ #     parton shower selection:                      #
+ #     initial state parton parameters:              #
+ #     ordering in Q2 of emitted partons             #
+ #     alphas first order with scale Q2              #
+ #     time like partons may shower                  #
+ #     soft gluons are resummed                      #
+ #####################################################
+  cm energy of ep system     31.638 GEV
+  alpha_em fixed; alpha_em =   7.29899999999999993E-003
+  scale for alpha_s: shat 
+  scale is multiplied by:    1.0000000000000000     
+  Lambda_qcd = 0.250 at NF=  5 flavours
+  pi exchange is used 
+  RASTFU: NG =           20  NPOM =           20
+  pi structure function in RASTFU 
+
+                                                       Date: **/ 9/ 6  16:17
+        **********************************************************
+        *                                                        *
+        *     BBBBBBB     AAAA     SSSSSS   EEEEEE   SSSSSS      *
+        *     BB    BB   AA  AA   SS    SS  EE      SS    SS     *
+        *     BB    BB  AA    AA  SS        EE      SS           *
+        *     BBBBBBB   AAAAAAAA   SSSSSS   EEEEEE   SSSSSS      *
+        *     BB    BB  AA    AA        SS  EE            SS     *
+        *     BB    BB  AA    AA  SS    SS  EE      SS    SS     *
+        *     BBBB BB   AA    AA   SSSSSS   EEEEEE   SSSSSS      *
+        *                                                        *
+        *                   BASES Version 5.1                    *
+        *           coded by S.Kawabata KEK, March 1994          *
+        **********************************************************
+
+
+     <<   Parameters for BASES    >>
+
+      (1) Dimensions of integration etc.
+          # of dimensions :    Ndim    =        5   ( 50 at max.)
+          # of Wilds      :    Nwild   =        5   ( 15 at max.)
+          # of sample points : Ncall   =    50421(real)    60000(given)
+          # of subregions    : Ng      =       49 / variable
+          # of regions       : Nregion =        7 / variable
+          # of Hypercubes    : Ncube   =    16807
+
+      (2) About the integration variables
+          ------+---------------+---------------+-------+-------
+              i       XL(i)           XU(i)       IG(i)   Wild
+          ------+---------------+---------------+-------+-------
+              1    1.000000E-12    1.000000E+00     1      yes
+              2    1.000000E-12    1.000000E+00     1      yes
+              3    1.000000E-12    1.000000E+00     1      yes
+              4    1.000000E-12    1.000000E+00     1      yes
+              5    1.000000E-12    1.000000E+00     1      yes
+          ------+---------------+---------------+-------+-------
+
+      (3) Parameters for the grid optimization step
+          Max.# of iterations: ITMX1 =       30
+          Expected accuracy  : Acc1  =   0.7500 %
+
+      (4) Parameters for the integration step
+          Max.# of iterations: ITMX2 =      100
+          Expected accuracy  : Acc2  =   0.5000 %
+
+                                                       Date: **/ 9/ 6  16:17
+               Convergency Behavior for the Grid Optimization Step
+ ------------------------------------------------------------------------------
+ <- Result of  each iteration ->  <-     Cumulative Result     -> < CPU  time >
+  IT Eff R_Neg   Estimate  Acc %  Estimate(+- Error )order  Acc % ( H: M: Sec )
+ ------------------------------------------------------------------------------
+   1  47  0.00  2.576E-03  0.261  2.576101(+-0.006714)E-03  0.261   0: 0: 0.46
+ ------------------------------------------------------------------------------
+
+                                                       Date: **/ 9/ 6  16:17
+               Convergency Behavior for the Integration Step      
+ ------------------------------------------------------------------------------
+ <- Result of  each iteration ->  <-     Cumulative Result     -> < CPU  time >
+  IT Eff R_Neg   Estimate  Acc %  Estimate(+- Error )order  Acc % ( H: M: Sec )
+ ------------------------------------------------------------------------------
+   1  86  0.00  2.568E-03  0.127  2.568273(+-0.003268)E-03  0.127   0: 0: 1.21
+ ------------------------------------------------------------------------------
+
+                    ****** END OF BASES *********
+
+
+     <<   Computing Time Information   >>
+
+               (1) For BASES              H: M:  Sec
+                   Overhead           :   0: 0: 0.00
+                   Grid Optim. Step   :   0: 0: 0.46
+                   Integration Step   :   0: 0: 0.74
+                   Go time for all    :   0: 0: 1.21
+
+               (2) Expected event generation time
+                   Expected time for 1000 events :      0.02 Sec
+           0           0           0
+          20          20           9
+  x - section for e-    p+     --> q q_bar X"
+  sigma =    0.2568274E-02 nb   +/-    0.3267854E-05
+  [ gamma q_pi+     --> q ]   2.56827357225120068E-003
+  event: IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0    0.000    0.000   -5.000    5.000    0.001
+    2  !p+!         21   2212    0    0.000    0.000   50.000   50.009    0.938
+    3  !Z0!         21     23    1   -2.926   -2.432   -6.823    0.781   -7.773
+    4  e-            1     11    1    2.926    2.432    1.823    4.219    0.001
+    5  !pi+!        21    211    2    0.442    0.116   19.061   19.052   -0.738
+    6  !g!          21     21    2    0.127    0.032    5.520    5.521   -0.000
+    7  !s~!         21     -3    6   -0.345   -0.048    4.272    4.150   -1.072
+    8  !s~!         21     -3    3   -3.229   -2.444   -2.567    4.799    0.199
+    9  n0            1   2112    2   -0.442   -0.116   30.939   30.957    0.940
+   10  s~        A   2     -3    8   -3.240   -2.453   -2.576    4.816    0.199
+   11  g         I   2     21    0    0.004    0.052    0.063    0.082    0.000
+   12  u         V   1      2    2    0.597   -0.454   11.398   11.422    0.006
+   13  (s)       A  12      3    0    0.468    0.028    1.184    1.289    0.199
+   14  (d~)      V  11     -1    2   -0.323    0.501    2.160    2.241    0.010
+   15  (cluster)    11     91   13    0.144    0.529    3.345    3.530    0.987
+   16  K*~0          1   -313   15    0.155    0.537    3.354    3.513    0.886
+                   sum: -0.00        -0.000   -0.000   45.000   55.009   31.638
+  event: IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0    0.000    0.000   -5.000    5.000    0.001
+    2  !p+!         21   2212    0    0.000    0.000   50.000   50.009    0.938
+    3  !Z0!         21     23    1   -2.431    0.185   -7.479    1.523   -7.717
+    4  e-            1     11    1    2.431   -0.185    2.479    3.477    0.001
+    5  !pi+!        21    211    2    0.015   -0.232   10.034   10.031   -0.335
+    6  !u!          21      2    2    0.004   -0.076    3.307    3.308   -0.000
+    7  !u!          21      2    6    0.004   -0.076    3.307    3.308   -0.000
+    8  !u!          21      2    3   -2.425    0.109   -4.171    4.826    0.006
+    9  n0            1   2112    2   -0.015    0.232   39.966   39.978    0.940
+   10  u         A   2      2    8   -2.425    0.109   -4.171    4.826    0.006
+   11  d~        V   1     -1    2    0.009   -0.155    6.726    6.728    0.010
+                   sum: -0.00         0.000    0.000   45.000   55.009   31.638
+  event: IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0    0.000    0.000   -5.000    5.000    0.001
+    2  !p+!         21   2212    0    0.000    0.000   50.000   50.009    0.938
+    3  !Z0!         21     23    1   -2.890    1.550   -7.111    1.100   -7.753
+    4  e-            1     11    1    2.890   -1.550    2.111    3.900    0.001
+    5  !pi+!        21    211    2   -0.122    0.531   14.804   14.796   -0.729
+    6  !u!          21      2    2   -0.039    0.163    4.499    4.502   -0.000
+    7  !u!          21      2    6    0.905   -1.283    3.987    2.627   -3.385
+    8  !u!          21      2    3   -1.979    0.262   -3.125    3.708    0.006
+    9  n0            1   2112    2    0.122   -0.531   35.196   35.213    0.940
+   10  u         A   2      2    8   -1.979    0.262   -3.125    3.708    0.006
+   11  g         I   2     21    0   -0.875    1.147    0.591    1.559    0.000
+   12  g         I   2     21    0   -0.069    0.299   -0.078    0.316    0.000
+   13  d~        V   1     -1    2   -0.089    0.372   10.305   10.313    0.010
+                   sum: -0.00         0.000   -0.000   45.000   55.009   31.638
+  event: IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0    0.000    0.000   -5.000    5.000    0.001
+    2  !p+!         21   2212    0    0.000    0.000   50.000   50.009    0.938
+    3  !Z0!         21     23    1    5.963   -1.977   -4.644   -1.292   -7.705
+    4  e-            1     11    1   -5.963    1.977   -0.356    6.292    0.001
+    5  !pi+!        21    211    2    0.369   -0.200   18.147   18.139   -0.677
+    6  !u!          21      2    2    0.202   -0.107    9.314    9.317   -0.000
+    7  !u!          21      2    6    0.202   -0.107    9.314    9.317   -0.000
+    8  !u!          21      2    3    6.140   -2.074    4.615    7.956    0.006
+    9  n0            1   2112    2   -0.369    0.200   31.853   31.870    0.940
+   10  u         A   2      2    8    6.140   -2.074    4.615    7.956    0.006
+   11  d~        V   1     -1    2    0.193   -0.102    8.888    8.891    0.010
+                   sum: -0.00         0.000   -0.000   45.000   55.009   31.638
+  event: IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0    0.000    0.000   -5.000    5.000    0.001
+    2  !p+!         21   2212    0    0.000    0.000   50.000   50.009    0.938
+    3  !Z0!         21     23    1   -1.759   -4.131   -6.343    0.313   -7.765
+    4  e-            1     11    1    1.759    4.131    1.343    4.687    0.001
+    5  !pi+!        21    211    2   -0.195    0.079   20.954   20.947   -0.585
+    6  !u!          21      2    2   -0.182    0.069   19.385   19.386   -0.000
+    7  !u!          21      2    6    0.149    1.225    3.884    3.829   -1.395
+    8  !u!          21      2    3   -1.608   -2.901   -2.462    4.131    0.006
+    9  n0            1   2112    2    0.195   -0.079   29.046   29.062    0.940
+   10  u         A   2      2    8   -1.608   -2.901   -2.462    4.131    0.006
+   11  g         I   2     21    0    0.079   -0.445    7.531    7.544    0.000
+   12  g         I   2     21    0   -0.410   -0.712    7.970    8.012    0.000
+   13  d~        V   1     -1    2   -0.015    0.006    1.573    1.573    0.010
+                   sum: -0.00        -0.000   -0.000   45.000   55.009   31.638
+  LMEPS: energy of final particles not correct  5.00000000000000010E-003
+  PC1 =  -1.74650450560360251E-004 -2.55596634318687335E-004 -6.80224600957379279E-003 -6.80494492436076528E-003
+  Q2 =    60.139877319335938       Q2_calc =   -60.139878495294951     
+  yy =   0.43302929      y_calc =   0.43302933743023486     
+  x_bj =   0.59841810746367397       W =    6.3528114652144847     
+  IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0  -13.819    0.585    1.066   13.872    0.001
+    2  !p+!         21   2212    0   -0.674    0.985  -34.106   34.140    0.938
+    3  !gamma!      21     22    1   -0.000    0.000    7.910   -1.560   -7.755
+    4  e-            1     11    1  -13.819    0.585   -6.845   15.432    0.001
+    5  !pi+!        21    211    2   -0.000   -0.000   -7.910    7.900   -0.401
+    6  !c!          21      4    2    0.000    0.000   -5.680    5.680   -0.000
+    7  !c!          21      4    6    0.000    0.000   -5.680    5.680   -0.000
+    8  !c!          21      4    3   -0.000    0.000    2.541    2.951    1.500
+    9  n0            1   2112    2   -0.674    0.985  -26.196   26.240    0.940
+   10  D*~0          1   -423    2    0.159   -0.050   -2.066    2.885    2.007
+   11  (c)       A  12      4    8   -0.000    0.000    2.541    2.951    1.500
+   12  (d~)      V  11     -1    2   -0.159    0.050   -0.476    0.504    0.010
+   13  (cluster)    11     91   11   -0.159    0.050    2.066    3.455    2.765
+   14  D*+           1    413   13   -0.151    0.037    2.392    3.128    2.010
+                   sum:  0.00       -14.484    1.558  -32.714   47.685   31.487
+  LMEPS: energy of final particles not correct  5.00000000000000010E-003
+  PC1 =  -1.98030224449659298E-004 -2.46340443163949022E-005 -8.73560726385346452E-003 -8.73542210858571470E-003
+  Q2 =    59.954689025878906       Q2_calc =   -59.954680013433062     
+  yy =   0.46218681      y_calc =   0.46218673268602173     
+  x_bj =   0.71659196693368710       W =    4.8694699224969655     
+  IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0  -12.668    0.051   -2.079   12.837    0.001
+    2  !p+!         21   2212    0   -0.888    0.113  -47.505   47.522    0.938
+    3  !gamma!      21     22    1   -0.000   -0.000    8.593   -3.727   -7.743
+    4  e-            1     11    1  -12.668    0.051  -10.672   16.564    0.001
+    5  !pi+!        21    211    2    0.000    0.000   -8.593    8.589   -0.259
+    6  !c!          21      4    2    0.000    0.000  -14.221   14.221   -0.000
+    7  !c!          21      4    6    0.000    0.000  -14.221   14.221   -0.000
+    8  !c!          21      4    3    0.000   -0.000    0.579    1.608    1.500
+    9  n0            1   2112    2   -0.888    0.113  -38.911   38.933    0.940
+   10  D*~0          1   -423    2    0.685   -0.360    0.195    2.160    2.007
+   11  (c)       A  12      4    8    0.000   -0.000    0.579    1.608    1.500
+   12  (d~)      V  11     -1    2   -0.685    0.360   -0.774    1.095    0.010
+   13  (cluster)    11     91   11   -0.685    0.360   -0.195    2.703    2.582
+   14  D*+           1    413   13   -0.673    0.358    0.332    2.175    2.010
+                   sum:  0.00       -13.544    0.163  -49.056   59.832   31.463
+  LMEPS: energy of final particles not correct  5.00000000000000010E-003
+  PC1 =   5.72624522305664185E-005 -4.68004471372228522E-004 -6.08942546075547184E-003 -6.08157892849775679E-003
+  Q2 =    59.780017852783203       Q2_calc =   -59.780021655584278     
+  yy =   0.20357509      y_calc =   0.20357512786591575     
+  x_bj =   0.65211935478526739       W =    5.6471537046240474     
+  IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0  -33.563   -1.121   -6.826   34.268    0.001
+    2  !p+!         21   2212    0    0.091   -0.761  -18.090   18.131    0.938
+    3  !gamma!      21     22    1   -0.000   -0.000    8.123   -2.490   -7.732
+    4  e-            1     11    1  -33.563   -1.121  -14.949   36.759    0.001
+    5  !pi+!        21    211    2   -0.000    0.000   -8.123    8.090   -0.730
+    6  !c~!         21     -4    2    0.000    0.000   -7.088    7.088   -0.000
+    7  !c~!         21     -4    6    0.000    0.000   -7.088    7.088   -0.000
+    8  !c~!         21     -4    3    0.000    0.000    1.931    2.445    1.500
+    9  n0            1   2112    2    0.091   -0.761   -9.968   10.041    0.940
+   10  D*+           1    413    2    0.145   -0.405   -1.492    2.540    2.010
+   11  (c~)      A  12     -4    8    0.000    0.000    1.931    2.445    1.500
+   12  (u)       V  11      2    2   -0.145    0.405   -0.439    0.615    0.006
+   13  (cluster)    11     91   11   -0.145    0.405    1.492    3.060    2.637
+   14  D*~0          1   -423   13   -0.148    0.430    1.811    2.741    2.007
+                   sum:  0.00       -33.475   -1.857  -24.597   52.081   31.359
+  LMEPS: energy of final particles not correct  5.00000000000000010E-003
+  PC1 =  -1.00972349694791077E-004 -4.74238991025030467E-004 -1.19715257316737027E-002 -1.19565939213534724E-002
+  Q2 =    59.543628692626953       Q2_calc =   -59.543634290051557     
+  yy =   0.21884185      y_calc =   0.21884183982838840     
+  x_bj =   0.72074641783307680       W =    4.8031459006732442     
+  IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0  -31.352    0.713  -11.335   33.346    0.001
+    2  !p+!         21   2212    0   -0.118    0.562  -22.865   22.891    0.938
+    3  !gamma!      21     22    1    0.000    0.000    8.610   -3.820   -7.716
+    4  e-            1     11    1  -31.352    0.713  -19.945   37.166    0.001
+    5  !pi+!        21    211    2   -0.000    0.000   -8.610    8.594   -0.524
+    6  !c~!         21     -4    2    0.000    0.000  -11.869   11.869   -0.000
+    7  !c~!         21     -4    6    0.000    0.000  -11.869   11.869   -0.000
+    8  !c~!         21     -4    3   -0.000    0.000    0.869    1.734    1.500
+    9  n0            1   2112    2   -0.118    0.562  -14.255   14.297    0.940
+   10  D*+           1    413    2   -0.084    0.107    0.142    2.020    2.010
+   11  (c~)      A  12     -4    8   -0.000    0.000    0.869    1.734    1.500
+   12  (u)       V  11      2    2    0.084   -0.107   -1.012    1.021    0.006
+   13  (cluster)    11     91   11    0.084   -0.107   -0.142    2.755    2.748
+   14  D*~0          1   -423   13    0.089   -0.134    0.531    2.082    2.007
+                   sum:  0.00       -31.465    1.249  -33.527   55.565   31.174
+  LMEPS: energy of final particles not correct  5.00000000000000010E-003
+  PC1 =   4.80006393776517522E-004  9.96357546309476798E-006 -8.16140148767668938E-003 -8.12439108309596578E-003
+  Q2 =    60.033950805664063       Q2_calc =   -60.033947811647735     
+  yy =   0.20808749      y_calc =   0.20808748181832876     
+  x_bj =   0.58697688926758584       W =    6.4994280141356935     
+  IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0  -31.877    0.002   -1.773   31.927    0.001
+    2  !p+!         21   2212    0    0.484    0.002  -16.034   16.069    0.938
+    3  !gamma!      21     22    1   -0.000    0.000    7.870   -1.377   -7.748
+    4  e-            1     11    1  -31.877    0.002   -9.643   33.304    0.001
+    5  !pi+!        21    211    2   -0.000   -0.000   -7.870    7.836   -0.723
+    6  !c!          21      4    2    0.000    0.000   -5.993    5.993   -0.000
+    7  !c!          21      4    6    0.000    0.000   -5.993    5.993   -0.000
+    8  !c!          21      4    3   -0.000    0.000    2.382    2.815    1.500
+    9  n0            1   2112    2    0.484    0.002   -8.165    8.233    0.940
+   10  D*~0          1   -423    2   -0.107   -0.617   -2.047    2.934    2.007
+   11  (c)       A  12      4    8   -0.000    0.000    2.382    2.815    1.500
+   12  (d~)      V  11     -1    2    0.107    0.617   -0.335    0.710    0.010
+   13  (cluster)    11     91   11    0.107    0.617    2.047    3.525    2.801
+   14  D+            1    411   13    0.084    0.617    2.438    3.135    1.869
+                   sum:  0.00       -31.416    0.005  -17.416   47.606   31.242
+  Nr of events       100000
+  LMEPS: energy of final particles not correct  5.00000000000000010E-003
+  PC1 =  -1.25269798477611514E-004 -4.04060381561827467E-004 -9.70713930788741526E-003 -9.68594181665567364E-003
+  Q2 =    59.666690826416016       Q2_calc =   -59.666696547355969     
+  yy =   0.18622792      y_calc =   0.18622796284577686     
+  x_bj =   0.73865281528971594       W =    4.5946740797216536     
+  IPRO =           12
+
+
+
+                            Event listing (summary)
+
+    I  particle/jet KS     KF orig    p_x      p_y      p_z       E        m
+
+    1  !e-!         21     11    0  -37.782   -0.758  -16.413   41.200    0.001
+    2  !p+!         21   2212    0   -0.156   -0.482  -20.380   20.408    0.938
+    3  !gamma!      21     22    1    0.000    0.000    8.808   -4.233   -7.724
+    4  e-            1     11    1  -37.782   -0.758  -25.222   45.433    0.001
+    5  !pi+!        21    211    2   -0.000   -0.000   -8.808    8.787   -0.610
+    6  !c~!         21     -4    2    0.000    0.000  -16.011   16.011   -0.000
+    7  !c~!         21     -4    6    0.000    0.000  -16.011   16.011   -0.000
+    8  !c~!         21     -4    3    0.000    0.000    0.385    1.549    1.500
+    9  n0            1   2112    2   -0.156   -0.482  -11.571   11.621    0.940
+   10  D*+           1    413    2    0.174    0.030    0.520    2.084    2.010
+   11  (c~)      A  12     -4    8    0.000    0.000    0.385    1.549    1.500
+   12  (u)       V  11      2    2   -0.174   -0.030   -0.905    0.922    0.006
+   13  (cluster)    11     91   11   -0.174   -0.030   -0.520    2.470    2.409
+   14  D~0           1   -421   13   -0.166   -0.005    0.078    1.874    1.865
+                   sum:  0.00       -37.930   -1.215  -36.195   61.011   31.178
+  Nr of events       200000
+ *********************************
+Summary of reasons for rejecting event:
+   1     0
+   2     0
+   3     0
+   4     0
+   5     0
+   6     0
+   7     0
+   8     0
+   9     0
+  10     0
+ End of rejection summary
+*********************************
+ ***** ERROR in HDELET : Unknown histogram : ID=       1 
+  x - section for e-    p+     --> q q_bar X"
+  sigma =    0.2568274E-02 nb   +/-    0.3267854E-05
+  [ gamma q_pi+     --> q ]   2.56827357225120068E-003
+
+
+
+
+
+                                                       Date: **/ 9/ 6  16:18
+        **********************************************************
+        *                                                        *
+        *    SSSSS   PPPPPP   RRRRRR   IIIII  N    NN   GGGGG    *
+        *   SS   SS  PP   PP  RR   RR   III   NN   NN  GG   GG   *
+        *   SS       PP   PP  RR   RR   III   NNN  NN  GG        *
+        *    SSSSS   PPPPPP   RRRRR     III   NNNN NN  GG  GGGG  *
+        *        SS  PP       RR  RR    III   NN NNNN  GG   GG   *
+        *   SS   SS  PP       RR   RR   III   NN  NNN  GG   GG   *
+        *    SSSSS   PP       RR    RR IIIII  NN   NN   GGGGG    *
+        *                                                        *
+        *                  SPRING Version 5.1                    *
+        *           coded by S.Kawabata KEK, March 1994          *
+        **********************************************************
+
+     Number of generated events    =    200276
+     Generation efficiency         =    80.946 Percent
+     Computing time for generation =     4.950 Seconds
+                    for Overhead   =     1.450 Seconds
+                    for Others     =    36.430 Seconds
+     GO time for event generation  =    42.830 Seconds
+     Max. number of trials MXTRY   =       500 per event
+     Number of miss-generation     =         0 times
+
+     ************* Number of trials to get an event *************
+ Total =    200276 events   "*" : No. of events in Linear scale.
+    x      Lg(dN/dx)  dN/dx 0.0E+00      5.5E+04      1.1E+05     1.7E+05      
+ +-------+----------+-------+------------+------------+-----------+-----------+
+ I 0.100 I 1.704E  5I 170398I***************************************OOOOOOOOO I
+ I 0.200 I 2.133E  4I  21333I*****OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO         I
+ I 0.300 I 4.997E  3I   4997I**OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO               I
+ I 0.400 I 1.837E  3I   1837I*OOOOOOOOOOOOOOOOOOOOOOOOOOOOO                   I
+ I 0.500 I 7.420E  2I    742I*OOOOOOOOOOOOOOOOOOOOOOOOOO                      I
+ I 0.600 I 3.720E  2I    372I*OOOOOOOOOOOOOOOOOOOOOOO                         I
+ I 0.700 I 2.070E  2I    207I*OOOOOOOOOOOOOOOOOOOOO                           I
+ I 0.800 I 1.230E  2I    123I*OOOOOOOOOOOOOOOOOO                              I
+ I 0.900 I 7.000E  1I     70I*OOOOOOOOOOOOOOOO                                I
+ I 1.000 I 5.100E  1I     51I*OOOOOOOOOOOOOOO                                 I
+ I 1.100 I 3.800E  1I     38I*OOOOOOOOOOOOOO                                  I
+ I 1.200 I 2.300E  1I     23I*OOOOOOOOOOOO                                    I
+ I 1.300 I 1.300E  1I     13I*OOOOOOOOOO                                      I
+ I 1.400 I 1.300E  1I     13I*OOOOOOOOOO                                      I
+ I 1.500 I 1.400E  1I     14I*OOOOOOOOOO                                      I
+ I 1.600 I 6.000E  0I      6I*OOOOOOO                                         I
+ I 1.700 I 4.000E  0I      4I*OOOOO                                           I
+ I 1.800 I 6.000E  0I      6I*OOOOOOO                                         I
+ I 1.900 I 1.000E  0I      1IO                                                I
+ I 2.000 I 3.000E  0I      3I*OOOO                                            I
+ I 2.100 I 5.000E  0I      5I*OOOOOO                                          I
+ I 2.200 I 4.000E  0I      4I*OOOOO                                           I
+ I 2.300 I 1.000E  0I      1IO                                                I
+ I 2.400 I 0.000E  0I      0I                                                 I
+ I 2.500 I 2.000E  0I      2I*OO                                              I
+ I 2.600 I 2.000E  0I      2I*OO                                              I
+ I 2.700 I 4.000E  0I      4I*OOOOO                                           I
+ I 2.800 I 2.000E  0I      2I*OO                                              I
+ I 2.900 I 1.000E  0I      1IO                                                I
+ I 3.000 I 0.000E  0I      0I                                                 I
+ I 3.100 I 1.000E  0I      1IO                                                I
+ I 3.200 I 0.000E  0I      0I                                                 I
+ I 3.300 I 0.000E  0I      0I                                                 I
+ I 3.400 I 0.000E  0I      0I                                                 I
+ I 3.500 I 0.000E  0I      0I                                                 I
+ I 3.600 I 0.000E  0I      0I                                                 I
+ I 3.700 I 0.000E  0I      0I                                                 I
+ I 3.800 I 0.000E  0I      0I                                                 I
+ I 3.900 I 0.000E  0I      0I                                                 I
+ I 4.000 I 0.000E  0I      0I                                                 I
+ I 4.100 I 0.000E  0I      0I                                                 I
+ I 4.200 I 0.000E  0I      0I                                                 I
+ I 4.300 I 1.000E  0I      1IO                                                I
+ I 4.400 I 1.000E  0I      1IO                                                I
+ I 4.500 I 0.000E  0I      0I                                                 I
+ I 4.600 I 0.000E  0I      0I                                                 I
+ I 4.700 I 0.000E  0I      0I                                                 I
+ I 4.800 I 0.000E  0I      0I                                                 I
+ I 4.900 I 0.000E  0I      0I                                                 I
+ I 5.000 I 0.000E  0I      0I                                                 I
+ I  E  1 I 1.000E  0I      1IO                                                I
+ +-------+----------+-------+---------+--------+--------+--------+--------+---+
+    x      Lg(dN/dx)  dN/dx 1.0E+00   1.0E+01           1.0E+03                
+                              "O" : No. of Events in Log. scale.
+  Nr of events generated :       200276
+  Nr of events written:       200000
+  Error summary on event generation 
+  Errors and their meaning meaning:
+  QCDMIX: WPA>WMAX..........:            0
+  QCDMIX: WPA<0.0...........:            0
+  QCDMIX: NCALL>1000........:            0
+  LMEPS x > 0.999...........:            0
+  LMEPS boost PS error......:            0
+  LMEPS energy not conserved:            6
+  PYREMN frag. cuts.........:            0         270
+  LUPREP error..............:            0
+  PYSSPA check 1st..........:            0
+  PYSSPA no more memory.....:            0           0
+  PYSSPA boost error........:            0
+  PYSSPA xfb(iflb)=0........:            0
+  PYSSPA NTRY > 500.........:            0

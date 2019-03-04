@@ -1,0 +1,1177 @@
+*CMZ :  2.08/04 21/12/99  11.10.39  by  Hannes Jung
+*CMZ :  2.08/02 04/11/99  16.39.09  by  Hannes Jung
+*CMZ :  2.08/00 15/06/99  17.23.30  by  Hannes Jung
+*CMZ :  2.06/39 16/07/98  10.57.27  by  Hannes Jung
+*-- Author :    Hannes Jung   15/03/95
+      SUBROUTINE HERACL(SIGMA,ERROR,ISTEP)
+C
+C***********************************************************************
+C
+C
+C                     H E R A C L E S
+C
+C
+C     EVENT GENERATOR FOR DEEP-INELASTIC E-P SCATTERING
+C     INCLUDING RADIATIVE CORRECTIONS
+C
+C***********************************************************************
+C
+C     AUTHORS:
+C              H. SPIESBERGER, A. KWIATKOWSKI
+C                               II. INSTITUT FUER THEORETISCHE PHYSIK,
+C                               UNIVERSITAET HAMBURG
+C                               FRG
+C
+C              H.-J.MOEHRING
+C                               SEKTION PHYSIK
+C                               UNIVERSITAET LEIPZIG
+C                               FRG
+C
+C
+C     VERSION 4.6.1,  November 1997
+C
+C***********************************************************************
+C
+      IMPLICIT DOUBLE PRECISION (A-H,M,O-Z)
+      EXTERNAL HSNCG1,HSNCG2,HSTSK1,HSTSK2,HSK1TS,HSK1K3
+      EXTERNAL HSCCG1,HSCCG2,HSCCKL,HSCCQI,HSCCQF
+      EXTERNAL HSELG1,HSELG2,HSELK1,HSELK2,HSELCO
+      CHARACTER*19 FNAME,FNAMET
+      PARAMETER (NCHN2=1,NCHC2=2,NCHE2=3)
+      PARAMETER (NCHN31=6,NCHN32=7,NCHN33=8,NCHN34=9)
+      PARAMETER (NCHC31=12,NCHC32=13,NCHC33=14)
+      PARAMETER (NCHE31=15,NCHE32=16,NCHE33=17)
+      COMMON /HSUNTS/ LUNTES,LUNDAT,LUNIN,LUNOUT,LUNRND
+      COMMON /HSOPTN/ INT2(5),INT3(15),ISAM2(5),ISAM3(15),
+     +                IOPLOT,IPRINT,ICUT
+      COMMON /HSGSW/  SW,CW,SW2,CW2
+     +              ,MW,MZ,MH,ME,MMY,MTAU,MU,MD,MS,MC,MB,MT
+     +              ,MW2,MZ2,MH2,ME2,MMY2,MTAU2,MU2,MD2,MS2,MC2,MB2,MT2
+      COMMON /HSELAB/ SPP,EELE,PELE,EPRO,PPRO
+      COMMON /HSCUTS/ XMIN,XMAX,Q2MIN,Q2MAX,YMIN,YMAX,WMIN,GMIN
+      COMMON /HSTCUT/ THEMIN,CTHMIN,CTHCON
+      COMMON /HSPCUT/ PTMIN,PTXM0
+      COMMON /HSISGM/ TCUTQ,TCUTQS
+      COMMON /HSPARL/ LPAR(20),LPARIN(12),IPART
+      COMMON /HSPDFO/ IPDFOP,IFLOPT,LQCD,LTM,LHT
+      COMMON /HSELEP/ IDIPOL
+      COMMON /HSNUCL/ HNA,HNZ
+      COMMON /HSPARM/ POLARI,LLEPT,LQUA
+      COMMON /HSWGTC/ IWEIGS
+      COMMON /HSONLY/ IHSONL
+C---
+      PARAMETER(NDIM2=2,NBIN2=50)
+      PARAMETER(NREG2N=2500)
+C---                     NREG2N=NBIN2**NDIM2
+      LOGICAL LGLO2,LLOC2
+      COMMON /HSSNC2/ SIG2,SIG2E,T2GGMA,T2GMAX(NREG2N),
+     +                XX2(50,2),
+     +                FFGO2,DNCG2,FFLO2,DNCL2,GOLD2,
+     +                NM2(NREG2N),NDO2,
+     +                NTOT2,NCAL2,NCA12,NCA22,IBIM2,JCOR2,
+     +                LGLO2,LLOC2
+      PARAMETER(NREG2C=2500)
+C---                     NREG2C=NBIN2**NDIM2
+      LOGICAL LGLO2C,LLOC2C
+      COMMON /HSSCC2/ SIG2C,SIG2EC,T2GMAC,T2MAXC(NREG2C),
+     +                XX2C(50,2),
+     +                FFGO2C,DNCG2C,FFLO2C,DNCL2C,GOLD2C,
+     +                NM2C(NREG2C),NDO2C,
+     +                NTOT2C,NCAL2C,NCA12C,NCA22C,IBIM2C,JCOR2C,
+     +                LGLO2C,LLOC2C
+      PARAMETER(NREG2E=50)
+      PARAMETER(NDIM1=1)
+C---                     NREG2E=NBIN2**NDIM1
+      LOGICAL LGLO2E,LLOC2E
+      COMMON /HSSEL2/ SIG2L,SIG2EE,T2GMAE,T2MAXE(NREG2E),
+     +                XX2E(50,1),
+     +                FFGO2E,DNCG2E,FFLO2E,DNCL2E,GOLD2E,
+     +                NM2E(NREG2E),NDO2E,
+     +                NTOT2E,NCAL2E,NCA12E,NCA22E,IBIM2E,JCOR2E,
+     +                LGLO2E,LLOC2E
+      PARAMETER(NDIM31=5,NBIN31=6,NREG31=7776)
+C---                     NREG31=NBIN31**NDIM31
+      LOGICAL LGLO31,LLOC31
+      COMMON /HSSN31/ SIG31,SIG31E,T31GMA,T31MAX(NREG31),
+     +                XX31(50,NDIM31),
+     +                FFGO31,DNCG31,FFLO31,DNCL31,GOLD31,
+     +                SI31,SI2N31,SWGT31,SCHI31,IT31,
+     +                NM31(NREG31),NDO31,
+     +                NTOT31,NCAL31,NCA131,NCA231,IBIM31,JCOR31,
+     +                LGLO31,LLOC31
+      PARAMETER(NDIM32=5,NBIN32=6,NREG32=7776)
+C---                     NREG32=NBIN32**NDIM32
+      LOGICAL LGLO32,LLOC32
+      COMMON /HSSN32/ SIG32,SIG32E,T32GMA,T32MAX(NREG32),
+     +                XX32(50,NDIM32),
+     +                FFGO32,DNCG32,FFLO32,DNCL32,GOLD32,
+     +                SI32,SI2N32,SWGT32,SCHI32,IT32,
+     +                NM32(NREG32),NDO32,
+     +                NTOT32,NCAL32,NCA132,NCA232,IBIM32,JCOR32,
+     +                LGLO32,LLOC32
+      PARAMETER(NDIM33=5,NBIN33=6,NREG33=7776)
+C---                     NREG33=NBIN33**NDIM33
+      LOGICAL LGLO33,LLOC33
+      COMMON /HSSN33/ SIG33,SIG33E,T33GMA,T33MAX(NREG33),
+     +                XX33(50,NDIM33),
+     +                FFGO33,DNCG33,FFLO33,DNCL33,GOLD33,
+     +                SI33,SI2N33,SWGT33,SCHI33,IT33,
+     +                NM33(NREG33),NDO33,
+     +                NTOT33,NCAL33,NCA133,NCA233,IBIM33,JCOR33,
+     +                LGLO33,LLOC33
+      PARAMETER(NDIM34=5,NBIN34=6,NREG34=7776)
+C---                     NREG34=NBIN34**NDIM34
+      LOGICAL LGLO34,LLOC34
+      COMMON /HSSN34/ SIG34,SIG34E,T34GMA,T34MAX(NREG34),
+     +                XX34(50,NDIM34),
+     +                FFGO34,DNCG34,FFLO34,DNCL34,GOLD34,
+     +                SI34,SI2N34,SWGT34,SCHI34,IT34,
+     +                NM34(NREG34),NDO34,
+     +                NTOT34,NCAL34,NCA134,NCA234,IBIM34,JCOR34,
+     +                LGLO34,LLOC34
+      PARAMETER(NDM3CC=5)
+      PARAMETER(NBN31C=6,NRG31C=7776)
+C---                     NRG31C=NBN31C**NDM3CC
+      LOGICAL LGL31C,LLC31C
+      COMMON /HSSC31/ SIG31C,SG31EC,T31GMC,T31MXC(NRG31C),
+     +                XX31C(50,5),
+     +                FFG31C,DNG31C,FFL31C,DNL31C,GLD31C,
+     +                SI31C,S2N31C,SWT31C,SCH31C,IT31C,
+     +                NM31C(NRG31C),NDO31C,
+     +                NTT31C,NCL31C,NC131C,NC231C,IBM31C,JCR31C,
+     +                LGL31C,LLC31C
+      PARAMETER(NBN32C=6,NRG32C=7776)
+C---                     NRG32C=NBN32C**NDM3CC
+      LOGICAL LGL32C,LLC32C
+      COMMON /HSSC32/ SIG32C,SG32EC,T32GMC,T32MXC(NRG32C),
+     +                XX32C(50,5),
+     +                FFG32C,DNG32C,FFL32C,DNL32C,GLD32C,
+     +                SI32C,S2N32C,SWT32C,SCH32C,IT32C,
+     +                NM32C(NRG32C),NDO32C,
+     +                NTT32C,NCL32C,NC132C,NC232C,IBM32C,JCR32C,
+     +                LGL32C,LLC32C
+      PARAMETER(NBN33C=6,NRG33C=7776)
+C---                     NRG33C=NBN33C**NDM3CC
+      LOGICAL LGL33C,LLC33C
+      COMMON /HSSC33/ SIG33C,SG33EC,T33GMC,T33MXC(NRG33C),
+     +                XX33C(50,5),
+     +                FFG33C,DNG33C,FFL33C,DNL33C,GLD33C,
+     +                SI33C,S2N33C,SWT33C,SCH33C,IT33C,
+     +                NM33C(NRG33C),NDO33C,
+     +                NTT33C,NCL33C,NC133C,NC233C,IBM33C,JCR33C,
+     +                LGL33C,LLC33C
+      PARAMETER(NDM3EL=4)
+      PARAMETER(NBN31E=8,NRG31E=4096)
+C---                     NRG31E=NBN31E**NDM3EL
+      LOGICAL LGL31E,LLC31E
+      COMMON /HSSE31/ SIG31L,SG31EE,T31GME,T31MXE(NRG31E),
+     +                XX31E(50,4),
+     +                FFG31E,DNG31E,FFL31E,DNL31E,GLD31E,
+     +                SI31E,S2N31E,SWT31E,SCH31E,IT31E,
+     +                NM31E(NRG31E),NDO31E,
+     +                NTT31E,NCL31E,NC131E,NC231E,IBM31E,JCR31E,
+     +                LGL31E,LLC31E
+      PARAMETER(NBN32E=8,NRG32E=4096)
+C---                     NRG32E=NBN32E**NDM3EL
+      LOGICAL LGL32E,LLC32E
+      COMMON /HSSE32/ SIG32L,SG32EE,T32GME,T32MXE(NRG32E),
+     +                XX32E(50,4),
+     +                FFG32E,DNG32E,FFL32E,DNL32E,GLD32E,
+     +                SI32E,S2N32E,SWT32E,SCH32E,IT32E,
+     +                NM32E(NRG32E),NDO32E,
+     +                NTT32E,NCL32E,NC132E,NC232E,IBM32E,JCR32E,
+     +                LGL32E,LLC32E
+      PARAMETER(NBN33E=8,NRG33E=4096)
+C---                     NRG33E=NBN33E**NDM3EL
+      LOGICAL LGL33E,LLC33E
+      COMMON /HSSE33/ SIG33L,SG33EE,T33GME,T33MXE(NRG33E),
+     +                XX33E(50,4),
+     +                FFG33E,DNG33E,FFL33E,DNL33E,GLD33E,
+     +                SI33E,S2N33E,SWT33E,SCH33E,IT33E,
+     +                NM33E(NRG33E),NDO33E,
+     +                NTT33E,NCL33E,NC133E,NC233E,IBM33E,JCR33E,
+     +                LGL33E,LLC33E
+C-------------------------
+      CHARACTER*45 CHNAME
+      COMMON /HSNAMC/ CHNAME(20)
+      COMMON /HSNUME/ SIGTOT,SIGTRR,SIGG(20),SIGGRR(20),NEVENT,NEVE(20)
+      COMMON /HSVGLP/ NPOVEG,NUMINT,NPHYP
+      COMMON /HSRDIO/ ISDINP,ISDOUT
+      COMMON /VGRES/  S1,S2,S3,S4
+      COMMON /HSIRCT/ DELEPS,DELTA,EGMIN,IOPEGM
+      REAL*4          PYSTOP,PYSLAM
+      COMMON /HYSTFU/ PYSTOP,PYSLAM,NPYMOD,NPYMAX,NPYMIN
+      COMMON /HSALFS/ PAR111,PAR112,PARL11,PARL19,MST111,MST115
+      REAL*4          PAR111,PAR112,PARL11,PARL19
+      INTEGER         MST111,MST115
+      CHARACTER*80 TITLE
+      CHARACTER*10 CODE,CODEWD
+      DIMENSION CODE(40)
+      DIMENSION UIO(97)
+      DIMENSION INT2C(5),ISAM2C(5),INT3C(15),ISAM3C(15)
+C
+CHJU RAPGAP COMMONS
+*KEEP,RGDIFFR.
+      INTEGER NG,NPOM
+      DOUBLE PRECISION T2MAX,XF,ALPHP,RN2,EPSP,QMI,YMI,QMA,YMA
+      COMMON/DIFFR/T2MAX,XF,ALPHP,RN2,EPSP,QMI,YMI,QMA,YMA,NG,NPOM
+      INTEGER IREM
+      COMMON/PREMNANT/IREM
+*KEEP,RGPYPARS.
+      INTEGER IPYPAR
+      PARAMETER (IPYPAR=200)
+      REAL PARP
+      INTEGER MSTP
+      COMMON/PYPARS/MSTP(IPYPAR),PARP(IPYPAR)
+C      SAVE
+
+*KEEP,RGDISDIF.
+      INTEGER IDIR,IDISDIF
+      COMMON/DISDIF/ IDIR,IDISDIF
+*KEND.
+      INTEGER ISTEP
+*KEEP,RGLUCO.
+      REAL PLEPIN,PPIN
+      INTEGER KE,KP,KEB,KPH,KGL,KPA,NFRAG,ILEPTO,IFPS,IHF,IALMKT
+      INTEGER INTER,ISEMIH
+      INTEGER NIA1,NIR1,NIA2,NIR2,NF1,NF2,NFT,NFLAV,NFLQCDC
+      COMMON/LUCO  /KE,KP,KEB,KPH,KGL,KPA,NFLAV,NFLQCDC
+      COMMON/INPU  /PLEPIN,PPIN,NFRAG,ILEPTO,IFPS,IHF,IALMKT,INTER,
+     +              ISEMIH
+      COMMON/HARD/ NIA1,NIR1,NIA2,NIR2,NF1,NF2,NFT
+      INTEGER IHFLA
+      COMMON/HFLAV/ IHFLA
+C      SAVE
+
+*KEEP,RGPARAS.
+      DOUBLE PRECISION PT2CUT,THEMA,THEMI,Q2START,W_Q2,OMEG2
+      INTEGER IRUNA,IQ2,IRUNAEM
+      INTEGER IPRO
+      COMMON/RAPA /IPRO,IRUNA,IQ2,IRUNAEM,Q2START,W_Q2,OMEG2
+      DOUBLE PRECISION SCALFA
+      COMMON/SCALF/ SCALFA
+      COMMON/PTCUT/ PT2CUT(100)
+      COMMON/ELECT/ THEMA,THEMI
+      REAL ULALPS,ULALEM
+      EXTERNAL ULALPS,ULALEM
+C     SAVE
+
+*KEEP,RGLUDAT1.
+      REAL PARU,PARJ
+      INTEGER MSTU,MSTJ
+      COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
+C      SAVE
+
+*KEEP,RGPART.
+      DOUBLE PRECISION SSS,CM,DBCMS
+      DOUBLE PRECISION PBEAM
+      INTEGER KBEAM,KINT
+      COMMON /PARTON/ SSS,CM(4),DBCMS(4)
+      COMMON /BEAM/PBEAM(2,5),KBEAM(2,5),KINT(2,5)
+C      SAVE
+
+
+*KEEP,RGLUJETS.
+      INTEGER N,K
+      REAL SP,V
+      DOUBLE PRECISION P
+      INTEGER LUPAN
+      PARAMETER (LUPAN=4000)
+
+
+      COMMON/LUJETS/N,K(LUPAN,5),SP(LUPAN,5),V(LUPAN,5)
+      COMMON/DUJETS/P(LUPAN,5)
+      REAL ULMASS
+      DOUBLE PRECISION DOT1,DPLU,DLANGL
+      EXTERNAL DLANGL,ULMASS,DPLU,LUCHGE,DOT1
+C      SAVE
+
+*KEND.
+      DOUBLE PRECISION ME,MP
+CHJU
+C
+C-------------------------------
+C---INITIALIZE DEFAULTS NOT YET INITIALIZED IN BLOCK DATA
+C---AND SET STARTING VALUES FOR VARIOUS COUNTERS
+      DATA FNAME /' HERACLES DATA FILE'/
+      DATA INT2C,ISAM2C,INT3C,ISAM3C /40*0/
+      DATA CODE/
+     +'TITLE     ','EL-BEAM   ','PR-BEAM   ','KINEM-CUTS','EGAM-MIN  ',
+     +'INT-OPT-NC','INT-OPT-CC','INT-POINTS','HYP-CUBES ','GSW-PARAM ',
+     +'STRUCTFUNC','NFLAVORS  ','SAM-OPT-NC','SAM-OPT-CC','RNDM-SEEDS',
+     +'GSW-MASS  ','THMIN-QRAD','FLONG     ','ALFAS     ','          ',
+     +'EP-DIPOLE ','NUCLEUS   ','          ','          ','          ',
+     +'THETA-CUT ','PT-CUT    ','          ','          ','          ',
+     +'WEIGHTS   ','          ','          ','          ','          ',
+     +'INT-ONLY  ','TEST-OPT  ','IOUNITS   ','START     ','STOP      '/
+      DATA TITLE/' '/
+C
+C---ACCURACY FOR INTEGRATING THE NON-RADIATIVE CONTRIBUTION
+      DATA EPSO /1D-4/
+C
+C---DEFINE VEGAS PARAMETERS
+      DATA ACCVEG,IPRVEG,IGRVEG   /1D-5,    3,     1/
+      DATA NPOIN /20/
+      DATA FF,PDX /2*1D0/
+      DATA IWEIGR/0D0/
+C
+c      write(6,*) ' HERACL: SIGMA,ERROR,ISTEP ',SIGMA,ERROR,ISTEP
+      IF(ISTEP.EQ.1) THEN
+
+      ELSEIF(ISTEP.EQ.2) THEN
+         GOTO 150
+      ELSEIF(ISTEP.EQ.3) THEN
+         GOTO 160
+      ELSE
+         write(6,*) ' HERACL: ISTEP not implemented. ISTEP = ',ISTEP
+      ENDIF
+C
+      test = hsrndm()
+
+C
+C---PRINT THE TITLE
+C
+      WRITE(LUNOUT,10000)
+10000 FORMAT(1x,/
+     +'**************************************************',
+     +'*****************************',
+     +//,10X,'                         HERACLES '
+     +//,10X,'     Event generator for deep-inelastic e-P collisions '
+     + /,10X,'              including radiative corrections  '
+     +//,10X,'                 VERSION 4.6.1, 29.04.1998 '//
+     +//,10X,'                      H. Spiesberger '//
+     +//,10X,'                    called from RAPGAP     '//
+     +'**************************************************',
+     +'*****************************'//,
+     +//,10X,'          make sure you have linked HERACLES 4.6.1 '//,
+     +' **************************************************',
+     +'****************************',//)
+C***********************************************************************
+C               DEFINES THE PROPERTIES OF THE ELECTRON BEAM
+C
+C     EELE    =  ENERGY OF THE ELECTRON BEAM
+C     POLARI  =  DEGREE OF BEAM POLARIZATION
+C     LLEPT   =  -1  ELECTRON BEAM
+C             =  +1  POSITRON BEAM
+C***********************************************************************
+      EELE = DBLE(DSQRT(PLEPIN**2+PBEAM(1,5)**2))
+      LLEPT = -ISIGN(1,KE)
+c      write(6,*) ' electron ',EELE,LLEPT
+C***********************************************************************
+C               CONTROL CARD: CODEWD = PR-BEAM
+C               DEFINES THE PROPERTIES OF THE PROTON BEAM
+C
+C     EPRO    =  ENERGY OF THE PROTON BEAM
+C***********************************************************************
+      EPRO = DBLE(DSQRT(PPIN**2+PBEAM(2,5)**2))
+C
+      ME =P(1,5)
+      MP =P(2,5)
+      W02=(1.D0 + MP)**2
+      W12=W02-MP*MP
+      YMAX=SSS+W12+DSQRT((SSS-W12)**2 - 4.D0*ME*ME*W12)
+      YMAX=YMAX/(2.D0*(SSS+ME*ME))
+      YMIN=SSS+W12-DSQRT((SSS-W12)**2 - 4.D0*ME*ME*W12)
+      YMIN=YMIN/(2.D0*(SSS+ME*ME))
+      IF(YMI.NE.0.)   YMIN = DBLE(YMI)
+      IF(YMA.NE.0.)   YMAX = DBLE(YMA)
+      IF(QMI.NE.0.)   Q2MIN = DBLE(QMI)
+      IF(QMA.NE.0.)   Q2MAX = DBLE(QMA)
+C***********************************************************************
+C               CONTROL CARD: CODEWD = THETA-CUT
+C
+C    CUT ON MINIMUM ELECTRON SCATTERING ANGLE (MASSES NEGLECTED)
+C
+C***********************************************************************
+      IF(THEMA.NE.0.0) then
+         THEMIN = (180. - THEMA)*3.1415927D0/180.D0
+c         WRITE(6,'(5X,A,F12.4)') ' THETA-MIN =  ', THEMIN
+      endif
+      XMINN = Q2MIN/YMAX/4.D0/EELE/EPRO
+      IF(IDIR.EQ.0) THEN
+         XMAXX = DMIN1(1.D0 - XF,XMAX)
+      ELSE
+         XMAXX=DMIN1(XMAX,Q2MAX/YMIN/4.D0/EELE/EPRO)
+      ENDIF
+      XMIN=DMAX1(XMIN,XMINN)
+      XMAX = XMAXX
+      IF(EGMIN.GT.0D0) IOPEGM=1
+C
+C
+C***********************************************************************
+C               CONTROL CARD: CODEWD = HYP-CUBES
+C
+C       NUMINT =  NUMBER OF INTERVALS PER AXIS IN SUBDIVISION
+C                 OF THE INTEGRATION REGION
+C                 NOT ACTIVATED SO FAR
+C                 (PREDEFINED FOR EACH INDIVIDUAL CONTRIBUTION
+C                 IN PARAMETER STATEMENTS)
+C
+C       NPHYP  =  NUMBER OF POINTS TO BE SAMPLED PER HYPERCUBE
+C                 FOR ESTIMATION OF THE LOCAL MAXIMA
+C***********************************************************************
+      IF(NPHYP.LT.3) NPHYP=3
+c      WRITE(LUNOUT,'(5X,A/5X,4I6)') ' NUMINT, NPHYP', NUMINT, NPHYP
+      NPOIN=NPHYP
+C
+      LPARIN(12)=1
+C---REDEFINITION FOR INTERNAL USE
+      LPAR(1)=1
+      LPAR(2)=LPARIN(2)
+      LPAR(3)=LPARIN(3)
+      LPAR(4)=LPARIN(1)
+      LPAR(7)=LPARIN(7)
+      LPAR(8)=LPARIN(8)
+      LPAR(9)=LPARIN(9)
+      LPAR(10)=LPARIN(10)
+      LPAR(11)=0
+      IF(LPARIN(4).EQ.1 .OR. LPARIN(5).EQ.1 .OR. LPARIN(6).EQ.1)
+     +   LPAR(11)=1
+      LPAR(12)=LPARIN(4)
+      LPAR(13)=LPARIN(5)
+      LPAR(14)=LPARIN(6)
+      LPAR(15)=LPARIN(11)
+      LPAR(16)=LPARIN(11)
+      LPAR(17)=LPARIN(12)
+C
+C***********************************************************************
+C               CONTROL CARD: CODEWD = STRUCTFUNC
+C
+C               DEFINES THE PARAMETRIZATION OF PARTON DENSITIES
+C               OR STRUCTURE FUNCTIONS
+C               APPLIED IN THE ACTUAL CALCULATION
+C
+C***********************************************************************
+      ISTRFC = MSTP(51)
+      IF(MSTP(51).GT.1000000) THEN
+         ISTRFC = MSTP(51) - 1000000 + 100000 + 10000
+      ENDIF
+      ILQMOD=ISTRFC/100000
+      ILIB=(ISTRFC-100000*ILQMOD)/10000
+      ICODE=MOD(ISTRFC,10000)
+      IPDFOP=0
+      IF (ILQMOD.LE.1) IPDFOP=1
+      LPAR(6)=ISTRFC
+      NPYMOD=MOD(ISTRFC,100000)
+      IPART=ISTRFC
+C
+C***********************************************************************
+C               CONTROL CARD: CODEWD = NFLAVORS
+C***********************************************************************
+      NPYMAX=NFLAV
+C***********************************************************************
+C               CONTROL CARD: CODEWD = THMIN-QRAD
+C
+C        DEFINES THE ANGULAR CUTS FOR HARD QUARKONIC BREMSSTRAHLUNG
+C
+C              TCUTQ  :  INITIAL STATE RADIATION
+C              TCUTQS :  FINAL STATE RADIATION
+C
+C***********************************************************************
+C
+C***********************************************************************
+C               CONTROL CARD: CODEWD = FLONG
+C
+C    INCLUDE THE LONGITUDINAL STRUCTURE FUNCTION (FOR IPART < 1000)
+C
+C***********************************************************************
+C***********************************************************************
+C               CONTROL CARD: CODEWD = ALFAS
+C
+C    DEFINITION OF ALPHA_S IN THE CALCULATION OF THE LONGITUDINAL
+C    STRUCTURE FUNCTION
+C
+C***********************************************************************
+      MST111=MSTU(111)
+      MST115=MSTU(115)
+      PAR111=PARU(111)
+      PAR112=PARU(112)
+      CALL DIALFS
+C
+C***********************************************************************
+C               CONTROL CARD: CODEWD = INT-ONLY
+C
+C               PERFORM ONLY INTEGRATION, NO ETIMATION OF MAXIMA
+C               IOPLOT < 0: NO CALL TO HSESTM
+C               IOPLOT >= 0: CALL TO HSESTM
+C***********************************************************************
+      IOPLOT = 0
+C***********************************************************************
+C               CONTROL CARD: CODEWD = TEST-OPT
+C
+C               DEFINITION OF TEST OPTIONS
+C
+C     IOPLOT :  OUTPUT OF STANDARD PLOTS USING MODIFIED AXO ROUTINES
+C        = 1 :  STANDARD PLOTS
+C        = 0 :  NO PLOTS
+C
+C     IPRINT :  DIFFERENT QUANTITY OF TEST OUTPUT FOR IPRINT GT. 0
+C***********************************************************************
+      IPRINT = 0
+C
+C***********************************************************************
+C               CONTROL CARD: CODEWD = IOUNITS
+C
+C               I / O UNITS
+C
+C     LUNOUT: FOR STANDARD INPUT
+C     LUNRND: IN-/OUTPUT FOR RANDOM NUMBER SEED
+C     LUNDAT: IN-OUTPUT OF SAMPLING INFORMATION
+C
+C***********************************************************************
+C
+      OPEN(LUNDAT,FILE='heracles.dat',STATUS='UNKNOWN',
+     + FORM='UNFORMATTED')
+
+C***********************************************************************
+C               CONTROL CARD: CODEWD = START
+C               STARTS THE SAMPLING OF EVENTS AND STANDARD HISTOGRAM
+C               OUTPUT
+C
+C     NEVENT :  NUMBER OF EVENTS TO BE SAMPLED
+C***********************************************************************
+      NEVENT=10
+c      WRITE(LUNOUT,'(5X,A,I8)') ' NEVENT =',NEVENT
+C
+      INFOCA=0
+      DO 10   I=1,5
+         IF(NEVENT.LE.0) ISAM2(I)=0
+         IF(INT2(I).GT.0) INFOCA=1
+   10 CONTINUE
+      DO 20   I=1,15
+         IF(NEVENT.LE.0) ISAM3(I)=0
+         IF(INT3(I).GT.0) INFOCA=1
+   20 CONTINUE
+C
+C---DO THE NECESSARY INITIALIZATION / PRINT PARAMETERS
+      CALL HSPRLG
+C
+C---CHECK CONSISTENCY OF INPUT DATA FILE
+      IF(INFOCA.EQ.1) THEN
+         READ(LUNDAT,ERR=30  ,END=30  ,IOSTAT=IOS) FNAMET
+         IF(FNAME.EQ.FNAMET) THEN
+            READ(LUNDAT,ERR=30  ,END=30  ,IOSTAT=IOS) INT2C,INT3C,
+     +      ISAM2C,ISAM3C
+            CALL HSDTIN
+            GOTO 60
+         ENDIF
+   30    CONTINUE
+         WRITE(LUNOUT,'(/A,I3/A)') ' *** NO STANDARD HERACLES INPUT '
+     +   //'FILE ASSIGNED TO UNIT',LUNDAT, ' *** COLD START OF '
+     +   //'HERACLES ASSUMED'
+         DO 40   I=1,5
+            INT2C(I)=0
+            ISAM2C(I)=0
+   40    CONTINUE
+         DO 50   I=1,15
+            ISAM3C(I)=0
+            INT3C(I)=0
+   50    CONTINUE
+C
+   60    CONTINUE
+C
+         INTEST=0
+         DO 70   I=1,15
+            IF(INT3(I).GT.100.AND.INT3C(I).EQ.0) INTEST=1
+   70    CONTINUE
+         IF(INTEST.EQ.1) THEN
+            WRITE(LUNOUT,'(A/A,15I4/A,15I4/A)') ' *** INCONSISTENT '
+     +      //'INPUT DATA FOR INTEGRATION (INT3) ***', ' *** INT3(I) : '
+     +      ,INT3, ' *** INT3C(I): ',INT3C, ' *** EXECUTION STOPPED ***'
+            STOP
+         ENDIF
+      ENDIF
+C
+C***********************************************************************
+C
+C               TEST RUN
+C
+C***********************************************************************
+c
+c      call tstrrr
+c      stop
+c
+C
+      INFOSA=0
+C
+C---NEUTRAL CURRENT
+C---BORN TERM + SOFT & VIRTUAL CORRECTIONS------------------------------
+C
+      IF(INT2(1).GE.1) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ',
+     +   CHNAME(1)
+C---INTEGRATION
+         INCCC=1
+         CALL HSINIT(INCCC,EPSO,NBIN2,NDO2,SIG2,SIG2E,XX2)
+         WRITE(LUNOUT,'(//A/5X,A/5X,1PE12.4,A,1PE12.4,A)') ' CROSS '
+     +   //'SECTION (WITH ERROR ESTIMATE) FOR THE CHANNEL:', CHNAME(1),
+     +   SIG2, ' +/- ', SIG2E, '  NB'
+         WRITE(LUNTES,'(5X,A,1PD10.1)') ' RELATIVE ACCURACY REQUIRED:',
+     +   EPSO
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSNCG2,NCHN2,NDIM2,NPOIN,NDO2,NBIN2, T2GGMA,
+     +   T2GMAX,XX2,IBIM2,NREG2N)
+C---SET OPTION TO SAVE INFORMATION FROM INTEGRATION ONTO UNIT LUNDAT
+         INFOSA=1
+         INT2C(1)=1
+      ENDIF
+C
+C---NEUTRAL CURRENT
+C---LEPTONIC BREMSSTRAHLUNG: INITIAL STATE------------------------------
+      IF(INT3(1).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ',
+     +   CHNAME(6)
+C---INTEGRATION
+         IF(INT3(1).LT.100) THEN
+            ITMX31=INT3(1)
+            CALL VEGAS(HSTSK1,ACCVEG,NDIM31,NPOVEG,ITMX31,IPRVEG,
+     +      IGRVEG, NDO31,IT31,SI31,SI2N31,SWGT31,SCHI31,XX31)
+         ELSEIF(INT3(1).LT.200) THEN
+            ITMX31=INT3(1) - 100
+            CALL VEGAS1(HSTSK1,ACCVEG,NDIM31,NPOVEG,ITMX31,IPRVEG,
+     +      IGRVEG, NDO31,IT31,SI31,SI2N31,SWGT31,SCHI31,XX31)
+         ELSE
+            ITMX31=INT3(1) - 200
+            CALL VEGAS2(HSTSK1,ACCVEG,NDIM31,NPOVEG,ITMX31,IPRVEG,
+     +      IGRVEG, NDO31,IT31,SI31,SI2N31,SWGT31,SCHI31,XX31)
+         ENDIF
+         SIG31=S1
+         SIG31E=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSTSK1,NCHN31,NDIM31,NPOIN,NDO31,NBIN31, T31GMA,
+     +   T31MAX,XX31,IBIM31,NREG31)
+         INFOSA=1
+         INT3C(1)=INT3C(1) + ITMX31
+      ENDIF
+C
+C---NEUTRAL CURRENT
+C---LEPTONIC BREMSSTRAHLUNG: FINAL STATE -------------------------------
+      IF(INT3(2).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ',
+     +   CHNAME(7)
+C---INTEGRATION
+         IF(INT3(2).LT.100) THEN
+            ITMX32=INT3(2)
+            CALL VEGAS(HSTSK2,ACCVEG,NDIM32,NPOVEG,ITMX32,IPRVEG,
+     +      IGRVEG, NDO32,IT32,SI32,SI2N32,SWGT32,SCHI32,XX32)
+         ELSEIF(INT3(2).LT.200) THEN
+            ITMX32=INT3(2) - 100
+            CALL VEGAS1(HSTSK2,ACCVEG,NDIM32,NPOVEG,ITMX32,IPRVEG,
+     +      IGRVEG, NDO32,IT32,SI32,SI2N32,SWGT32,SCHI32,XX32)
+         ELSE
+            ITMX32=INT3(2) - 200
+            CALL VEGAS2(HSTSK2,ACCVEG,NDIM32,NPOVEG,ITMX32,IPRVEG,
+     +      IGRVEG, NDO32,IT32,SI32,SI2N32,SWGT32,SCHI32,XX32)
+         ENDIF
+         SIG32=S1
+         SIG32E=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSTSK2,NCHN32,NDIM32,NPOIN,NDO32,NBIN32, T32GMA,
+     +   T32MAX,XX32,IBIM32,NREG32)
+         INFOSA=1
+         INT3C(2)=INT3C(2) + ITMX32
+      ENDIF
+C
+C---NEUTRAL CURRENT
+C---LEPTONIC BREMSSTRAHLUNG: COMPTON CONTRIBUTION ----------------------
+      IF(INT3(3).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ',
+     +   CHNAME(8)
+C---INTEGRATION
+         IF(INT3(3).LT.100) THEN
+            ITMX33=INT3(3)
+            CALL VEGAS(HSK1TS,ACCVEG,NDIM33,NPOVEG,ITMX33,IPRVEG,
+     +      IGRVEG, NDO33,IT33,SI33,SI2N33,SWGT33,SCHI33,XX33)
+         ELSEIF(INT3(3).LT.200) THEN
+            ITMX33=INT3(3) - 100
+            CALL VEGAS1(HSK1TS,ACCVEG,NDIM33,NPOVEG,ITMX33,IPRVEG,
+     +      IGRVEG, NDO33,IT33,SI33,SI2N33,SWGT33,SCHI33,XX33)
+         ELSE
+            ITMX33=INT3(3) - 200
+            CALL VEGAS2(HSK1TS,ACCVEG,NDIM33,NPOVEG,ITMX33,IPRVEG,
+     +      IGRVEG, NDO33,IT33,SI33,SI2N33,SWGT33,SCHI33,XX33)
+         ENDIF
+         SIG33=S1
+         SIG33E=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSK1TS,NCHN33,NDIM33,NPOIN,NDO33,NBIN33, T33GMA,
+     +   T33MAX,XX33,IBIM33,NREG33)
+         INFOSA=1
+         INT3C(3)=INT3C(3) + ITMX33
+      ENDIF
+C
+C---NEUTRAL CURRENT
+C---LEPTONIC BREMSSTRAHLUNG: QUARKONIC RADIATION -----------------------
+      IF(INT3(4).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ',
+     +   CHNAME(9)
+C---INTEGRATION
+         IF(INT3(4).LT.100) THEN
+            ITMX34=INT3(4)
+            CALL VEGAS(HSK1K3,ACCVEG,NDIM34,NPOVEG,ITMX34,IPRVEG,
+     +      IGRVEG, NDO34,IT34,SI34,SI2N34,SWGT34,SCHI34,XX34)
+         ELSEIF(INT3(4).LT.200) THEN
+            ITMX34=INT3(4) - 100
+            CALL VEGAS1(HSK1K3,ACCVEG,NDIM31,NPOVEG,ITMX34,IPRVEG,
+     +      IGRVEG, NDO34,IT34,SI34,SI2N34,SWGT34,SCHI34,XX34)
+         ELSE
+            ITMX34=INT3(4) - 200
+            CALL VEGAS2(HSK1K3,ACCVEG,NDIM34,NPOVEG,ITMX34,IPRVEG,
+     +      IGRVEG, NDO34,IT34,SI34,SI2N34,SWGT34,SCHI34,XX34)
+         ENDIF
+         SIG34=S1
+         SIG34E=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSK1K3,NCHN34,NDIM34,NPOIN,NDO34,NBIN34, T34GMA,
+     +   T34MAX,XX34,IBIM34,NREG34)
+         INFOSA=1
+         INT3C(4)=INT3C(4) + ITMX34
+      ENDIF
+C
+C-----------------------------------------------------------------------
+C
+C---CHARGED CURRENT
+C---BORN TERM + SOFT & VIRTUAL CORRECTIONS------------------------------
+C
+      IF(INT2(2).GE.1) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ',
+     +   CHNAME(2)
+C---INTEGRATION
+         INCCC=2
+         CALL HSINIT(INCCC,EPSO,NBIN2,NDO2C,SIG2C,SIG2EC,XX2C)
+         WRITE(LUNOUT,'(//A/5X,A/5X,1PE12.4,A,1PE12.4,A)') ' CROSS '
+     +   //'SECTION (WITH ERROR ESTIMATE) FOR THE CHANNEL:', CHNAME(2),
+     +   SIG2C, ' +/- ', SIG2EC, '  NB'
+         WRITE(LUNTES,'(5X,A,1PD10.1)') ' RELATIVE ACCURACY REQUIRED:',
+     +   EPSO
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSCCG2,NCHC2,NDIM2,NPOIN,NDO2C,NBIN2, T2GMAC,
+     +   T2MAXC,XX2C,IBIM2C,NREG2C)
+C---SET OPTION TO SAVE INFORMATION FROM INTEGRATION ONTO UNIT LUNDAT
+         INFOSA=1
+         INT2C(2)=1
+      ENDIF
+C
+C---CHARGED CURRENT
+C---PHOTON BREMSSTRAHLUNG: KP - CHANNEL-------------------------------
+      IF(INT3(7).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ', CHNAME(
+     +   12)
+C---INTEGRATION
+         IF(INT3(7).LT.100) THEN
+            ITM31C=INT3(7)
+            CALL VEGAS(HSCCKL,ACCVEG,NDM3CC,NPOVEG,ITM31C,IPRVEG,
+     +      IGRVEG, NDO31C,IT31C,SI31C,S2N31C,SWT31C,SCH31C,XX31C)
+         ELSEIF(INT3(7).LT.200) THEN
+            ITM31C=INT3(7) - 100
+            CALL VEGAS1(HSCCKL,ACCVEG,NDM3CC,NPOVEG,ITM31C,IPRVEG,
+     +      IGRVEG, NDO31C,IT31C,SI31C,S2N31C,SWT31C,SCH31C,XX31C)
+         ELSE
+            ITM31C=INT3(7) - 200
+            CALL VEGAS2(HSCCKL,ACCVEG,NDM3CC,NPOVEG,ITM31C,IPRVEG,
+     +      IGRVEG, NDO31C,IT31C,SI31C,S2N31C,SWT31C,SCH31C,XX31C)
+         ENDIF
+         SIG31C=S1
+         SG31EC=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSCCKL,NCHC31,NDM3CC,NPOIN,NDO31C,NBN31C, T31GMC,
+     +   T31MXC,XX31C,IBM31C,NRG31C)
+         INFOSA=1
+         INT3C(7)=INT3C(7) + ITM31C
+      ENDIF
+C
+C---CHARGED CURRENT
+C---PHOTON BREMSSTRAHLUNG: KQ - CHANNEL-------------------------------
+      IF(INT3(8).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ', CHNAME(
+     +   13)
+C---INTEGRATION
+         IF(INT3(8).LT.100) THEN
+            ITM32C=INT3(8)
+            CALL VEGAS(HSCCQI,ACCVEG,NDM3CC,NPOVEG,ITM32C,IPRVEG,
+     +      IGRVEG, NDO32C,IT32C,SI32C,S2N32C,SWT32C,SCH32C,XX32C)
+         ELSEIF(INT3(8).LT.200) THEN
+            ITM32C=INT3(8) - 100
+            CALL VEGAS1(HSCCQI,ACCVEG,NDM3CC,NPOVEG,ITM32C,IPRVEG,
+     +      IGRVEG, NDO32C,IT32C,SI32C,S2N32C,SWT32C,SCH32C,XX32C)
+         ELSE
+            ITM32C=INT3(8) - 200
+            CALL VEGAS2(HSCCQI,ACCVEG,NDM3CC,NPOVEG,ITM32C,IPRVEG,
+     +      IGRVEG, NDO32C,IT32C,SI32C,S2N32C,SWT32C,SCH32C,XX32C)
+         ENDIF
+         SIG32C=S1
+         SG32EC=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSCCQI,NCHC32,NDM3CC,NPOIN,NDO32C,NBN32C, T32GMC,
+     +   T32MXC,XX32C,IBM32C,NRG32C)
+         INFOSA=1
+         INT3C(8)=INT3C(8) + ITM32C
+      ENDIF
+C
+C---CHARGED CURRENT
+C---PHOTON BREMSSTRAHLUNG: KQS - CHANNEL------------------------------
+      IF(INT3(9).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ', CHNAME(
+     +   14)
+C---INTEGRATION
+         IF(INT3(9).LT.100) THEN
+            ITM33C=INT3(9)
+            CALL VEGAS(HSCCQF,ACCVEG,NDM3CC,NPOVEG,ITM33C,IPRVEG,
+     +      IGRVEG, NDO33C,IT33C,SI33C,S2N33C,SWT33C,SCH33C,XX33C)
+         ELSEIF(INT3(9).LT.200) THEN
+            ITM33C=INT3(9) - 100
+            CALL VEGAS1(HSCCQF,ACCVEG,NDM3CC,NPOVEG,ITM33C,IPRVEG,
+     +      IGRVEG, NDO33C,IT33C,SI33C,S2N33C,SWT33C,SCH33C,XX33C)
+         ELSE
+            ITM33C=INT3(9) - 200
+            CALL VEGAS2(HSCCQF,ACCVEG,NDM3CC,NPOVEG,ITM33C,IPRVEG,
+     +      IGRVEG, NDO33C,IT33C,SI33C,S2N33C,SWT33C,SCH33C,XX33C)
+         ENDIF
+         SIG33C=S1
+         SG33EC=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSCCQF,NCHC33,NDM3CC,NPOIN,NDO33C,NBN33C, T33GMC,
+     +   T33MXC,XX33C,IBM33C,NRG33C)
+         INFOSA=1
+         INT3C(9)=INT3C(9) + ITM33C
+      ENDIF
+C
+C-----------------------------------------------------------------------
+C
+C---ELASTIC EP SCATTERING
+C---BORN TERM + SOFT & VIRTUAL CORRECTIONS------------------------------
+C
+      IF(INT2(3).GE.1) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ',
+     +   CHNAME(3)
+C---INTEGRATION
+         CALL HSINIL(HSELG1,EPSO,NBIN2,NDO2E,SIG2L,SIG2EE,XX2E)
+         WRITE(LUNOUT,'(//A/5X,A/5X,1PE12.4,A,1PE12.4,A)') ' CROSS '
+     +   //'SECTION (WITH ERROR ESTIMATE) FOR THE CHANNEL:', CHNAME(3),
+     +   SIG2L, ' +/- ', SIG2EE, '  NB'
+         WRITE(LUNTES,'(5X,A,1PD10.1)') ' RELATIVE ACCURACY REQUIRED:',
+     +   EPSO
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSELG2,NCHE2,NDIM1,NPOIN,NDO2E,NBIN2, T2GMAE,
+     +   T2MAXE,XX2E,IBIM2E,NREG2E)
+C---SET OPTION TO SAVE INFORMATION FROM INTEGRATION ONTO UNIT LUNDAT
+         INFOSA=1
+         INT2C(3)=1
+      ENDIF
+C
+C---ELASTIC TAIL
+C---PHOTON BREMSSTRAHLUNG: INITIAL STATE RADIATION -------------------
+      IF(INT3(10).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ', CHNAME(
+     +   15)
+C---INTEGRATION
+         IF(INT3(10).LT.100) THEN
+            ITM31E=INT3(10)
+            CALL VEGAS(HSELK1,ACCVEG,NDM3EL,NPOVEG,ITM31E,IPRVEG,
+     +      IGRVEG, NDO31E,IT31E,SI31E,S2N31E,SWT31E,SCH31E,XX31E)
+         ELSEIF(INT3(10).LT.200) THEN
+            ITM31E=INT3(10) - 100
+            CALL VEGAS1(HSELK1,ACCVEG,NDM3EL,NPOVEG,ITM31E,IPRVEG,
+     +      IGRVEG, NDO31E,IT31E,SI31E,S2N31E,SWT31E,SCH31E,XX31E)
+         ELSE
+            ITM31E=INT3(10) - 200
+            CALL VEGAS2(HSELK1,ACCVEG,NDM3EL,NPOVEG,ITM31E,IPRVEG,
+     +      IGRVEG, NDO31E,IT31E,SI31E,S2N31E,SWT31E,SCH31E,XX31E)
+         ENDIF
+         SIG31L=S1
+         SG31EE=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSELK1,NCHE31,NDM3EL,NPOIN,NDO31E,NBN31E, T31GME,
+     +   T31MXE,XX31E,IBM31E,NRG31E)
+         INFOSA=1
+         INT3C(10)=INT3C(10) + ITM31E
+      ENDIF
+C
+C---ELSTIC TAIL
+C---PHOTON BREMSSTRAHLUNG: FINAL STATE RADIATOIN ---------------------
+      IF(INT3(11).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ', CHNAME(
+     +   16)
+C---INTEGRATION
+         IF(INT3(11).LT.100) THEN
+            ITM32E=INT3(11)
+            CALL VEGAS(HSELK2,ACCVEG,NDM3EL,NPOVEG,ITM32E,IPRVEG,
+     +      IGRVEG, NDO32E,IT32E,SI32E,S2N32E,SWT32E,SCH32E,XX32E)
+         ELSEIF(INT3(11).LT.200) THEN
+            ITM32E=INT3(11) - 100
+            CALL VEGAS1(HSELK2,ACCVEG,NDM3EL,NPOVEG,ITM32E,IPRVEG,
+     +      IGRVEG, NDO32E,IT32E,SI32E,S2N32E,SWT32E,SCH32E,XX32E)
+         ELSE
+            ITM32E=INT3(11) - 200
+            CALL VEGAS2(HSELK2,ACCVEG,NDM3EL,NPOVEG,ITM32E,IPRVEG,
+     +      IGRVEG, NDO32E,IT32E,SI32E,S2N32E,SWT32E,SCH32E,XX32E)
+         ENDIF
+         SIG32L=S1
+         SG32EE=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSELK2,NCHE32,NDM3EL,NPOIN,NDO32E,NBN32E, T32GME,
+     +   T32MXE,XX32E,IBM32E,NRG32E)
+         INFOSA=1
+         INT3C(11)=INT3C(11)+ITM32E
+      ENDIF
+C
+C---ELASTIC TAIL
+C---PHOTON BREMSSTRAHLUNG: COMPTON PART ------------------------------
+      IF(INT3(12).GT.0) THEN
+         WRITE(LUNOUT,'(///,5X,2A)') ' START INTEGRATION FOR ', CHNAME(
+     +   17)
+C---INTEGRATION
+         IF(INT3(12).LT.100) THEN
+            ITM33E=INT3(12)
+            CALL VEGAS(HSELCO,ACCVEG,NDM3EL,NPOVEG,ITM33E,IPRVEG,
+     +      IGRVEG, NDO33E,IT33E,SI33E,S2N33E,SWT33E,SCH33E,XX33E)
+         ELSEIF(INT3(12).LT.200) THEN
+            ITM33E=INT3(12) - 100
+            CALL VEGAS1(HSELCO,ACCVEG,NDM3EL,NPOVEG,ITM33E,IPRVEG,
+     +      IGRVEG, NDO33E,IT33E,SI33E,S2N33E,SWT33E,SCH33E,XX33E)
+         ELSE
+            ITM33E=INT3(12) - 200
+            CALL VEGAS2(HSELCO,ACCVEG,NDM3EL,NPOVEG,ITM33E,IPRVEG,
+     +      IGRVEG, NDO33E,IT33E,SI33E,S2N33E,SWT33E,SCH33E,XX33E)
+         ENDIF
+         SIG33L=S1
+         SG33EE=S2
+C
+C---LOCAL/GLOBAL MAXIMA FOR THE MODIFIED SAMPLING FUNCTION
+         CALL HSESTM(HSELCO,NCHE33,NDM3EL,NPOIN,NDO33E,NBN33E, T33GME,
+     +   T33MXE,XX33E,IBM33E,NRG33E)
+         INFOSA=1
+         INT3C(12)=INT3C(12) + ITM33E
+      ENDIF
+C--------------------------------------------------------------------
+      IF(INFOSA.EQ.1) THEN
+         WRITE(LUNTES,'(///2A/)') ' ACTUAL CROSS SECTION VALUES (WITH '
+     +   //'ERROR ESTIMATES)', ' AFTER INTEGRATION'
+         WRITE(LUNTES,'(/A/)') ' ** NEUTRAL CURRENT: '
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' VIRTUAL & SOFT '
+     +   //'CONTRIBUTIONS  SIG2   ', SIG2, ' +/- ', SIG2E, '  NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' INITIAL STATE '
+     +   //'LEPTONIC RADIATION     ', SIG31, ' +/- ', SIG31E, '  NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' FINAL STATE '
+     +   //'LEPTONIC RADIATION       ', SIG32, ' +/- ', SIG32E, '  NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' COMPTON '
+     +   //'CONTRIBUTION                 ', SIG33, ' +/- ', SIG33E, '  '
+     +   //'NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' QUARKONIC '
+     +   //'RADIATION                  ', SIG34, ' +/- ', SIG34E, '  '
+     +   //'NB'
+         WRITE(LUNTES,'(/A/)') ' ** CHARGED CURRENT: '
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' VIRTUAL & SOFT '
+     +   //'CONTRIBUTIONS  SIG2C  ', SIG2C, ' +/- ', SIG2EC, '  NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' LEPTONIC '
+     +   //'RADIATION (1/k.p)   SIG31C  ', SIG31C, ' +/- ', SG31EC, '  '
+     +   //'NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' QUARKONIC '
+     +   //'RADIATION (1/k.q)  SIG32C  ', SIG32C, ' +/- ', SG32EC, '  '
+     +   //'NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' LEPTONIC '
+     +   //'RADIATION (1/k.qs)  SIG33C  ', SIG33C, ' +/- ', SG33EC, '  '
+     +   //'NB'
+         WRITE(LUNTES,'(/A/)') ' ** ELASTIC TAIL: '
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' ELASTIC EP WITH '
+     +   //'CORRECTIONS          ', SIG2L, ' +/- ', SIG2EE, '  NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' INITIAL STATE '
+     +   //'LEPTONIC RADIATION     ', SIG31L, ' +/- ', SG31EE, '  NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' FINAL STATE '
+     +   //'LEPTONIC RADIATION       ', SIG32L, ' +/- ', SG32EE, '  '
+     +   //'NB'
+         WRITE(LUNTES,'(3X,A,1PE12.4,A,1PE12.4,A)') ' COMPTON '
+     +   //'CONTRIBUTION                 ', SIG33L, ' +/- ', SG33EE, ' '
+     +   //' NB'
+         SIGTW=SIG2+SIG31+SIG32+SIG33+SIG34 +SIG2C+SIG31C+SIG32C+
+     +   SIG33C +SIG2L+SIG31L+SIG32L+SIG33L
+         SIGEW=DSQRT(SIG2E**2+SIG31E**2+SIG32E**2+SIG33E**2+SIG34E**2
+     +   +SIG2EC**2+SG31EC**2+SG32EC**2+SG33EC**2 +SIG2EE**2+SG31EE**2+
+     +   SG32EE**2+SG33EE**2)
+         WRITE(LUNTES,'(/A,1PE12.4,A,1PE12.4,A)') ' ** TOTAL CROSS '
+     +   //'SECTION:                 ', SIGTW, ' +/- ', SIGEW, '  NB'
+      ENDIF
+C
+C***********************************************************************
+C   SAVE INFORMATION FROM INTEGRATION
+C***********************************************************************
+C
+      IF(INFOSA.EQ.1) THEN
+         REWIND (LUNDAT)
+         WRITE(LUNDAT,ERR=170,IOSTAT=IOS) FNAME
+         WRITE(LUNDAT,ERR=170,IOSTAT=IOS) INT2C,INT3C,ISAM2C,ISAM3C
+         CALL HSDOUT
+      ENDIF
+      INFOSA=0
+C
+C***********************************************************************
+C   INITIALIZATION FOR SAMPLING
+C***********************************************************************
+      DO 80   I=1,5
+         IF(ISAM2(I).GT.0) INFOSA=1
+         IF(ISAM2C(I).LT.ISAM2(I)) ISAM2C(I)=ISAM2(I)
+   80 CONTINUE
+      DO 90   I=1,15
+         IF(ISAM3(I).GT.0) INFOSA=1
+         IF(ISAM3C(I).LT.ISAM3(I)) ISAM3C(I)=ISAM3(I)
+   90 CONTINUE
+      IF(INFOSA.EQ.1) THEN
+C
+C---CHECK CONSISTENCY OF INPUT DATA FILE
+C---READ SAMPLING INFORMATION FOR ALL CONTRIBUTIONS
+         REWIND (LUNDAT)
+         READ(LUNDAT,ERR=100 ,END=100 ,IOSTAT=IOS) FNAMET
+         IF(FNAME.EQ.FNAMET) THEN
+            READ(LUNDAT,ERR=100 ,END=100 ,IOSTAT=IOS) INT2C,INT3C,
+     +      ISAM2C,ISAM3C
+            CALL HSDTIN
+            GOTO 110
+         ENDIF
+  100    CONTINUE
+         WRITE(LUNOUT,'(/A,I3/A)') ' *** NO STANDARD HERACLES INPUT '
+     +   //'FILE ASSIGNED TO UNIT',LUNDAT, ' *** EXECUTION STOPPED ***'
+         STOP
+C
+  110    CONTINUE
+         INFOSA=0
+         DO 120  I=1,5
+            IF(ISAM2(I).GT.0.AND.INT2C(I).EQ.0) INFOSA=1
+  120    CONTINUE
+         DO 130  I=1,15
+            IF(ISAM3(I).GT.0.AND.INT3C(I).EQ.0) INFOSA=1
+  130    CONTINUE
+         IF(INFOSA.EQ.1) THEN
+            WRITE(LUNOUT,'(A/A/2(A,5I4/),2(A,15I4/),A)') ' *** '
+     +      //'INCONSISTENT INPUT DATA FOR SAMPLING (INT/ISAM) ***',
+     +      ' *** ANY CHANNEL(S) REQUESTED NOT YET INTEGRATED     ***',
+     +      ' *** INT2C(I): ',INT2C, ' *** ISAM2(I): ',ISAM2, ' *** '
+     +      //'INT3C(I): ',INT3C, ' *** ISAM3(I): ',ISAM3, ' *** '
+     +      //'EXECUTION STOPPED ***'
+            STOP
+         ENDIF
+C
+C---DETERMINE TOTAL CROSS SECTIONS AND ERRORS
+         IF(ISAM2(1).GT.0) THEN
+            SIGG(1)=SIG2
+            SIGGRR(1)=SIG2E
+         ENDIF
+         IF(ISAM2(2).GT.0) THEN
+            SIGG(2)=SIG2C
+            SIGGRR(2)=SIG2EC
+         ENDIF
+         IF(ISAM2(3).GT.0) THEN
+            SIGG(3)=SIG2L
+            SIGGRR(3)=SIG2EE
+         ENDIF
+         IF(ISAM3(1).GT.0) THEN
+            SIGG(6)=SIG31
+            SIGGRR(6)=SIG31E
+         ENDIF
+         IF(ISAM3(2).GT.0) THEN
+            SIGG(7)=SIG32
+            SIGGRR(7)=SIG32E
+         ENDIF
+         IF(ISAM3(3).GT.0) THEN
+            SIGG(8)=SIG33
+            SIGGRR(8)=SIG33E
+         ENDIF
+         IF(ISAM3(4).GT.0) THEN
+            SIGG(9)=SIG34
+            SIGGRR(9)=SIG34E
+         ENDIF
+         IF(ISAM3(7).GT.0) THEN
+            SIGG(12)=SIG31C
+            SIGGRR(12)=SG31EC
+         ENDIF
+         IF(ISAM3(8).GT.0) THEN
+            SIGG(13)=SIG32C
+            SIGGRR(13)=SG32EC
+         ENDIF
+         IF(ISAM3(9).GT.0) THEN
+            SIGG(14)=SIG33C
+            SIGGRR(14)=SG33EC
+         ENDIF
+         IF(ISAM3(10).GT.0) THEN
+            SIGG(15)=SIG31L
+            SIGGRR(15)=SG31EE
+         ENDIF
+         IF(ISAM3(11).GT.0) THEN
+            SIGG(16)=SIG32L
+            SIGGRR(16)=SG32EE
+         ENDIF
+         IF(ISAM3(12).GT.0) THEN
+            SIGG(17)=SIG33L
+            SIGGRR(17)=SG33EE
+         ENDIF
+         DO 140  I=1,20
+            SIGTOT=SIGTOT + SIGG(I)
+            SIGTRR=SIGTRR + SIGGRR(I)**2
+  140    CONTINUE
+         SIGTRR=SQRT(SIGTRR)
+
+CHJU
+         SIGMA = SIGTOT
+         ERROR =SIGTRR
+CHJU
+c---INITIALIZATION OF USER ROUTINES---------
+         ICALL=1
+         CALL HSUSER(ICALL,0D0,0D0,0D0)
+         RETURN
+      ENDIF
+  150 CONTINUE
+C
+C***********************************************************************
+C   EVENT GENERATION
+C***********************************************************************
+C
+C---CONTROL OF EVENT GENERATION IN HSEVTG
+      IWEIGS=IWEIGR
+      CALL HSEVTG
+CHJU
+      RETURN
+  160 CONTINUE
+C
+C---FINAL CALL OF USER TO GENERATE USER MONITORED OUTPUT
+c        ICALL=3
+c        CALL HSUSER(ICALL,0D0,0D0,0D0)
+C
+C---SAVE INFORMATION FOR FURTHER SAMPLING
+      REWIND (LUNDAT)
+      WRITE(LUNDAT,ERR=170,IOSTAT=IOS) FNAME
+      WRITE(LUNDAT,ERR=170,IOSTAT=IOS) INT2C,INT3C,ISAM2C,ISAM3C
+      CALL HSDOUT
+
+C
+C---SAVE CURRENT RANDOM NUMBER STATUS IF REQUESTED
+      IF(ISDOUT.GT.0) THEN
+         REWIND LUNRND
+ccccc         CALL RNDMOU(UIO,CIO,CDIO,CMIO,IIO,JIO)
+c         WRITE(LUNRND,*) UIO
+c         WRITE(LUNRND,*) CIO,CDIO,CMIO,IIO,JIO
+c         WRITE(LUNOUT,'(/A,I2)') ' *** ACTUAL RANDOM NUMBER SEEDS '
+c     +   //'WRITTEN TO UNIT LUNRND=',LUNRND
+      ENDIF
+CHJU        STOP
+      RETURN
+C
+C---ERROR WHILE WRITING HERACLES DATA FILE
+  170 CONTINUE
+      WRITE(LUNOUT,'(A,I4/A)')
+     +   ' *** ERROR WRITING HERACLES DATA FILE ON UNIT',LUNDAT,
+     +   ' *** EXECUTION STOPPED ***'
+      STOP
+C
+C
+C***********************************************************************
+C               ERROR END
+C***********************************************************************
+      END

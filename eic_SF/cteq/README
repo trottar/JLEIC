@@ -1,0 +1,13 @@
+HOW TO IMPLEMENT THIS HEAD OR SOURCE CODE INTO ROOT CPP CODE(K.Park)
+
+#1 TRIAL
+ gcc -c cteq-database.c
+ gcc -c cteqpdf.c
+ gcc -c cteqpdf-f77.c
+
+
+#2 HOW TO RUN THIS CODE ALONE ??
+- MAKEFILE (that I created) IS WORKING ? ....
+
+
+

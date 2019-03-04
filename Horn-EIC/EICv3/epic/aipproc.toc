@@ -1,0 +1,21 @@
+\contentsline {section}{\numberline {1.}General Information}{3}
+\contentsline {section}{\numberline {2.}Toolbox Contents}{3}
+\contentsline {section}{\numberline {3.}Guidelines}{3}
+\contentsline {subsection}{\numberline {3.1}Introduction}{3}
+\contentsline {subsection}{\numberline {3.2}Top matter}{3}
+\contentsline {subsection}{\numberline {3.3}Section headings}{3}
+\contentsline {subsection}{\numberline {3.4}Footnotes}{4}
+\contentsline {subsection}{\numberline {3.5}Displayed equations}{4}
+\contentsline {subsubsection}{\numberline {3.5.1}Setting and numbering displayed equation}{4}
+\contentsline {subsubsection}{\numberline {3.5.2}Cross-referencing displayed equations}{5}
+\contentsline {subsection}{\numberline {3.6}Figures}{5}
+\contentsline {subsection}{\numberline {3.7}Tables}{5}
+\contentsline {subsubsection}{\numberline {3.7.1}Regular tables}{6}
+\contentsline {subsubsection}{\numberline {3.7.2}Long tables}{6}
+\contentsline {subsection}{\numberline {3.8}Special characters}{6}
+\contentsline {subsection}{\numberline {3.9}References}{7}
+\contentsline {subsection}{\numberline {3.10}Use other packages with aipproc style}{7}
+\contentsline {paragraph}{\LaTeX \kern .15em 2${}_{\textstyle \varepsilon }$\ users:}{7}
+\contentsline {paragraph}{\LaTeX \ 2.09 users:}{7}
+\contentsline {subsection}{\numberline {3.11}Troubleshooting}{7}
+\contentsline {subsection}{\numberline {3.12}Support}{8}

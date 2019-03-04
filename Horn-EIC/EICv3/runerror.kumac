@@ -1,0 +1,90 @@
+macro runerror
+   
+   nbin = 100
+   newBins = 20
+   
+   v/del *
+   h/del 0
+   
+   opt nbox
+   opt nsta
+   set *siz 0.45
+   set xsiz 15
+   set ysiz 8.5
+   set ymgu 0.2
+   set xmgr 0.2
+   
+   set *fon -130
+   set chhe 0.45
+   
+* pp = 12, plep = 3 (barns)
+   sigma = 15.74165e-9
+   nThrown = 5000000
+   lumin = 5e32
+   time=1e6
+   mxerr = 0.05
+* * pp = 25, plep = 5 (barns)
+* sigma = 22.59142e-9
+* nThrown = 500000
+* lumin = 1e32
+* time=1e6
+* mxerr = 0.15
+   
+* barn in cm^2
+   barn  = 1e-24
+   
+   v/cr y([nbin]) r
+   
+   h/g/c 206 y
+   
+   sigma ysum=sumv(y)
+   
+   v/cr x([newBins]) r
+   v/cr ex([newBins]) r [newbins]*0
+   v/cr yprime([newBins]) r
+   
+   v/cr yDummy([newBins]) r [newBins]*1.0
+   
+   low = 1
+   do i = 1, [newBins]
+     high = [nbin]/[newBins] * [i]
+     x = ([high] - ([high]-[low])*0.5) / [nbin]
+     v/input x([i]:[i]) [x]
+     yprime = ysum([high]) - ysum([low])
+     yprime = [yprime] * ([sigma] * [barn] * [lumin] * [time]) / [nThrown]
+     if ([yprime] = 0) then
+       v/input yDummy([i]:[i]) -1.0
+     endif
+     v/input yprime([i]:[i]) [yprime]
+     low = [high]
+   enddo
+   
+   h/cr/1dh 10000 'x?[pi]!' [newBins] 0 1
+   h/p/c 10000 yDummy
+* h/p/c 10000 yprime
+   
+   sigma ypErr = 1.0/sqrt(yprime)
+   h/p/e 10000 ypErr
+   
+   close 10
+   f/file 10 runerror.eps
+   meta 10 -113
+   
+   opt utit
+   title 'x?[p]!' u
+* null 0 1 0.85 1.15
+   
+   min = 1 - [mxerr]
+   max = 1 + [mxerr]
+   set ndvy 504
+   null 0 1 [min] [max]
+   line 0 1 1 1
+   set pmci 2
+   g/h/error x yDummy ex ypErr [newBins] 20 0.25 1
+   set pmci 1
+   g/h/error x yDummy ex ypErr [newBins] 24 0.25
+   
+   close 10
+   
+ return
+ 

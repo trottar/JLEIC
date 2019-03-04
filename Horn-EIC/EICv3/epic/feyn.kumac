@@ -1,0 +1,87 @@
+macro feyn
+
+exec setup
+
+gpix = 1.1
+gpiy = 0.8
+
+pnpix=0.9
+pnpiy=0.1
+
+f/file 10 feyn.eps
+meta 10 -113
+
+null 0 2 0 1 ab
+
+set lwid 1
+
+* proton
+set plci 2
+set faci 2
+set txci 2
+arline 0.1 0.1 [pnpix] [pnpiy] 0.075
+itx 0.4 0.2 'p'
+
+* neutron
+set plci 4
+set faci 4
+set txci 4
+arline [pnpix] [pnpiy] 1.9 0.1 0.075
+itx 1.4 0.2 'n'
+
+* pion
+set dmod 2
+set plci 3
+set faci 3
+set txci 3
+arline [pnpix] [pnpiy] [gpix] [gpiy] 0.075
+itx 1.1 0.6 '[p]'
+
+* photon
+set dmod 1
+set plci 6
+set txci 6
+helix 0.1 0.9 [gpix] [gpiy] 0.05 6 0
+itx 0.4 0.65 '[g]'
+
+* debris
+set lwid 1
+set plci 7
+line [gpix] [gpiy] 1.9 0.9
+line [gpix] [gpiy] 1.9 0.85
+line [gpix] [gpiy] 1.9 0.8
+line [gpix] [gpiy] 1.9 0.75
+line [gpix] [gpiy] 1.9 0.7
+
+
+fpoint [pnpix] [pnpiy] 0.02
+fpoint [gpix] [gpiy] 0.02
+
+close 10
+
+return
+
+macro setup
+
+set *
+
+set dmod 1
+
+set txfp -130
+set *fon -130
+set ymgl 0.1
+set ymgu 0.1
+set xmgr 0.1
+set xmgl 0.1
+set chhe 0.2
+
+set fais 1
+
+set xsiz 5.0
+set ysiz 2.5
+
+*opt box
+opt nbox
+
+return
+

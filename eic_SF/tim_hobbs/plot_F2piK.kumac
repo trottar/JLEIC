@@ -1,0 +1,10 @@
+ close 0
+ 
+ ve/del *
+ 
+ ve/re thpt,f2pik F2pith_INT-x-k.dat 
+ 
+ null 0 3.5 0 0.007
+ ve/pl f2pik%thpt ! CLs
+ 
+ return

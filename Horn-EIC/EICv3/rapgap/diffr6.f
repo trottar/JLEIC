@@ -1,0 +1,43 @@
+*CMZ :  2.07/03 24/05/99  17.27.28  by  Hannes Jung
+*-- Author :    Hannes Jung   02/02/98
+      SUBROUTINE DIFFR6(X,WDIF)
+      IMPLICIT None
+	Double Precision X,WDIF,WPART,WT1,GEV2NB
+*KEEP,RGPARAS.
+      DOUBLE PRECISION PT2CUT,THEMA,THEMI,Q2START,W_Q2,OMEG2
+      INTEGER IRUNA,IQ2,IRUNAEM
+      INTEGER IPRO
+      COMMON/RAPA /IPRO,IRUNA,IQ2,IRUNAEM,Q2START,W_Q2,OMEG2
+      DOUBLE PRECISION SCALFA
+      COMMON/SCALF/ SCALFA
+      COMMON/PTCUT/ PT2CUT(100)
+      COMMON/ELECT/ THEMA,THEMI
+      REAL ULALPS,ULALEM
+      EXTERNAL ULALPS,ULALEM
+C     SAVE
+
+*KEEP,RGHS45.
+      INTEGER IHERAC,KPAHS
+      DOUBLE PRECISION YHS,XHS,Q2HS
+      COMMON /HS45/ IHERAC,KPAHS,YHS,XHS,Q2HS
+*KEND.
+      DIMENSION X(20)
+      DATA GEV2NB/.3893857D+6/
+      WPART=0.D0
+      WDIF=0.D0
+      WT1=0.D0
+      IF(IHERAC.EQ.0) THEN
+         CALL PARTDH(X,WPART)
+      ELSE
+         CALL PARTDHHS(X,WPART)
+      ENDIF
+      IF(WPART.GT.0.) THEN
+         CALL ELEQQ(WT1)
+      ENDIF
+      if(wt1.eq.0d0.and.wpart.ne.0.d0) then
+c      write(6,*) 'diffr6 wpart,wt1',wpart,wt1
+      endif
+cc      write(6,*) 'diffr6 wpart,wt1',wpart,wt1
+      WDIF=WPART*WT1*GEV2NB
+      RETURN
+      END

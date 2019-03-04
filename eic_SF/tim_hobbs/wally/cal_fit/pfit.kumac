@@ -1,0 +1,104 @@
+ macro pfit.kumac
+   opt nfile
+   opt nstat
+   set *
+   opt liny
+   opt linx
+   set ncol 28; pal 1;
+
+   set ymgl 1.7
+   set ymgu 2.2
+   set ywin 1.4
+   set xwin 2.2
+   set xmgl 2.3
+   set xmgr 0.9
+   set vsiz 0.45
+   set asiz 0.45
+   set tsiz 0.00000001
+   set csiz 0.35
+
+   set xlab 1.6
+   set ylab .9
+
+ 
+   set xval 0.4
+   set NDVX 10.01
+   set NDVY 10.00
+   set smgr 0.00565
+   
+   opt stat
+
+    
+    set fcol 2
+    
+
+    
+    xmin0 = 0.01
+    xmax0 = 0.2
+
+      | do loop for thrown and reconstruction event
+    
+
+      filename1  = ./momentum_0.1_0.2_dis1_typ6.dat 
+		
+      vec/cre x(120),fpi(120)
+      vec/read x,fpi [filename1]
+      vec/cre err(120) r 120*0.
+      vec/cre erry(120) r 120*0.00001
+     
+      
+      opt liny
+      SIGMA yy = vmax(fpi)
+				|vec/write yy
+      if yy .gt. 0 then
+	ymax0 = yy+yy*0.5
+      endif
+      if yy .le. 0 then
+	ymax0 = 5.
+      endif
+      
+      ymin0= 0.0	  
+      
+      
+      opt liny
+	    
+	    
+|||||||||   new calculation : 2sigma MMX cut & nominal DeltaT2 < 0.5GeV2, W > 2.0GeV
+      IGSET PMCI 4
+      IGSET PLCI 4
+      IGSET LTYP 1
+      set hcol 4
+      /GRAPHICS/HPLOT/NULL [xmin0] [xmax0] [ymin0] [ymax0] 
+      /GRAPHICS/HPLOT/ERRORS x fpi err erry 120 10 0.24 1
+      
+      atitle 'xBJ' 'fpi' 
+      | k = 0.1 ; 0.2
+      a0 = 0.000287
+      a1 = 0.009397
+      a2 = -0.2632
+      a3 = 2.029
+      a4 = -5.878
+      a5 = 4.664
+      
+      | k = 0.2 ; 0.3
+      |a0 = 0.0003662
+      |a1 = 0.02811
+      |a2 = -0.4566
+      |a3 = 2.428
+      |a4 = -5.107
+      |a5 = 3.222
+      
+      f/plot [a0]+([a1])*x+([a2])*x*x+([a3])*x*x*x+([a4])*x*x*x*x+([a5])*x*x*x*x*x 0.02 0.2 s
+ 
+ 
+      SET LWID 7
+      IGSET PMCI 2
+      IGSET PLCI 2
+      VEC/FIT x fpi erry p5 s 6 p ! ! ! dp 
+      IGSET PMCI 1
+      IGSET PLCI 1
+      
+ 
+    
+    vec/del x,fpi,err,erry
+
