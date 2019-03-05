@@ -13,6 +13,7 @@
 #include <TCanvas.h>
 #include <TGraph.h>
 #include <vector>
+#include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <TGraphErrors.h>
@@ -26,8 +27,13 @@ Double_t GetF2NForCut(Int_t NEvts, Int_t IndexData[], Double_t xBjData[],
 		      Double_t Q2CutMin, Double_t Q2CutMax,
 		      Double_t XCutMin, Double_t XCutMax, Double_t& MeanError);
 
-Double_t Gettpibin(int NEvts, Int_t IndexData[], Double_t xpiData[],
-		   Double_t Q2Data[], Double_t tpi_binData[],Double_t Q2CutMin, Double_t Q2CutMax, Double_t XCutMin, Double_t XCutMax);
+Double_t Gettpibin(int NEvts, Int_t IndexData[], Double_t xBjData[],
+		   Double_t Q2Data[], Double_t tpiData[],Double_t Q2CutMin, Double_t Q2CutMax, Double_t XCutMin, Double_t XCutMax);
+
+
+Double_t yield(int NEvts, Int_t IndexData[], Double_t xBjData[],Double_t Q2Data[], Double_t tpiData[],
+	       Double_t sigmaTDISData[], Double_t lum,Double_t Q2CutMin,
+	       Double_t Q2CutMax,Double_t XCutMin, Double_t XCutMax, int numBins);
 
 // Define form factor function for proton and pion : f2p and f2pi to get TDIS cross-section
 // all belows are beased on "neutral pion": DISSOCIATION (dis=1, p -> p + pi0)
@@ -326,7 +332,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	Double_t xpiData[NEvts];
 	Double_t F2NData[NEvts];
 	Double_t Q2Data[NEvts];
-	Double_t tpi_binData[NEvts];
+	Double_t tpiData[NEvts];
+	Double_t sigmaTDISData[NEvts];
 
 	TCanvas *CG = new TCanvas("CG","Q2 Graph");
 	TCanvas *CGA = new TCanvas("CGA","Q2 Graph");
@@ -940,7 +947,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	  //  invts.nu*2. + kScattered_Rest.E() : initial electron energy in rest frame
 		
 
-
+	  // hyield->Fill(pex_Lab,(sigma_tdis/(182.5)));
 	  hse->Fill(invts.s_e,Jacob);
 	  hQ2vsX->Fill(invts.xBj,invts.Q2, 1.);
 	  hnu->Fill(qVirtual_Rest.E());
@@ -949,7 +956,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	  xpiData[iEvt] = xpi;
 	  Q2Data[iEvt] = invts.Q2;
 	  F2NData[iEvt] = f2N;
-	  tpi_binData[iEvt] = tpi;
+	  tpiData[iEvt] = tpi;
+	  sigmaTDISData[iEvt] = sigma_tdis;
 	  
 	  
 
@@ -1166,6 +1174,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 
        	OUT.close();
 
+
+	///////////////////////////////BINNING///////////////////////////////
+	
 	// Already in here, from Kijun
 	
 	// double xminbin[20]
@@ -1178,38 +1189,44 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 
 
 	//////////////////////// Lowest xpi & Q^2
+
+	const int numBins=16;       
 	
-	double xminbin[16]
+	double xminbin[numBins]
 	  ={0.001,0.002,0.002,0.004,0.004,0.004,0.004,0.006,0.006,0.006,0.006,0.008,0.008,0.008,0.008,0.008};
-	double xmaxbin[16]
+	double xmaxbin[numBins]
 	  ={0.002,0.002,0.004,0.004,0.004,0.004,0.006,0.006,0.006,0.006,0.008,0.008,0.008,0.008,0.008,0.01};
 	
-	double q2minbin[16]={1.0,1.0,2.0,1.0,2.0,3.0,4.0,1.5,3.0,4.5,6.0,1.0,2.0,4.0,6.0,8.0};
-	double q2maxbin[16]={1.0,2.0,1.0,2.0,3.0,4.0,1.5,3.0,4.5,6.0,1.0,2.0,4.0,6.0,8.0,10.0};
+	double q2minbin[numBins]={1.0,1.0,2.0,1.0,2.0,3.0,4.0,1.5,3.0,4.5,6.0,1.0,2.0,4.0,6.0,8.0};
+	double q2maxbin[numBins]={1.0,2.0,1.0,2.0,3.0,4.0,1.5,3.0,4.5,6.0,1.0,2.0,4.0,6.0,8.0,10.0};
 
 	// /////////////////////// Mid xpi & Q^2
 
-	// double xminbin[25]
+	// const int numBins=25;
+
+	// double xminbin[numBins]
 	//   ={0.01,0.01,0.01,0.01,0.01,0.02,0.02,0.02,0.02,0.02,0.04,0.04,0.04,0.04,0.04,0.06,0.06,0.06,0.06,0.06,0.08,0.08,0.08,0.08,0.08};
-	// double xmaxbin[25]
+	// double xmaxbin[numBins]
 	//   ={0.01,0.01,0.01,0.01,0.02,0.02,0.02,0.02,0.02,0.04,0.04,0.04,0.04,0.04,0.06,0.06,0.06,0.06,0.06,0.08,0.08,0.08,0.08,0.08, 0.1};
 	
-	// double q2minbin[25]
+	// double q2minbin[numBins]
 	//   ={1.25,2.5,5.0,7.5,10.0,2.5,5.0,10.0,15.0,20.0,5.0,10.0,20.0,30.0,40.0,7.5,15.0,30.0,45.0,60.0,10.0,20.0,40.0,60.0,80.0};
-	// double q2maxbin[25]
+	// double q2maxbin[numBins]
 	//   ={2.5,5.0,7.5,10.0,2.5,5.0,10.0,15.0,20.0,5.0,10.0,20.0,30.0,40.0,7.5,15.0,30.0,45.0,60.0,10.0,20.0,40.0,60.0,80.0,100.0};
 
 	// /////////////////////// Highest xpi & Q^2
 
-	// double xminbin[25]
+	// const int numBins=25;
+
+	// double xminbin[numBins]
 	//   ={0.1,0.1,0.1,0.1,0.1,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.6,0.6,0.8,0.8,0.8,0.8,0.8};
-	// double xmaxbin[25]
+	// double xmaxbin[numBins]
 	//   ={0.1,0.1,0.1,0.1,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.6,0.6,0.8,0.8,0.8,0.8,0.8,1.0};
 
-	// double q2minbin[25]
+	// double q2minbin[numBins]
 	//   ={12.5,25.0,50.0,75.0,100.0,25.0,50.0,100.0,150.0,200.0,50.0,100.0,200.0,300.0
 	//     ,400.0,75.0,150.0,300.0,450.0,600.0,100.0,200.0,400.0,600.0,800.0};
-	// double q2maxbin[25]
+	// double q2maxbin[numBins]
 	//   ={25.0,50.0,75.0,100.0,25.0,50.0,100.0,150.0,200.0,50.0,100.0,200.0,300.0,400.0
 	//     ,75.0,150.0,300.0,450.0,600.0,100.0,200.0,400.0,600.0,800.0,1000.0};
 	
@@ -1218,6 +1235,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	Double_t F2NMeanError;
 
 	Double_t tpi_bin_Mean;
+
+	Double_t yield_Mean;
 	
 	// CG->cd(5);
 	CG->cd();
@@ -1226,14 +1245,15 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	// GCf2N->GetYaxis()->SetRangeUser(0.0,0.7); // FIX ME
 
 
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < numBins; i++) {
 	  GCf2N->SetTitle(Form("F2N vs Q^{2} xBj[%4.4f:%4.4f]",xminbin[i],xmaxbin[i]));
-	  for (int j = 0; j < 16; j++) {
-	    double delX = 0.5, lum = 100, delQ2 = uncerWL((q2minbin[j] + q2maxbin[j])/2,i);	  
+	  for (int j = 0; j < numBins; j++) {
+	    double delX = 0.5, lum = 10e34, delQ2 = uncerWL((q2minbin[j] + q2maxbin[j])/2,i);	  
 	    double uncerVal[] = {lum,delX,delQ2};//uncerVal[] = {lum,delX,delQ2,delt}
 	    F2NMeanError = uncerW(F2NMean,i,uncerVal);
 	    F2NMean = GetF2NForCut(NEvts,IndexData,xBjData,Q2Data,F2NData,q2minbin[j],q2maxbin[j],xminbin[i],xmaxbin[i],F2NMeanError);
-	    tpi_bin_Mean =  Gettpibin(NEvts,IndexData,xpiData,Q2Data,tpi_binData,q2minbin[j],q2maxbin[j],xminbin[i],xmaxbin[i]);
+	    tpi_bin_Mean =  Gettpibin(NEvts,IndexData,xBjData,Q2Data,tpiData,q2minbin[j],q2maxbin[j],xminbin[i],xmaxbin[i]);
+	    yield_Mean =  yield(NEvts, IndexData, xBjData,Q2Data, tpiData,sigmaTDISData, lum,q2minbin[j], q2maxbin[j],xminbin[i], xmaxbin[i],numBins);
 	    GCf2N->SetPoint(j, (q2minbin[j] + q2maxbin[j])/2, F2NMean);
 	    //GCf2N->SetPointError(j,0.,F2NMeanError); //FIXME
 	  }
@@ -1383,29 +1403,101 @@ Double_t GetF2NForCut(int NEvts, Int_t IndexData[], Double_t xBjData[],
 TCanvas *c_tpi_bin;
 TH1F *htpi_bin;
 
-Double_t Gettpibin(int NEvts, Int_t IndexData[], Double_t xpiData[],
-		   Double_t Q2Data[], Double_t tpi_binData[],Double_t Q2CutMin, Double_t Q2CutMax, Double_t XCutMin, Double_t XCutMax){
+Double_t Gettpibin(int NEvts, Int_t IndexData[], Double_t xBjData[],
+		   Double_t Q2Data[], Double_t tpiData[],Double_t Q2CutMin, Double_t Q2CutMax, Double_t XCutMin, Double_t XCutMax){
 
+  Double_t tpi_value = 0;
+  
   c_tpi_bin = new TCanvas();
-  htpi_bin = new TH1F("htpi_bin", Form("t_{#pi} binned in Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax), 500, -.9, -0.5);
+  htpi_bin = new TH1F("htpi_bin", Form("t_{#pi} binned in Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax), 500, -1., 0);
   
   for (Int_t i = 0; i < NEvts; i++) {
     if (Q2Data[i] > Q2CutMin &&
     	Q2Data[i] < Q2CutMax &&
-    	xpiData[i] >  XCutMin &&
-    	xpiData[i] < XCutMax) {
+    	xBjData[i] >  XCutMin &&
+    	xBjData[i] < XCutMax) {
       
-      htpi_bin->Fill(tpi_binData[i]);
+      htpi_bin->Fill(tpiData[i]);
       
     }
   }
-  
-  c_tpi_bin->cd();
-  c_tpi_bin->SetLogy();
-  htpi_bin->GetXaxis()->SetTitle("t_{#pi}");
-  htpi_bin->Draw();
-  c_tpi_bin->Print(Form("tpi-1DHisto_Q2From%4.3f_To%4.3f__XFrom%4.3f_To%4.3f.png",Q2CutMin,Q2CutMax,XCutMin,XCutMax));
-  
-  return htpi_bin->GetMean();
 
+  tpi_value = htpi_bin->GetEntries();
+  
+  if(tpi_value > 0){
+    c_tpi_bin->cd();
+    c_tpi_bin->SetLogy();
+    htpi_bin->GetXaxis()->SetTitle("t_{#pi}");
+    htpi_bin->Draw();
+    c_tpi_bin->Print(Form("tpi-1DHisto_Q2From%4.3f_To%4.3f__XFrom%4.3f_To%4.3f.png",Q2CutMin,Q2CutMax,XCutMin,XCutMax));
+    
+  }else{
+    cout << Form("Not enough statisticss for bin Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
+  }
+  
+  return htpi_bin->Integral();
+
+}
+
+TCanvas *cyield;
+TH1F *hyield;
+Int_t bin = 0;
+
+Double_t yield(int NEvts, Int_t IndexData[], Double_t xBjData[],
+	       Double_t Q2Data[], Double_t tpiData[],
+	       Double_t sigmaTDISData[], Double_t lum,
+	       Double_t Q2CutMin, Double_t Q2CutMax,
+	       Double_t XCutMin, Double_t XCutMax, int numBins){
+
+  cyield = new TCanvas();
+  hyield = new TH1F("hyield", Form("Yield binned in Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax), 500, 0, 1);
+  
+  Double_t numEvts_bin = Gettpibin(NEvts, IndexData, xBjData,Q2Data, tpiData,Q2CutMin, Q2CutMax, XCutMin, XCutMax);
+  Double_t calcYield[NEvts];
+  Double_t bin_delX = XCutMax-XCutMin;
+  Double_t bin_delQ2 = Q2CutMax-Q2CutMin;
+  Double_t tmp=0;
+  
+  for (Int_t i = 0; i < NEvts; i++) {
+    if (Q2Data[i] > Q2CutMin &&
+	Q2Data[i] < Q2CutMax &&
+	xBjData[i] >  XCutMin &&
+	xBjData[i] < XCutMax) {
+
+      calcYield[i] = ((numEvts_bin*sigmaTDISData[i]*lum)/NEvts)*(bin_delX*bin_delQ2);
+      
+      hyield->Fill(calcYield[i]);
+
+    }
+  }
+
+  tmp = hyield->GetEntries();
+
+  cout << Form("Bins: Q^{2}[%4.3f-%4.3f],  x_{Bj}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
+  
+  cout << bin << ", ";
+  cout << tmp  << '\n';
+  
+  // if(hyield->GetEntries() > (NEvts*.01)){
+  if(tmp > 0){
+    cyield->cd();
+    hyield->Draw();
+    cyield->Print(Form("yield_Q2From%4.3f_To%4.3f__XFrom%4.3f_To%4.3f.png",Q2CutMin,Q2CutMax,XCutMin,XCutMax));
+  }else{
+    cout << Form("Not enough statisticss for bin Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
+  }
+
+  ofstream myfile1;
+  myfile1.open ("Yield_Data.dat", fstream::app);
+  myfile1 << Form("%s\n %i %f %i\n",
+		  Form("#Bins: Q^{2}[%4.3f-%4.3f],  x_{Bj}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax),
+		  bin,
+		  tmp,
+		  NEvts);
+  myfile1.close();
+  
+  bin++;
+  
+  return hyield->GetEntries();
+  
 }
