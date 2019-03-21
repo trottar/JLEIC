@@ -1,7 +1,7 @@
 #! /bin/bash
 
-input_LUND="TDIS_lund_ek.txt"
-output_EVIO="TDIS_lund_ek.evio"
+input_LUND="TDIS_lund.txt"
+output_EVIO="TDIS_lund.evio"
 gCARD="~/ResearchNP/gemc/detectors/gcard/det1_hybrid_full.gcard"
 #gCARD="~/ResearchNP/gemc/detectors/gcard/det1_dual_full.gcard"
 

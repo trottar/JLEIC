@@ -51,9 +51,8 @@ def main() :
     plt.title('Yield vs. Bin for %s events' % (NEvts[0]), fontsize =16)
     plt.xlabel('Bin Number', fontsize =16)
     
-
     plt.tight_layout()
     plt.show()
     yieldPlot.savefig(foutname)
-
+    
 if __name__=='__main__': main()
