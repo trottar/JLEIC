@@ -1248,7 +1248,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	for (int i = 0; i < numBins; i++) {
 	  GCf2N->SetTitle(Form("F2N vs Q^{2} xBj[%4.4f:%4.4f]",xminbin[i],xmaxbin[i]));
 	  for (int j = 0; j < numBins; j++) {
-	    double delX = 0.5, lum = 10e34, delQ2 = uncerWL((q2minbin[j] + q2maxbin[j])/2,i);	  
+	    double delX = 0.5, lum = 10e5, delQ2 = uncerWL((q2minbin[j] + q2maxbin[j])/2,i);
+	    // lum = 10e34
 	    double uncerVal[] = {lum,delX,delQ2};//uncerVal[] = {lum,delX,delQ2,delt}
 	    F2NMeanError = uncerW(F2NMean,i,uncerVal);
 	    F2NMean = GetF2NForCut(NEvts,IndexData,xBjData,Q2Data,F2NData,q2minbin[j],q2maxbin[j],xminbin[i],xmaxbin[i],F2NMeanError);
@@ -1463,14 +1464,14 @@ Double_t yield(int NEvts, Int_t IndexData[], Double_t xBjData[],
 	Q2Data[i] < Q2CutMax &&
 	xBjData[i] >  XCutMin &&
 	xBjData[i] < XCutMax) {
-
+      
       calcYield[i] = ((numEvts_bin*sigmaTDISData[i]*lum)/NEvts)*(bin_delX*bin_delQ2);
       
       hyield->Fill(calcYield[i]);
 
     }
   }
-
+  
   tmp = hyield->GetEntries();
 
   cout << Form("Bins: Q^{2}[%4.3f-%4.3f],  x_{Bj}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
