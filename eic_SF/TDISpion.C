@@ -27,6 +27,7 @@
 
 #include "TDISpion.h"
 #include <TH2.h>
+#include <TH3F.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TPaveText.h>
@@ -114,6 +115,10 @@ void TDISpion::SlaveBegin(TTree * /*tree*/)
   pez_v_csPhi		= new TH2F("pez_v_csPhi","P_{ez} vs. #phi",200,-4,4,200,-15,15);		//
   q2_v_xbj		= new TH2F("q2_v_xbj","Q^{2} vs. x_{Bj}",200,0,1,200,0,150);		//
   f2N_v_q2		= new TH2F("f2pi_v_q2","f2N vs. Q^{2}",200,0,150,200,0,1.0);		//
+
+  hQ2vsXvsDISsigma = new TH3F("Q2vsXvsDISsigma", "Q^{2} vs. x_{Bj} vs. #sigma_{DIS};  x_{Bj}  ; Q^{2} (GeV^{2});#sigma_{DIS} (fb)", 200,0.0001,1.0,500,0.1,100., 100.,0.,100.); //
+
+  hQ2vsXvsDISsigma_cut = new TH3F("Q2vsXvsDISsigma_cut", "Q^{2} vs. x_{Bj} vs. #sigma_{DIS} (w/ cuts);  x_{Bj}  ; Q^{2} (GeV^{2});#sigma_{DIS} (fb)", 200,0.0001,1.0,500,0.1,100., 100.,0.,100.); //
   
 
   GetOutputList()->Add(inv_se);			//
@@ -181,6 +186,9 @@ void TDISpion::SlaveBegin(TTree * /*tree*/)
   GetOutputList()->Add(pez_v_csPhi);		//
   GetOutputList()->Add(q2_v_xbj);		//
   GetOutputList()->Add(f2N_v_q2);		//
+
+  GetOutputList()->Add(hQ2vsXvsDISsigma); //
+  GetOutputList()->Add(hQ2vsXvsDISsigma_cut); //
 }
 
 Bool_t TDISpion::Process(Long64_t entry)
@@ -262,16 +270,27 @@ Bool_t TDISpion::Process(Long64_t entry)
    pey_v_csPhi->Fill(*PhiScatRest,*pey_Lab);	//
    pez_v_csPhi->Fill(*PhiScatRest,*pez_Lab);	//
    q2_v_xbj->Fill(*xBj,*Q2,1.);	//
-   f2N_v_q2->Fill(*Q2,*f2N);   //
+   f2N_v_q2->Fill(*Q2,*f2N);   // 
+
+   hQ2vsXvsDISsigma->Fill(*xBj,*Q2,*sigma_dis);  //
+
+
+   // Range from Q2(0,5), x(0,1)
+   // if((*xBj >= 0. && *xBj <= 1.0) &&
+   //    (*Q2 >= 0 && *Q2 <= 5)
+   //    ) {
    
-   if((*xBj >= 0. && *xBj <= 1.0) &&
-      (*Q2 >= 0 && *Q2 <= 5)
+   if((*xBj >= 0. && *xBj <= 0.1) &&
+      (*Q2 >= 4.9 && *Q2 <= 5.1)
       ) {
      
      hbinned_tpi4->Fill(*tpi);		//
+     hQ2vsXvsDISsigma_cut->Fill(*xBj,*Q2,*sigma_dis);  //
     
    }
-
+   
+   //////////////////////////////////
+   
    if((*xBj >= 0. && *xBj <= 1.0) &&
       (*Q2 >= 60 && *Q2 <= 65)
       ) {
@@ -669,6 +688,24 @@ void TDISpion::Terminate()
   c_f2N_v_q2		= new TCanvas("c_f2N_v_q2","");
   c_f2N_v_q2->cd();
   f2N_v_q2->Draw("colz");
-  c_f2N_v_q2->Print(outputpdf+")");
+  c_f2N_v_q2->Print(outputpdf);
 
+  TCanvas		*c_hQ2vsXvsDISsigma;		//
+  c_hQ2vsXvsDISsigma		= new TCanvas("c_hQ2vsXvsDISsigma","");
+  c_hQ2vsXvsDISsigma->cd();
+  hQ2vsXvsDISsigma_cut->SetLineColor(kRed);
+  hQ2vsXvsDISsigma_cut->SetFillStyle(3001);
+  hQ2vsXvsDISsigma_cut->SetFillColor(3);
+  hQ2vsXvsDISsigma->Draw("BOX2");
+  hQ2vsXvsDISsigma_cut->Draw("box same");
+  // hQ2vsXvsDISsigma_cut->Draw("box");
+  int binmax = hQ2vsXvsDISsigma_cut->GetMaximumBin();
+  TPaveText *sigmaValue = new TPaveText(0.196,0.7153,0.407,0.855,"NDC");
+  // sigmaValue->AddText(Form("#sigma_{DIS} value:%.0f",hQ2vsXvsDISsigma_cut->GetMean()));
+  sigmaValue->AddText(Form("#sigma_{DIS} value:%.0f",hQ2vsXvsDISsigma_cut->GetZaxis()->GetXmax())); // Get Max sigma
+  sigmaValue->Draw();  
+  c_hQ2vsXvsDISsigma->Print(outputpdf+")");
+
+
+  
 }

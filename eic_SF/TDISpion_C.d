@@ -68,6 +68,9 @@
 ./TDISpion_C.so: /opt/jlab_software/2.2/Linux__LinuxMint18.3-x86_64-gcc5.4.0/root/6.12.06/include/TFitResultPtr.h
 ./TDISpion_C.so: /opt/jlab_software/2.2/Linux__LinuxMint18.3-x86_64-gcc5.4.0/root/6.12.06/include/TMatrixFBasefwd.h
 ./TDISpion_C.so: /opt/jlab_software/2.2/Linux__LinuxMint18.3-x86_64-gcc5.4.0/root/6.12.06/include/TMatrixDBasefwd.h
+./TDISpion_C.so: /opt/jlab_software/2.2/Linux__LinuxMint18.3-x86_64-gcc5.4.0/root/6.12.06/include/TH3F.h
+./TDISpion_C.so: /opt/jlab_software/2.2/Linux__LinuxMint18.3-x86_64-gcc5.4.0/root/6.12.06/include/TH3.h
+./TDISpion_C.so: /opt/jlab_software/2.2/Linux__LinuxMint18.3-x86_64-gcc5.4.0/root/6.12.06/include/TAtt3D.h
 ./TDISpion_C.so: /opt/jlab_software/2.2/Linux__LinuxMint18.3-x86_64-gcc5.4.0/root/6.12.06/include/TFile.h
 ./TDISpion_C.so: /opt/jlab_software/2.2/Linux__LinuxMint18.3-x86_64-gcc5.4.0/root/6.12.06/include/TDirectoryFile.h
 ./TDISpion_C.so: /opt/jlab_software/2.2/Linux__LinuxMint18.3-x86_64-gcc5.4.0/root/6.12.06/include/TMap.h

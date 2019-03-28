@@ -15,3 +15,6 @@ fi
 
 echo "Running $SCRIPT"
 eval "root -q -b -l $SCRIPT"
+
+
+mv *.png OUTPUT/

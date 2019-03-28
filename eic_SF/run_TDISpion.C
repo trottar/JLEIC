@@ -7,7 +7,6 @@
 void run_TDISpion(){
 
   TChain ch("Evnts");
-
   ch.Add("TDISpion.root");
   
   TProof *proof = TProof::Open("workers=4");
