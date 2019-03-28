@@ -31,7 +31,7 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
-const int NEvts = 90000;     
+const int NEvts = 80000;
 /* const int NEvts = 10000; */
 
 
@@ -689,6 +689,8 @@ double cdissigma( double k_x, double k_y, double k_q2, double k_nu, double k_ep,
     // In GeV^-2
     double ds_dOmega_dE = ds_dxdy*eprime/(2.0*3.14159*Mp*nu);
 
+    //    cout << ds_dOmega_dE*0.197*0.197*1e7 << '\n';
+    
     return ds_dOmega_dE*0.197*0.197*1e7; // GeV2 -> nb
 }
 

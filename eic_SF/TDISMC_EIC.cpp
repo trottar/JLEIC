@@ -12,6 +12,7 @@
 #include <time.h>
 #include <TCanvas.h>
 #include <TGraph.h>
+#include <TH3F.h>
 #include <vector>
 #include <fstream>
 #include <iostream>
@@ -324,8 +325,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 
 	TH1D *hptp2		= new TH1D("hptp2", "pT_{p2}", 100.,0.,1.);
 	TH1D *hzp2		= new TH1D("hzp2", "z_{p2}", 100.,0.,1.);
-	TH1D *hsigmaDIS		= new TH1D("hsigmaDIS", "#sigma_{DIS}", 100.,0.,100.);
+	TH1D *hsigmaDIS		= new TH1D("hsigmaDIS", "#sigma_{DIS};#sigma_{DIS} (fb);Number of Events", 100.,0.,100.);
 	TH1D *hsigmaTDIS	= new TH1D("hsigmaTDIS", "#sigma_{TDIS}", 100.,0.,100.);
+
+	TH3F *hQ2vsXvsDISsigma		= new TH3F("Q2vsXvsDISsigma", "Q^{2} vs. x_{Bj} vs. #sigma_{DIS};  x_{Bj}  ; Q^{2} (GeV^{2});#sigma_{DIS} (fb)", 200,0.0001,1.0,500,0.1,100., 100.,0.,100.);
      
 	Int_t IndexData[NEvts];
 	Double_t xBjData[NEvts];
@@ -1115,6 +1118,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	  hzp2->Fill(p2_z,weight_tdis);
 	  hsigmaDIS->Fill(sigma_dis);
 	  hsigmaTDIS->Fill(sigma_tdis);
+
+	  
+	  hQ2vsXvsDISsigma->Fill(invts.xBj,invts.Q2,sigma_dis);
 		
 
 	  //
