@@ -1,8 +1,8 @@
 *.png
 
 # GEMC stuff
-*.txt
-*.evio
+#*.txt
+#*.evio
 
 # sym link
 EIC_talks
