@@ -106,6 +106,8 @@ public :
 
   TH3F *hQ2vsXvsDISsigma; //
   TH3F *hQ2vsXvsDISsigma_cut; //
+
+  TH2F *hXvsDISsigma; //
   
 
    // Readers to access the data (delete the ones you do not need).
@@ -173,7 +175,7 @@ public :
    TTreeReaderValue<Double_t> csTheRest		= {fReader, "csTheRest"};
 
 
-   TDISpion(TTree * /*tree*/ =0) {inv_se=0,inv_sq=0,inv_Q2=0,  inv_xBj=0,inv_nu=0,inv_W=0,inv_x_D=0,inv_y_D=0,inv_tSpectator=0,inv_tPrime=0,inv_TwoPdotk=0,inv_TwoPdotq=0,inv_RT=0,inv_pDrest=0,inv_tempVar=0,inv_MX2=0,inv_alphaS=0,inv_pPerpS=0,inv_pPerpZ=0,hxpi=0,hypi=0,htpi=0,hfpi=0,hf2N=0,hp2_pt=0,hp2_z=0,hpex_Lab=0,hpey_Lab=0,hpez_Lab=0,hEeE_Lab=0,hppix_Lab=0,hppiy_Lab=0,hppiz_Lab=0,hEpiE_Lab=0,hpprx_Lab=0,hppry_Lab=0,hpprz_Lab=0,hEprE_Lab=0,hpXx_Lab=0,hpXy_Lab=0,hpXz_Lab=0,hEXE_Lab=0,hsigma_dis=0,hsigma_tdis=0,hTDIS_xbj=0,hTDIS_znq=0,hTDIS_Mx2=0,hTDIS_y=0,hEScatRest=0,hkScatRest=0,hPhiScatRest=0,hcsPhiRest=0,hcsTheRest=0,hbinned_tpi1=0,hbinned_tpi2=0,hbinned_tpi3=0,hbinned_tpi4=0,pex_v_csPhi=0,pey_v_csPhi=0,pez_v_csPhi=0,q2_v_xbj=0,f2N_v_q2=0,hQ2vsXvsDISsigma=0,hQ2vsXvsDISsigma_cut=0;}
+   TDISpion(TTree * /*tree*/ =0) {inv_se=0,inv_sq=0,inv_Q2=0,  inv_xBj=0,inv_nu=0,inv_W=0,inv_x_D=0,inv_y_D=0,inv_tSpectator=0,inv_tPrime=0,inv_TwoPdotk=0,inv_TwoPdotq=0,inv_RT=0,inv_pDrest=0,inv_tempVar=0,inv_MX2=0,inv_alphaS=0,inv_pPerpS=0,inv_pPerpZ=0,hxpi=0,hypi=0,htpi=0,hfpi=0,hf2N=0,hp2_pt=0,hp2_z=0,hpex_Lab=0,hpey_Lab=0,hpez_Lab=0,hEeE_Lab=0,hppix_Lab=0,hppiy_Lab=0,hppiz_Lab=0,hEpiE_Lab=0,hpprx_Lab=0,hppry_Lab=0,hpprz_Lab=0,hEprE_Lab=0,hpXx_Lab=0,hpXy_Lab=0,hpXz_Lab=0,hEXE_Lab=0,hsigma_dis=0,hsigma_tdis=0,hTDIS_xbj=0,hTDIS_znq=0,hTDIS_Mx2=0,hTDIS_y=0,hEScatRest=0,hkScatRest=0,hPhiScatRest=0,hcsPhiRest=0,hcsTheRest=0,hbinned_tpi1=0,hbinned_tpi2=0,hbinned_tpi3=0,hbinned_tpi4=0,pex_v_csPhi=0,pey_v_csPhi=0,pez_v_csPhi=0,q2_v_xbj=0,f2N_v_q2=0,hQ2vsXvsDISsigma=0,hQ2vsXvsDISsigma_cut=0,hXvsDISsigma=0;}
 
    virtual ~TDISpion() { }
    virtual Int_t   Version() const { return 2; }
