@@ -31,8 +31,8 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
-const int NEvts = 80000;
-/* const int NEvts = 10000; */
+/* const int NEvts = 80000; */
+const int NEvts = 10000;
 
 
 // spectator proton either proton beam or deuteron beam
@@ -689,9 +689,10 @@ double cdissigma( double k_x, double k_y, double k_q2, double k_nu, double k_ep,
     // In GeV^-2
     double ds_dOmega_dE = ds_dxdy*eprime/(2.0*3.14159*Mp*nu);
 
-    //    cout << ds_dOmega_dE*0.197*0.197*1e7 << '\n';
+    /* cout << ds_dOmega_dE*0.197*0.197*1e7 << '\n'; */
     
-    return ds_dOmega_dE*0.197*0.197*1e7; // GeV2 -> nb
+    /* return ds_dOmega_dE*0.197*0.197*1e7; // GeV2 -> nb */
+    return ds_dOmega_dE*(0.389)*(1e6); // GeV2 -> nb
 }
 
 
@@ -708,7 +709,7 @@ double dissigma_n(double eb, double th, double ep){
     return dissigma( eb, th, ep, 2 );
 }
 */
-// *** for the JLEIC cllider : it needs an input as x, y_D, q2, nu instead of ebeam, theta_e, eprime 
+// *** for the JLEIC collider : it needs an input as x, y_D, q2, nu instead of ebeam, theta_e, eprime 
 double cdissigma_p(double x, double y_D, double q2, double nu, double eprime){
   return cdissigma( x, y_D, q2, nu, eprime, 1);
 }

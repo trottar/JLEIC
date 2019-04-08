@@ -18,23 +18,24 @@
 #include <iostream>
 #include <algorithm>
 #include <TGraphErrors.h>
+#include <TROOT.h>
 
 // init DIS cteq pdf
 void initcteqpdf();
 
 int getIndexOfLargestElement(Double_t arr[], int FromIndex, int ToIndex);
-Double_t GetF2NForCut(Int_t NEvts, Int_t IndexData[], Double_t xBjData[],
-		      Double_t Q2Data[], Double_t F2NData[],
-		      Double_t Q2CutMin, Double_t Q2CutMax,
-		      Double_t XCutMin, Double_t XCutMax, Double_t& MeanError);
+// Double_t GetF2NForCut(Int_t NEvts, Int_t IndexData[], Double_t xBjData[],
+// 		      Double_t Q2Data[], Double_t F2NData[],
+// 		      Double_t Q2CutMin, Double_t Q2CutMax,
+// 		      Double_t XCutMin, Double_t XCutMax, Double_t& MeanError);
 
-Double_t Gettpibin(int NEvts, Int_t IndexData[], Double_t xBjData[],
-		   Double_t Q2Data[], Double_t tpiData[],Double_t Q2CutMin, Double_t Q2CutMax, Double_t XCutMin, Double_t XCutMax);
+// Double_t Gettpibin(int NEvts, Int_t IndexData[], Double_t xBjData[],
+// 		   Double_t Q2Data[], Double_t tpiData[],Double_t Q2CutMin, Double_t Q2CutMax, Double_t XCutMin, Double_t XCutMax);
 
 
-Double_t yield(int NEvts, Int_t IndexData[], Double_t xBjData[],Double_t Q2Data[], Double_t tpiData[],
-	       Double_t sigmaTDISData[], Double_t lum,Double_t Q2CutMin,
-	       Double_t Q2CutMax,Double_t XCutMin, Double_t XCutMax, int numBins);
+// Double_t GetSigma(int NEvts, Int_t IndexData[], Double_t xBjData[],Double_t Q2Data[], Double_t tpiData[],
+// 	       Double_t sigmaDISData[], Double_t lum,Double_t Q2CutMin,
+// 	       Double_t Q2CutMax,Double_t XCutMin, Double_t XCutMax, int numBins);
 
 // Define form factor function for proton and pion : f2p and f2pi to get TDIS cross-section
 // all belows are beased on "neutral pion": DISSOCIATION (dis=1, p -> p + pi0)
@@ -218,12 +219,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	// Store physics variable for TDIS into ROOTs
 	//  ************************************************
 	double tpi, ypi, fpi, xpi; 
-	double sigma_dis    = 0.0;
+        double sigma_dis    = 0.0;
 	double sigma_tdis  = 0.0;
-	double f2N = 0.0;
+	double f2N = 0.0;   
 	double p2_pt, p2_z;
 	Double_t qMag, pDotq;
-
+	
 	double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
 
 	const Int_t bufsize=32000; // what it was !
@@ -310,25 +311,23 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	//
 	// Histogramming
 	//
-	TH1D *hse		= new TH1D("hse","Invariant s_e =(k+P)^{2} (GeV^{2})", 100, s_e0*0.99,s_e0*1.01);
-	TH2D *hQ2vsX		= new TH2D("hQ2vsX", "Q^{2} vs. x_{Bj};  x_{Bj}  ; Q^{2} (GeV^{2})  ", 200,0.0001,1.0,500,0.1,200.);
-	TH1D *htS		= new TH1D("htS", "#delta p_{Dx} Collider ; #delta p_{Dx} (GeV) ; No.EVNT",200,4.9,5.1);
-	TH1D *htSY		= new TH1D("htSY", "#delta p_{Dy} Collider; #delta p_{Dy} (GeV) ; No.EVNT",200,-0.1,0.1);
-	TH1D *htSZ		= new TH1D("htSZ", "#delta p_{Dz} Collider; #delta p_{Dz} (GeV) ; No.EVNT",200,99.5,100.5);
-	TH1D *hnu		= new TH1D("hnu", "#nu_{Rest}", 100.,-100.,100.);
-	TH1D *halphaS		= new TH1D("halphaS", "#alpha_{S}", 100.,0.,2.);
+	// TH1D *hse		= new TH1D("hse","Invariant s_e =(k+P)^{2} (GeV^{2})", 100, s_e0*0.99,s_e0*1.01);
+	// TH2D *hQ2vsX		= new TH2D("hQ2vsX", "Q^{2} vs. x_{Bj};  x_{Bj}  ; Q^{2} (GeV^{2})  ", 200,0.0001,1.0,500,0.1,100.);
+	// TH1D *htS		= new TH1D("htS", "#delta p_{Dx} Collider ; #delta p_{Dx} (GeV) ; No.EVNT",200,4.9,5.1);
+	// TH1D *htSY		= new TH1D("htSY", "#delta p_{Dy} Collider; #delta p_{Dy} (GeV) ; No.EVNT",200,-0.1,0.1);
+	// TH1D *htSZ		= new TH1D("htSZ", "#delta p_{Dz} Collider; #delta p_{Dz} (GeV) ; No.EVNT",200,99.5,100.5);
+	// TH1D *hnu		= new TH1D("hnu", "#nu_{Rest}", 100.,-100.,100.);
+	// TH1D *halphaS		= new TH1D("halphaS", "#alpha_{S}", 100.,0.,2.);
 
-	// physics variable check
-	TH1D *hxpi		= new TH1D("hxpi", "x_{#pi}", 100.,0.,1.);
-	TH1D *hypi		= new TH1D("hypi", "y_{#pi}", 100.,0.,1.);
-	TH1D *htpi		= new TH1D("htpi", "t_{#pi}", 100.,-1.,0.);
+	// // physics variable check
+	// TH1D *hxpi		= new TH1D("hxpi", "x_{#pi}", 100.,0.,1.);
+	// TH1D *hypi		= new TH1D("hypi", "y_{#pi}", 100.,0.,1.);
+	// TH1D *htpi		= new TH1D("htpi", "t_{#pi}", 100.,-1.,0.);
 
-	TH1D *hptp2		= new TH1D("hptp2", "pT_{p2}", 100.,0.,1.);
-	TH1D *hzp2		= new TH1D("hzp2", "z_{p2}", 100.,0.,1.);
-	TH1D *hsigmaDIS		= new TH1D("hsigmaDIS", "#sigma_{DIS};#sigma_{DIS} (fb);Number of Events", 100.,0.,100.);
-	TH1D *hsigmaTDIS	= new TH1D("hsigmaTDIS", "#sigma_{TDIS}", 100.,0.,100.);
-
-	TH3F *hQ2vsXvsDISsigma		= new TH3F("Q2vsXvsDISsigma", "Q^{2} vs. x_{Bj} vs. #sigma_{DIS};  x_{Bj}  ; Q^{2} (GeV^{2});#sigma_{DIS} (fb)", 200,0.0001,1.0,500,0.1,100., 100.,0.,100.);
+	// TH1D *hptp2		= new TH1D("hptp2", "pT_{p2}", 100.,0.,1.);
+	// TH1D *hzp2		= new TH1D("hzp2", "z_{p2}", 100.,0.,1.);
+	// TH1D *hsigmaDIS		= new TH1D("hsigmaDIS", "#sigma_{DIS};#sigma_{DIS} (fb);Number of Events", 100.,0.,100.);
+	// TH1D *hsigmaTDIS	= new TH1D("hsigmaTDIS", "#sigma_{TDIS}", 100.,0.,100.);
      
 	Int_t IndexData[NEvts];
 	Double_t xBjData[NEvts];
@@ -336,16 +335,16 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	Double_t F2NData[NEvts];
 	Double_t Q2Data[NEvts];
 	Double_t tpiData[NEvts];
-	Double_t sigmaTDISData[NEvts];
+	Double_t sigmaDISData[NEvts];
 
-	TCanvas *CG = new TCanvas("CG","Q2 Graph");
-	TCanvas *CGA = new TCanvas("CGA","Q2 Graph");
+	// TCanvas *CG = new TCanvas("CG","Q2 Graph");
+	// TCanvas *CGA = new TCanvas("CGA","Q2 Graph");
 	
-	TGraph *GQ2 = new TGraph();
-	TGraphErrors *GCQ2 = new TGraphErrors();
+	// TGraph *GQ2 = new TGraph();
+	// TGraphErrors *GCQ2 = new TGraphErrors();
 	
-	TGraph *Gf2N = new TGraph();
-	TGraphErrors *GCf2N = new TGraphErrors();
+	// TGraph *Gf2N = new TGraph();
+	// TGraphErrors *GCf2N = new TGraphErrors();
 
 	
 	if (iran) {
@@ -436,11 +435,31 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	  vd0Y_Lab = 0;
 	  vd0Z_Lab = 0;
 	  
+	  double progress=0.0;
+	  
+	  if(iEvt%1000==0) {
+	    
+	    int barWidth = 70;
+
+	    progress = ((double)iEvt/(double)NEvts);
+	    
+	    // cout<<iEvt<<"/"<<NEvts<<endl;
+	    // cout << progress << endl;
+
+	    std::cout << "[";
+	    double pos = barWidth * progress;
+	    for (double i = 0.; i < barWidth; ++i) {
+	      if (i < pos) std::cout << "=";
+	      else if (i == pos) std::cout << ">";
+	      else std::cout << " ";
+	    }
+	    std::cout << "] " << int(progress * 100.0) << " %\r";
+	    std::cout.flush();
+	    
+	  }	 
 	  
 	  //counter
-	  if(iEvt%1000==0) cout<<iEvt<<"/"<<NEvts<<endl;
-
-	  //This is where issues arise***ERROR
+	  // if(iEvt%1000==0) cout<<iEvt<<"/"<<NEvts<<endl;
 		
 	  // these are with beam smearing
 	  kIncident_Vertex.SetXYZM(kBeamMCx, kBeamMCy, kBeamMCz, mElectron);// Set 4-momentum of incident electron beam
@@ -596,8 +615,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	  p_DT = PIncident_Vertex - (pDotq/qMag/qMag)*qVirtual_Rest;
 	  p_ST = pSpectator_Vertex -(pDotq/qMag/qMag)*qVirtual_Rest;
 	  // *****************************************************************************
-
-
 		
 
 	  // **********************************************************************************
@@ -672,7 +689,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 
 	  //  definition are moved at the beginning of code
 	  //		double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
-		
 	  TDIS_xbj = invts.Q2/(2*pSpectator_RestNew.Dot(qVirtual_Rest));
 	  TDIS_znq = p2_z*pSpectator_RestNew.Dot(qVirtual_Rest);
 	  TDIS_Mx2 = (qVirtual_Rest + pSpectator_RestNew).Mag2();
@@ -904,16 +920,17 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	  //  **********************************************************		
 	  // From the DIS event generator
 	  double minE = 0.0;
-	  
-	  if (TDIS_xbj > 0. && TDIS_xbj < 1.0){
+
+	  if (TDIS_xbj > 0.001 && TDIS_xbj < 1.0){
+	  // if (TDIS_xbj > 0. && TDIS_xbj < 1.0){
 	    // *** for the neutron/proton target
-	    f2N   = F2N(TDIS_xbj, invts.Q2, inucl);  // F2N is define at G4SBSDIS.hh
 	    // **** dissigma(E0, Theta_e, E') : where these are in Lab frame ??? should I apply electron lab ?
 	    //sigma_dis    = dissigma_n(kIncident_Rest.E(),
 	    //                          acos( kScattered_Rest.Z()/kScat3vec.Mag()),
 	    //                          kScattered_Rest.E()) ;
-	    // *** dissigma_n is also defined in G4SBSDIS.hh
-
+	    // *** dissigma_n is also defined in G4SBSDIS.hh	  
+	    f2N   = F2N(invts.xBj, invts.Q2, inucl);  // F2N is define at G4SBSDIS.hh
+	    // sigma_dis = cdissigma(invts.xBj,invts.y_D,invts.Q2,invts.nu,kScattered_Rest.E(),1);
 	    // *** for the JLEIC collider : it needs an input as (x, y_D, q2, nu, eprime_rest)  instead of ebeam, theta_e, eprime 
 	    if(ABeam>1.){
 	      sigma_dis    = cdissigma_n(TDIS_xbj,invts.y_D,invts.Q2,invts.nu,kScattered_Rest.E());
@@ -922,6 +939,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	      sigma_dis    = cdissigma_p(TDIS_xbj,invts.y_D,invts.Q2,invts.nu,kScattered_Rest.E());
 	    }
 	    sigma_tdis   = sigma_dis * (fpi/f2N); 
+	  }else{
+	    sigma_dis = 0.0;
+	    sigma_tdis = 0.0;
+	    f2N=0.0;
 	  }
 
 	  /*
@@ -951,16 +972,16 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 		
 
 	  // hyield->Fill(pex_Lab,(sigma_tdis/(182.5)));
-	  hse->Fill(invts.s_e,Jacob);
-	  hQ2vsX->Fill(invts.xBj,invts.Q2, 1.);
-	  hnu->Fill(qVirtual_Rest.E());
+	  // hse->Fill(invts.s_e,Jacob);
+	  // hQ2vsX->Fill(invts.xBj,invts.Q2, 1.);
+	  // hnu->Fill(qVirtual_Rest.E());
 
 	  xBjData[iEvt] = invts.xBj;
 	  xpiData[iEvt] = xpi;
 	  Q2Data[iEvt] = invts.Q2;
 	  F2NData[iEvt] = f2N;
 	  tpiData[iEvt] = tpi;
-	  sigmaTDISData[iEvt] = sigma_tdis;
+	  sigmaDISData[iEvt] = sigma_dis;
 	  
 	  
 
@@ -1056,7 +1077,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	    
 	    //p_RT = sqrt((invts.tPrime)/2)*0.9; 
 	    invts.p_RT = sqrt((invts.tPrime)/2)*1.0; 
-	    halphaS->Fill(invts.alphaS,1.);
+	    // halphaS->Fill(invts.alphaS,1.);
 
 
 
@@ -1109,18 +1130,19 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 
 	  // assign the TDIS cross-section as weight factor
 	  weight_tdis = 1.;
-	  hxpi->Fill(xpi,weight_tdis);
-	  hypi->Fill(ypi,weight_tdis);
-	  htpi->Fill(tpi,weight_tdis);
+	  // hxpi->Fill(xpi,weight_tdis);
+	  // hypi->Fill(ypi,weight_tdis);
+	  // htpi->Fill(tpi,weight_tdis);
 
 
-	  hptp2->Fill(p2_pt,weight_tdis);
-	  hzp2->Fill(p2_z,weight_tdis);
-	  hsigmaDIS->Fill(sigma_dis);
-	  hsigmaTDIS->Fill(sigma_tdis);
+	  // hptp2->Fill(p2_pt,weight_tdis);
+	  // hzp2->Fill(p2_z,weight_tdis);
+	  // hsigmaDIS->Fill(sigma_dis);
+	  // hsigmaTDIS->Fill(sigma_tdis);
 
+	  // hXvsDISsigma->Fill(sigma_dis,invts.xBj);
 	  
-	  hQ2vsXvsDISsigma->Fill(invts.xBj,invts.Q2,sigma_dis);
+	  // hQ2vsXvsDISsigma->Fill(invts.xBj,invts.Q2,sigma_dis);
 		
 
 	  //
@@ -1245,50 +1267,50 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	Double_t yield_Mean;
 	
 	// CG->cd(5);
-	CG->cd();
+	// CG->cd();
 
 	// GCf2N->GetXaxis()->SetRangeUser(0.0,1000); // FIX ME
 	// GCf2N->GetYaxis()->SetRangeUser(0.0,0.7); // FIX ME
 
 
 	for (int i = 0; i < numBins; i++) {
-	  GCf2N->SetTitle(Form("F2N vs Q^{2} xBj[%4.4f:%4.4f]",xminbin[i],xmaxbin[i]));
+	  // GCf2N->SetTitle(Form("F2N vs Q^{2} xBj[%4.4f:%4.4f]",xminbin[i],xmaxbin[i]));
 	  for (int j = 0; j < numBins; j++) {
 	    double delX = 0.5, lum = 10e5, delQ2 = uncerWL((q2minbin[j] + q2maxbin[j])/2,i);
 	    // lum = 10e34
 	    double uncerVal[] = {lum,delX,delQ2};//uncerVal[] = {lum,delX,delQ2,delt}
 	    F2NMeanError = uncerW(F2NMean,i,uncerVal);
-	    F2NMean = GetF2NForCut(NEvts,IndexData,xBjData,Q2Data,F2NData,q2minbin[j],q2maxbin[j],xminbin[i],xmaxbin[i],F2NMeanError);
-	    tpi_bin_Mean =  Gettpibin(NEvts,IndexData,xBjData,Q2Data,tpiData,q2minbin[j],q2maxbin[j],xminbin[i],xmaxbin[i]);
-	    yield_Mean =  yield(NEvts, IndexData, xBjData,Q2Data, tpiData,sigmaTDISData, lum,q2minbin[j], q2maxbin[j],xminbin[i], xmaxbin[i],numBins);
-	    GCf2N->SetPoint(j, (q2minbin[j] + q2maxbin[j])/2, F2NMean);
+	    // F2NMean = GetF2NForCut(NEvts,IndexData,xBjData,Q2Data,F2NData,q2minbin[j],q2maxbin[j],xminbin[i],xmaxbin[i],F2NMeanError);
+	    // tpi_bin_Mean =  Gettpibin(NEvts,IndexData,xBjData,Q2Data,tpiData,q2minbin[j],q2maxbin[j],xminbin[i],xmaxbin[i]);
+	    // yield_Mean =  GetSigma(NEvts, IndexData, xBjData,Q2Data, tpiData,sigmaDISData, lum,q2minbin[j], q2maxbin[j],xminbin[i], xmaxbin[i],numBins);
+	    // GCf2N->SetPoint(j, (q2minbin[j] + q2maxbin[j])/2, F2NMean);
 	    //GCf2N->SetPointError(j,0.,F2NMeanError); //FIXME
 	  }
-	  GCf2N->GetXaxis()->SetTitle("Q^{2}");
-	  GCf2N->GetYaxis()->SetTitle("f2piMean");
-	  GCf2N->Draw("AP");
+	  // GCf2N->GetXaxis()->SetTitle("Q^{2}");
+	  // GCf2N->GetYaxis()->SetTitle("f2piMean");
+	  // GCf2N->Draw("AP");
 	  // CG->Print(Form("F2NvsQ2__XFrom%4.3f_TO%4.3f.png",xminbin[i],xmaxbin[i]));
 	}
        
 
 
 
-	CG->Divide(3,2);
+	// CG->Divide(3,2);
 	
-	CG->cd(1);
-	GQ2->SetTitle("Q^{2} vs xBj");
-	GQ2->GetXaxis()->SetTitle("xBj");
-	GQ2->GetYaxis()->SetTitle("Q^{2}");
-	GQ2->GetXaxis()->SetRangeUser(0.0,1.0);
-	GQ2->GetYaxis()->SetRangeUser(0.0,1000.0);
-	GQ2->Draw("AP");
+	// CG->cd(1);
+	// GQ2->SetTitle("Q^{2} vs xBj");
+	// GQ2->GetXaxis()->SetTitle("xBj");
+	// GQ2->GetYaxis()->SetTitle("Q^{2}");
+	// GQ2->GetXaxis()->SetRangeUser(0.0,1.0);
+	// GQ2->GetYaxis()->SetRangeUser(0.0,1000.0);
+	// GQ2->Draw("AP");
 	
 
-	CG->cd(2);
-	Gf2N->SetTitle("f2N vs Q^{2}");
-	Gf2N->GetXaxis()->SetTitle("Q^{2}");
-	Gf2N->GetYaxis()->SetTitle("f2N");
-	Gf2N->Draw("AP");
+	// CG->cd(2);
+	// Gf2N->SetTitle("f2N vs Q^{2}");
+	// Gf2N->GetXaxis()->SetTitle("Q^{2}");
+	// Gf2N->GetYaxis()->SetTitle("f2N");
+	// Gf2N->Draw("AP");
 
 	Double_t XDataQ2[NEvts];
 	Double_t YDataQ2[NEvts];
@@ -1296,10 +1318,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	Double_t XDataf2N[NEvts];
 	Double_t YDataf2N[NEvts];
 	
-	for (int iEvt=0; iEvt<NEvts; iEvt++) {
-	  GQ2->GetPoint(iEvt,XDataQ2[iEvt],YDataQ2[iEvt]);
-	  Gf2N->GetPoint(iEvt,XDataf2N[iEvt],YDataf2N[iEvt]);
-	}
+	// for (int iEvt=0; iEvt<NEvts; iEvt++) {
+	//   GQ2->GetPoint(iEvt,XDataQ2[iEvt],YDataQ2[iEvt]);
+	//   Gf2N->GetPoint(iEvt,XDataf2N[iEvt],YDataf2N[iEvt]);
+	// }
 	
 	Int_t IndOrderQ2[NEvts];
 	Int_t IndOrderf2N[NEvts];
@@ -1336,26 +1358,26 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	Int_t Delta = 10; //
 	Int_t NBins = TMath::Nint(MEvts/Delta);
 
-	for (Int_t i = 0; i < NBins; i++){
-	  IndexMaxVQ2 = getIndexOfLargestElement(YCurveQ2, i*Delta, i*Delta+Delta);
-	  IndexMaxVf2N = getIndexOfLargestElement(YCurvef2N, i*Delta, i*Delta+Delta);
-	  GCQ2->SetPoint(i, XCurveQ2[IndexMaxVQ2], YCurveQ2[IndexMaxVQ2]);
-	  //GCQ2->SetPointError(i, 0.02, 20.0); FIX ME
-	  GCf2N->SetPoint(i, XCurvef2N[IndexMaxVf2N], YCurvef2N[IndexMaxVf2N]);
-	  //GCf2N->SetPointError(i, 20.0, 0.02); FIX ME
-	}
+	// for (Int_t i = 0; i < NBins; i++){
+	//   IndexMaxVQ2 = getIndexOfLargestElement(YCurveQ2, i*Delta, i*Delta+Delta);
+	//   IndexMaxVf2N = getIndexOfLargestElement(YCurvef2N, i*Delta, i*Delta+Delta);
+	//   GCQ2->SetPoint(i, XCurveQ2[IndexMaxVQ2], YCurveQ2[IndexMaxVQ2]);
+	//   //GCQ2->SetPointError(i, 0.02, 20.0); FIX ME
+	//   GCf2N->SetPoint(i, XCurvef2N[IndexMaxVf2N], YCurvef2N[IndexMaxVf2N]);
+	//   //GCf2N->SetPointError(i, 20.0, 0.02); FIX ME
+	// }
 
-	CG->cd(4);
-	GCQ2->SetTitle("Q^{2} vs xBj Curve");
-	GCQ2->GetXaxis()->SetRangeUser(0.0,1.0);
-	GCQ2->GetYaxis()->SetRangeUser(0.0,1000.0);
-	GCQ2->GetXaxis()->SetTitle("xBj");
-	GCQ2->GetYaxis()->SetTitle("Q^{2} Limit Curve");
-	GCQ2->Draw("AP");
+	// CG->cd(4);
+	// GCQ2->SetTitle("Q^{2} vs xBj Curve");
+	// GCQ2->GetXaxis()->SetRangeUser(0.0,1.0);
+	// GCQ2->GetYaxis()->SetRangeUser(0.0,1000.0);
+	// GCQ2->GetXaxis()->SetTitle("xBj");
+	// GCQ2->GetYaxis()->SetTitle("Q^{2} Limit Curve");
+	// GCQ2->Draw("AP");
 
 
-	CGA->cd();
-	hQ2vsX->Draw("COL");
+	// CGA->cd();
+	// hQ2vsX->Draw("COL");
 
 	
 	// CG->Print("Q2vsxBj.png");
@@ -1368,143 +1390,178 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	return MEvts;
 }
 
-int getIndexOfLargestElement(Double_t arr[], int FromIndex, int ToIndex) {
-    int largestIndex = FromIndex;
-    for (int index = largestIndex; index < ToIndex; index++) {
-        if (arr[largestIndex] < arr[index]) {
-            largestIndex = index;
-        }
-    }
-    return largestIndex;
-}
+// int getIndexOfLargestElement(Double_t arr[], int FromIndex, int ToIndex) {
+//     int largestIndex = FromIndex;
+//     for (int index = largestIndex; index < ToIndex; index++) {
+//         if (arr[largestIndex] < arr[index]) {
+//             largestIndex = index;
+//         }
+//     }
+//     return largestIndex;
+// }
 
-TCanvas *CHf2 = new TCanvas();
-TH1F *HF2NCut = new TH1F("HF2NCut", "F2PI1D_Histo", 100, 0.0, 1.0);
+// TCanvas *CHf2 = new TCanvas();
+// TH1F *HF2NCut = new TH1F("HF2NCut", "F2PI1D_Histo", 100, 0.0, 1.0);
 
-Double_t GetF2NForCut(int NEvts, Int_t IndexData[], Double_t xBjData[],
-		      Double_t Q2Data[], Double_t F2NData[],
-		      Double_t Q2CutMin, Double_t Q2CutMax,
-		      Double_t XCutMin, Double_t XCutMax, Double_t& MeanError){
+// Double_t GetF2NForCut(int NEvts, Int_t IndexData[], Double_t xBjData[],
+// 		      Double_t Q2Data[], Double_t F2NData[],
+// 		      Double_t Q2CutMin, Double_t Q2CutMax,
+// 		      Double_t XCutMin, Double_t XCutMax, Double_t& MeanError){
+  
+//   for (Int_t i = 0; i < NEvts; i++) {
+//     HF2NCut->Fill(F2NData[i]);
+//     if (Q2Data[i] > Q2CutMin &&
+// 	Q2Data[i] < Q2CutMax &&
+// 	xBjData[i] >  XCutMin &&
+// 	xBjData[i] < XCutMax) {
 
-  for (Int_t i = 0; i < NEvts; i++) {
-    if (Q2Data[i] > Q2CutMin &&
-	Q2Data[i] < Q2CutMax &&
-	xBjData[i] >  XCutMin &&
-	xBjData[i] < XCutMax) {
-
-      HF2NCut->Fill(F2NData[i]);
+//       // HF2NCut->Fill(F2NData[i]);
       
-    }
-  }
-
+//     }
+//   }
  
-  CHf2->cd();
-  HF2NCut->Draw();
-  //CHf2->Print(Form("f2pi1DHisto_Q2From%4.3f_To%4.3f__XFrom%4.3f_To%4.3f.png",Q2CutMin,Q2CutMax,XCutMin,XCutMax));
+//   CHf2->cd();
+//   CHf2->SetLogy();
+//   HF2NCut->Draw();
+//   CHf2->Print(Form("f2N1DHisto_Q2From%4.3f_To%4.3f__XFrom%4.3f_To%4.3f.png",Q2CutMin,Q2CutMax,XCutMin,XCutMax));
 
-  MeanError = HF2NCut->GetMeanError();
-  return HF2NCut->GetMean() ;
+//   MeanError = HF2NCut->GetMeanError();
+//   return HF2NCut->GetMean() ;
   
-}
+// }
 
-TCanvas *c_tpi_bin;
-TH1F *htpi_bin;
+// TCanvas *c_tpi_bin;
+// TH1F *htpi_bin;
 
-Double_t Gettpibin(int NEvts, Int_t IndexData[], Double_t xBjData[],
-		   Double_t Q2Data[], Double_t tpiData[],Double_t Q2CutMin, Double_t Q2CutMax, Double_t XCutMin, Double_t XCutMax){
+// Double_t Gettpibin(int NEvts, Int_t IndexData[], Double_t xBjData[],
+// 		   Double_t Q2Data[], Double_t tpiData[],Double_t Q2CutMin, Double_t Q2CutMax, Double_t XCutMin, Double_t XCutMax){
 
-  Double_t tpi_value = 0;
+//   Double_t tpi_value = 0;
   
-  c_tpi_bin = new TCanvas();
-  htpi_bin = new TH1F("htpi_bin", Form("t_{#pi} binned in Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax), 500, -1., 0);
+//   delete gROOT->FindObject("htpi_bin");
   
-  for (Int_t i = 0; i < NEvts; i++) {
-    if (Q2Data[i] > Q2CutMin &&
-    	Q2Data[i] < Q2CutMax &&
-    	xBjData[i] >  XCutMin &&
-    	xBjData[i] < XCutMax) {
+//   c_tpi_bin = new TCanvas();
+//   htpi_bin = new TH1F("htpi_bin", Form("t_{#pi} binned in Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax), 500, -1., 0);
+  
+//   for (Int_t i = 0; i < NEvts; i++) {
+//     htpi_bin->Fill(tpiData[i]);
+//     if (Q2Data[i] > Q2CutMin &&
+//     	Q2Data[i] < Q2CutMax &&
+//     	xBjData[i] >  XCutMin &&
+//     	xBjData[i] < XCutMax) {
       
-      htpi_bin->Fill(tpiData[i]);
+//       // htpi_bin->Fill(tpiData[i]);
       
-    }
-  }
+//     }
+//   }
 
-  tpi_value = htpi_bin->GetEntries();
+//   tpi_value = htpi_bin->GetEntries();
   
-  if(tpi_value > 0){
-    c_tpi_bin->cd();
-    c_tpi_bin->SetLogy();
-    htpi_bin->GetXaxis()->SetTitle("t_{#pi}");
-    htpi_bin->Draw();
-    c_tpi_bin->Print(Form("tpi-1DHisto_Q2From%4.3f_To%4.3f__XFrom%4.3f_To%4.3f.png",Q2CutMin,Q2CutMax,XCutMin,XCutMax));
+//   if(tpi_value > 0){
+//     c_tpi_bin->cd();
+//     c_tpi_bin->SetLogy();
+//     htpi_bin->GetXaxis()->SetTitle("t_{#pi}");
+//     htpi_bin->Draw();
+//     c_tpi_bin->Print(Form("tpi-1DHisto_Q2From%4.3f_To%4.3f__XFrom%4.3f_To%4.3f.png",Q2CutMin,Q2CutMax,XCutMin,XCutMax));
     
-  }else{
-    cout << Form("Not enough statisticss for bin Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
-  }
+//   }else{
+//     cout << Form("Not enough statisticss for bin Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
+//   }
+
+//   htpi_bin->Reset();
   
-  return htpi_bin->Integral();
+//   return htpi_bin->Integral();
 
-}
+// }
 
-TCanvas *cyield;
-TH1F *hyield;
-Int_t bin = 0;
+// TCanvas *cXvsDISsigma;
+// TCanvas *cQ2vsXvsDISsigma;
+// TH2D  *hXvsDISsigma;
+// TH3D *hQ2vsXvsDISsigma = new TH3D("Q2vsXvsDISsigma", "Q^{2} vs. x_{Bj} vs. #sigma_{DIS};  x_{Bj}  ; Q^{2} (GeV^{2});#sigma_{DIS} (fb)", 200,0.0001,1.0,500,0.1,100., 100.,0.,10.);
+// // TCanvas *cyield;
+// // TH1F *hyield;
+// Int_t bin = 0;
 
-Double_t yield(int NEvts, Int_t IndexData[], Double_t xBjData[],
-	       Double_t Q2Data[], Double_t tpiData[],
-	       Double_t sigmaTDISData[], Double_t lum,
-	       Double_t Q2CutMin, Double_t Q2CutMax,
-	       Double_t XCutMin, Double_t XCutMax, int numBins){
+// Double_t GetSigma(int NEvts, Int_t IndexData[], Double_t xBjData[],
+// 	       Double_t Q2Data[], Double_t tpiData[],
+// 	       Double_t sigmaDISData[], Double_t lum,
+// 	       Double_t Q2CutMin, Double_t Q2CutMax,
+// 	       Double_t XCutMin, Double_t XCutMax, int numBins){
 
-  cyield = new TCanvas();
-  hyield = new TH1F("hyield", Form("Yield binned in Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax), 500, 0, 1);
+//   delete gROOT->FindObject("hXvsDISsigma");
   
-  Double_t numEvts_bin = Gettpibin(NEvts, IndexData, xBjData,Q2Data, tpiData,Q2CutMin, Q2CutMax, XCutMin, XCutMax);
-  Double_t calcYield[NEvts];
-  Double_t bin_delX = XCutMax-XCutMin;
-  Double_t bin_delQ2 = Q2CutMax-Q2CutMin;
-  Double_t tmp=0;
+//   // cyield = new TCanvas();
+//   cXvsDISsigma = new TCanvas();
+//   cQ2vsXvsDISsigma = new TCanvas();
+//   hXvsDISsigma = new TH2D("XvsDISsigma", "x_{Bj} vs. #sigma_{DIS} [Q^{2}=7#pm 0.1 GeV^{2}, 0#leq x#leq 0.1];  x_{Bj}  ;#sigma_{DIS} (fb)", 200,0.0001,1.0,100.,0.,10); //
+//   // hyield = new TH1F("hyield", Form("Yield binned in Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax), 500, 0, 1);
+
+
+//   Int_t bin = 0;
   
-  for (Int_t i = 0; i < NEvts; i++) {
-    if (Q2Data[i] > Q2CutMin &&
-	Q2Data[i] < Q2CutMax &&
-	xBjData[i] >  XCutMin &&
-	xBjData[i] < XCutMax) {
+//   Double_t numEvts_bin = Gettpibin(NEvts, IndexData, xBjData,Q2Data, tpiData,Q2CutMin, Q2CutMax, XCutMin, XCutMax);
+//   Double_t calcYield[NEvts];
+//   Double_t bin_delX = XCutMax-XCutMin;
+//   Double_t bin_delQ2 = Q2CutMax-Q2CutMin;
+//   Double_t tmp=0;
+  
+//   for (Int_t i = 0; i < NEvts; i++) {
+//     hQ2vsXvsDISsigma->Fill(xBjData[i],Q2Data[i],sigmaDISData[i]);
+//     // if (Q2Data[i] > Q2CutMin &&
+//     // 	Q2Data[i] < Q2CutMax &&
+//     // 	xBjData[i] >  XCutMin &&
+//     // 	xBjData[i] < XCutMax) {
+//     if (Q2Data[i] > 6.9 &&
+// 	Q2Data[i] < 7.1 &&
+// 	xBjData[i] >  0. &&
+// 	xBjData[i] < 0.1) {
+//       hXvsDISsigma->Fill(sigmaDISData[i],xBjData[i]);      
+//       calcYield[i] = ((numEvts_bin*sigmaDISData[i]*lum)/NEvts)*(bin_delX*bin_delQ2);
       
-      calcYield[i] = ((numEvts_bin*sigmaTDISData[i]*lum)/NEvts)*(bin_delX*bin_delQ2);
-      
-      hyield->Fill(calcYield[i]);
+//       // hyield->Fill(calcYield[i]);
 
-    }
-  }
+//     }
+//   }
   
-  tmp = hyield->GetEntries();
+//   // tmp = hyield->GetEntries();
 
-  cout << Form("Bins: Q^{2}[%4.3f-%4.3f],  x_{Bj}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
+//   cout << Form("Bins: Q^{2}[%4.3f-%4.3f],  x_{Bj}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
   
-  cout << bin << ", ";
-  cout << tmp  << '\n';
-  
-  // if(hyield->GetEntries() > (NEvts*.01)){
-  if(tmp > 0){
-    cyield->cd();
-    hyield->Draw();
-    cyield->Print(Form("yield_Q2From%4.3f_To%4.3f__XFrom%4.3f_To%4.3f.png",Q2CutMin,Q2CutMax,XCutMin,XCutMax));
-  }else{
-    cout << Form("Not enough statisticss for bin Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
-  }
+//   cout << bin << ", ";
+//   cout << tmp  << '\n';
 
-  ofstream myfile1;
-  myfile1.open ("Yield_Data.dat", fstream::app);
-  myfile1 << Form("%s\n %i %f %i\n",
-		  Form("#Bins: Q^{2}[%4.3f-%4.3f],  x_{Bj}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax),
-		  bin,
-		  tmp,
-		  NEvts);
-  myfile1.close();
+//   // if(hyield->GetEntries() > (NEvts*.01)){
+//   if(tmp > 0){
+//     // cyield->cd();
+//     // hyield->Draw();
+//     // cyield->Print(Form("yield_Q2From%4.3f_To%4.3f__XFrom%4.3f_To%4.3f.png",Q2CutMin,Q2CutMax,XCutMin,XCutMax));
+//   }else{
+//     cout << Form("Not enough statisticss for bin Q^{2}[%4.3f-%4.3f] and x_{#pi}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax) << '\n';
+//   }
+
+//   cQ2vsXvsDISsigma->cd();
+//   hQ2vsXvsDISsigma->Draw();
+//   hQ2vsXvsDISsigma->Print("Q2vsXvsDISsigma.png");
+//   cXvsDISsigma->cd();
+//   cXvsDISsigma->SetLogx();
+//   hXvsDISsigma->Draw();
+//   hXvsDISsigma->Print("XvsDISsigma.png");
   
-  bin++;
+//   ofstream myfile1;
+//   myfile1.open ("Yield_Data.dat", fstream::app);
+//   myfile1 << Form("%s\n %i %f %i\n",
+// 		  Form("#Bins: Q^{2}[%4.3f-%4.3f],  x_{Bj}[%4.3f-%4.3f]",Q2CutMin,Q2CutMax,XCutMin,XCutMax),
+// 		  bin,
+// 		  tmp,
+// 		  NEvts);
+//   myfile1.close();
   
-  return hyield->GetEntries();
+//   bin++;
+
+//   hXvsDISsigma->Reset();
   
-}
+//   return hXvsDISsigma->GetEntries();
+  
+// }
+
+

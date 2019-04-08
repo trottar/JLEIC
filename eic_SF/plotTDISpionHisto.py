@@ -1,134 +1,208 @@
-#!/usr/bin/env python
+#! /usr/bin/python
 
-#import ROOT import *
+#
+# Description:This will read in the array data file that contains all the leave histogram information
+# ================================================================
+# Time-stamp: "2019-04-08 08:05:34 trottar"
+# ================================================================
+#
+# Author:  Richard L. Trotta III <trotta@cua.edu>
+#
+# Copyright (c) trottar
+#
+
+import logging
+
+# Gets rid of matplot logging DEBUG messages
+plt_logger = logging.getLogger('matplotlib')
+plt_logger.setLevel(logging.WARNING)
+
 from ROOT import TCanvas, TPad, TFile, TPaveLabel, TPaveText, TTreeReader, TTreeReaderValue
 from ROOT import gROOT
 from rootpy.interactive import wait
+import matplotlib.pyplot as plt
+from matplotlib import interactive
+from matplotlib import colors
 import numpy as np
+import sys
 
-outputpdf = 'OUTPUT/plot_TDISpionHisto.pdf'
+rootName = "TDISpion_80k"
+# rootName = "TDISpion"
 
-cypi = TCanvas( 'cypi', 'hypi', 600, 400)
-cse = TCanvas( 'cse', 'hse', 600, 400)
-cQ2vsX = TCanvas( 'cQ2vsX', 'hQ2vsX', 600, 400)
-ctS = TCanvas( 'ctS', 'htS', 600, 400)
-ctSY = TCanvas( 'ctSY', 'htSY', 600, 400)
-ctSZ = TCanvas( 'ctSZ', 'htSZ', 600, 400)
-cnu = TCanvas( 'cnu', 'hnu', 600, 400)
-calphaS = TCanvas( 'calphaS', 'halphaS', 600, 400)
-cxpi = TCanvas( 'cxpi', 'hxpi', 600, 400)
-cypi = TCanvas( 'cypi', 'hypi', 600, 400)
-ctpi = TCanvas( 'ctpi', 'htpi', 600, 400)
-cptp2 = TCanvas( 'cptp2', 'hptp2', 600, 400)
-czp2 = TCanvas( 'czp2', 'hzp2', 600, 400)
-csigmaDIS = TCanvas( 'csigmaDIS', 'hsigmaDIS', 600, 400)
-csigmaTDIS = TCanvas( 'csigmaTDIS', 'hsigmaTDIS', 600, 400)
+tree1 = "Evnts"
 
-f = TFile.Open("TDISpion.root","read")
-if not f or f.IsZombie() :
-	exit
-f.ls()
+T1_arrkey =  "leafName1"
+T1_arrhist = "histData1"
 
-#tree = f.Get("Evnts")
-#r = TTreeReader("Evnts", f)
-#xpi = TTreeReaderValue(float)(r, "xpi")
-#while r.Next():
-#    print(xpi)
+# Retrieves the array data file and creates new leaves from this
+def pullArray():
+    
+    data = np.load("%s.npz" % rootName)
 
-cypi.cd()
-cypi.SetLogy()
-hypi = gROOT.FindObject( 'hypi' )
-hypi.SetFillColor( 45 )
-hypi.DrawCopy()
-label1 = TPaveLabel( -3.5, 700, -1, 800, 'Default option' )
-label1.SetFillColor( 42 )
-label1.Draw()
-cypi.Print(outputpdf+"(")
+    T1 = data[T1_arrkey]
+    T1_hist = data[T1_arrhist]
 
-cse.cd()
-hse = gROOT.FindObject( 'hse' )
-hse.SetFillColor( 45 )
-hse.DrawCopy()
-cse.Print(outputpdf)
+    return[T1,T1_hist]
 
-cQ2vsX.cd()
-hQ2vsX = gROOT.FindObject( 'hQ2vsX' )
-hQ2vsX.SetFillColor( 45 )
-hQ2vsX.DrawCopy()
-cQ2vsX.Print(outputpdf)
+# Creates a dictionary that stores leaf names with the corresponding array
+def dictionary():
 
-ctS.cd()
-htS = gROOT.FindObject( 'htS' )
-htS.SetFillColor( 45 )
-htS.DrawCopy()
-ctS.Print(outputpdf)
+    [T1,T1_hist] = pullArray()
+    
+    T1_leafdict = dict(zip(T1, T1_hist))
 
-ctSY.cd()
-htSY = gROOT.FindObject( 'htSY' )
-htSY.SetFillColor( 45 )
-htSY.DrawCopy()
-ctSY.Print(outputpdf)
+    return[T1_leafdict]
 
-ctSZ.cd()
-htSZ = gROOT.FindObject( 'htSZ' )
-htSZ.SetFillColor( 45 )
-htSZ.DrawCopy()
-ctSZ.Print(outputpdf)
+# A quick way to look up a leaf name for its array
+def lookup(key):
 
-cnu.cd()
-hnu = gROOT.FindObject( 'hnu' )
-hnu.SetFillColor( 45 )
-hnu.DrawCopy()
-cnu.Print(outputpdf)
+    [T1_leafdict] = dictionary()
+    
+    T1_leafdict.get(key,"Leaf name not found")
 
-calphaS.cd()
-halphaS = gROOT.FindObject( 'halphaS' )
-halphaS.SetFillColor( 45 )
-halphaS.DrawCopy()
-calphaS.Print(outputpdf)
+    return[T1_leafdict.get(key,"Leaf name not found")]
 
-cxpi.cd()
-hxpi = gROOT.FindObject( 'hxpi' )
-hxpi.SetFillColor( 45 )
-hxpi.DrawCopy()
-cxpi.Print(outputpdf)
+# Recreates the histograms of the root file
+def recreateLeaves():
 
-cypi.cd()
-hypi = gROOT.FindObject( 'hypi' )
-hypi.SetFillColor( 45 )
-hypi.DrawCopy()
-cypi.Print(outputpdf)
+    [T1_leafdict] = dictionary()
 
-ctpi.cd()
-htpi = gROOT.FindObject( 'htpi' )
-htpi.SetFillColor( 45 )
-htpi.DrawCopy()
-ctpi.Print(outputpdf)
+    binwidth = 1.0
+    
+    i=1
+    print("Looing at TTree %s" % tree1)
+    print("Enter n to see next plot and q to exit program\n")
+    for key,arr in T1_leafdict.items():
+        # print key, "->", arr)
+        if (np.all(arr == 0.)):
+            print("Histogram %s: Empty array" % key)
+        elif ( 2. > len(arr)) :
+            print("Histogram %s: Only one element" % key)
+        else:
+            binwidth = (abs(arr).max())/100
+            plt.figure()
+            plt.hist(arr,bins=np.arange(min(arr), max(arr) + binwidth, binwidth),histtype='step', stacked=True, fill=False )
+            plt.title(key, fontsize =16)
+            foutname = 'fig_'+key+'.png'
+            i+=1
 
-cptp2.cd()
-hptp2 = gROOT.FindObject( 'hptp2' )
-hptp2.SetFillColor( 45 )
-hptp2.DrawCopy()
-cptp2.Print(outputpdf)
+    print("\nTTree %s completed" % tree1)
 
-czp2.cd()
-hzp2 = gROOT.FindObject( 'hzp2' )
-hzp2.SetFillColor( 45 )
-hzp2.DrawCopy()
-czp2.Print(outputpdf)
+def cut(cut,plot,low,high):
 
-csigmaDIS.cd()
-hsigmaDIS = gROOT.FindObject( 'hsigmaDIS' )
-hsigmaDIS.SetFillColor( 45 )
-hsigmaDIS.DrawCopy()
-csigmaDIS.Print(outputpdf)
+    [T1,T1_hist] = pullArray()
+    
+    [T1_leafdict] = dictionary()
 
-csigmaTDIS.cd()
-hsigmaTDIS = gROOT.FindObject( 'hsigmaTDIS' )
-hsigmaTDIS.SetFillColor( 45 )
-hsigmaTDIS.DrawCopy()
-csigmaTDIS.Print(outputpdf+")")
+    arrCut = T1_leafdict[cut]
+    arrPlot = T1_leafdict[plot]
+    
+    arrPlot = arrPlot[(arrCut > low) & (arrCut < high)]
 
-#if not gROOT.IsBatch():
-#    input("press [Enter] to continue ")
+    return[arrPlot]
 
+def cutRecursive(lastCut,newcut,plot,low,high):
+
+    [T1,T1_hist] = pullArray()
+    
+    [T1_leafdict] = dictionary()
+
+    arrLast = lastCut
+    arrCut = T1_leafdict[newcut]
+    arrPlot = T1_leafdict[plot]
+    
+    arrPlot = arrPlot[(arrCut > low) & (arrCut < high)]
+
+    arrNew = np.intersect1d(arrLast,arrPlot)
+
+    return[arrNew]    
+    
+def densityPlot(x,y,title,xlabel,ylabel):
+
+    fig, ax = plt.subplots(tight_layout=True)
+    
+    hist = ax.hist2d(x, y,bins=40, norm=colors.LogNorm())
+    plt.title(title, fontsize =16)
+    plt.xlabel(title)
+    plt.ylabel(title)
+    
+    # Can call arrays to create your own plots
+def customPlots():
+
+    [T1_leafdict] = dictionary()
+
+    TDIS_xbj = lookup("TDIS_xbj")
+    sigma_dis = lookup("sigma_dis")
+    Q2 = lookup("Q2")
+
+    # Density plot
+    densityPlot(TDIS_xbj[0],Q2[0],'$Q^{2}$ vs TDIS_xbj','TDIS_xbj','$Q^{2}$')
+
+    # Scatter plot
+    cut1_sigma_dis = cut("Q2","sigma_dis",6.9,7.1)[0]
+    cut1_TDIS_xbj = cut("Q2","TDIS_xbj",6.9,7.1)[0]
+
+    cut2_sigma_dis = cut("Q2","sigma_dis",14.9,15.1)[0]
+    cut2_TDIS_xbj = cut("Q2","TDIS_xbj",14.9,15.1)[0]
+
+    cut3_sigma_dis = cut("Q2","sigma_dis",29.9,30.1)[0]
+    cut3_TDIS_xbj = cut("Q2","TDIS_xbj",29.9,30.1)[0]
+    
+    plt.figure()
+    plt.scatter(cut1_TDIS_xbj,cut1_sigma_dis,label='$Q^2$=7.0 $GeV^2$')
+    plt.scatter(cut2_TDIS_xbj,cut2_sigma_dis,label='$Q^2$=15.0 $GeV^2$')
+    plt.scatter(cut3_TDIS_xbj,cut3_sigma_dis,label='$Q^2$=30.0 $GeV^2$')
+    plt.title('$\sigma_{DIS}$ vs TDIS_xbj', fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.4,0.5), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    plt.xlabel('TDIS_xbj')
+    plt.ylabel('$\sigma_{DIS}$ (nb)')
+    plt.xlim(1e-4,1e-1)
+    plt.xscale('log')
+    # plt.ylim(0.,10)
+    plt.yscale('log')
+
+    # Scatter plot
+    cut1_f2N = cut("Q2","f2N",6.9,7.1)[0]
+    cut2_f2N = cut("Q2","f2N",14.9,15.1)[0]
+    cut3_f2N = cut("Q2","f2N",29.9,30.1)[0]
+    
+    plt.figure()
+    plt.scatter(cut1_TDIS_xbj,cut1_f2N,label='$Q^2$=7.0 $GeV^2$')
+    plt.scatter(cut2_TDIS_xbj,cut2_f2N,label='$Q^2$=15.0 $GeV^2$')
+    plt.scatter(cut3_TDIS_xbj,cut3_f2N,label='$Q^2$=30.0 $GeV^2$')
+    plt.title('$F^{N}_{2}$ vs TDIS_xbj', fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.4,0.5), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    plt.xlabel('TDIS_xbj')
+    plt.ylabel('$F^{N}_{2}$')
+    plt.xlim(1e-4,1e-1)
+    plt.xscale('log')
+    # plt.ylim(0.,10)
+    # plt.yscale('log')
+
+    # Histogram
+    cut1_tpi = cut("Q2","tpi",6.9,7.1)[0]
+    cut2_tpi = cut("Q2","tpi",14.9,15.1)[0]
+    cut3_tpi = cut("Q2","tpi",29.9,30.1)[0]
+    cut4a_tpi = cut("Q2","tpi",1.0,2.0)[0]
+    cut4_tpi = cutRecursive(cut4a_tpi,"TDIS_xbj","tpi",0.001,0.01)[0]
+
+    binwidth = (abs(cut1_tpi).max())/100
+    plt.figure()
+    plt.hist(cut4a_tpi,bins=np.arange(min(cut1_tpi), max(cut1_tpi) + binwidth, binwidth),histtype='step', stacked=True, fill=True,label='1.0 $GeV^2$ < $Q^2$  < 2.0 $GeV^2$' )
+    plt.hist(cut1_tpi,bins=np.arange(min(cut1_tpi), max(cut1_tpi) + binwidth, binwidth),histtype='step', stacked=True, fill=True,label='$Q^2$=7.0 $GeV^2$' )
+    plt.hist(cut2_tpi,bins=np.arange(min(cut1_tpi), max(cut1_tpi) + binwidth, binwidth),histtype='step', stacked=True, fill=True,label='$Q^2$=15.0 $GeV^2$' )
+    plt.hist(cut3_tpi,bins=np.arange(min(cut1_tpi), max(cut1_tpi) + binwidth, binwidth),histtype='step', stacked=True, fill=True,label='$Q^2$=30.0 $GeV^2$' )
+    plt.hist(cut4_tpi,bins=np.arange(min(cut1_tpi), max(cut1_tpi) + binwidth, binwidth),histtype='step', stacked=True, fill=True,label='0.001 < TDIS_xbj  < 0.01\n 1.0 $GeV^2$ < $Q^2$  < 2.0 $GeV^2$' )
+    plt.title("$t_{\pi}$ cuts", fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.6,0.5), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    
+def main() :
+
+    customPlots()
+    # recreateLeaves()
+    plt.show()
+    
+if __name__=='__main__': main()
