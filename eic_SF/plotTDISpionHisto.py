@@ -3,7 +3,7 @@
 #
 # Description:This will read in the array data file that contains all the leave histogram information
 # ================================================================
-# Time-stamp: "2019-04-08 08:05:34 trottar"
+# Time-stamp: "2019-04-09 02:08:57 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -17,9 +17,6 @@ import logging
 plt_logger = logging.getLogger('matplotlib')
 plt_logger.setLevel(logging.WARNING)
 
-from ROOT import TCanvas, TPad, TFile, TPaveLabel, TPaveText, TTreeReader, TTreeReaderValue
-from ROOT import gROOT
-from rootpy.interactive import wait
 import matplotlib.pyplot as plt
 from matplotlib import interactive
 from matplotlib import colors
@@ -58,9 +55,9 @@ def lookup(key):
 
     [T1_leafdict] = dictionary()
     
-    T1_leafdict.get(key,"Leaf name not found")
+    T_leafFound = T1_leafdict.get(key,"Leaf name not found")
 
-    return[T1_leafdict.get(key,"Leaf name not found")]
+    return[T_leafFound]
 
 # Recreates the histograms of the root file
 def recreateLeaves():
@@ -73,7 +70,7 @@ def recreateLeaves():
     print("Looing at TTree %s" % tree1)
     print("Enter n to see next plot and q to exit program\n")
     for key,arr in T1_leafdict.items():
-        # print key, "->", arr)
+        # print key, -
         if (np.all(arr == 0.)):
             print("Histogram %s: Empty array" % key)
         elif ( 2. > len(arr)) :
@@ -89,8 +86,6 @@ def recreateLeaves():
     print("\nTTree %s completed" % tree1)
 
 def cut(cut,plot,low,high):
-
-    [T1,T1_hist] = pullArray()
     
     [T1_leafdict] = dictionary()
 
@@ -102,8 +97,6 @@ def cut(cut,plot,low,high):
     return[arrPlot]
 
 def cutRecursive(lastCut,newcut,plot,low,high):
-
-    [T1,T1_hist] = pullArray()
     
     [T1_leafdict] = dictionary()
 
@@ -123,13 +116,11 @@ def densityPlot(x,y,title,xlabel,ylabel):
     
     hist = ax.hist2d(x, y,bins=40, norm=colors.LogNorm())
     plt.title(title, fontsize =16)
-    plt.xlabel(title)
-    plt.ylabel(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     
-    # Can call arrays to create your own plots
+# Can call arrays to create your own plots
 def customPlots():
-
-    [T1_leafdict] = dictionary()
 
     TDIS_xbj = lookup("TDIS_xbj")
     sigma_dis = lookup("sigma_dis")
@@ -176,9 +167,9 @@ def customPlots():
     leg.get_frame().set_alpha(1.)
     plt.xlabel('TDIS_xbj')
     plt.ylabel('$F^{N}_{2}$')
-    plt.xlim(1e-4,1e-1)
+    plt.xlim(1e-3,1e-1)
     plt.xscale('log')
-    # plt.ylim(0.,10)
+    plt.ylim(0.2,0.6)
     # plt.yscale('log')
 
     # Histogram

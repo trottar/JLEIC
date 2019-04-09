@@ -3,7 +3,7 @@
 #
 # Descriptions:A light code that will convert the leaves of a ROOT file into arrays which can be easily manipulated and plotted in python
 # ================================================================
-# Time-stamp: "2019-04-08 05:51:43 trottar"
+# Time-stamp: "2019-04-09 02:01:58 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -32,6 +32,12 @@ def progressBar(value, endvalue, bar_length):
 
         sys.stdout.write(" \r[{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
         sys.stdout.flush()
+
+def is_numeric(obj):
+    
+    attrs = ['__add__', '__sub__', '__mul__', '__div__', '__pow__']
+    
+    return all(hasattr(obj, attr) for attr in attrs)
 
 def getTree():
 
@@ -74,28 +80,26 @@ def pullRootFiles():
     
     j=0
     for n in np.nditer(T1):
+    # for n in range(20,25): ##debugging
         # progressBar(j,len(T1),70)
         print("\n%s" % str(T1[j]))
-        th = []
+        tmp = []
         i=0
         for e in Tree1:
-            if  '.' in str(T1[j]):
+            if is_numeric(getattr(e,T1[j])):
                 progressBar(i,Tree1.GetEntries(),50)
-                th.append(0.)
-                # print("%i::Hist:%s" % (i,str(hist1[i])))
-            elif 'TLorentzVector' in str(getattr(e,T1[j])):
-                progressBar(i,Tree1.GetEntries(),50)
-                th.append(0.)
-                # print("%i::Hist:%s" % (i,str(hist2[i])))
+                tmp.append(getattr(e,T1[j]))
+                # print("%i::Hist:%s" % (i,str(tmp[i])))
             else:
                 progressBar(i,Tree1.GetEntries(),50)
-                th.append(getattr(e,T1[j]))
-                # print("%i::Hist:%s" % (i,str(hist1[i])))
+                tmp.append(0.)
+                # print("%i::Hist:%s" % (i,str(tmp[i])))
             i+=1
-        hist1 = np.append(hist1,[j,np.asarray(th)])
+        hist1 = np.append(hist1,[j,np.asarray(tmp)])
         j+=1
         
-    # hist is of form [0 array(histogram data) ... N array(histogram data)] where the 0 to N  elements are the leave numbers and histogram data elements are an array containing the data from the leaves
+    # hist is of form [0 array(histogram data) ... N array(histogram data)] where the 0 to N  elements are the leave numbers
+    # and histogram data elements are an array containing the data from the leaves
     # T1 contains strings with the names for each leaf (e.g. element 0 = 'e_Inc.')
     # The goal now is to match the 0 to N elements with the strings in T1 to match the string value with there corresponding histogram data
     # hist[0]=0.0, hist[1]=0, hist[2]=[0 0 ... 0] ,hist[3]=1
