@@ -207,7 +207,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 
 	typedef struct{
 	    Double_t s_e, s_q,  Q2, xBj, nu, W, p_RT, tempVar,
-	      pDrest, x_D, y_D,  tSpectator, tPrime,
+	      pDrest, x_D, y_D, Yplus,  tSpectator, tPrime,
 	      TwoPdotk, TwoPdotq, MX2,
 	      alphaS, pPerpS, pPerpZ, Jacob;
 	} Invariants;
@@ -239,7 +239,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	tree->Branch("p2_Sp.", &pSpectator_Vertex, bufsize, 1);
 	tree->Branch("pi.", &pScatterPion_Vertex, bufsize, 1);
 	tree->Branch("invts",&invts,
-		     "s_e/D:s_q/D:Q2/D:xBj/D:nu/D:W/D:x_D/D:y_D/D:tSpectator/D:tPrime/D:TwoPdotk/D:TwoPdotq/D:p_RT/D:pDrest/D:tempVar/D:MX2/D:alphaS/D:pPerpS/D:pPerpZ/D");
+		     "s_e/D:s_q/D:Q2/D:xBj/D:nu/D:W/D:x_D/D:y_D/D:Yplus/D:tSpectator/D:tPrime/D:TwoPdotk/D:TwoPdotq/D:p_RT/D:pDrest/D:tempVar/D:MX2/D:alphaS/D:pPerpS/D:pPerpZ/D");
 	//	tree->Branch("psf",&psf,"psf/D");
 	//tree->Branch("Jacob",&Jacob,"Jacob/D");
 
@@ -510,8 +510,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	  invts.Q2   = Q2Max*uu + Q2Min*(1.-uu);
 	  uv   = ran3.Uniform();
 	  invts.xBj  = pow(xMin,1.-uv)*pow(xMax,uv);
-	  invts.x_D  = invts.xBj*MProton/MIon;
+	  invts.x_D  = invts.xBj*(MProton/MIon);
 	  invts.y_D  = invts.Q2/(invts.x_D*invts.TwoPdotk);
+	  cout << y_D << '\n';
+	  // invts.y_D  = invts.Q2/(invts.xBj*invts.TwoPdotk);
+	  // invts.y_D  = (invts.TwoPdotq)/(invts.TwoPdotk)
+	  invts.Yplus = 1 + ((1-invts.y_D)*(1-invts.y_D));
 	  
 
 	  if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {

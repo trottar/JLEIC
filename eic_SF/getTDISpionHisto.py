@@ -3,22 +3,24 @@
 #
 # Descriptions:A light code that will convert the leaves of a ROOT file into arrays which can be easily manipulated and plotted in python
 # ================================================================
-# Time-stamp: "2019-04-09 02:01:58 trottar"
+# Time-stamp: "2019-04-11 10:33:01 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
 #
 # Copyright (c) trottar
 #
+# Need more-itertools annd futures packages for optimized version
 
 from ROOT import TCanvas, TPad, TFile, TPaveLabel, TPaveText, TTreeReader, TTreeReaderValue
 from ROOT import gROOT
 from rootpy.interactive import wait
 import numpy as np
 import sys
+import time
 
-rootName = "TDISpion_80k"
-# rootName = "TDISpion"
+# rootName = "TDISpion_80k"
+rootName = "TDISpion"
 
 inputROOT = "%s.root" % rootName
 
@@ -76,26 +78,17 @@ def pullRootFiles():
     T1string = "Tree1 = f.%s" % tree1
     exec(T1string)
     
-    hist1 = np.empty(shape=(1,1))
+    hist = np.empty(shape=(1,1))
+
+    start = time. time()
     
     j=0
     for n in np.nditer(T1):
     # for n in range(20,25): ##debugging
         # progressBar(j,len(T1),70)
-        print("\n%s" % str(T1[j]))
-        tmp = []
-        i=0
-        for e in Tree1:
-            if is_numeric(getattr(e,T1[j])):
-                progressBar(i,Tree1.GetEntries(),50)
-                tmp.append(getattr(e,T1[j]))
-                # print("%i::Hist:%s" % (i,str(tmp[i])))
-            else:
-                progressBar(i,Tree1.GetEntries(),50)
-                tmp.append(0.)
-                # print("%i::Hist:%s" % (i,str(tmp[i])))
-            i+=1
-        hist1 = np.append(hist1,[j,np.asarray(tmp)])
+        print("\n%s (%i/%i)" % (str(T1[j]),j,len(T1)))
+        tmp = loopRoot(T1,Tree1,hist,j)
+        hist = np.append(hist,[j,np.asarray(tmp[0])])
         j+=1
         
     # hist is of form [0 array(histogram data) ... N array(histogram data)] where the 0 to N  elements are the leave numbers
@@ -104,26 +97,48 @@ def pullRootFiles():
     # The goal now is to match the 0 to N elements with the strings in T1 to match the string value with there corresponding histogram data
     # hist[0]=0.0, hist[1]=0, hist[2]=[0 0 ... 0] ,hist[3]=1
     
+    end = time. time()
+    
+    print("\nTime to pull root file: %0.1f seconds" % (end-start))
+    
+    return[hist,T1]
+
+def loopRoot(key,ttree,hist,index):
+    
+    tmp = []
+    i=0
+    for e in ttree:
+        if is_numeric(getattr(e,key[index])):
+            progressBar(i,ttree.GetEntries(),50)
+            tmp.append(getattr(e,key[index]))
+            # print("%i::Hist:%s" % (i,str(tmp[i])))
+        else:
+            print("Non-numeric data")
+            break
+        i+=1
+    
+    return[tmp]
+
+def define():
+
+    [hist,T1] = pullRootFiles()
+    
     # ->Therefore...
     # odd numbers -- 0 to N elements
     # even numbers -- array elements
-
-    # T1_hist = np.zeros(shape=(1,1))
-
-    # T1_hist = np.array([])
 
     T1_hist = []
 
     k=1
     l=0
     m=0
-    for n in range(1,len(hist1)):
+    for n in range(1,len(hist)):
         if (float((k-1))/2).is_integer(): # odd
-            print("\n%s:" % T1[l]) ##for debugging
+            # print("\n%s:" % T1[l]) ##for debugging
             l+=1
         elif (float(k)/2).is_integer(): # even
-            T1_hist.append(hist1[k])
-            print("%s" % str(T1_hist[m])) ##for debugging
+            T1_hist.append(hist[k])
+            # print("%s" % str(T1_hist[m])) ##for debugging
             m+=1
         k+=1
 
@@ -141,9 +156,9 @@ def pullRootFiles():
 
 def sendArraytoFile():
 
-    [T1,T1_hist] = pullRootFiles()
-
-    np.savez(rootName, leafName1=T1, histData1=T1_hist)
+    [T1,T1_hist] = define()
+    
+    np.savez(rootName, leafName=T1, histData=T1_hist)
     
 
 def main() :
