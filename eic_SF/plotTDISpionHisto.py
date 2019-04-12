@@ -3,7 +3,7 @@
 #
 # Description:This will read in the array data file that contains all the leave histogram information
 # ================================================================
-# Time-stamp: "2019-04-11 16:13:54 trottar"
+# Time-stamp: "2019-04-12 04:40:36 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -119,29 +119,37 @@ def cutRecursive(lastCut,newcut,plot,low,high):
 
     return[arrNew]
 
-# Wider the binsize the fewer bins
-def setbin(leaf,binsize):
+def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,ymax=None):
 
+    fig, ax = plt.subplots(tight_layout=True)
+    if (xmin or xmax or ymin or ymax):
+        hist = ax.hist2d(x, y,bins=(setbin(x,binx,xmin,xmax)[0],setbin(y,biny,ymin,ymax)[0]), norm=colors.LogNorm())
+    else:
+        hist = ax.hist2d(x, y,bins=(setbin(x,binx)[0],setbin(y,biny)[0]), norm=colors.LogNorm())
+    plt.title(title, fontsize =16)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+# Wider the binsize the fewer bins
+def setbin(plot,binsize,xmin=None,xmax=None):
     
+    if (xmin or xmax):
+        leaf = cut(plot,plot,xmin,xmax)[0]
+    else:
+        leaf = plot
+        
     binwidth = (abs(leaf).max()-abs(leaf).min())/binsize
     
     bins = np.arange(min(leaf), max(leaf) + binwidth, binwidth)
 
     return[bins]
     
-def densityPlot(x,y,title,xlabel,ylabel,binx,biny):
-
-    fig, ax = plt.subplots(tight_layout=True)
-    hist = ax.hist2d(x, y,bins=(setbin(x,binx)[0],setbin(y,biny)[0]), norm=colors.LogNorm())
-    plt.title(title, fontsize =16)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    
 # Can call arrays to create your own plots
 def customPlots():
 
     xBj = lookup("xBj")[0]
     TDIS_xbj = lookup("TDIS_xbj")[0]
+    y = lookup("TDIS_y")[0]
     sigma_dis = lookup("sigma_dis")[0]
     Q2 = lookup("Q2")[0]
     f2N = lookup("f2N")[0]
@@ -149,17 +157,18 @@ def customPlots():
     y_D = lookup("y_D")[0]
     # invts.y_D  = invts.Q2/(invts.xBj*invts.TwoPdotk);
     TwoPdotk = lookup("TwoPdotk")[0]
-    y = Q2/(TDIS_xbj*TwoPdotk)
+    # y = Q2/(TDIS_xbj*TwoPdotk)
+    # y = lookup("y")[0]
     # Yplus = lookup("Yplus")[0]+(1e-15)
     yplus = 1+((1-y)*(1-y))
 
     print 'Q2 \n:', Q2
     print 'TwoPdotk \n:', TwoPdotk
-    print 'TDIS_xbj \n:', TDIS_xbj, np.sum(TDIS_xbj)
-    print 'xBj \n:', xBj, np.sum(xBj)
+    print 'TDIS_xbj \n:', TDIS_xbj, np.average(TDIS_xbj)
+    print 'xBj \n:', xBj, np.average(xBj)
     print 'TDIS_xbj*TwoPdotk \n:', TDIS_xbj*TwoPdotk
-    print 'y \n:', y
-    print 'y_D \n:', y_D, np.sum(y_D)
+    print 'y \n:', y, np.average(y)
+    # print 'y_D \n:', y_D, np.average(y_D)
 
     y1 = 0.008
     x1 = 2.10e-2
@@ -214,7 +223,7 @@ def customPlots():
     # plt.xlim(1e-4,1e-1)
     plt.xscale('log')
     # plt.ylim(0.,10)
-    plt.yscale('log')
+    # plt.yscale('log')
     print "sigma_dis 1:\n",sigscat1.get_offsets()
 
     cut1_f2N = cut(Q2,f2N,Q2low[0],Q2high[0])[0]
@@ -230,9 +239,9 @@ def customPlots():
     leg.get_frame().set_alpha(1.)
     plt.xlabel('TDIS_xbj')
     plt.ylabel('$F^{N}_{2}$')
-    plt.xlim(1e-3,1e-1)
+    # plt.xlim(1e-3,1e-1)
     plt.xscale('log')
-    plt.ylim(0.2,0.6)
+    # plt.ylim(0.2,0.6)
     # plt.yscale('log')
     print "f2N $Q^2$=6.5:\n",f2Nscat1.get_offsets()
     print "f2N $Q^2$=15.0:\n",f2Nscat2.get_offsets()
@@ -269,7 +278,7 @@ def customPlots():
     # plt.xlim(1e-4,1e-1)
     plt.xscale('log')
     # plt.ylim(0.,10)
-    plt.yscale('log')
+    # plt.yscale('log')
     print "tot_sigma $Q^2$=6.5:\n",totsigscat1.get_offsets()
     print "tot_sigma $Q^2$=15.0:\n",totsigscat2.get_offsets()
     print "tot_sigma $Q^2$=35.0:\n",totsigscat3.get_offsets()
