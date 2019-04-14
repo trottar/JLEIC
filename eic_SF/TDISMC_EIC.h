@@ -30,8 +30,8 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
-/* const int NEvts = 80000; */
-const int NEvts = 10000;
+const int NEvts = 80000;
+/* const int NEvts = 10000; */
 
 
 // spectator proton either proton beam or deuteron beam
@@ -650,10 +650,13 @@ double cdissigma( double k_x, double k_y, double k_q2, double k_nu, double k_ep,
   // In GeV^-2
   double ds_dOmega_dE = ds_dxdy*eprime/(2.0*3.14159*Mp*nu);
 
+  /* double ds_dxdQ2 = (Q2/y)*(ds_dxdy); */
+  
   /* cout << ds_dOmega_dE*0.197*0.197*1e7 << '\n'; */
     
   /* return ds_dOmega_dE*0.197*0.197*1e7; // GeV2 -> nb */
   return ds_dOmega_dE*(0.389)*(1e6); // GeV2 -> nb
+  /* return ds_dxdQ2*(0.389)*(1e6); */
 }
 
 // Call specific cross-section function w.r.t target nucleon
