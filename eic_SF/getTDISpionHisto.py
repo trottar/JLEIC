@@ -3,7 +3,7 @@
 #
 # Descriptions:A light code that will convert the leaves of a ROOT file into arrays which can be easily manipulated and plotted in python
 # ================================================================
-# Time-stamp: "2019-04-11 10:33:01 trottar"
+# Time-stamp: "2019-04-14 05:01:25 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -19,8 +19,8 @@ import numpy as np
 import sys
 import time
 
-# rootName = "TDISpion_80k"
-rootName = "TDISpion"
+rootName = "TDISpion_80k"
+# rootName = "TDISpion"
 
 inputROOT = "%s.root" % rootName
 

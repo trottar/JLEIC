@@ -3,7 +3,7 @@
 #
 # Description:This will read in the array data file that contains all the leave histogram information
 # ================================================================
-# Time-stamp: "2019-04-12 04:40:36 trottar"
+# Time-stamp: 2019-04-08 08:07:33 trottar
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -18,289 +18,247 @@ import logging
 plt_logger = logging.getLogger('matplotlib')
 plt_logger.setLevel(logging.WARNING)
 
+# Suppresses unwanted numpy warning
+import warnings
+import numpy as np
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+import matplotlib.backends.backend_pdf
 import matplotlib.pyplot as plt
 from matplotlib import interactive
 from matplotlib import colors
-import numpy as np
-import math
-import sys
+from sys import path
+import time,math,sys
+# np.set_printoptions(threshold=sys.maxsize)
 
-# rootName = "TDISpion_80k"
-rootName = "TDISpion"
+# My class function
+sys.path.insert(0,'../../../Analysis/ROOTfiles/python')
+from test_rootPy import pyPlot
 
-tree1 = "Evnts"
+rootName = "TDISpion_80k"
+# rootName = "TDISpion"
+
+tree1 = "T"
 
 T1_arrkey =  "leafName"
 T1_arrhist = "histData"
 
-# Retrieves the array data file and creates new leaves from this
-def pullArray():
+# Arguments for class function
+p = pyPlot(rootName,tree1,T1_arrkey,T1_arrhist) 
+
+pdf = matplotlib.backends.backend_pdf.PdfPages("%s.pdf" % rootName)
+
+def cut(key):
+
+    # arrPlot = arrPlot[(arrCut > low) & (arrCut < high)]
+    # To call item, cutDict.get(key,"Leaf name not found")
+    cutDict = {
+        "xcut1" : ((1.03e-4 < TDIS_xbj) & (TDIS_xbj < 2.1e-2)),
+        "xcut2" : ((2.53e-4 < TDIS_xbj) & (TDIS_xbj < 2.1e-2)),
+        "xcut3" : ((8.0e-4 < TDIS_xbj) & (TDIS_xbj < 3.2e-2)),
+        "xcut4" : ((1.3e-3 < TDIS_xbj) & (TDIS_xbj < 5.0e-2)),
+        "xcut5" : ((2.1e-3 < TDIS_xbj) & (TDIS_xbj < 1.8e-1)),
+        "xcut6" : ((5.0e-3 < TDIS_xbj) & (TDIS_xbj < 1.8e-1)),
+        "Q2cut1" : ((6.4 < Q2) & (Q2 < 6.6)),
+        "Q2cut2" : ((14.9 < Q2) & (Q2 < 15.1)),
+        "Q2cut3" : ((34.9 < Q2) & (Q2 < 35.1)),
+        "Q2cut4" : ((59.9 < Q2) & (Q2 < 60.1)),
+        "Q2cut5" : ((119.9 < Q2) & (Q2 < 120.1)),
+        "Q2cut6" : ((249.9 < Q2) & (Q2 < 250.1))
+
+    }
     
-    data = np.load("%s.npz" % rootName)
+    return[cutDict.get(key,"Leaf name not found")]
 
-    T1 = data[T1_arrkey]
-    T1_hist = data[T1_arrhist]
+def applyCuts(leaf,cuts=None):
 
-    return[T1,T1_hist]
-
-# Creates a dictionary that stores leaf names with the corresponding array
-def dictionary():
-
-    [T1,T1_hist] = pullArray()
-    
-    T1_leafdict = dict(zip(T1, T1_hist))
-
-    return[T1_leafdict]
-
-# A quick way to look up a leaf name for its array
-def lookup(key):
-
-    [T1_leafdict] = dictionary()
-    
-    T_leafFound = T1_leafdict.get(key,"Leaf name not found")
-
-    return[T_leafFound]
-
-# Recreates the histograms of the root file
-def recreateLeaves():
-
-    [T1_leafdict] = dictionary()
-
-    binwidth = 1.0
-    
-    i=1
-    print("Looing at TTree %s" % tree1)
-    print("Enter n to see next plot and q to exit program\n")
-    for key,arr in T1_leafdict.items():
-        # print key, -
-        if (np.all(arr == 0.)):
-            print("Histogram %s: Empty array" % key)
-        elif ( 2. > len(arr)) :
-            print("Histogram %s: Only one element" % key)
-        else:
-            binwidth = (abs(arr).max())/100
-            plt.figure()
-            plt.hist(arr,bins=np.arange(min(arr), max(arr) + binwidth, binwidth),histtype='step', stacked=True, fill=False )
-            plt.title(key, fontsize =16)
-            foutname = 'fig_'+key+'.png'
-            i+=1
-
-    print("\nTTree %s completed" % tree1)
-
-def cut(cut,plot,low,high):
-    
-    [T1_leafdict] = dictionary()
-
-    # arrCut = T1_leafdict[cut]
-    # arrPlot = T1_leafdict[plot]
-
-    arrCut = cut
-    arrPlot = plot
-    
-    arrPlot = arrPlot[(arrCut > low) & (arrCut < high)]
-
-    return[arrPlot]
-
-def cutRecursive(lastCut,newcut,plot,low,high):
-    
-    [T1_leafdict] = dictionary()
-
-    # arrLast = lastCut
-    # arrCut = T1_leafdict[newcut]
-    # arrPlot = T1_leafdict[plot]
-
-    arrLast = lastCut
-    arrCut = newcut
-    arrPlot = plot
-    
-    arrPlot = arrPlot[(arrCut > low) & (arrCut < high)]
-
-    arrNew = np.intersect1d(arrLast,arrPlot)
-
-    return[arrNew]
-
-def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,ymax=None):
-
-    fig, ax = plt.subplots(tight_layout=True)
-    if (xmin or xmax or ymin or ymax):
-        hist = ax.hist2d(x, y,bins=(setbin(x,binx,xmin,xmax)[0],setbin(y,biny,ymin,ymax)[0]), norm=colors.LogNorm())
+    if cuts:
+        tmp = leaf
+        tmp = eval(p.applyCuts(leaf,cuts)[0])
     else:
-        hist = ax.hist2d(x, y,bins=(setbin(x,binx)[0],setbin(y,biny)[0]), norm=colors.LogNorm())
-    plt.title(title, fontsize =16)
+        tmp = leaf
+    
+    return[tmp]
+    
+
+def selectCut():
+    
+    cuts1 = ["xcut1", "Q2cut1"]
+    cuts2 = ["xcut2", "Q2cut2"]
+    cuts3 = ["xcut3", "Q2cut3"]
+    cuts4 = ["xcut4", "Q2cut4"]
+    cuts5 = ["xcut5", "Q2cut5"]
+    cuts6 = ["xcut6", "Q2cut6"]
+
+
+    return[cuts1,cuts2,cuts3,cuts4,cuts5,cuts6]
+
+def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,ymax=None,cuts=None,figure=None,sub=None):
+
+    if cuts:
+        xcut  = applyCuts(x,cuts)[0]
+        ycut = applyCuts(y,cuts)[0]
+    else:
+        xcut = x
+        ycut = y
+    if sub or figure:
+        ax = figure.add_subplot(sub)
+    else:
+        fig, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+    if (xmin or xmax or ymin or ymax):
+        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx,xmin,xmax)[0],p.setbin(y,biny,ymin,ymax)[0]), norm=colors.LogNorm())
+    else:
+        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx)[0],p.setbin(y,biny)[0]), norm=colors.LogNorm())
+    plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
-# Wider the binsize the fewer bins
-def setbin(plot,binsize,xmin=None,xmax=None):
-    
-    if (xmin or xmax):
-        leaf = cut(plot,plot,xmin,xmax)[0]
-    else:
-        leaf = plot
-        
-    binwidth = (abs(leaf).max()-abs(leaf).min())/binsize
-    
-    bins = np.arange(min(leaf), max(leaf) + binwidth, binwidth)
+# Define phyisics data
+xBj = p.lookup("xBj")[0]
+TDIS_xbj = p.lookup("TDIS_xbj")[0]
+sigma_dis = p.lookup("sigma_dis")[0]
+TDIS_y = p.lookup("TDIS_y")[0]
+y = p.lookup("y")[0]
+Q2 = p.lookup("Q2")[0]
+f2N = p.lookup("f2N")[0]
+tpi = p.lookup("tpi")[0]
+t = -p.lookup("tPrime")[0]
+y_D = p.lookup("y_D")[0]
+# Yplus = p.lookup("Yplus")[0]
+# sigma_dis = (Q2/y)*p.lookup("sigma_dis")[0]
+# invts.y_D  = invts.Q2/(invts.xBj*invts.TwoPdotk);
+TwoPdotk = p.lookup("TwoPdotk")[0]
+# y = Q2/(TDIS_xbj*TwoPdotk)
+yplus = 1+((1-y)*(1-y))
+tot_sigma = (sigma_dis)*((TDIS_xbj*(Q2*Q2)*(137)*(137))/(2*math.pi*yplus))
+# tot_sigma = (f2N)*((TDIS_xbj*(Q2*Q2)*(137)*(137))/(2*math.pi*yplus))
 
-    return[bins]
-    
-# Can call arrays to create your own plots
 def customPlots():
 
-    xBj = lookup("xBj")[0]
-    TDIS_xbj = lookup("TDIS_xbj")[0]
-    y = lookup("TDIS_y")[0]
-    sigma_dis = lookup("sigma_dis")[0]
-    Q2 = lookup("Q2")[0]
-    f2N = lookup("f2N")[0]
-    tpi = lookup("tpi")[0]
-    y_D = lookup("y_D")[0]
-    # invts.y_D  = invts.Q2/(invts.xBj*invts.TwoPdotk);
-    TwoPdotk = lookup("TwoPdotk")[0]
-    # y = Q2/(TDIS_xbj*TwoPdotk)
-    # y = lookup("y")[0]
-    # Yplus = lookup("Yplus")[0]+(1e-15)
-    yplus = 1+((1-y)*(1-y))
+    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6] = selectCut()
 
-    print 'Q2 \n:', Q2
-    print 'TwoPdotk \n:', TwoPdotk
-    print 'TDIS_xbj \n:', TDIS_xbj, np.average(TDIS_xbj)
-    print 'xBj \n:', xBj, np.average(xBj)
-    print 'TDIS_xbj*TwoPdotk \n:', TDIS_xbj*TwoPdotk
-    print 'y \n:', y, np.average(y)
+    # print 'Q2 \n:', Q2
+    # print 'TwoPdotk \n:', TwoPdotk
+    # print 'TDIS_xbj \n:', TDIS_xbj, np.average(TDIS_xbj)
+    # print 'xBj \n:', xBj, np.average(xBj)
+    # print 'TDIS_xbj*TwoPdotk \n:', TDIS_xbj*TwoPdotk
+    # print 'y \n:', y, np.average(y)
     # print 'y_D \n:', y_D, np.average(y_D)
 
-    y1 = 0.008
-    x1 = 2.10e-2
-    Q1 = 15.0
-    sig1 = 0.519
+    # print 'tot_sigma \n:', tot_sigma, np.average(tot_sigma)
 
-    print '\n\n\n', ((2*math.pi*(1/137)*(1/137)*(1+((1-y1)*(1-y1))))/(x1*(Q1*Q1*Q1*Q1)))*(sig1), '\n\n\n'
+    f = plt.figure(figsize=(11.69,8.27))
+    f.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.7, wspace=0.3, hspace=0.3)
+    ax = f.add_subplot(331)
+    hsigma_dis = ax.hist(sigma_dis,bins=p.setbin(sigma_dis,200,0.,10.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True )
+    plt.title("d$\sigma_{dis}$")
+    ax = f.add_subplot(332)
+    totsigplot = ax.hist(tot_sigma,bins=p.setbin(tot_sigma,200,0.,100.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True);
+    plt.title('Total $\sigma_{dis}$',fontsize =16)
+    ax = f.add_subplot(333)
+    totsigplot = ax.hist(f2N,bins=p.setbin(f2N,200,0.,100.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True);
+    plt.title('Total $\sigma_{dis}$',fontsize =16)
+    ax = f.add_subplot(334)
+    hxbj = ax.hist(TDIS_xbj,bins=p.setbin(TDIS_xbj,200,0.,2.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True )
+    plt.title("TDIS_xbj")
+    ax = f.add_subplot(335)
+    # hy_D = ax.hist(y_D,bins=p.setbin(y_D,200,0.,2.0)[0],histtype='step', stacked=True, fill=True )
+    hy = ax.hist(y,bins=p.setbin(y,200,0.,2.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True )
+    plt.title("y")
+    ax = f.add_subplot(336)
+    h1mmiss = ax.hist(yplus,bins=p.setbin(yplus,200,0.002,2.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True )
+    plt.title("$Y_+$")
 
-    # Cuts
-    xlow = [1.04e-4,2.53e-4,8.0e-4]
-    xhigh = [2.2e-2,2.2e-2,2.2e-2]
+    f = plt.figure(figsize=(11.69,8.27))
+    f.tight_layout()
+    hQ2_sigma_dis = densityPlot(Q2, sigma_dis, 'd$\sigma_{dis}$ vs $Q^2$','$Q^2$','d$\sigma_{dis}$', 200, 200, 0., 350., 0., 10., figure=f, sub=131)
+    hxbj_sigma_dis = densityPlot(TDIS_xbj, sigma_dis, 'd$\sigma_{dis}$ vs TDIS_xbj','TDIS_xbj','d$\sigma_{dis}$', 200, 200, 0., 1., 0., 10., figure=f, sub=132)
+    hy_sigma_dis = densityPlot(y, sigma_dis, 'd$\sigma_{dis}$ vs y','y','d$\sigma_{dis}$', 200, 200, 0., 1., 0., 10., figure=f, sub=133)
 
-    Q2low = [6.4,14.9,34.9]
-    Q2high = [6.6,15.1,35.1]
+    hxbj_Q2 = densityPlot(TDIS_xbj, Q2, '$Q^{2}$ vs TDIS_xbj','TDIS_xbj','$Q^{2}$', 200, 200, 0., 1., 0., 350.)
     
-    f, ax = plt.subplots()
-    sigplot = ax.hist(sigma_dis,bins=setbin(sigma_dis,100)[0],histtype='step', stacked=True, fill=True)
-    plt.title('d$sigma_{dis}$',fontsize =16)
-
-    f, ax = plt.subplots()
-    yplot = ax.hist(y,bins=setbin(y,100)[0],histtype='step', stacked=True, fill=True)
-    plt.title('y',fontsize =16)
-    
-    f, ax = plt.subplots()
-    yplusplot = ax.hist(yplus,bins=setbin(yplus,100)[0],histtype='step', stacked=True, fill=True)
-    plt.title('$Y_{+}$',fontsize =16)
-    # plt.xlim(1e-4,1e-1)
-    # plt.xscale('log')
-    # plt.ylim(0.,10)
-    # plt.yscale('log')
-
-    cut1_TDIS_xbj = cut(Q2,TDIS_xbj,Q2low[0],Q2high[0])[0]
-    cut2_TDIS_xbj = cut(Q2,TDIS_xbj,Q2low[1],Q2high[1])[0]
-    cut3_TDIS_xbj = cut(Q2,TDIS_xbj,Q2low[2],Q2high[2])[0]
-    
-    # Density plot
-    densityPlot(TDIS_xbj,Q2,'$Q^{2}$ vs TDIS_xbj','TDIS_xbj','$Q^{2}$',100,100)
-    
-    cut1_sigma_dis = cut(Q2,sigma_dis,Q2low[0],Q2high[0])[0]
-    cut2_sigma_dis = cut(Q2,sigma_dis,Q2low[1],Q2high[1])[0]
-    cut3_sigma_dis = cut(Q2,sigma_dis,Q2low[2],Q2high[2])[0]
-    
-    f, ax = plt.subplots()
-    sigscat1 = ax.scatter(cut1_TDIS_xbj,cut1_sigma_dis,label='$Q^2$=6.5 $GeV^2$')
-    sigscat2 = ax.scatter(cut2_TDIS_xbj,cut2_sigma_dis,label='$Q^2$=15.0 $GeV^2$')
-    sigscat3 = ax.scatter(cut3_TDIS_xbj,cut3_sigma_dis,label='$Q^2$=35.0 $GeV^2$')
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    sigscat1 = ax.scatter(applyCuts(TDIS_xbj,cuts1),applyCuts(sigma_dis,cuts1),label='$Q^2$=6.5 $GeV^2$')
+    sigscat2 = ax.scatter(applyCuts(TDIS_xbj,cuts2),applyCuts(sigma_dis,cuts2),label='$Q^2$=15.0 $GeV^2$')
+    sigscat3 = ax.scatter(applyCuts(TDIS_xbj,cuts3),applyCuts(sigma_dis,cuts3),label='$Q^2$=35.0 $GeV^2$')
+    sigscat4 = ax.scatter(applyCuts(TDIS_xbj,cuts4),applyCuts(sigma_dis,cuts4),label='$Q^2$=60.0 $GeV^2$')
+    sigscat5 = ax.scatter(applyCuts(TDIS_xbj,cuts5),applyCuts(sigma_dis,cuts5),label='$Q^2$=120.0 $GeV^2$')
+    sigscat6 = ax.scatter(applyCuts(TDIS_xbj,cuts6),applyCuts(sigma_dis,cuts6),label='$Q^2$=250.0 $GeV^2$')
     plt.title('d$\sigma_{DIS}$ vs TDIS_xbj', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.4,0.5), loc="center right")
     leg.get_frame().set_alpha(1.)
     plt.xlabel('TDIS_xbj')
     plt.ylabel('d$\sigma_{DIS}$ (nb)')
-    # plt.xlim(1e-4,1e-1)
+    plt.xlim(1e-4,1)
     plt.xscale('log')
     # plt.ylim(0.,10)
     # plt.yscale('log')
-    print "sigma_dis 1:\n",sigscat1.get_offsets()
+    print "sigma_dis Q^2=6.5:\n",sigscat1.get_offsets()
+    print "sigma_dis Q^2=15.0:\n",sigscat2.get_offsets()
+    print "sigma_dis Q^2=35.0:\n",sigscat3.get_offsets()
+    print "sigma_dis Q^2=60.0:\n",sigscat4.get_offsets()
+    print "sigma_dis Q^2=120.0:\n",sigscat5.get_offsets()
+    print "sigma_dis Q^2=250.0:\n",sigscat6.get_offsets()
 
-    cut1_f2N = cut(Q2,f2N,Q2low[0],Q2high[0])[0]
-    cut2_f2N = cut(Q2,f2N,Q2low[1],Q2high[1])[0]
-    cut3_f2N = cut(Q2,f2N,Q2low[2],Q2high[2])[0]
-
-    f, ax = plt.subplots()
-    f2Nscat1 = ax.scatter(cut1_TDIS_xbj,cut1_f2N,label='$Q^2$=6.5 $GeV^2$')
-    f2Nscat2 = ax.scatter(cut2_TDIS_xbj,cut2_f2N,label='$Q^2$=15.0 $GeV^2$')
-    f2Nscat3 = ax.scatter(cut3_TDIS_xbj,cut3_f2N,label='$Q^2$=35.0 $GeV^2$')
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    f2Nscat1 = ax.scatter(applyCuts(TDIS_xbj,cuts1),applyCuts(f2N,cuts1),label='$Q^2$=6.5 $GeV^2$')
+    f2Nscat2 = ax.scatter(applyCuts(TDIS_xbj,cuts2),applyCuts(f2N,cuts2),label='$Q^2$=15.0 $GeV^2$')
+    f2Nscat3 = ax.scatter(applyCuts(TDIS_xbj,cuts3),applyCuts(f2N,cuts3),label='$Q^2$=35.0 $GeV^2$')
+    f2Nscat4 = ax.scatter(applyCuts(TDIS_xbj,cuts4),applyCuts(f2N,cuts4),label='$Q^2$=60.0 $GeV^2$')
+    f2Nscat5 = ax.scatter(applyCuts(TDIS_xbj,cuts5),applyCuts(f2N,cuts5),label='$Q^2$=120.0 $GeV^2$')
+    f2Nscat6 = ax.scatter(applyCuts(TDIS_xbj,cuts6),applyCuts(f2N,cuts6),label='$Q^2$=250.0 $GeV^2$')
     plt.title('$F^{N}_{2}$ vs TDIS_xbj', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.4,0.5), loc="center right")
     leg.get_frame().set_alpha(1.)
     plt.xlabel('TDIS_xbj')
     plt.ylabel('$F^{N}_{2}$')
-    # plt.xlim(1e-3,1e-1)
+    plt.xlim(1e-4,1)
     plt.xscale('log')
     # plt.ylim(0.2,0.6)
     # plt.yscale('log')
-    print "f2N $Q^2$=6.5:\n",f2Nscat1.get_offsets()
-    print "f2N $Q^2$=15.0:\n",f2Nscat2.get_offsets()
-    print "f2N $Q^2$=35.0:\n",f2Nscat3.get_offsets()
+    print "f2N Q^2=6.5:\n",f2Nscat1.get_offsets()
+    print "f2N Q^2=15.0:\n",f2Nscat2.get_offsets()
+    print "f2N Q^2=35.0:\n",f2Nscat3.get_offsets()
+    print "f2N Q^2=60.0:\n",f2Nscat4.get_offsets()
+    print "f2N Q^2=120.0:\n",f2Nscat5.get_offsets()
+    print "f2N Q^2=250.0:\n",f2Nscat6.get_offsets()
 
-    tot_sigma = (sigma_dis)*((TDIS_xbj*(Q2*Q2*Q2*Q2)*(137)*(137))/(2*math.pi*yplus))
-    # tot_sigma = (f2N)*((TDIS_xbj*(Q2*Q2*Q2*Q2)*(137)*(137))/(2*math.pi*yplus))
-    
-    f, ax = plt.subplots()
-    totsigplot = ax.hist(tot_sigma,bins=setbin(tot_sigma,100)[0],histtype='step', stacked=True, fill=True)
-    plt.title('$sigma_{dis}$',fontsize =16)
-    
-    cut1a_tot_sigma = cut(Q2,tot_sigma,Q2low[0],Q2high[0])[0]
-    cut1_tot_sigma = cutRecursive(cut1a_tot_sigma,TDIS_xbj,tot_sigma,xlow[0],xhigh[0])[0]
-    cut2a_tot_sigma = cut(Q2,tot_sigma,Q2low[1],Q2high[1])[0]
-    cut2_tot_sigma = cutRecursive(cut2a_tot_sigma,TDIS_xbj,tot_sigma,xlow[1],xhigh[1])[0]
-    cut3a_tot_sigma = cut(Q2,tot_sigma,Q2low[2],Q2high[2])[0]
-    cut3_tot_sigma = cutRecursive(cut3a_tot_sigma,TDIS_xbj,tot_sigma,xlow[2],xhigh[2])[0]
-    
-    cut1b_TDIS_xbj = cutRecursive(cut1_TDIS_xbj,TDIS_xbj,TDIS_xbj,xlow[0],xhigh[0])[0]
-    cut2b_TDIS_xbj = cutRecursive(cut2_TDIS_xbj,TDIS_xbj,TDIS_xbj,xlow[1],xhigh[1])[0]
-    cut3b_TDIS_xbj = cutRecursive(cut3_TDIS_xbj,TDIS_xbj,TDIS_xbj,xlow[2],xhigh[2])[0]
-    
-    f, ax = plt.subplots()
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
     # totsigscat = ax.scatter(TDIS_xbj,tot_sigma,label='No cuts')
-    totsigscat1 = ax.scatter(cut1_TDIS_xbj,cut1a_tot_sigma,label='$Q^2$=6.5 $GeV^2$')
-    totsigscat2 = ax.scatter(cut2_TDIS_xbj,cut2a_tot_sigma,label='$Q^2$=15.0 $GeV^2$')
-    totsigscat3 = ax.scatter(cut3_TDIS_xbj,cut3a_tot_sigma,label='$Q^2$=35.0 $GeV^2$')
-    plt.title('$\sigma_{DIS}$ vs TDIS_xbj', fontsize =16)
+    totsigscat1 = ax.scatter(applyCuts(TDIS_xbj,cuts1),applyCuts(tot_sigma,cuts1),label='$Q^2$=6.5 $GeV^2$')
+    totsigscat2 = ax.scatter(applyCuts(TDIS_xbj,cuts2),applyCuts(tot_sigma,cuts2),label='$Q^2$=15.0 $GeV^2$')
+    totsigscat3 = ax.scatter(applyCuts(TDIS_xbj,cuts3),applyCuts(tot_sigma,cuts3),label='$Q^2$=35.0 $GeV^2$')
+    totsigscat4 = ax.scatter(applyCuts(TDIS_xbj,cuts4),applyCuts(tot_sigma,cuts4),label='$Q^2$=60.0 $GeV^2$')
+    totsigscat5 = ax.scatter(applyCuts(TDIS_xbj,cuts5),applyCuts(tot_sigma,cuts5),label='$Q^2$=120.0 $GeV^2$')
+    totsigscat6 = ax.scatter(applyCuts(TDIS_xbj,cuts6),applyCuts(tot_sigma,cuts6),label='$Q^2$=250.0 $GeV^2$')
+    plt.title('Total $\sigma_{DIS}$ vs TDIS_xbj', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.4,0.5), loc="center right")
     leg.get_frame().set_alpha(1.)
     plt.xlabel('TDIS_xbj')
-    plt.ylabel('$\sigma_{DIS}$ ($nb^{-1}$)')
-    # plt.xlim(1e-4,1e-1)
+    plt.ylabel('Total $\sigma_{DIS}$ ($nb^{-1}$)')
+    plt.xlim(1e-4,1)
     plt.xscale('log')
     # plt.ylim(0.,10)
     # plt.yscale('log')
-    print "tot_sigma $Q^2$=6.5:\n",totsigscat1.get_offsets()
-    print "tot_sigma $Q^2$=15.0:\n",totsigscat2.get_offsets()
-    print "tot_sigma $Q^2$=35.0:\n",totsigscat3.get_offsets()
-
-
-    # Histogram
-    # cut1_tpi = cut(Q2,tpi,Q2low[0],Q2high[0])[0]
-    # cut2_tpi = cut(Q2,tpi,Q2low[1],Q2high[1])[0]
-    # cut3_tpi = cut(Q2,tpi,Q2low[2],Q2high[2])[0]
-    # cut4a_tpi = cut(Q2,tpi,1.0,2.0)[0]
-    # cut4_tpi = cutRecursive(cut4a_tpi,TDIS_xbj,tpi,0.001,0.01)[0]
-
+    print "tot_sigma Q^2=6.5:\n",totsigscat1.get_offsets()
+    print "tot_sigma Q^2=15.0:\n",totsigscat2.get_offsets()
+    print "tot_sigma Q^2=35.0:\n",totsigscat3.get_offsets()
+    print "tot_sigma Q^2=60.0:\n",totsigscat4.get_offsets()
+    print "tot_sigma Q^2=120.0:\n",totsigscat5.get_offsets()
+    print "tot_sigma Q^2=250.0:\n",totsigscat6.get_offsets()
+    
     # f, ax = plt.subplots()
-    # tpihist4a = ax.hist(cut4a_tpi,bins=setbin(cut4a_tpi,100)[0],histtype='step', stacked=True, fill=True,label='1.0 $GeV^2$ < $Q^2$  < 2.0 $GeV^2$' )
-    # tpihist1 = ax.hist(cut1_tpi,bins=setbin(cut1_tpi,100)[0],histtype='step', stacked=True, fill=True,label='$Q^2$=6.5 $GeV^2$' )
-    # tpihist2 = ax.hist(cut2_tpi,bins=setbin(cut2_tpi,100)[0],histtype='step', stacked=True, fill=True,label='$Q^2$=15.0 $GeV^2$' )
-    # tpihist3 = ax.hist(cut3_tpi,bins=setbin(cut3_tpi,100)[0],histtype='step', stacked=True, fill=True,label='$Q^2$=35.0 $GeV^2$' )
-    # tpihist4 = ax.hist(cut4_tpi,bins=setbin(cut4_tpi,100)[0],histtype='step', stacked=True, fill=True,label='0.001 < TDIS_xbj  < 0.01\n 1.0 $GeV^2$ < $Q^2$  < 2.0 $GeV^2$' )
-    # plt.title("$t_{\pi}$ cuts", fontsize =16)
+    # thist1 = ax.hist(applyCuts(t,cuts1),bins=p.setbin(t,100,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=6.5 $GeV^2$' )
+    # thist2 = ax.hist(applyCuts(t,cuts2),bins=p.setbin(t,100,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=15.0 $GeV^2$' )
+    # thist3 = ax.hist(applyCuts(t,cuts3),bins=p.setbin(t,100,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=35.0 $GeV^2$' )
+    # plt.title("t cuts", fontsize =16)
     # leg = plt.legend(bbox_to_anchor=(0.6,0.5), loc="center right")
     # leg.get_frame().set_alpha(1.)
     
+    for f in xrange(1, plt.figure().number):
+        pdf.savefig(f)
+    pdf.close()
+
 def main() :
 
     customPlots()

@@ -6,6 +6,7 @@
  * 
  * This code is for ep or eD : by change ABeam in "TDISMC_EIC.h" 
  */
+
 // General definition in this header
 #include "TDISMC_EIC.h"
 #include "timhobbs.h" //! no need to call because parametrization by fit
@@ -195,7 +196,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 
   typedef struct{
     Double_t s_e, s_q,  Q2, xBj, nu, W, p_RT, tempVar,
-      pDrest, x_D, y_D, y, Yplus,  tSpectator, tPrime,
+      pDrest, x_D, y_D, Yplus,  tSpectator, tPrime,
       TwoPdotk, TwoPdotq, MX2,
       alphaS, pPerpS, pPerpZ, Jacob;
   } Invariants;
@@ -206,19 +207,19 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
   //  ************************************************
   // Store physics variable for TDIS into ROOTs
   //  ************************************************
-  double tpi, ypi, fpi, xpi; 
+  double tpi, ypi, y, fpi, xpi; 
   double sigma_dis;
   double sigma_tdis;
   double f2N;   
   double p2_pt, p2_z;
   Double_t qMag, pDotq;
 	
-  double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
+  double TDIS_xbj, TDIS_znq, TDIS_Mx2, TDIS_y;
 
   const Int_t bufsize=32000; // what it was !
 
   // invariants
-  tree->Branch("invts",&invts,		     "s_e/D:s_q/D:Q2/D:xBj/D:nu/D:W/D:x_D/D:y_D/D:y/D:Yplus/D:tSpectator/D:tPrime/D:TwoPdotk/D:TwoPdotq/D:p_RT/D:pDrest/D:tempVar/D:MX2/D:alphaS/D:pPerpS/D:pPerpZ/D");
+  tree->Branch("invts",&invts,		     "s_e/D:s_q/D:Q2/D:xBj/D:nu/D:W/D:x_D/D:y_D/D:Yplus/D:tSpectator/D:tPrime/D:TwoPdotk/D:TwoPdotq/D:p_RT/D:pDrest/D:tempVar/D:MX2/D:alphaS/D:pPerpS/D:pPerpZ/D");
   // incoming particle electron, deuteron(proton)
   tree->Branch("e_Inc.", &kIncident_Vertex,bufsize,1);
   tree->Branch("P_Inc.",  &PIncident_Vertex, bufsize, 1);
@@ -234,6 +235,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
   // Store physics varaibles into ROOTs
   tree->Branch("xpi", &xpi, "xpi/D");
   tree->Branch("ypi", &ypi, "ypi/D");
+  tree->Branch("y", &y, "y/D");
   tree->Branch("tpi", &tpi, "tpi/D");
   tree->Branch("fpi", &fpi, "fpi/D");
 	
@@ -292,7 +294,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
   printf("Your kinematics: [xBj_min:xBj_max] = [%9.6f:%9.6f] \n", xMin,xMax);
   printf("Your kinematics: [Q2_min:Q2_max] = [%9.6f:%9.6f] \n", Q2Min,Q2Max);
   printf("Incident Ion Mass %9.5f GeV \n", MIon);
-  printf("Incident Electron, Ion Momenta:  %8.4f, %8.2f GeV/c;  s_0 = %10.4f #GeV^2 \n", kBeam, PIon, s_e0);   
+  printf("Incident Electron, Ion Momenta: %8.4f, %8.2f GeV/c | s_0 = %10.4f GeV^2 \n", kBeam, PIon, s_e0);   
 	
   if (iran) {
     sig_eThx = sigma_th(kBeam, mElectron, eEpsNX, eBetaStarX);
@@ -347,7 +349,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
   // itree->Branch("MC", &mc, "nEvts/I:PhSpFct/F");
 
   double pS_rest, csThRecoil, phiRecoil;
-  Int_t MEvts=1;
 
   //name of output file : = "TDIS_lund.txt";
   ofstream OUT ("TDIS_lund.txt", ios::app);
@@ -391,10 +392,28 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
   
   //for progress bar
   double progress=0.0;
+
+  Int_t MEvts=1;
   
   // Starting of event creating
-  for (int iEvt=0; iEvt<NEvts; iEvt++) {
+  for (int iEvt=0; iEvt<=NEvts; iEvt++) {
 
+    if(iEvt%1000==0) {	    
+      int barWidth = 70;
+      progress = ((double)iEvt/(double)NEvts);	    
+      // cout<<iEvt<<"/"<<NEvts<<endl;
+      // cout << progress << endl;
+      std::cout << "[";
+      double pos = barWidth * progress;
+      for (double i = 0.; i < barWidth; ++i) {
+	if (i < pos) std::cout << "=";
+	else if (i == pos) std::cout << ">";
+	else std::cout << " ";
+      }
+      std::cout << "] " << int(progress * 100.0) << " %\r";
+      std::cout.flush();	    
+    }	 
+    
     Jacob = 1.0;
 	  
     if (iran) {  // taking into account beam smearing
@@ -423,23 +442,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
     ve0Z_Lab = 0;
     vd0X_Lab = 0;
     vd0Y_Lab = 0;
-    vd0Z_Lab = 0;	 
-	  
-    if(iEvt%1000==0) {	    
-      int barWidth = 70;
-      progress = ((double)iEvt/(double)NEvts);	    
-      // cout<<iEvt<<"/"<<NEvts<<endl;
-      // cout << progress << endl;
-      std::cout << "[";
-      double pos = barWidth * progress;
-      for (double i = 0.; i < barWidth; ++i) {
-	if (i < pos) std::cout << "=";
-	else if (i == pos) std::cout << ">";
-	else std::cout << " ";
-      }
-      std::cout << "] " << int(progress * 100.0) << " %\r";
-      std::cout.flush();	    
-    }	 
+    vd0Z_Lab = 0;	 	
 		
     // these are with beam smearing
     kIncident_Vertex.SetXYZM(kBeamMCx, kBeamMCy, kBeamMCz, mElectron);// Set 4-momentum of incident electron beam
@@ -495,11 +498,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
     // cout << "y_D: " << invts.y_D << '\n';
     // cout << "TwoPdotq: " << invts.TwoPdotq << '\n';
     // cout << "TwoPdotk: " << invts.TwoPdotk << '\n';
-	  
-    if ( 0. < invts.y_D && invts.y_D < 1. ){
-      invts.y = invts.y_D;
+
+    y = invts.y_D;
+    // if ( 0. < invts.y_D && invts.y_D < 1. ){
+      // invts.y = invts.y_D;
       // cout << "y_D: " << invts.y_D << '\n';
-    }
+    // }
 
     if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
       // Unphysical kinematics
@@ -860,10 +864,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	// sigma_dis    = cdissigma_p(TDIS_xbj,TDIS_y,invts.Q2,invts.nu,kScattered_Rest.E());
       }
       sigma_tdis   = sigma_dis * (fpi/f2N); 
-    }else{
-      sigma_dis = 0.0;
-      sigma_tdis = 0.0;
-      f2N=0.0;
+    // }else{
+    //   sigma_dis = 0.0;
+    //   sigma_tdis = 0.0;
+    //   f2N=0.0;
     }
 
     /*
@@ -1043,7 +1047,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
     }
     else{
       OUT << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xpi << " \t" << ypi << " \t"  << tpi  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
-
+      
       // incoming particles (e,D) = beam particles
       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "1" << " \t " << e_particle_charge << " \t " << " 1 "<< " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << kBeamMCx << " \t " << kBeamMCy << " \t " << kBeamMCz << " \t " << kBeamMC << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
 
@@ -1054,18 +1058,26 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << " 1 "<< " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific <<pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
       // pion :  DIS: do NOT need to be detected
       //       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << pi_particle_charge << " \t " << " 1 "<< " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
-      // the first spectator protn (TDIS)
+      // the first spectator proton (TDIS)
       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pr_particle_charge << " \t " << " 1 "<< " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << MProton << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl; 
 
-    }
+    }	
 	  
-    MEvts++;
-	  
-    // cout << "y_D: " << invts.y_D << '\n';
-	  
-    tree->Fill();
-  }
 
+    // printf("%d:%d\n",MEvts,iEvt);
+
+    // cout << "y: " << invts.y_D << '\n';
+    // cout << "y_D: " << invts.y_D << '\n';
+
+    MEvts++;
+    
+    tree->Fill();
+    // tree->ResetBranchAddresses(); // disconnect from local variables
+    // tree->Print();
+    // tree->Scan(); // do you see correct values printed?
+    
+  }
+  
   // itree->Fill();
   fRoot.Write();
   fRoot.Close();
