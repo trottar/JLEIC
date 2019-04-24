@@ -30,6 +30,7 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
+/* const int NEvts = 100000; */
 const int NEvts = 80000;
 /* const int NEvts = 10000; */
 
@@ -643,20 +644,17 @@ double cdissigma( double k_x, double k_y, double k_q2, double k_nu, double k_ep,
   double F1 = F2/(2.0*x);
 
   // From PDG
-  double ds_dxdy
-    = 4.0*3.14159*((1.0-y-pow(x*y*Mp,2.0)/Q2)*F2+y*y*x*F1)
-    /(x*y*Q2*137.0*137.0);
+  double ds_dxdy= 4.0*3.14159*((1.0-y-pow(x*y*Mp,2.0)/Q2)*F2+y*y*x*F1)/(x*y*Q2*137.0*137.0);
 
   // In GeV^-2
   double ds_dOmega_dE = ds_dxdy*eprime/(2.0*3.14159*Mp*nu);
 
-  /* double ds_dxdQ2 = (Q2/y)*(ds_dxdy); */
-  
-  /* cout << ds_dOmega_dE*0.197*0.197*1e7 << '\n'; */
+  // From Zeus paper
+  double ds_dxdQ2 = (2*(3.14159)/(x*Q2*Q2*(137)*(137)))*((1+((1-y)*(1-y)))*(F2)-(1+((1-y)*(1-y)))*(x*F1));
     
   /* return ds_dOmega_dE*0.197*0.197*1e7; // GeV2 -> nb */
-  return ds_dOmega_dE*(0.389)*(1e6); // GeV2 -> nb
-  /* return ds_dxdQ2*(0.389)*(1e6); */
+
+  return ds_dxdQ2*0.197*0.197*1e7; // GeV2 -> nb 
 }
 
 // Call specific cross-section function w.r.t target nucleon
