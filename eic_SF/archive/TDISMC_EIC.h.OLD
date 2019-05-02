@@ -2,6 +2,7 @@
  *  TDISMC_collMC
  * -- I want to merge this head file into eD code....so I don't change anything but minimize if needs
  */
+
 #include <stdio.h>
 #include <TH1.h>
 #include <TH1D.h>
@@ -21,7 +22,7 @@
 #include <TRandom.h>
 #include <assert.h>
 #include <TBuffer.h>
-#include "cteq/cteqpdf.h"
+#include "cteqpdf.h"
 
 
 using std::cout;
@@ -30,9 +31,8 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
-//const int NEvts = 110000;     
-const int NEvts = 100000;
-//const int NEvts = 10000;
+/* const int NEvts = 80000; */
+const int NEvts = 10000;
 
 
 // spectator proton either proton beam or deuteron beam
@@ -52,7 +52,7 @@ const double alphaQED  = 1./137.03;
 const double pi        = acos(-1.0);
 
 // Initialize Beam
-const double PBeam = 50.0;  // ion Beam momentum/Z, GeV/c
+const double PBeam = 100.0;  // ion Beam momentum/Z, GeV/c
 const double kBeam =  5.;  // Electron Beam Momentum
 //  electron and ion beam polarization
 const double eBeamPol = 1.;
@@ -123,7 +123,8 @@ double f2pipaulvillas(double p, double x, double th){
     p3 = 0.31326;
     p4 = 6.6281;
     p5 = -26.467;
-    if (x < 0.0555 || x > 0.083) xflag = 1;
+    //    if (x < 0.0555 || x > 0.083) xflag = 1;
+    if ( x > 0.3) xflag = 1;
     fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p; 
   }
 
@@ -134,7 +135,8 @@ double f2pipaulvillas(double p, double x, double th){
     p3 = 0.31326;
     p4 = 6.6281;
     p5 = -26.467;
-    if (x < 0.0555 || x > 0.16) xflag = 1;
+    //    if (x < 0.0555 || x > 0.16) xflag = 1;
+    if ( x > 0.3) xflag = 1;
     fk = 0.464 -15.4*p + 126.5*p*p;
   }
   
@@ -145,7 +147,8 @@ double f2pipaulvillas(double p, double x, double th){
     p3 = 4.3910;
     p4 = -13.446;
     p5 = 15.984;
-     if (x < 0.0555 || x > 0.226) xflag =1;
+    if ( x > 0.3) xflag = 1;
+    //     if (x < 0.0555 || x > 0.226) xflag =1;
      fk = -1.133 + 8.5354*p;
   }
 
@@ -156,7 +159,8 @@ double f2pipaulvillas(double p, double x, double th){
     p3 = 4.7711;
     p4 = -11.958;
     p5 = 11.768;
-     if (x < 0.0555 || x > 0.281) xflag = 1;
+    if ( x > 0.3) xflag = 1;
+    //     if (x < 0.0555 || x > 0.281) xflag = 1;
      fk = -1.345 + 9.47*p -7.91*p*p;
   }
 
@@ -209,7 +213,8 @@ double f2pitexp(double p, double x, double th){
     p3 = 1.6664;
     p4 = -10.813;
     p5 = 25.662;
-    if (x < 0.0555 || x > 0.083) xflag = 1;
+    //    if (x < 0.0555 || x > 0.083) xflag = 1;
+    if ( x > 0.3) xflag = 1;
     fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p; 
   }
 
@@ -220,7 +225,8 @@ double f2pitexp(double p, double x, double th){
     p3 = 6.1526;
     p4 = -25.771;
     p5 = 41.141;
-    if (x < 0.0555 || x > 0.16) xflag = 1;
+    //    if (x < 0.0555 || x > 0.16) xflag = 1;
+    if ( x > 0.3) xflag = 1;
     fk = 0.464 -15.4*p + 126.5*p*p;
   }
   
@@ -231,7 +237,8 @@ double f2pitexp(double p, double x, double th){
     p3 = 5.4029;
     p4 = -16.362;
     p5 = 19.186;
-     if (x < 0.0555 || x > 0.226) xflag =1;
+    //     if (x < 0.0555 || x > 0.226) xflag =1;
+    if ( x > 0.3) xflag = 1;
      fk = -1.133 + 8.5354*p;
   }
 
@@ -242,7 +249,8 @@ double f2pitexp(double p, double x, double th){
     p3 = 7.0225;
     p4 = -17.631;
     p5 = 17.393;
-     if (x < 0.0555 || x > 0.281) xflag = 1;
+    //     if (x < 0.0555 || x > 0.281) xflag = 1;
+    if ( x > 0.3) xflag = 1;
      fk = -1.345 + 9.47*p -7.91*p*p;
   }
 
@@ -296,7 +304,8 @@ double f2picov(double p, double x, double th){
     p3 = 0.74473e-01;
     p4 = 4.2508;
     p5 = -28.398;
-    if (x < 0.0555 || x > 0.083) xflag = 1;
+    //    if (x < 0.0555 || x > 0.083) xflag = 1;
+    if ( x > 0.3) xflag = 1;
     fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p; 
   }
 
@@ -307,7 +316,8 @@ double f2picov(double p, double x, double th){
     p3 = 0.36447;
     p4 = 7.8242;
     p5 = -31.101;
-    if (x < 0.0555 || x > 0.16) xflag = 1;
+    //    if (x < 0.0555 || x > 0.16) xflag = 1;
+    if ( x > 0.3) xflag = 1;
     fk = 0.464 -15.4*p + 126.5*p*p;
   }
   
@@ -318,7 +328,8 @@ double f2picov(double p, double x, double th){
     p3 = 5.6867;
     p4 = -16.812;
     p5 = 19.095;
-     if (x < 0.0555 || x > 0.226) xflag =1;
+    //     if (x < 0.0555 || x > 0.226) xflag =1;
+    if ( x > 0.3) xflag = 1;
      fk = -1.133 + 8.5354*p;
   }
 
@@ -329,7 +340,8 @@ double f2picov(double p, double x, double th){
     p3 = 8.6327;
     p4 = -21.714;
     p5 = 21.475;
-     if (x < 0.0555 || x > 0.281) xflag = 1;
+    //     if (x < 0.0555 || x > 0.281) xflag = 1;
+    if ( x > 0.3) xflag = 1;
      fk = -1.345 + 9.47*p -7.91*p*p;
   }
 
@@ -383,7 +395,7 @@ double f2pi(double p, double x, double th){
     p3 = 0.07359;
     p4 = 1.079;
     p5 = -8.953;
-    if (x < 0.0555 || x > 0.083) xflag = 1;
+    //if (x < 0.0555 || x > 0.083) xflag = 1;
     //    fk = -0.954 + 66.5*p -1632.4*p*p + 14573*p*p*p; // original value from Dasuni
     fk = -0.2473 + 14.79*p -283.55*p*p + 1766.9*p*p*p;   // fitting 3Var_k.f  x1000
   }
@@ -395,7 +407,7 @@ double f2pi(double p, double x, double th){
     p3 = 2.029;
     p4 = -5.878;
     p5 = 4.664;
-    if (x < 0.0555 || x > 0.16) xflag = 1;
+    //if (x < 0.0555 || x > 0.16) xflag = 1;
     fk = 0.464 -15.4*p + 126.5*p*p;
   }
   
@@ -406,7 +418,7 @@ double f2pi(double p, double x, double th){
     p3 = 2.428;
     p4 = -5.107;
     p5 = 3.222;
-     if (x < 0.0555 || x > 0.226) xflag =1;
+    // if (x < 0.0555 || x > 0.226) xflag =1;
      fk = -1.133 + 8.5354*p;
   }
 
@@ -417,7 +429,7 @@ double f2pi(double p, double x, double th){
     p3 = 0.3864;
     p4 = 0.6615;
     p5 = -2.113;
-     if (x < 0.0555 || x > 0.281) xflag = 1;
+    // if (x < 0.0555 || x > 0.281) xflag = 1;
      fk = -1.345 + 9.47*p -7.91*p*p;
   }
 
@@ -436,7 +448,7 @@ double f2pi(double p, double x, double th){
     fth = -0.183 + 0.0976*th -0.0024*th*th + 0.000015*th*th*th; }
   
   //  if( xflag == 1 || x < 0.0555 || x > 0.3){
-  if( xflag == 1 || x < 0.001 || x > 1.0){      // EIC collider no limit
+  if( xflag == 1 ){      // EIC collider no limit
     return 0.0;}
   else{
     double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
@@ -481,7 +493,7 @@ double f2p( double x ){
 TVector3 TVector3::Unit() const {
 
   ifstream in;
-  in.open(Form("/Users/parkkj/source_codes2016_for_git_hub_tdis_v1/EIC/source_codes_TDIS/jobs/moment_ld2b.dat"));
+  in.open(Form("moment_ld2b.dat"));
 
   double degr=0.01745329252;
   double fgev=0.1973;
@@ -677,7 +689,10 @@ double cdissigma( double k_x, double k_y, double k_q2, double k_nu, double k_ep,
     // In GeV^-2
     double ds_dOmega_dE = ds_dxdy*eprime/(2.0*3.14159*Mp*nu);
 
-    return ds_dOmega_dE*0.197*0.197*1e7; // GeV2 -> nb
+    /* cout << ds_dOmega_dE*0.197*0.197*1e7 << '\n'; */
+    
+    /* return ds_dOmega_dE*0.197*0.197*1e7; // GeV2 -> nb */
+    return ds_dOmega_dE*(0.389)*(1e6); // GeV2 -> nb
 }
 
 
@@ -694,7 +709,7 @@ double dissigma_n(double eb, double th, double ep){
     return dissigma( eb, th, ep, 2 );
 }
 */
-// *** for the JLEIC cllider : it needs an input as x, y_D, q2, nu instead of ebeam, theta_e, eprime 
+// *** for the JLEIC collider : it needs an input as x, y_D, q2, nu instead of ebeam, theta_e, eprime 
 double cdissigma_p(double x, double y_D, double q2, double nu, double eprime){
   return cdissigma( x, y_D, q2, nu, eprime, 1);
 }
@@ -879,7 +894,7 @@ double __cteq_pdf_pardis(const cteq_pdf_t *pdf, int iprtn, double x, double q)
 	  fvec[it] = __cteq_pdf_polint4f(pdf->xvpow, fij, ss)/(x*x);
 	}	
   } 
-  else if(jlx == nx-1) 
+  else if((unsigned)jlx == nx-1) 
   {
 	for(it = 0; it < 4; ++it)
 	  fvec[it] = __cteq_pdf_polint4f(pdf->xvpow+nx-3, pdf->upd+jtmp+(it+1)*(nx+1)-1, ss);
@@ -907,7 +922,7 @@ double __cteq_pdf_pardis(const cteq_pdf_t *pdf, int iprtn, double x, double q)
   
   /*   interpolate in t... */
   if(jlq <= 0) return __cteq_pdf_polint4f(pdf->tv, fvec, tt);
-  if(jlq >= nq-1) return __cteq_pdf_polint4f(pdf->tv+nq-3, fvec, tt);
+  if((unsigned)jlq >= nq-1) return __cteq_pdf_polint4f(pdf->tv+nq-3, fvec, tt);
   
   double *tvec = pdf->tv + jq-1;
   double t12 = tvec[1]-tvec[2], t13 = tvec[1]-tvec[3], t23 = tvec[2]-tvec[3],
@@ -940,16 +955,19 @@ cteq_pdf_t * __cteq_pdf_alloc_read_tbl(FILE *file)
   
   /*   Reading ord, nfl  */
   float __ord, __nf; 
-  fscanf(file, "%f%f", &__ord, &__nf);
-  
+  //fscanf(file, "%f%f", &__ord, &__nf);
+  if (fscanf(file, "%f%f", &__ord, &__nf) == 1) {
+    fprintf(file, "%f%f", __ord, __nf);
+  } else {
+    fprintf(file,"WARNING...\nFailed to read %f%f\n", __ord, __nf);
+  }
   pdf->order = (unsigned int) __ord;
   pdf->nf = (unsigned int) __nf;
   pdf->mxval = 2;
 
   /*   Reading ord, nfl, al mass[1-6]   */
   pdf->mass[0] = 0.0;     /*   gluon mass  */
-  fscanf(file, "%lf%lf%lf%lf%lf%lf%lf", pdf->lambda + pdf->nf, 
-		 pdf->mass+1,pdf->mass+2,pdf->mass+3,pdf->mass+4,pdf->mass+5,pdf->mass+6);
+  fscanf(file, "%lf%lf%lf%lf%lf%lf%lf", pdf->lambda + pdf->nf, pdf->mass+1,pdf->mass+2,pdf->mass+3,pdf->mass+4,pdf->mass+5,pdf->mass+6);
 
   /*   Calculating the lambda values at the thresholds  */
   __cteq_pdf_setlmd(pdf);
@@ -1351,12 +1369,34 @@ cteq_pdfset_find_id(const cteq_pdfset_t *pdflist, int id)
   return 0;
 }
 
+//Weightless uncertainty (for equal dist. of points)
+double uncerWL(double val,int numData){
+
+	double mean, stanDev = 0.0, numWeight = 0.0;
+	
+	mean = val/numData;
+	stanDev += pow(val - mean, 2);
+	//printf("Uncertainty is +/- %e for F2K \n", sqrt(stanDev/numData));
+	/*
+	for(int i=0; i<sizeof((int)weight[0]);i++){
+		double numWeight = weight[i];
+		return numWeight;
+	}//*/
+	return sqrt(stanDev/numData);
+}
 
 
+//Weighted uncertainty
+double uncerW(double val,int numData,double weight[]){
 
-
-
-
-
-
-
+	double mean, stanDev = 0.0, numWeight = 0.0;
+	
+	mean = val/numData;
+	stanDev += pow(val - mean, 2);
+	//printf("Uncertainty is +/- %e for F2K \n", sqrt(stanDev/numData));
+	for(int i=0; i<sizeof((int)weight[0]);i++){
+		double numWeight = weight[i];
+		return numWeight;
+	}
+	return numWeight*sqrt(stanDev/numData)/numData;
+}
