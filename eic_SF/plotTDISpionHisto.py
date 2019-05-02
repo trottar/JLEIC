@@ -36,6 +36,9 @@ sys.path.insert(0,'../../../Analysis/ROOTfiles/python')
 from test_rootPy import pyPlot, pyCut
 
 rootName = "TDISpion_80k"
+# rootName = "TDISpion_low"
+# rootName = "TDISpion_med"
+# rootName = "TDISpion_high"
 # rootName = "TDISpion"
 # rootName = "chain_20k"
 
@@ -74,7 +77,6 @@ red_Q2 = np.array([15,15,15,15,15,15,15,15])
 red_yplus = 1+(1-red_y)*(1-red_y)
 my_sigma = (red_sig)*((2*math.pi*red_yplus)/(red_x*(red_Q2*red_Q2)*(137)*(137)))
 
-
 # arrPlot = arrPlot[(arrCut > low) & (arrCut < high)]
 # To call item, cutDict.get(key,"Leaf name not found")
 cutDict = {
@@ -89,13 +91,46 @@ cutDict = {
     "Q2cut3" : ((34.9 < Q2) & (Q2 < 35.1)),
     "Q2cut4" : ((59.9 < Q2) & (Q2 < 60.1)),
     "Q2cut5" : ((119.9 < Q2) & (Q2 < 120.1)),
-    "Q2cut6" : ((249.9 < Q2) & (Q2 < 250.1))
+    "Q2cut6" : ((249.9 < Q2) & (Q2 < 250.1)),
 
 }
 
+# Please find below the bins to make for Q2, xpi. I also include y here. For this, please run the simulation for 5 GeV electrons and 100 GeV protons. This should give a value for s= 4x 5 x 100 = 2000 GeV^2. Note that s is related to Q2 as s = Q2 x (x_B)/y. We will assume an implicit cut on y < 0.7 for now, which means Q2 x (xB) < 1400. We can relax that later. 
+
+# xarray   =[0.001,0.002,0.002,0.004,0.004,0.004,0.004,0.006,0.006,0.006,0.006,0.008,0.008,0.008,0.008,0.008]
+# Q2array  =[1.0,1.0,2.0,1.0,2.0,3.0,4.0,1.5,3.0,4.5,6.0,1.0,2.0,4.0,6.0,8.0]
+# yarray   =[0.8,0.4,0.8,0.2,0.4,0.6,0.8,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8]
+
+# xarray   =[0.01,0.01,0.01,0.01,0.01,0.02,0.02,0.02,0.02,0.02,0.04,0.04,0.04,0.04,0.04,0.06,0.06,0.06,0.06,0.06,0.08,0.08,0.08,0.08,0.08]
+# Q2array  =[1.25,2.5,5.0,7.5,10.0,2.5,5.0,10.0,15.0,20.0,5.0,10.0,20.0,30.0,40.0,7.5,15.0,30.0,45.0,60.0,10.0,20.0,40.0,60.0,80.0]
+# yarray   =[0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8]
+
+xarray   =[0.1,0.1,0.1,0.1,0.1,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.6,0.6,0.8,0.8,0.8,0.8,0.8]
+Q2array  =[12.5,25.0,50.0,75.0,100.0,25.0,50.0,100.0,150.0,200.0,50.0,100.0,200.0,300.0,400.0,75.0,150.0,300.0,450.0,600.0,100.0,200.0,400.0,600.0,800.0]
+yarray   =[0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8]
+
+cutBinDict = {}
+
+i=0
+for x in range(0,len(xarray)) :
+    if i < (len(xarray)-1):
+        xtmp = '{"xcut%ia" : ((%0.4f  < TDIS_xbj) & (TDIS_xbj < %0.4f))}' % (i,xarray[i]-0.0001,xarray[i]+0.0001)
+        ytmp = '{"ycut%ia" : ((%0.1f < y) & (y < %0.1f))}' % (i,yarray[i]-0.1,yarray[i]+0.1)
+        Q2tmp = '{"Q2cut%ia" : ((%0.1f < Q2) & (Q2 < %0.1f))}' % (i,Q2array[i]-0.1,Q2array[i]+0.1)
+    else:
+        xtmp = '{"xcut%ia" : ((%0.4f  < TDIS_xbj) & (TDIS_xbj < %0.4f))}' % (i,xarray[i]-0.0001,xarray[i]+0.0001)
+        ytmp = '{"ycut%ia" : ((%0.1f < y) & (y < %0.1f))}' % (i,yarray[i]-0.1,yarray[i]+0.1)
+        Q2tmp = '{"Q2cut%ia" : ((%0.1f < Q2) & (Q2 < %0.1f))}' % (i,Q2array[i]-0.1,Q2array[i]+0.1)
+    cutBinDict.update(eval(xtmp))
+    cutBinDict.update(eval(ytmp))
+    cutBinDict.update(eval(Q2tmp))
+    i+=1
+
 c = pyCut(cutDict)
 
-def selectCut():
+cbin = pyCut(cutBinDict)
+
+def sigmaDIS_Cut():
     
     cuts1 = ["xcut1", "Q2cut1"]
     cuts2 = ["xcut2", "Q2cut2"]
@@ -106,6 +141,27 @@ def selectCut():
 
 
     return[cuts1,cuts2,cuts3,cuts4,cuts5,cuts6]
+
+def sigmaBin_Cut():
+
+    cuts1 = ["xcut1a", "ycut1a", "Q2cut1a"]
+    cuts2 = ["xcut2a", "ycut2a", "Q2cut2a"]
+    cuts3 = ["xcut3a", "ycut3a", "Q2cut3a"]
+    cuts4 = ["xcut4a", "ycut4a", "Q2cut4a"]
+    cuts5 = ["xcut5a", "ycut5a", "Q2cut5a"]
+    cuts6 = ["xcut6a", "ycut6a", "Q2cut6a"]
+    cuts7 = ["xcut7a", "ycut7a", "Q2cut7a"]
+    cuts8 = ["xcut8a", "ycut8a", "Q2cut8a"]
+    cuts9 = ["xcut9a", "ycut9a", "Q2cut9a"]
+    cuts10 = ["xcut10a", "ycut10a", "Q2cut10a"]
+    cuts11 = ["xcut11a", "ycut11a", "Q2cut11a"]
+    cuts12 = ["xcut12a", "ycut12a", "Q2cut12a"]
+    cuts13 = ["xcut13a", "ycut13a", "Q2cut13a"]
+    cuts14 = ["xcut14a", "ycut14a", "Q2cut14a"]
+    cuts15 = ["xcut15a", "ycut15a", "Q2cut15a"]
+                                                    
+
+    return[cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15]
 
 def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,ymax=None,cuts=None,figure=None,sub=None):
 
@@ -127,9 +183,9 @@ def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     
-def customPlots():
+def sigmaDIS_Plot():
 
-    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6] = selectCut()
+    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6] = sigmaDIS_Cut()
 
     # print 'Q2 \n:', Q2
     # print 'TwoPdotk \n:', TwoPdotk
@@ -263,9 +319,58 @@ def customPlots():
         pdf.savefig(f)
     pdf.close()
 
+def sigmaBin_Plot():
+
+    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
+
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    sigbin1 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts1)[0],cbin.applyCuts(sigma_dis,cuts1)[0],label='cut1')
+    sigbin2 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts2)[0],cbin.applyCuts(sigma_dis,cuts2)[0],label='cut2')
+    sigbin3 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts3)[0],cbin.applyCuts(sigma_dis,cuts3)[0],label='cut3')
+    sigbin4 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts4)[0],cbin.applyCuts(sigma_dis,cuts4)[0],label='cut4')
+    sigbin5 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts5)[0],cbin.applyCuts(sigma_dis,cuts5)[0],label='cut5')
+    sigbin6 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts6)[0],cbin.applyCuts(sigma_dis,cuts6)[0],label='cut6')
+    sigbin7 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts7)[0],cbin.applyCuts(sigma_dis,cuts7)[0],label='cut7')
+    sigbin8 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts8)[0],cbin.applyCuts(sigma_dis,cuts8)[0],label='cut8')
+    sigbin9 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts9)[0],cbin.applyCuts(sigma_dis,cuts9)[0],label='cut9')
+    sigbin10 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts10)[0],cbin.applyCuts(sigma_dis,cuts10)[0],label='cut10')
+    sigbin11 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts11)[0],cbin.applyCuts(sigma_dis,cuts11)[0],label='cut11')
+    sigbin12 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts12)[0],cbin.applyCuts(sigma_dis,cuts12)[0],label='cut12')
+    sigbin13 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts13)[0],cbin.applyCuts(sigma_dis,cuts13)[0],label='cut13')
+    sigbin14 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts14)[0],cbin.applyCuts(sigma_dis,cuts14)[0],label='cut14')
+    sigbin15 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts15)[0],cbin.applyCuts(sigma_dis,cuts15)[0],label='cut15')
+    plt.title('d$\sigma_{DIS}$ vs TDIS_xbj', fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    plt.xlabel('TDIS_xbj')
+    plt.ylabel('d$\sigma_{DIS}$ (fb)')
+    plt.xlim(1e-4,1)
+    plt.xscale('log')
+    plt.yscale('log')
+    print "sigma_dis cut1:\n",sigbin1.get_offsets()
+    print "sigma_dis cut2:\n",sigbin2.get_offsets()
+    print "sigma_dis cut3:\n",sigbin3.get_offsets()
+    print "sigma_dis cut4:\n",sigbin4.get_offsets()
+    print "sigma_dis cut5:\n",sigbin5.get_offsets()
+    print "sigma_dis cut6:\n",sigbin6.get_offsets()
+    print "sigma_dis cut7:\n",sigbin7.get_offsets()
+    print "sigma_dis cut8:\n",sigbin8.get_offsets()
+    print "sigma_dis cut9:\n",sigbin9.get_offsets()
+    print "sigma_dis cut10:\n",sigbin10.get_offsets()
+    print "sigma_dis cut11:\n",sigbin11.get_offsets()
+    print "sigma_dis cut12:\n",sigbin12.get_offsets()
+    print "sigma_dis cut13:\n",sigbin13.get_offsets()
+    print "sigma_dis cut14:\n",sigbin14.get_offsets()
+    print "sigma_dis cut15:\n",sigbin15.get_offsets()
+    
+    for f in xrange(1, plt.figure().number):
+        pdf.savefig(f)
+    pdf.close()    
+    
 def main() :
 
-    customPlots()
+    sigmaBin_Plot()
+    # sigmaDIS_Plot()
     # recreateLeaves()
     plt.show()
     
