@@ -35,13 +35,14 @@ import time,math,sys
 sys.path.insert(0,'../../../Analysis/ROOTfiles/python')
 from test_rootPy import pyPlot, pyCut
 
-rootName = "TDISpion_80k"
-# rootName = "TDISpion_low"
-# rootName = "TDISpion_med"
-# rootName = "TDISpion_high"
-# rootName = "TDISpion"
-# rootName = "chain_20k"
+# rootName = "TDISpion_80k"
+rootName_low = "TDISpion_low"
+rootName_mid = "TDISpion_med"
+rootName_high = "TDISpion_high"
+rootName = "TDISpion"
 
+# rootName = "chain_20k"
+# rootName = "chain_low"
 
 tree1 = "T"
 
@@ -49,24 +50,77 @@ T1_arrkey =  "leafName"
 T1_arrhist = "histData"
 
 pdf = matplotlib.backends.backend_pdf.PdfPages("%s.pdf" % rootName)
+pdf_q2 = matplotlib.backends.backend_pdf.PdfPages("Q2vxbj-xpi.pdf")
+pdf_sigma = matplotlib.backends.backend_pdf.PdfPages("sigmavxbj-xpi.pdf")
 
 # Arguments for class function
-p = pyPlot(rootName,tree1,T1_arrkey,T1_arrhist) 
+p = pyPlot(rootName,tree1,T1_arrkey,T1_arrhist)
+p1 = pyPlot(rootName_low,tree1,T1_arrkey,T1_arrhist)
+p2 = pyPlot(rootName_mid,tree1,T1_arrkey,T1_arrhist)
+p3 = pyPlot(rootName_high,tree1,T1_arrkey,T1_arrhist)
+
+Q2_low = p1.lookup("Q2")[0]
+Q2_mid = p2.lookup("Q2")[0]
+Q2_high = p3.lookup("Q2")[0]
+
+TDIS_xbj_low = p1.lookup("TDIS_xbj")[0]
+TDIS_xbj_mid = p2.lookup("TDIS_xbj")[0]
+TDIS_xbj_high = p3.lookup("TDIS_xbj")[0]
+
+xpi_low = p1.lookup("xpi")[0]
+xpi_mid = p2.lookup("xpi")[0]
+xpi_high = p3.lookup("xpi")[0]
+
+sigma_dis_low = p1.lookup("sigma_dis")[0]*(1e-6)
+sigma_dis_mid = p2.lookup("sigma_dis")[0]*(1e-6)
+sigma_dis_high = p3.lookup("sigma_dis")[0]*(1e-6)
+
+y_low = p1.lookup("y")[0]
+y_mid = p2.lookup("y")[0]
+y_high = p3.lookup("y")[0]
+
+yplus_low = 1+((1-y_low)*(1-y_low))
+yplus_mid = 1+((1-y_mid)*(1-y_mid))
+yplus_high = 1+((1-y_high)*(1-y_high))
+
+tot_sigma_low = (sigma_dis_low)*((TDIS_xbj_low*(Q2_low*Q2_low)*(137)*(137))/(2*math.pi*yplus_low))
+tot_sigma_mid = (sigma_dis_mid)*((TDIS_xbj_mid*(Q2_mid*Q2_mid)*(137)*(137))/(2*math.pi*yplus_mid))
+tot_sigma_high = (sigma_dis_high)*((TDIS_xbj_high*(Q2_high*Q2_high)*(137)*(137))/(2*math.pi*yplus_high))
 
 # Define phyisics data
+s_e = p.lookup("s_e")[0]
+s_q = p.lookup("s_q")[0]
 xBj = p.lookup("xBj")[0]
 TDIS_xbj = p.lookup("TDIS_xbj")[0]
 sigma_dis = p.lookup("sigma_dis")[0]*(1e-6)
 TDIS_y = p.lookup("TDIS_y")[0]
+ppix_Lab = p.lookup("ppix_Lab")[0] # Long pion momentum
+ppiy_Lab = p.lookup("ppiy_Lab")[0]
+ppiz_Lab = p.lookup("ppiz_Lab")[0]
+EpiE_Lab = p.lookup("EpiE_Lab")[0]
+pprx_inc = p.lookup("pprx_inc")[0] # Long proton momentum
+ppry_inc = p.lookup("ppry_inc")[0]
+pprz_inc = p.lookup("pprz_inc")[0]
+EprE_inc = p.lookup("EprE_inc")[0]
 y = p.lookup("y")[0]
 Q2 = p.lookup("Q2")[0]
+fpi = p.lookup("fpi")[0]
 f2N = p.lookup("f2N")[0]
+xpi = p.lookup("xpi")[0]
+ypi = p.lookup("ypi")[0]
 tpi = p.lookup("tpi")[0]
 t = -p.lookup("tPrime")[0]
 y_D = p.lookup("y_D")[0]
 escat = p.lookup("EScatRest")[0]
 nu = p.lookup("nu")[0]
 TwoPdotk = p.lookup("TwoPdotk")[0]
+
+# Q2_new = s_q/(xBj*y)
+Q2_new = xBj/TwoPdotk
+piQ2 = s_q/(xpi*ypi)
+pNz_Lab = pprz_inc-ppiz_Lab # Long neutron momentum
+ppiz_frac = ppiz_Lab/pprz_inc # Frac of proton momentum
+pNz_frac = pNz_Lab/pprz_inc # Frac of proton momentum
 yplus = 1+((1-y)*(1-y))
 alt_sigma_dis = (1e1)*sigma_dis
 tot_sigma = (sigma_dis)*((TDIS_xbj*(Q2*Q2)*(137)*(137))/(2*math.pi*yplus))
@@ -86,28 +140,61 @@ cutDict = {
     "xcut4" : ((1.3e-3 < TDIS_xbj) & (TDIS_xbj < 5.0e-2)),
     "xcut5" : ((2.1e-3 < TDIS_xbj) & (TDIS_xbj < 1.8e-1)),
     "xcut6" : ((5.0e-3 < TDIS_xbj) & (TDIS_xbj < 1.8e-1)),
-    "Q2cut1" : ((6.4 < Q2) & (Q2 < 6.6)),
-    "Q2cut2" : ((14.9 < Q2) & (Q2 < 15.1)),
-    "Q2cut3" : ((34.9 < Q2) & (Q2 < 35.1)),
-    "Q2cut4" : ((59.9 < Q2) & (Q2 < 60.1)),
-    "Q2cut5" : ((119.9 < Q2) & (Q2 < 120.1)),
-    "Q2cut6" : ((249.9 < Q2) & (Q2 < 250.1)),
+    "Q2cut1" : ((6.499 < Q2) & (Q2 < 6.501)),
+    "Q2cut2" : ((14.999 < Q2) & (Q2 < 15.001)),
+    "Q2cut3" : ((34.999 < Q2) & (Q2 < 35.001)),
+    "Q2cut4" : ((59.999 < Q2) & (Q2 < 60.001)),
+    "Q2cut5" : ((119.999 < Q2) & (Q2 < 120.001)),
+    "Q2cut6" : ((249.999 < Q2) & (Q2 < 250.001)),
+    "Q2cutI" : ((6.499 < Q2) & (Q2 < 6.501)),
+    "Q2cutII" : ((3.999 < Q2) & (Q2 < 4.001)),
+    "Q2cutIII" : ((7.499 < Q2) & (Q2 < 7.501)),
+
+}
+
+lowDict = {
+    "Q2low1" : ((6.499 < Q2_low) & (Q2_low < 6.501)),
+    "Q2low2" : ((14.999 < Q2_low) & (Q2_low < 15.001)),
+    "Q2low3" : ((34.999 < Q2_low) & (Q2_low < 35.001)),
+    "Q2low4" : ((59.999 < Q2_low) & (Q2_low < 60.001)),
+    "Q2low5" : ((119.999 < Q2_low) & (Q2_low < 120.001)),
+    "Q2low6" : ((249.999 < Q2_low) & (Q2_low < 250.001)),
+
+}
+
+midDict = {
+    "Q2mid1" : ((6.499 < Q2_mid) & (Q2_mid < 6.501)),
+    "Q2mid2" : ((14.999 < Q2_mid) & (Q2_mid < 15.001)),
+    "Q2mid3" : ((34.999 < Q2_mid) & (Q2_mid < 35.001)),
+    "Q2mid4" : ((59.999 < Q2_mid) & (Q2_mid < 60.001)),
+    "Q2mid5" : ((119.999 < Q2_mid) & (Q2_mid < 120.001)),
+    "Q2mid6" : ((249.999 < Q2_mid) & (Q2_mid < 250.001)),
+
+}
+
+highDict = {
+    "Q2high1" : ((6.499 < Q2_high) & (Q2_high < 6.501)),
+    "Q2high2" : ((14.999 < Q2_high) & (Q2_high < 15.001)),
+    "Q2high3" : ((34.999 < Q2_high) & (Q2_high < 35.001)),
+    "Q2high4" : ((59.999 < Q2_high) & (Q2_high < 60.001)),
+    "Q2high5" : ((119.999 < Q2_high) & (Q2_high < 120.001)),
+    "Q2high6" : ((249.999 < Q2_high) & (Q2_high < 250.001)),
 
 }
 
 # Please find below the bins to make for Q2, xpi. I also include y here. For this, please run the simulation for 5 GeV electrons and 100 GeV protons. This should give a value for s= 4x 5 x 100 = 2000 GeV^2. Note that s is related to Q2 as s = Q2 x (x_B)/y. We will assume an implicit cut on y < 0.7 for now, which means Q2 x (xB) < 1400. We can relax that later. 
 
-# xarray   =[0.001,0.002,0.002,0.004,0.004,0.004,0.004,0.006,0.006,0.006,0.006,0.008,0.008,0.008,0.008,0.008]
-# Q2array  =[1.0,1.0,2.0,1.0,2.0,3.0,4.0,1.5,3.0,4.5,6.0,1.0,2.0,4.0,6.0,8.0]
-# yarray   =[0.8,0.4,0.8,0.2,0.4,0.6,0.8,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8]
+xarray   =[0.001,0.002,0.002,0.004,0.004,0.004,0.004,0.006,0.006,0.006,0.006,0.008,0.008,0.008,0.008,0.008]
+Q2array  =[1.0,1.0,2.0,1.0,2.0,3.0,4.0,1.5,3.0,4.5,6.0,1.0,2.0,4.0,6.0,8.0]
+yarray   =[0.8,0.4,0.8,0.2,0.4,0.6,0.8,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8]
 
 # xarray   =[0.01,0.01,0.01,0.01,0.01,0.02,0.02,0.02,0.02,0.02,0.04,0.04,0.04,0.04,0.04,0.06,0.06,0.06,0.06,0.06,0.08,0.08,0.08,0.08,0.08]
 # Q2array  =[1.25,2.5,5.0,7.5,10.0,2.5,5.0,10.0,15.0,20.0,5.0,10.0,20.0,30.0,40.0,7.5,15.0,30.0,45.0,60.0,10.0,20.0,40.0,60.0,80.0]
 # yarray   =[0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8]
 
-xarray   =[0.1,0.1,0.1,0.1,0.1,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.6,0.6,0.8,0.8,0.8,0.8,0.8]
-Q2array  =[12.5,25.0,50.0,75.0,100.0,25.0,50.0,100.0,150.0,200.0,50.0,100.0,200.0,300.0,400.0,75.0,150.0,300.0,450.0,600.0,100.0,200.0,400.0,600.0,800.0]
-yarray   =[0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8]
+# xarray   =[0.1,0.1,0.1,0.1,0.1,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.6,0.6,0.8,0.8,0.8,0.8,0.8]
+# Q2array  =[12.5,25.0,50.0,75.0,100.0,25.0,50.0,100.0,150.0,200.0,50.0,100.0,200.0,300.0,400.0,75.0,150.0,300.0,450.0,600.0,100.0,200.0,400.0,600.0,800.0]
+# yarray   =[0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8,0.1,0.2,0.4,0.6,0.8]
 
 cutBinDict = {}
 
@@ -128,8 +215,41 @@ for x in range(0,len(xarray)) :
 
 c = pyCut(cutDict)
 
+clow = pyCut(lowDict)
+cmid = pyCut(midDict)
+chigh = pyCut(highDict)
+
 cbin = pyCut(cutBinDict)
 
+def uncern_Cut():
+
+    low1 = ["Q2low1"]
+    mid1 = ["Q2mid1"]
+    high1 = ["Q2high1"]
+    
+    low2 = ["Q2low2"]
+    mid2 = ["Q2mid2"]
+    high2 = ["Q2high2"]
+    
+    low3 = ["Q2low3"]
+    mid3 = ["Q2mid3"]
+    high3 = ["Q2high3"]
+    
+    low4 = ["Q2low4"]
+    mid4 = ["Q2mid4"]
+    high4 = ["Q2high4"]
+    
+    low5 = ["Q2low5"]
+    mid5 = ["Q2mid5"]
+    high5 = ["Q2high5"]
+    
+    low6 = ["Q2low6"]
+    mid6 = ["Q2mid6"]
+    high6 = ["Q2high6"]
+
+
+    return[low1,mid1,high1,low2,mid2,high2,low3,mid3,high3,low4,mid4,high4,low5,mid5,high5,low6,mid6,high6]
+    
 def sigmaDIS_Cut():
     
     cuts1 = ["xcut1", "Q2cut1"]
@@ -138,9 +258,12 @@ def sigmaDIS_Cut():
     cuts4 = ["xcut4", "Q2cut4"]
     cuts5 = ["xcut5", "Q2cut5"]
     cuts6 = ["xcut6", "Q2cut6"]
+    cutsQ2 = ["Q2cutI"]
+    cutsQ2a = ["Q2cutII"]
+    cutsQ2b = ["Q2cutIII"]
 
 
-    return[cuts1,cuts2,cuts3,cuts4,cuts5,cuts6]
+    return[cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cutsQ2,cutsQ2a,cutsQ2b]
 
 def sigmaBin_Cut():
 
@@ -163,7 +286,7 @@ def sigmaBin_Cut():
 
     return[cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15]
 
-def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,ymax=None,cuts=None,figure=None,sub=None):
+def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,ymax=None,cuts=None,figure=None,ax=None,layered=True):
 
     if cuts:
         xcut  = c.applyCuts(x,cuts)[0]
@@ -171,21 +294,28 @@ def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,
     else:
         xcut = x
         ycut = y
-    if sub or figure:
-        ax = figure.add_subplot(sub)
+    # if sub or figure:
+    #     ax = figure.add_subplot(sub)
+    if ax or figure:
+        # ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+        print ""
     else:
-        fig, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+        fig, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
     if (xmin or xmax or ymin or ymax):
-        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx,xmin,xmax)[0],p.setbin(y,biny,ymin,ymax)[0]), norm=colors.LogNorm())
+        # norm=colors.LogNorm() makes colorbar normed and logarithmic
+        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx,xmin,xmax)[0],p.setbin(y,biny,ymin,ymax)[0]))
     else:
-        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx)[0],p.setbin(y,biny)[0]), norm=colors.LogNorm())
+        # norm=colors.LogNorm() makes colorbar normed and logarithmic
+        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx)[0],p.setbin(y,biny)[0]))
+    if layered is True :    
+        plt.colorbar(hist[3], ax=ax, spacing='proportional', label='Number of Events')
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     
 def sigmaDIS_Plot():
 
-    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6] = sigmaDIS_Cut()
+    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cutsQ2,cutsQ2a,cutsQ2b] = sigmaDIS_Cut()
 
     # print 'Q2 \n:', Q2
     # print 'TwoPdotk \n:', TwoPdotk
@@ -366,12 +496,368 @@ def sigmaBin_Plot():
     for f in xrange(1, plt.figure().number):
         pdf.savefig(f)
     pdf.close()    
+
+def neutronDist() :
+
+    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
+
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    sigbin1 = ax.hist(cbin.applyCuts(f2N,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin2 = ax.hist(cbin.applyCuts(f2N,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin3 = ax.hist(cbin.applyCuts(f2N,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin4 = ax.hist(cbin.applyCuts(f2N,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin5 = ax.hist(cbin.applyCuts(f2N,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin6 = ax.hist(cbin.applyCuts(f2N,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin7 = ax.hist(cbin.applyCuts(f2N,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin8 = ax.hist(cbin.applyCuts(f2N,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin9 = ax.hist(cbin.applyCuts(f2N,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin10 = ax.hist(cbin.applyCuts(f2N,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin11 = ax.hist(cbin.applyCuts(f2N,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin12 = ax.hist(cbin.applyCuts(f2N,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin13 = ax.hist(cbin.applyCuts(f2N,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin14 = ax.hist(cbin.applyCuts(f2N,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin15 = ax.hist(cbin.applyCuts(f2N,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$f^{2}_{N}$ binned', fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    plt.xlabel('$f^{2}_{N}$')
+    plt.ylabel('Number of Events')
+    
+    # for f in xrange(1, plt.figure().number):
+    #     pdf.savefig(f)
+    # pdf.close()
+
+def pionDist() :
+    
+    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
+
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    xpibin = ax.hist(xpi,bins=p.setbin(xpi,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$x_{pi}$ binned', fontsize =16)
+    plt.xlabel('$x_{pi}$')
+    plt.ylabel('Number of Events')
+    
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    ypibin = ax.hist(ypi,bins=p.setbin(ypi,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$y_{pi}$', fontsize =16)
+    plt.xlabel('$y_{pi}$')
+    plt.ylabel('Number of Events')
+    
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    tpibin = ax.hist(tpi,bins=p.setbin(tpi,200,-1.0,0.)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$t_{pi}$', fontsize =16)
+    plt.xlabel('$t_{pi}$')
+    plt.ylabel('Number of Events')
+    
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    fpibin = ax.hist(fpi,histtype='step', alpha=0.5, stacked=True, fill=True)
+    # fpibin = ax.hist(fpi,bins=p.setbin(fpi,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$f_{pi}$', fontsize =16)
+    plt.xlabel('$f_{pi}$')
+    plt.ylabel('Number of Events')
+    
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    xpibin1 = ax.hist(cbin.applyCuts(xpi,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin2 = ax.hist(cbin.applyCuts(xpi,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin3 = ax.hist(cbin.applyCuts(xpi,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin4 = ax.hist(cbin.applyCuts(xpi,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin5 = ax.hist(cbin.applyCuts(xpi,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin6 = ax.hist(cbin.applyCuts(xpi,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin7 = ax.hist(cbin.applyCuts(xpi,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin8 = ax.hist(cbin.applyCuts(xpi,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin9 = ax.hist(cbin.applyCuts(xpi,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin10 = ax.hist(cbin.applyCuts(xpi,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin11 = ax.hist(cbin.applyCuts(xpi,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin12 = ax.hist(cbin.applyCuts(xpi,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin13 = ax.hist(cbin.applyCuts(xpi,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin14 = ax.hist(cbin.applyCuts(xpi,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin15 = ax.hist(cbin.applyCuts(xpi,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$x_{pi}$ binned', fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    plt.xlabel('$x_{pi}$')
+    plt.ylabel('Number of Events')
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(xpi,cuts3)[0])), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+    
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    ypibin1 = ax.hist(cbin.applyCuts(ypi,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin2 = ax.hist(cbin.applyCuts(ypi,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin3 = ax.hist(cbin.applyCuts(ypi,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin4 = ax.hist(cbin.applyCuts(ypi,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin5 = ax.hist(cbin.applyCuts(ypi,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin6 = ax.hist(cbin.applyCuts(ypi,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin7 = ax.hist(cbin.applyCuts(ypi,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin8 = ax.hist(cbin.applyCuts(ypi,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin9 = ax.hist(cbin.applyCuts(ypi,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin10 = ax.hist(cbin.applyCuts(ypi,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin11 = ax.hist(cbin.applyCuts(ypi,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin12 = ax.hist(cbin.applyCuts(ypi,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin13 = ax.hist(cbin.applyCuts(ypi,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin14 = ax.hist(cbin.applyCuts(ypi,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin15 = ax.hist(cbin.applyCuts(ypi,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$y_{pi}$ binned', fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    plt.xlabel('$y_{pi}$')
+    plt.ylabel('Number of Events')
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(ypi,cuts3)[0])), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+    
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    tpibin1 = ax.hist(cbin.applyCuts(tpi,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin2 = ax.hist(cbin.applyCuts(tpi,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin3 = ax.hist(cbin.applyCuts(tpi,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin4 = ax.hist(cbin.applyCuts(tpi,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin5 = ax.hist(cbin.applyCuts(tpi,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin6 = ax.hist(cbin.applyCuts(tpi,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin7 = ax.hist(cbin.applyCuts(tpi,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin8 = ax.hist(cbin.applyCuts(tpi,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin9 = ax.hist(cbin.applyCuts(tpi,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin10 = ax.hist(cbin.applyCuts(tpi,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin11 = ax.hist(cbin.applyCuts(tpi,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin12 = ax.hist(cbin.applyCuts(tpi,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin13 = ax.hist(cbin.applyCuts(tpi,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin14 = ax.hist(cbin.applyCuts(tpi,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin15 = ax.hist(cbin.applyCuts(tpi,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$t_{pi}$ binned', fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    plt.xlabel('$t_{pi}$')
+    plt.ylabel('Number of Events')
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(tpi,cuts3)[0])), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+    
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    fpibin1 = ax.hist(cbin.applyCuts(fpi,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin2 = ax.hist(cbin.applyCuts(fpi,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin3 = ax.hist(cbin.applyCuts(fpi,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin4 = ax.hist(cbin.applyCuts(fpi,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin5 = ax.hist(cbin.applyCuts(fpi,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin6 = ax.hist(cbin.applyCuts(fpi,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin7 = ax.hist(cbin.applyCuts(fpi,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin8 = ax.hist(cbin.applyCuts(fpi,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin9 = ax.hist(cbin.applyCuts(fpi,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin10 = ax.hist(cbin.applyCuts(fpi,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin11 = ax.hist(cbin.applyCuts(fpi,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin12 = ax.hist(cbin.applyCuts(fpi,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin13 = ax.hist(cbin.applyCuts(fpi,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin14 = ax.hist(cbin.applyCuts(fpi,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin15 = ax.hist(cbin.applyCuts(fpi,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$f_{pi}$ binned', fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    plt.xlabel('$f_{pi}$')
+    plt.ylabel('Number of Events')
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(fpi,cuts3)[0])), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+    
+    # for f in xrange(1, plt.figure().number):
+    #     pdf.savefig(f)
+    # pdf.close() 
+
+def momentumPlots():
+
+    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
+
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    # pprx_incbin = ax.hist(pprx_inc,bins=p.setbin(pprx_inc,200,-150.,150.)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    EprE_incbin = ax.hist(EprE_inc,bins=p.setbin(EprE_inc,200,-150.,150.)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$p_{pr}$', fontsize =16)
+    plt.xlabel('$p_{pr}$')
+    plt.ylabel('Number of Events')
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.05, 0.95, 'Num Evts = %0.f' % (len(pprz_inc)), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    ppiz_fracbin = ax.hist(ppiz_frac,bins=p.setbin(ppiz_frac,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$p_{\pi}$/$p_{pr}$', fontsize =16)
+    plt.xlabel('$p_{\pi}$/$p_{pr}$')
+    plt.ylabel('Number of Events')
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.75, 0.95, 'Num Evts = %0.f' % (len(ppiz_frac)), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    pNz_fracbin = ax.hist(pNz_frac,bins=p.setbin(pNz_frac,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    plt.title('$p_{N}$/$p_{pr}$', fontsize =16)
+    plt.xlabel('$p_{N}$/$p_{pr}$')
+    plt.ylabel('Number of Events')
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.05, 0.95, 'Num Evts = %0.f' % (len(pNz_frac)), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+
+def q2Plots():
+
+    [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
+
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    q2bin = ax.hist(Q2,bins=p.setbin(Q2,200,1.,8.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='Q2')
+    # q2_newbin = ax.hist(Q2_new,bins=p.setbin(Q2,200,1.,8.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='Q2 new')
+    piq2bin = ax.hist(piQ2,bins=p.setbin(Q2,200,1.,8.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$\pi$ Q2')
+    plt.title('$Q^{2}$', fontsize =16)
+    plt.xlabel('$Q^{2}$')
+    plt.ylabel('Number of Events')
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.05, 0.95, 'Num Evts = %0.f' % (len(pNz_frac)), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+    # leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
+    # leg.get_frame().set_alpha(1.)
+
+def uncernCalc():
+
+    # [low1,mid1,high1,low2,mid2,high2,low3,mid3,high3,low4,mid4,high4,low5,mid5,high5,low6,mid6,high6] = uncern_Cut()
+    
+    # f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    # # xerr, yerr
+    # # scat1 = 3ax.errorbar(c.applyCuts(TDIS_xbj,cutsQ2),c.applyCuts(Q2,cutsQ2),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cutsQ2))/200,yerr=np.sqrt(c.applyCuts(Q2,cutsQ2))/200,fmt='o',label='$Q^2$=6.5 $GeV^2$')
+    # scat1 = ax.errorbar(clow.applyCuts(TDIS_xbj_low,low1),clow.applyCuts(Q2_low,low1),xerr=np.sqrt(clow.applyCuts(TDIS_xbj_low,low1))/200,yerr=np.sqrt(clow.applyCuts(Q2_low,low1))/200,fmt='o',label='$Q^2$=6.5 $GeV^2$')
+    # scat2 = ax.errorbar(cmid.applyCuts(TDIS_xbj_mid,mid2),cmid.applyCuts(Q2_mid,mid2),xerr=np.sqrt(cmid.applyCuts(TDIS_xbj_mid,mid2))/200,yerr=np.sqrt(cmid.applyCuts(Q2_mid,mid2))/200,fmt='o',label='$Q^2$=15.0 $GeV^2$')
+    # scat3 = ax.errorbar(cmid.applyCuts(TDIS_xbj_mid,mid3),cmid.applyCuts(Q2_mid,mid3),xerr=np.sqrt(cmid.applyCuts(TDIS_xbj_mid,mid3))/200,yerr=np.sqrt(cmid.applyCuts(Q2_mid,mid3))/200,fmt='o',label='$Q^2$=35.0 $GeV^2$')
+    # scat4 = ax.errorbar(cmid.applyCuts(TDIS_xbj_mid,mid4),cmid.applyCuts(Q2_mid,mid4),xerr=np.sqrt(cmid.applyCuts(TDIS_xbj_mid,mid4))/200,yerr=np.sqrt(cmid.applyCuts(Q2_mid,mid4))/200,fmt='o',label='$Q^2$=60.0 $GeV^2$')
+    # scat5 = ax.errorbar(chigh.applyCuts(TDIS_xbj_high,high5),chigh.applyCuts(Q2_high,high5),xerr=np.sqrt(chigh.applyCuts(TDIS_xbj_high,high5))/200,yerr=np.sqrt(chigh.applyCuts(Q2_high,high5))/200,fmt='o',label='$Q^2$=120.0 $GeV^2$')
+    # scat6 = ax.errorbar(chigh.applyCuts(TDIS_xbj_high,high6),chigh.applyCuts(Q2_high,high6),xerr=np.sqrt(chigh.applyCuts(TDIS_xbj_high,high6))/200,yerr=np.sqrt(chigh.applyCuts(Q2_high,high6))/200,fmt='o',label='$Q^2$=250.0 $GeV^2$')
+    # plt.title('$Q^{2}$ vs TDIS_xbj', fontsize =16)
+    # leg = plt.legend(bbox_to_anchor=(0.95,0.3), loc="center right")
+    # leg.get_frame().set_alpha(1.)
+    # plt.xlabel('TDIS_xbj')
+    # plt.ylabel('$Q^{2}$')
+    # plt.xlim(0.,1.)
+    # # plt.ylim(0.,8.)
+    # # print "uncern", np.sqrt(c.applyCuts(TDIS_xbj,cutsQ2a))/200
+
+
+    f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    # totsigscat = ax.scatter(TDIS_xbj,tot_sigma,label='No cuts')
+    totsigscat1 = ax.errorbar(clow.applyCuts(TDIS_xbj_low,low1),clow.applyCuts(tot_sigma_low,low1),xerr=np.sqrt(clow.applyCuts(TDIS_xbj_low,low1))/200,fmt='o',label='$Q^2$=6.5 $GeV^2$')
+    totsigscat2 = ax.errorbar(cmid.applyCuts(TDIS_xbj_mid,mid2),cmid.applyCuts(tot_sigma_mid,mid2),xerr=np.sqrt(cmid.applyCuts(TDIS_xbj_mid,mid2))/200,fmt='o',label='$Q^2$=15.0 $GeV^2$')
+    totsigscat3 = ax.errorbar(cmid.applyCuts(TDIS_xbj_mid,mid3),cmid.applyCuts(tot_sigma_mid,mid3),xerr=np.sqrt(cmid.applyCuts(TDIS_xbj_mid,mid3))/200,fmt='o',label='$Q^2$=35.0 $GeV^2$')
+    totsigscat4 = ax.errorbar(cmid.applyCuts(TDIS_xbj_mid,mid4),cmid.applyCuts(tot_sigma_mid,mid4),xerr=np.sqrt(cmid.applyCuts(TDIS_xbj_mid,mid4))/200,fmt='o',label='$Q^2$=60.0 $GeV^2$')
+    totsigscat5 = ax.errorbar(chigh.applyCuts(TDIS_xbj_high,high5),chigh.applyCuts(tot_sigma_high,high5),xerr=np.sqrt(chigh.applyCuts(TDIS_xbj_high,high5))/200,fmt='o',label='$Q^2$=120.0 $GeV^2$')
+    totsigscat6 = ax.errorbar(chigh.applyCuts(TDIS_xbj_high,high6),chigh.applyCuts(tot_sigma_high,high6),xerr=np.sqrt(chigh.applyCuts(TDIS_xbj_high,high6))/200,fmt='o',label='$Q^2$=250.0 $GeV^2$')
+    plt.title('Reduced $\sigma_{DIS}$ vs TDIS_xbj', fontsize =16)
+    leg = plt.legend(bbox_to_anchor=(0.95,0.3), loc="center right")
+    leg.get_frame().set_alpha(1.)
+    plt.xlabel('TDIS_xbj')
+    plt.ylabel('Reduced $\sigma_{DIS}$ ($nb^{-1}$)')
+    plt.xlim(0.,1.)
+    # plt.xscale('log')
+    # plt.ylim(0.,15e-4)
+    # plt.yscale('log')
+    # print "tot_sigma Q^2=6.5:\n",totsigscat1.get_offsets()
+    # print "tot_sigma Q^2=15.0:\n",totsigscat2.get_offsets()
+    # print "tot_sigma Q^2=35.0:\n",totsigscat3.get_offsets()
+    # print "tot_sigma Q^2=60.0:\n",totsigscat4.get_offsets()
+    # print "tot_sigma Q^2=120.0:\n",totsigscat5.get_offsets()
+    # print "tot_sigma Q^2=250.0:\n",totsigscat6.get_offsets()
+
+def phaseSpace():
+    
+    # Q2 vs xBj
+    hxbj_Q2_low = densityPlot(TDIS_xbj_low, Q2_low, '$Q^{2}$[1-8 GeV] vs TDIS_xbj[0.001-0.008]','TDIS_xbj','$Q^{2}$', 20, 20, 0.001, 0.008, 1., 8.)
+    plt.xscale('log')
+    # plt.yscale('log')
+    hxbj_Q2_mid = densityPlot(TDIS_xbj_mid, Q2_mid, '$Q^{2}$[10-80 GeV] vs TDIS_xbj[0.01-0.08]','TDIS_xbj','$Q^{2}$', 20, 20, 0.01, 0.08, 10., 80.)
+    plt.xscale('log')
+    # plt.yscale('log')
+    hxbj_Q2_high = densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$[100-800 GeV] vs TDIS_xbj[0.1-0.8]','TDIS_xbj','$Q^{2}$', 20, 20, 0.1, 0.8, 100., 800.)
+    plt.xscale('log')
+    # plt.yscale('log')
+
+    # Q2 vs xBj chained
+    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+    hxbj_Q2_low = densityPlot(TDIS_xbj_low, Q2_low, '','TDIS_xbj','$Q^{2}$', 20, 20, 0.001, 0.008, 1., 8., figure=f,ax=ax)
+    hxbj_Q2_mid = densityPlot(TDIS_xbj_mid, Q2_mid, '','TDIS_xbj','$Q^{2}$', 20, 20,  0.01, 0.08, 10., 80., figure=f, ax=ax, layered=False)
+    hxbj_Q2_high = densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$ vs TDIS_xbj (all sets)','TDIS_xbj','$Q^{2}$', 20, 20, 0.1, 0.8, 100., 800., figure=f,ax=ax,layered=False)
+    plt.xscale('log')
+    plt.xlim(0.,1.)
+    # plt.yscale('log')
+    plt.ylim(0.,800.)
+
+    # Q2 vs xpi
+    hxpi_Q2_low = densityPlot(xpi_low, Q2_low, '$Q^{2}$[1-8 GeV] vs $x_{pi}$[0.001-0.008]','$x_{pi}$','$Q^{2}$', 20, 20, 0.001, 0.008, 1., 8.)
+    plt.xscale('log')
+    # plt.yscale('log')
+    hxpi_Q2_mid = densityPlot(xpi_mid, Q2_mid, '$Q^{2}$[10-80 GeV] vs $x_{pi}$[0.01-0.08]','$x_{pi}$','$Q^{2}$', 20, 20, 0.01, 0.08, 10., 80.)
+    plt.xscale('log')
+    # plt.yscale('log')
+    hxpi_Q2_high = densityPlot(xpi_high, Q2_high, '$Q^{2}$[100-800 GeV] vs $x_{pi}$[0.1-0.8]','$x_{pi}$','$Q^{2}$', 20, 20, 0.1, 0.8, 100., 800.)
+    plt.xscale('log')
+    # plt.yscale('log')
+
+    # Q2 vs xpi chained
+    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+    hxpi_Q2_low = densityPlot(xpi_low, Q2_low, '','$x_{pi}$','$Q^{2}$', 20, 20, 0.001, 0.008, 1., 8., figure=f,ax=ax)
+    hxpi_Q2_mid = densityPlot(xpi_mid, Q2_mid, '','$x_{pi}$','$Q^{2}$', 20, 20,  0.01, 0.08, 10., 80., figure=f, ax=ax, layered=False)
+    hxpi_Q2_high = densityPlot(xpi_high, Q2_high, '$Q^{2}$ vs $x_{pi}$ (all sets)','$x_{pi}$','$Q^{2}$', 20, 20, 0.1, 0.8, 100., 800., figure=f,ax=ax,layered=False)
+    plt.xscale('log')
+    plt.xlim(0.,1.)
+    # plt.yscale('log')
+    plt.ylim(0.,800.)
+
+    
+    for f in xrange(1, plt.figure().number):
+        pdf_q2.savefig(f)
+    pdf_q2.close()
+
+def sigmavX():
+
+    
+    # Cross-section vs xBj
+    hTDIS_xbj_tot_sigma_low = densityPlot(TDIS_xbj_low, tot_sigma_low, 'reduced $\sigma_{dis}$[1-8 GeV] vs TDIS_xbj[0.001-0.008]','TDIS_xbj','reduced $\sigma_{dis}$', 20, 20, 0.001, 0.008)
+    plt.xscale('log')
+    plt.yscale('log')
+    hTDIS_xbj_tot_sigma_mid = densityPlot(TDIS_xbj_mid, tot_sigma_mid, 'reduced $\sigma_{dis}$[10-80 GeV] vs TDIS_xbj[0.01-0.08]','TDIS_xbj','reduced $\sigma_{dis}$', 20, 20, 0.01, 0.08)
+    plt.xscale('log')
+    plt.yscale('log')
+    hTDIS_xbj_tot_sigma_high = densityPlot(TDIS_xbj_high, tot_sigma_high, 'reduced $\sigma_{dis}$[100-800 GeV] vs TDIS_xbj[0.1-0.8]','TDIS_xbj','reduced $\sigma_{dis}$', 20, 20, 0.1, 0.8)
+    plt.xscale('log')
+    plt.yscale('log')
+
+    # Cross-section vs xBj chained
+    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+    hTDIS_xbj_tot_sigma_low = densityPlot(TDIS_xbj_low, tot_sigma_low, '','TDIS_xbj','reduced $\sigma_{dis}$', 20, 20, 0.001, 0.008, figure=f,ax=ax)
+    hTDIS_xbj_tot_sigma_mid = densityPlot(TDIS_xbj_mid, tot_sigma_mid, '','TDIS_xbj','reduced $\sigma_{dis}$', 20, 20, 0.01, 0.08, figure=f,ax=ax,layered=False)
+    hTDIS_xbj_tot_sigma_high = densityPlot(TDIS_xbj_high, tot_sigma_high, 'reduced $\sigma_{dis}$ vs TDIS_xbj (all sets)','TDIS_xbj','reduced $\sigma_{dis}$', 20, 20, 0.1, 0.8, figure=f,ax=ax,layered=False)
+    plt.xscale('log')
+    plt.xlim(0.,1.)
+    plt.yscale('log')
+    plt.ylim(0.,0.15)
+    
+    # Cross-section vs xpi
+    hxpi_tot_sigma_low = densityPlot(xpi_low, tot_sigma_low, 'reduced $\sigma_{dis}$[1-8 GeV] vs $x_{pi}$[0.001-.008]','$x_{pi}$','reduced $\sigma_{dis}$', 20, 20, 0.001, 0.008)
+    plt.xscale('log')
+    plt.yscale('log')
+    hxpi_tot_sigma_mid = densityPlot(xpi_mid, tot_sigma_mid, 'reduced $\sigma_{dis}$[10-80 GeV] vs $x_{pi}$[0.01-0.08]','$x_{pi}$','reduced $\sigma_{dis}$', 20, 20, 0.01, 0.08)
+    plt.xscale('log')
+    plt.yscale('log')
+    hxpi_tot_sigma_high = densityPlot(xpi_high, tot_sigma_high, 'reduced $\sigma_{dis}$[100-800 GeV] vs $x_{pi}$[0.1-0.8]','$x_{pi}$','reduced $\sigma_{dis}$', 20, 20, 0.1, 0.8)
+    plt.xscale('log')
+    plt.yscale('log')
+
+    # Cross-section vs xpi chained
+    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+    hxpi_tot_sigma_low = densityPlot(xpi_low, tot_sigma_low, '','$x_{pi}$','reduced $\sigma_{dis}$', 20, 20, 0.001, 0.008, figure=f,ax=ax)
+    hxpi_tot_sigma_mid = densityPlot(xpi_mid, tot_sigma_mid, '','$x_{pi}$','reduced $\sigma_{dis}$', 20, 20, 0.01, 0.08, figure=f,ax=ax,layered=False)
+    hxpi_tot_sigma_high = densityPlot(xpi_high, tot_sigma_high, 'reduced $\sigma_{dis}$ vs $x_{pi}$ (all sets)','$x_{pi}$','reduced $\sigma_{dis}$', 20, 20, 0.1, 0.8, figure=f,ax=ax,layered=False)
+    plt.xscale('log')
+    plt.xlim(0.,1.)
+    plt.yscale('log')
+    plt.ylim(0.,0.15)
+
+    for f in xrange(1, plt.figure().number):
+        pdf_sigma.savefig(f)
+    pdf_sigma.close()
     
 def main() :
 
-    sigmaBin_Plot()
+    # q2Plots()
+    # momentumPlots()
+    # neutronDist()
+    # pionDist()
+    # sigmaBin_Plot()
     # sigmaDIS_Plot()
     # recreateLeaves()
+    uncernCalc()
+    # phaseSpace()
+    # sigmavX()
     plt.show()
     
 if __name__=='__main__': main()

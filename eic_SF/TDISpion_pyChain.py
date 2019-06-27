@@ -16,10 +16,7 @@ import sys
 
 numDatFiles = 2
 
-# chainName = "chain_20kab"
-# chainName = "chain_20kcd"
-# chainName = "chain_20k"
-chainName = "chain_low"
+chainName = "chain_8005-8010"
 
 T1_arrkey =  "leafName"
 T1_arrhist = "histData"
@@ -38,14 +35,8 @@ def progressBar(value, endvalue, bar_length):
 def pullArray():
 
     rootDict = {
-        # 0 : "/home/trottar/ResearchNP/JLEIC/eic_SF/TDISpion_20ka",
-        # 1 : "/home/trottar/ResearchNP/JLEIC/eic_SF/TDISpion_20kb",
-        # 0 : "/home/trottar/ResearchNP/JLEIC/eic_SF/TDISpion_20kc",
-        # 1 : "/home/trottar/ResearchNP/JLEIC/eic_SF/TDISpion_20kd",
-        # 0 : "/home/trottar/ResearchNP/JLEIC/eic_SF/chain_20kab",
-        # 1 : "/home/trottar/ResearchNP/JLEIC/eic_SF/chain_20kcd",
-        0 : "/home/trottar/ResearchNP/JLEIC/eic_SF/TDISpion_1-4",
-        1 : "/home/trottar/ResearchNP/JLEIC/eic_SF/TDISpion_4-8",
+         0 : "/home/trottar/ResearchNP/JLEIC/eic_SF/TDISpion_1-4",
+         1 : "/home/trottar/ResearchNP/JLEIC/eic_SF/TDISpion_4-8",
     }
 
     dictT1 = {}
@@ -73,11 +64,11 @@ def mergeKeys():
     T1_leafdicttmp = np.array([])
     
     for i in range(0,numDatFiles):
-        T1_leafdicttmp = np.append(T1_leafdicttmp, dict(zip(dictT1.get("T1_%i" % i, "Leaf not found"), dictT1_hist.get("T1__hist_%i" % i, "Leaf not found"))))
+        T1_leafdicttmp = np.append(T1_leafdicttmp, dict(zip(dictT1.get("T1_%i" % i, "Leaf not found"),dictT1_hist.get("T1__hist_%i" % i, "Leaf not found"))))
         T1_leafdictmerge = [dict(zip(dictT1.get("T1_%i" % i, "Leaf not found"), dictT1_hist.get("T1__hist_%i" % i, "Leaf not found"))), dict(zip(dictT1.get("T1_%i" % i, "Leaf not found"), dictT1_hist.get("T1__hist_%i" % i, "Leaf not found")))]
         T1_leafdictnew = {}
         for k in dict(zip(dictT1.get("T1_%i" % i, "Leaf not found"), dictT1_hist.get("T1__hist_%i" % i, "Leaf not found"))).iterkeys():
-            T1_leafdictnew[k] = tuple(T1_leafdictnew[k] for T1_leafdictnew in T1_leafdictmerge)
+                  T1_leafdictnew[k] = tuple(T1_leafdictnew[k] for T1_leafdictnew in T1_leafdictmerge)
     
     return[T1_leafdictnew,dictT1]
 
@@ -105,7 +96,7 @@ def sendArraytoFile():
     for key,arr in T1_leafdict.items():
         T1 = np.append(T1,key)
         T1_hist.append(arr)
-        
+
     print("\n\nLoading chained data to file, this may take a few minutes.")
     np.savez(chainName, leafName=T1, histData=T1_hist)
         
@@ -113,4 +104,4 @@ def main() :
 
     sendArraytoFile()
     
-if __name__=='__main__': main()
+if __name__=='__main__': main()	    

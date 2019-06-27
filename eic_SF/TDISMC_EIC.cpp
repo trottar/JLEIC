@@ -99,6 +99,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
   
   int charge;
 
+  double pprx_inc,ppry_inc,pprz_inc,EprE_inc ;
+  
   // STEG spectator proton (always) information
   double_t psx_Lab,psy_Lab,psz_Lab,EsE_Lab ;
   double_t psx_Res,psy_Res,psz_Res,EsE_Res ;
@@ -246,28 +248,40 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
   tree->Branch("sigma_dis", &sigma_dis, "sigma_dis/D");
   tree->Branch("sigma_tdis", &sigma_tdis, "sigma_tdis/D");
 
+  // Incident proton
+  tree->Branch("pprx_inc", &pprx_inc, "pprx_inc/D");
+  tree->Branch("ppry_inc", &ppry_inc, "ppry_inc/D");
+  tree->Branch("pprz_inc", &pprz_inc, "pprz_inc/D");
+  tree->Branch("EprE_inc", &EprE_inc, "EprE_inc/D");
+
+  // TDIS scattered electron information
+  tree->Branch("psx_Lab", &psx_Lab, "psx_Lab/D");
+  tree->Branch("psy_Lab", &psy_Lab, "psy_Lab/D");
+  tree->Branch("psz_Lab", &psz_Lab, "psz_Lab/D");
+  tree->Branch("EsE_Lab", &EsE_Lab, "EsE_Lab/D");
+  
   // TDIS scattered electron information
   tree->Branch("pex_Lab", &pex_Lab, "pex_Lab/D");
   tree->Branch("pey_Lab", &pey_Lab, "pey_Lab/D");
-  tree->Branch("pez_Lab", &pey_Lab, "pez_Lab/D");
+  tree->Branch("pez_Lab", &pez_Lab, "pez_Lab/D");
   tree->Branch("EeE_Lab", &EeE_Lab, "EeE_Lab/D");
 
   // TDIS detected pion information
   tree->Branch("ppix_Lab", &ppix_Lab, "ppix_Lab/D");
   tree->Branch("ppiy_Lab", &ppiy_Lab, "ppiy_Lab/D");
-  tree->Branch("ppiz_Lab", &ppiy_Lab, "ppiz_Lab/D");
+  tree->Branch("ppiz_Lab", &ppiz_Lab, "ppiz_Lab/D");
   tree->Branch("EpiE_Lab", &EpiE_Lab, "EpiE_Lab/D");
 
   // TDIS spectator proton information
   tree->Branch("pprx_Lab", &pprx_Lab, "pprx_Lab/D");
   tree->Branch("ppry_Lab", &ppry_Lab, "ppry_Lab/D");
-  tree->Branch("pprz_Lab", &ppry_Lab, "pprz_Lab/D");
+  tree->Branch("pprz_Lab", &pprz_Lab, "pprz_Lab/D");
   tree->Branch("EprE_Lab", &EprE_Lab, "EprE_Lab/D");
 
   // missing particle (X) information
   tree->Branch("pXx_Lab", &pXx_Lab, "pXx_Lab/D");
   tree->Branch("pXy_Lab", &pXy_Lab, "pXy_Lab/D");
-  tree->Branch("pXz_Lab", &pXy_Lab, "pXz_Lab/D");
+  tree->Branch("pXz_Lab", &pXz_Lab, "pXz_Lab/D");
   tree->Branch("EXE_Lab", &EXE_Lab, "EXE_Lab/D");
 	
   tree->Branch("TDIS_xbj", &TDIS_xbj, "TDIS_xbj/D");
@@ -447,7 +461,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
     // these are with beam smearing
     kIncident_Vertex.SetXYZM(kBeamMCx, kBeamMCy, kBeamMCz, mElectron);// Set 4-momentum of incident electron beam
     PIncident_Vertex.SetXYZM(PBeamMCx, PBeamMCy, PBeamMCz, MIon);// Set 4-momentum of incident ion beam
-
+    
     //  Crossing angle JLEIC with smearing
     PIncident_Vertex.RotateY(CrossingTheta);
     PIncident_Vertex.RotateZ(CrossingPhi);
@@ -467,6 +481,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
     PIncident_Rest.Boost(-BoostRest); // should result in (0.,0.,0.,MIon)
     kIncident_Rest = kIncident_Vertex;
     kIncident_Rest.Boost(-BoostRest);
+
+    pprx_inc = PIncident_Vertex.X();
+    ppry_inc = PIncident_Vertex.Y();
+    pprz_inc = PIncident_Vertex.Z();
+    
+    EprE_inc = PIncident_Vertex.E();
+    // EprE_inc = sqrt(pprx_inc*pprx_inc+ppry_inc*ppry_inc+pprz_inc*pprz_inc+MProton*MProton);
 
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
@@ -765,20 +786,20 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
       fpifac = 1;
     }
 	  
-    // pion form factor is only defined in xBj = (0.055 : 0.3)
+    // pion form factor is only defined in xBj = (0.055 : 0.3) --- Removed this constraint in TDISMC_EIC.h
     if (TDIS_xbj > 0.001 && TDIS_xbj < 1.0){
 	    
       //  typ = 2 ! s-dependent expon FORM FACTOR (L=1.56,dis=1,FLAG=0)
-      //fpi = fpifac*f2pi(P_pi, TDIS_xbj, theta_p2/D2R);
+      // fpi = fpifac*f2pi(P_pi, TDIS_xbj, theta_p2/D2R);
 	    
       //  typ = 3 ! COV DIP FORM FACTOR
-      fpi = fpifac*f2picov(P_pi, TDIS_xbj, theta_p2/D2R);
+      // fpi = fpifac*f2picov(P_pi, TDIS_xbj, theta_p2/D2R);
 
       //  typ = 5 ! t-dependent expon FORM FACTOR (L=0.85,dis=1,FLAG=0)
-      //fpi = fpifac*f2pitexp(P_pi, TDIS_xbj, theta_p2/D2R);
+      fpi = fpifac*f2pitexp(P_pi, TDIS_xbj,theta_p2/D2R);
 	    
       //  typ = 6 ! Paul-Villas FORM FACTOR (L=0.27,dis=1,FLAG=0)
-      //fpi = fpifac*f2pipaulvillas(P_pi, TDIS_xbj, theta_p2/D2R);
+      // fpi = fpifac*f2pipaulvillas(P_pi, TDIS_xbj, theta_p2/D2R);
 
       /*
 	L = renormalization cut-off parameter... ex) typ = 2 ! 1.56GeV
@@ -845,7 +866,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
     //  **********************************************************		
     // From the DIS event generator
 
-    if (TDIS_xbj > 0. && TDIS_xbj < 1.0){
+    if (TDIS_xbj > 0.001 && TDIS_xbj < 1.0){
       // *** for the neutron/proton target
       // **** dissigma(E0, Theta_e, E') : where these are in Lab frame ??? should I apply electron lab ?
       //sigma_dis    = dissigma_n(kIncident_Rest.E(),
