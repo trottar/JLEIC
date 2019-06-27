@@ -30,7 +30,7 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
-/* const int NEvts = 100000; */
+/* const int NEvts = 125000; */
 /* const int NEvts = 80000; */
 const int NEvts = 10000;
 
@@ -123,7 +123,8 @@ double f2pipaulvillas(double p, double x, double th){
     p4 = 6.6281;
     p5 = -26.467;
     //    if (x < 0.0555 || x > 0.083) xflag = 1;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p; 
   }
 
@@ -135,7 +136,8 @@ double f2pipaulvillas(double p, double x, double th){
     p4 = 6.6281;
     p5 = -26.467;
     //    if (x < 0.0555 || x > 0.16) xflag = 1;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     fk = 0.464 -15.4*p + 126.5*p*p;
   }
   
@@ -146,7 +148,8 @@ double f2pipaulvillas(double p, double x, double th){
     p3 = 4.3910;
     p4 = -13.446;
     p5 = 15.984;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     //     if (x < 0.0555 || x > 0.226) xflag =1;
     fk = -1.133 + 8.5354*p;
   }
@@ -158,7 +161,8 @@ double f2pipaulvillas(double p, double x, double th){
     p3 = 4.7711;
     p4 = -11.958;
     p5 = 11.768;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     //     if (x < 0.0555 || x > 0.281) xflag = 1;
     fk = -1.345 + 9.47*p -7.91*p*p;
   }
@@ -176,8 +180,10 @@ double f2pipaulvillas(double p, double x, double th){
     fth = 0.0;}
   else{
     fth = -0.183 + 0.0976*th -0.0024*th*th + 0.000015*th*th*th; }
-  
-  if( xflag == 1 || x < 0.0555 || x > 0.3){ // Hall-A fixed target exp. limit
+
+  // Comment out for EIC
+  /* if( xflag == 1 || x < 0.0555 || x > 0.3){ // Hall-A fixed target exp. limit */
+  if( xflag == 1){
     return 0.0;}
   else{
     double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
@@ -208,7 +214,8 @@ double f2pitexp(double p, double x, double th){
     p4 = -10.813;
     p5 = 25.662;
     //    if (x < 0.0555 || x > 0.083) xflag = 1;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p; 
   }
 
@@ -220,7 +227,8 @@ double f2pitexp(double p, double x, double th){
     p4 = -25.771;
     p5 = 41.141;
     //    if (x < 0.0555 || x > 0.16) xflag = 1;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     fk = 0.464 -15.4*p + 126.5*p*p;
   }
   
@@ -232,7 +240,8 @@ double f2pitexp(double p, double x, double th){
     p4 = -16.362;
     p5 = 19.186;
     //     if (x < 0.0555 || x > 0.226) xflag =1;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     fk = -1.133 + 8.5354*p;
   }
 
@@ -244,7 +253,8 @@ double f2pitexp(double p, double x, double th){
     p4 = -17.631;
     p5 = 17.393;
     //     if (x < 0.0555 || x > 0.281) xflag = 1;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     fk = -1.345 + 9.47*p -7.91*p*p;
   }
 
@@ -261,8 +271,10 @@ double f2pitexp(double p, double x, double th){
     fth = 0.0;}
   else{
     fth = -0.183 + 0.0976*th -0.0024*th*th + 0.000015*th*th*th; }
-  
-  if( xflag == 1 || x < 0.0555 || x > 0.3){
+
+  // Comment out for EIC
+  /* if( xflag == 1 || x < 0.0555 || x > 0.3){ */
+  if( xflag == 1){
     return 0.0;}
   else{
     double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
@@ -293,7 +305,8 @@ double f2picov(double p, double x, double th){
     p4 = 4.2508;
     p5 = -28.398;
     //    if (x < 0.0555 || x > 0.083) xflag = 1;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p; 
   }
 
@@ -305,7 +318,8 @@ double f2picov(double p, double x, double th){
     p4 = 7.8242;
     p5 = -31.101;
     //    if (x < 0.0555 || x > 0.16) xflag = 1;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     fk = 0.464 -15.4*p + 126.5*p*p;
   }
   
@@ -317,7 +331,8 @@ double f2picov(double p, double x, double th){
     p4 = -16.812;
     p5 = 19.095;
     //     if (x < 0.0555 || x > 0.226) xflag =1;
-    if ( x > 0.3) xflag = 1;
+    // Comment out for EIC
+    /* if ( x > 0.3) xflag = 1; */
     fk = -1.133 + 8.5354*p;
   }
 
@@ -346,8 +361,10 @@ double f2picov(double p, double x, double th){
     fth = 0.0;}
   else{
     fth = -0.183 + 0.0976*th -0.0024*th*th + 0.000015*th*th*th; }
-  
-  if( xflag == 1 || x < 0.0555 || x > 0.3){
+
+  // Comment out for EIC
+  /* if( xflag == 1 || x < 0.0555 || x > 0.3){ */
+  if( xflag == 1){
     return 0.0;}
   else{
     double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
