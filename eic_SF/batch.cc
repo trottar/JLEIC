@@ -9,6 +9,7 @@ void batch()
     // Full range, run for 125k
     // gROOT->ProcessLine("mainx(0.1,800,1.0,800.0,103)");
     // Two settings, for paper
-    // gROOT->ProcessLine("mainx(0.01,1.00,10.0,100.0,103)");
-    gROOT->ProcessLine("mainx(0.1,1.0,100.0,800.0,103)");
+    gROOT->ProcessLine("mainx(0.01,1.00,10.0,100.0,103)");
+    // gROOT->ProcessLine("mainx(0.1,1.0,100.0,800.0,103)");
+    // gROOT->ProcessLine("mainx(0.01,0.1,10.0,100.0,103)");
 }
