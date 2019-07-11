@@ -787,8 +787,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
     }
 	  
     // pion form factor is only defined in xBj = (0.055 : 0.3) --- Removed this constraint in TDISMC_EIC.h
-    if (TDIS_xbj > 0.001 && TDIS_xbj < 1.0){
-	    
+    // if (TDIS_xbj > 0.001 && TDIS_xbj < 1.0){
+    if (xpi > 0.001 && xpi < 1.0){ // xpi for ZEUS parameterization
+
       //  typ = 2 ! s-dependent expon FORM FACTOR (L=1.56,dis=1,FLAG=0)
       // fpi = fpifac*f2pi(P_pi, TDIS_xbj, theta_p2/D2R);
 	    
@@ -796,10 +797,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
       // fpi = fpifac*f2picov(P_pi, TDIS_xbj, theta_p2/D2R);
 
       //  typ = 5 ! t-dependent expon FORM FACTOR (L=0.85,dis=1,FLAG=0)
-      fpi = fpifac*f2pitexp(P_pi, TDIS_xbj,theta_p2/D2R);
+      // fpi = fpifac*f2pitexp(P_pi, TDIS_xbj,theta_p2/D2R);
 	    
       //  typ = 6 ! Paul-Villas FORM FACTOR (L=0.27,dis=1,FLAG=0)
       // fpi = fpifac*f2pipaulvillas(P_pi, TDIS_xbj, theta_p2/D2R);
+
+      //  ZEUS parameterization with F2N (proton SF)
+      // fpi = fpifac*F2N(xpi, invts.Q2, inucl);
+      fpi = fpifac*f2piZEUS(TDIS_xbj);
 
       /*
 	L = renormalization cut-off parameter... ex) typ = 2 ! 1.56GeV
@@ -872,7 +877,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
       //sigma_dis    = dissigma_n(kIncident_Rest.E(),
       //                          acos( kScattered_Rest.Z()/kScat3vec.Mag()),
       //                          kScattered_Rest.E()) ;
-      // *** dissigma_n is also defined in G4SBSDIS.hh	  
+      // *** dissigma_n is also defined in G4SBSDIS.hh
+      // f2N = 1.0;
       f2N   = F2N(invts.xBj, invts.Q2, inucl);  // F2N is define at G4SBSDIS.hh
       // sigma_dis = cdissigma(invts.xBj,invts.y_D,invts.Q2,invts.nu,kScattered_Rest.E(),1);
       // *** for the JLEIC collider : it needs an input as (x, y_D, q2, nu, eprime_rest)  instead of ebeam, theta_e, eprime 

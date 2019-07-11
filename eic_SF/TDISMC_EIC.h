@@ -30,9 +30,9 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
-/* const int NEvts = 125000; */
-/* const int NEvts = 80000; */
-const int NEvts = 10000;
+/* const int NEvts = 50000; */
+const int NEvts = 80000;
+/* const int NEvts = 10000; */
 
 
 // spectator proton either proton beam or deuteron beam
@@ -460,6 +460,30 @@ double f2pi(double p, double x, double th){
   
 }
 
+// subroutine to calculate the f2pi as function of xbj (Timothy J. Hobbs)
+// using the ZEUS parameterization with f2p
+double f2piZEUS(double x){
+  double f2 = 0.0;
+  double p0 = 0.1736;
+  double p1 = 4.537;
+  double p2 = -48.66;
+  double p3 = 236.8;
+  double p4 = -665.8;
+  double p5 = 1094;
+  double p6 = -973.9;
+  double p7 = 363.2;
+
+  // EIC collider no limit
+  /* if( x < 0.0 || x > 0.6 )  */
+    /* return 0.0;     */
+  /* else{ */
+  f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5) + p6*pow(x,6) + p7*pow(x,7);
+  double f2temp = 0.361*f2;
+  return f2temp;
+  /* } */
+}
+
+
 // subroutine to calculate the f2p as a function xbj
 double f2p( double x ){
   double f2 = 0.0;
@@ -471,13 +495,15 @@ double f2p( double x ){
   double p5 = 1094;
   double p6 = -973.9;
   double p7 = 363.2;
-  
-  if( x < 0.0 || x > 0.6 ) 
-    return 0.0;    
-  else{
-    f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5) + p6*pow(x,6) + p7*pow(x,7);
-    return f2;
-  }
+
+
+  // EIC collider no limit
+  /* if( x < 0.0 || x > 0.6 )  */
+    /* return 0.0;     */
+  /* else{ */
+  f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5) + p6*pow(x,6) + p7*pow(x,7);
+  return f2;
+  /* } */
 }
 
 // pimake with smearing of fermi motion
