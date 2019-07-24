@@ -72,7 +72,7 @@ void __cteq_pdf_setlmd(cteq_pdf_t *pdf)
 }
 
 
-
+// First check of ERROR!
 static
 double __cteq_pdf_polint4f(double *xa, double *ya, double x)
 {
@@ -104,6 +104,8 @@ double __cteq_pdf_polint4f(double *xa, double *ya, double x)
   if(h3 + h4 < 0.0) return ya[3] + d3 + cd2 + dd1;
   if(h2 + h3 < 0.0) return ya[2] + d2 + cd1 + dc1;
   if(h1 + h2 < 0.0) return ya[1] + c2 + cd1 + dc1;
+
+  
   
   return ya[0] + c1 + cc1 + dc1;
 } 

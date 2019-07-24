@@ -803,7 +803,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
       // fpi = fpifac*f2pipaulvillas(P_pi, TDIS_xbj, theta_p2/D2R);
 
       //  ZEUS parameterization with F2N (proton SF)
-      // fpi = fpifac*F2N(xpi, invts.Q2, inucl);
+      // fpi = fpifac*(0.361)*F2N(xpi, invts.Q2, inucl);
       fpi = fpifac*f2piZEUS(TDIS_xbj);
 
       /*

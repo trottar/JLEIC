@@ -601,6 +601,7 @@ double F2N(double x, double Q2, int nucl){
   //
   __dis_pdf = cteq_pdf_alloc_id(400); // mode 400 = cteq6.6?
   assert(__dis_pdf);
+  cteq_pdf_desc(__dis_pdf);
   //
   double qu = cteq_pdf_evolvepdf(__dis_pdf, 1, x, sqrt(Q2) );
   double qd = cteq_pdf_evolvepdf(__dis_pdf, 2, x, sqrt(Q2) );
