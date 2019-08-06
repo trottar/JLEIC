@@ -3,44 +3,46 @@
 #
 # Descriptions:A light code that will convert the leaves of a ROOT file into arrays which can be easily manipulated and plotted in python
 # ================================================================
-# Time-stamp: "2019-05-21 12:38:50 trottar"
+# Time-stamp: "2019-07-27 04:26:55 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
 #
 # Copyright (c) trottar
 #
-# Need more-itertools annd futures packages for optimized version
 
 from ROOT import TCanvas, TPad, TFile, TPaveLabel, TPaveText, TTreeReader, TTreeReaderValue
 from ROOT import gROOT
 from rootpy.interactive import wait
 import numpy as np
-import sys
-import time
+import concurrent.futures
+import sys,time,os,multiprocessing
 
-# rootName = "TDISpion_80k"
+# rootName = sys.argv[1]
 rootName = "TDISpion"
 
 inputROOT = "%s.root" % rootName
 
 tree1 = "Evnts"
 
-def progressBar(value, endvalue, bar_length):
+# Makes a progess bar in terminal
+def progressBar(value, endvalue , bar_length):
 
-        percent = float(value) / endvalue
-        arrow = '=' * int(round(percent * bar_length)-1) + '>'
-        spaces = ' ' * (bar_length - len(arrow))
+    percent = float(value) / endvalue
+    arrow = '=' * int(round(percent * bar_length)-1) + '>'
+    spaces = ' ' * (bar_length - len(arrow))
+    
+    sys.stdout.write(" \r[{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
+    sys.stdout.flush()
 
-        sys.stdout.write(" \r[{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
-        sys.stdout.flush()
-
+# Test if a value is numeric
 def is_numeric(obj):
     
     attrs = ['__add__', '__sub__', '__mul__', '__div__', '__pow__']
     
     return all(hasattr(obj, attr) for attr in attrs)
 
+# Opens root file and then prints out the tree and leaf information
 def getTree():
 
     f = TFile.Open(inputROOT,"read")
@@ -49,117 +51,98 @@ def getTree():
 
     Tree1 = f.Get(tree1)
 
-    print("Tree %s" % tree1)
-    print("="*78)
-    Tree1.Print()
-    print("="*78)
-    print("\n")
+    # print("Tree %s" % tree1)
+    # print("="*78)
+    # Tree1.Print()
+    # print("="*78)
+    # print("\n")
 
     return[f,Tree1]
 
+# Grabs the leaf names and stores them
 def getLeaves():
 
     [f,Tree1] = getTree()
-    
-    T1 = np.array([])
 
     l1 = Tree1.GetListOfLeaves()
-    for i in range(0,l1.GetEntries()) :
-        T1_hist = l1.At(i)
-        T1 = np.append(T1,str(T1_hist.GetName()))
-        
+    
+    # Stores the leaf names
+    T1 = [l1.At(i).GetName() for i in range(0,l1.GetEntries())]
+    
     return[f,T1]
 
+# The critical function which takes the leaf names and stores the histogram values as arrays
 def pullRootFiles():
 
     [f,T1] = getLeaves()
-
-    # TTree1
-    T1string = "Tree1 = f.%s" % tree1
-    exec(T1string)
     
     hist = np.empty(shape=(1,1))
-
+    
+    # Begin timing the act of grabbing root files and converting to arrays
     start = time. time()
+
+    print("Converting all root files to numpy arrays...")
     
-    j=0
-    for n in np.nditer(T1):
-    # for n in range(20,25): ##debugging
-        # progressBar(j,len(T1),70)
-        print("\n%s (%i/%i)" % (str(T1[j]),j,len(T1)))
-        tmp = loopRoot(T1,Tree1,hist,j)
-        hist = np.append(hist,[j,np.asarray(tmp[0])])
-        j+=1
-        
-    # hist is of form [0 array(histogram data) ... N array(histogram data)] where the 0 to N  elements are the leave numbers
+    T1_array = range(len(T1))
+    
+    # Multiprocessing for multiple processes at once
+    pool = multiprocessing.Pool(processes=6)
+    process_result = pool.map(loopRoot,T1_array)
+    pool.close()
+    pool.join()
+    
+    for j,evt in enumerate(T1):
+        hist = np.append(hist,[j,np.asarray(process_result[j])])
+
+    # Close root file, no longer needed. Conversion complete!
+    f.Close()
+
+    # T1_hist is of form [0 array(histogram data) ... N array(histogram data)] where the 0 to N  elements are the leave numbers
     # and histogram data elements are an array containing the data from the leaves
-    # T1 contains strings with the names for each leaf (e.g. element 0 = 'e_Inc.')
-    # The goal now is to match the 0 to N elements with the strings in T1 to match the string value with there corresponding histogram data
-    # hist[0]=0.0, hist[1]=0, hist[2]=[0 0 ... 0] ,hist[3]=1
     
+    T1_hist = []
+
+    # odd numbers -- 0 to N elements
+    # even numbers -- array elements
+
+    # for n in range(1,len(hist)):
+    for k,evt in enumerate(hist):
+        if (float(k+1)/2).is_integer(): # even
+            T1_hist.append(hist[k+1])
+        
+    # T1[(0,len(T1))] will give you the leaf names
+    # T1_hist[(0,len(T1))] will give you the histogram data for each leaf
+            
     end = time. time()
     
     print("\nTime to pull root file: %0.1f seconds" % (end-start))
     
-    return[hist,T1]
+    return[T1_hist,T1]
 
-def loopRoot(key,ttree,hist,index):
+# def loopRoot(key,ttree,index):
+def loopRoot(index):
+
+    [f,T1] = getLeaves()
     
-    tmp = []
-    i=0
-    for e in ttree:
-        if is_numeric(getattr(e,key[index])):
-            progressBar(i,ttree.GetEntries(),50)
-            tmp.append(getattr(e,key[index]))
-            # print("%i::Hist:%s" % (i,str(tmp[i])))
-        else:
-            print("Non-numeric data")
-            break
-        i+=1
-    
-    return[tmp]
+    # TTree1
+    T1string = "Tree1 = f.%s" % tree1
+    exec(T1string)
 
-def define():
+    # print "\nProcess %s working" % os.getpid() ## Debugging multiprocessing
+    tmp = [getattr(e,T1[index]) for i,e in enumerate(Tree1) if is_numeric(getattr(e,T1[index]))]
+    # print "\nProcess %s done" % os.getpid() ## Debugging multiprocessing
 
-    [hist,T1] = pullRootFiles()
-    
-    # ->Therefore...
-    # odd numbers -- 0 to N elements
-    # even numbers -- array elements
+    return tmp
 
-    T1_hist = []
-
-    k=1
-    l=0
-    m=0
-    for n in range(1,len(hist)):
-        if (float((k-1))/2).is_integer(): # odd
-            # print("\n%s:" % T1[l]) ##for debugging
-            l+=1
-        elif (float(k)/2).is_integer(): # even
-            T1_hist.append(hist[k])
-            # print("%s" % str(T1_hist[m])) ##for debugging
-            m+=1
-        k+=1
-
-    # This above is correct
-    # T1[(0,len(T1))] will give you the leaf names
-    # T1_hist[(0,len(T1))] will give you the histogram data for each leaf
-
-    # Next step is to copy this to some type of data file for future use.
-    # I would like all the arrays to be saved into the same data file but we will see how practical that will be.
-
-    # From there we can figure out the best way to make cuts and then finally extend  this to the hcana replay files.
-    # This works pretty quickly so hopefully it is not bogged down too much by the number of events
-
-    return[T1,T1_hist]
-
+# Saves the arrays to a *.npz file for future python use
 def sendArraytoFile():
-
-    [T1,T1_hist] = define()
     
-    np.savez(rootName, leafName=T1, histData=T1_hist)
+    [T1_hist,T1] = pullRootFiles()
     
+    # for i,evt in enumerate(T1): ## DEBUGGING
+        # print '\n', i, '\n', T1[i], T1_hist[i][0]
+        
+    np.savez_compressed(rootName, leafName=T1, histData=T1_hist)
 
 def main() :
 
