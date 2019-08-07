@@ -23,13 +23,13 @@ import warnings
 import numpy as np
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-import seaborn as sns
 import scipy as sci
 import matplotlib.backends.backend_pdf
 import matplotlib.pyplot as plt
 from matplotlib import interactive
 from matplotlib import colors
 from matplotlib.ticker import MaxNLocator
+from scipy import optimize
 from collections import namedtuple
 from sys import path
 import time,math,sys
@@ -39,8 +39,8 @@ import time,math,sys
 sys.path.insert(0,'../../../Analysis/ROOTfiles/python')
 from test_rootPy import pyPlot, pyCut
 
-rootName = "TDISpion"
-# rootName = "TDISpion_10-100"
+# rootName = "TDISpion"
+rootName = "TDISpion_10-100"
 
 rootName_low = "TDISpion"
 # rootName_low = "TDISpion_10-100"
@@ -118,12 +118,13 @@ y_high = p2.lookup("y")[0]
 yplus_low = 1+((1-y_low)*(1-y_low))
 yplus_high = 1+((1-y_high)*(1-y_high))
 
-# tot_sigma_low = (sigma_tdis_low)*((TDIS_xbj_low*(Q2_low*Q2_low)*(137)*(137))/(2*math.pi*yplus_low))
+tot_sigma_low = (sigma_tdis_low)*((TDIS_xbj_low*(Q2_low*Q2_low)*(137)*(137))/(2*math.pi*yplus_low))*(1e-5)
 # tot_sigma_high = (sigma_tdis_high)*((TDIS_xbj_high*(Q2_high*Q2_high)*(137)*(137))/(2*math.pi*yplus_high))
 
 # tot_sigma_low = (sigma_tdis_low)*(1e2)
 # tot_sigma_high = (sigma_tdis_high)*(1e2)
-tot_sigma_low = (sigma_tdis_low)
+
+# tot_sigma_low = (sigma_tdis_low)
 tot_sigma_high = (sigma_tdis_high)
 
 # Define phyisics data
@@ -3849,9 +3850,12 @@ def pionPlots():
     leg.get_frame().set_alpha(1.)
     plt.close(f)
     
-    for f in xrange(1, plt.figure().number):
-        pdf.savefig(f)
-    pdf.close()
+    # for f in xrange(1, plt.figure().number):
+    #     pdf.savefig(f)
+    # pdf.close()
+
+def curve_fit(x, a, b):
+    return a*np.log(b*x)
     
 def sigmavX():
 
@@ -3859,15 +3863,21 @@ def sigmavX():
 
     f = plt.figure(figsize=(11.69,8.27))
     plt.style.use('classic')   
+
+    xbj_HERA10 = np.array([1.61e-4,2.53e-4,4.00e-4,6.32e-4,1.02e-3,1.61e-3,2.53e-3,5.00e-3,2.10e-2])
+    sigma_HERA10 = np.array([1.230,1.237,1.099,1.016,0.934,0.851,0.761,0.624,0.503])
+    params10,params10_cov = optimize.curve_fit(curve_fit, xbj_HERA10, sigma_HERA10)
     
     ax = f.add_subplot(221)
-    # xBjscat1 = ax.errorbar(clow.applyCuts(TDIS_xbj_low,cut10),clow.applyCuts(tot_sigma_low,cut10),xerr=np.sqrt(clow.applyCuts(TDIS_xbj_low,cut10))/200,yerr=np.sqrt(clow.applyCuts(tot_sigma_low,cut10))/200,fmt='o',label='$Q^2$=10 $GeV^2$')
-    xBjscat1 = ax.scatter(clow.applyCuts(TDIS_xbj_low,cut10),clow.applyCuts(tot_sigma_low,cut10),label='$Q^2$=10 $GeV^2$')
+    xBjscat10 = ax.scatter(clow.applyCuts(TDIS_xbj_low,cut10),clow.applyCuts(tot_sigma_low,cut10),label='$Q^2$=10 $GeV^2$')
+    HERAscat10 = ax.scatter(xbj_HERA10,sigma_HERA10,label='HERA $Q^2$=10 $GeV^2$',color='r')
+    fit10 = ax.plot(xbj_HERA10,curve_fit(xbj_HERA10, params10[0], params10[1]),color='r')
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    # plt.xscale('log')
-    plt.xlim(1e-3,1.0)
-    plt.ylim(0.,7.)
-    ax.text(0.65, 0.25, '$Q^2$=10 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    plt.xscale('log')
+    plt.xlim(1e-5,1.0)
+    plt.ylim(0.,1.5)
+    # ax.text(0.45, 0.15, '$Q^2$=10 $GeV^2$', transform=ax.transAxes, fontsize=20, verticalalignment='top', horizontalalignment='right')
+    plt.legend(loc='center left', bbox_to_anchor=(0.05, 0.30), fontsize='small')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
@@ -3875,48 +3885,67 @@ def sigmavX():
     # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))    
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
-    plt.title('d$\sigma_{TDIS}$ vs TDIS_xbj', fontsize =20)
-    plt.ylabel('d$\sigma_{TDIS}$ ($nb/GeV^{2}$)')
+    plt.title('reduced d$\sigma_{TDIS}$ vs TDIS_xbj', fontsize =20)
+    plt.ylabel('reduced d$\sigma_{TDIS}$ ($nb/GeV^{2}$)')
 
+    xbj_HERA30 = np.array([5.00e-4,8.00e-4,1.30e-3,2.10e-3,3.20e-3,5.00e-3,8.00e-3,1.30e-2])
+    sigma_HERA30 = np.array([1.497,1.294,1.181,1.095,0.901,0.804,0.731,0.634])
+    params30,params30_cov = optimize.curve_fit(curve_fit, xbj_HERA30, sigma_HERA30)
+    
     ax = f.add_subplot(222)
-    # xBjscat2 = ax.errorbar(clow.applyCuts(TDIS_xbj_low,cut30),clow.applyCuts(tot_sigma_low,cut30),xerr=np.sqrt(clow.applyCuts(TDIS_xbj_low,cut30))/200,yerr=np.sqrt(clow.applyCuts(tot_sigma_low,cut30))/200,fmt='o',label='$Q^2$=30 $GeV^2$')
-    xBjscat2 = ax.scatter(clow.applyCuts(TDIS_xbj_low,cut30),clow.applyCuts(tot_sigma_low,cut30),label='$Q^2$=30 $GeV^2$')
+    xBjscat30 = ax.scatter(clow.applyCuts(TDIS_xbj_low,cut30),clow.applyCuts(tot_sigma_low,cut30),label='$Q^2$=30 $GeV^2$')
+    HERAscat30 = ax.scatter(xbj_HERA30,sigma_HERA30,label='HERA $Q^2$=27 $GeV^2$',color='r')
+    fit30 = ax.plot(xbj_HERA30,curve_fit(xbj_HERA30, params30[0], params30[1]),color='r')
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    # plt.xscale('log')
-    plt.xlim(1e-3,1.0)
-    plt.ylim(0.,7.)
-    ax.text(0.65, 0.25, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    plt.xscale('log')
+    plt.xlim(1e-5,1.0)
+    plt.ylim(0.,1.5)
+    # ax.text(0.45, 0.15, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=20, verticalalignment='top', horizontalalignment='right')
+    plt.legend(loc='center left', bbox_to_anchor=(0.05, 0.30), fontsize='small')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))    
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    xbj_HERA50 = np.array([8.00e-4,1.30e-3,2.10e-3,3.20e-3,5.00e-3,8.00e-3,1.30e-2,2.10e-2])
+    sigma_HERA50 = np.array([1.482,1.297,1.131,0.998,0.909,0.777,0.661,0.587])
+    params50,params50_cov = optimize.curve_fit(curve_fit, xbj_HERA50, sigma_HERA50)    
     
     ax = f.add_subplot(223)
-    # xBjscat3 = ax.errorbar(clow.applyCuts(TDIS_xbj_low,cut50),clow.applyCuts(tot_sigma_low,cut50),xerr=np.sqrt(clow.applyCuts(TDIS_xbj_low,cut50))/200,yerr=np.sqrt(clow.applyCuts(tot_sigma_low,cut50))/200,fmt='o',label='$Q^2$=50 $GeV^2$')
-    xBjscat3 = ax.scatter(clow.applyCuts(TDIS_xbj_low,cut50),clow.applyCuts(tot_sigma_low,cut50),label='$Q^2$=50 $GeV^2$')
+    xBjscat50 = ax.scatter(clow.applyCuts(TDIS_xbj_low,cut50),clow.applyCuts(tot_sigma_low,cut50),label='$Q^2$=50 $GeV^2$')
+    HERAscat50 = ax.scatter(xbj_HERA50,sigma_HERA50,label='HERA $Q^2$=45 $GeV^2$',color='r')
+    fit50 = ax.plot(xbj_HERA50,curve_fit(xbj_HERA50, params50[0], params50[1]),color='r')
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    # plt.xscale('log')
-    plt.xlim(1e-3,1.0)
-    plt.ylim(0.,.07)
-    ax.text(0.65, 0.25, '$Q^2$=50 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    plt.xscale('log')
+    plt.xlim(1e-5,1.0)
+    plt.ylim(0.,1.5)
+    # ax.text(0.45, 0.15, '$Q^2$=50 $GeV^2$', transform=ax.transAxes, fontsize=20, verticalalignment='top', horizontalalignment='right')
+    plt.legend(loc='center left', bbox_to_anchor=(0.05, 0.30), fontsize='small')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))    
-    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    
-    ax = f.add_subplot(224)
-    # xBjscat4 = ax.errorbar(clow.applyCuts(TDIS_xbj_low,cut70),clow.applyCuts(tot_sigma_low,cut70),xerr=np.sqrt(clow.applyCuts(TDIS_xbj_low,cut70))/200,yerr=np.sqrt(clow.applyCuts(tot_sigma_low,cut70))/200,fmt='o',label='$Q^2$=70 $GeV^2$')
-    xBjscat4 = ax.scatter(clow.applyCuts(TDIS_xbj_low,cut70),clow.applyCuts(tot_sigma_low,cut70),label='$Q^2$=70 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    # plt.xscale('log')
-    plt.xlim(1e-3,1.0)
-    plt.ylim(0.,.07)
-    ax.text(0.65, 0.25, '$Q^2$=70 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))    
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='upper'))    
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
+    xbj_HERA70 = np.array([1.30e-3,2.10e-3,3.20e-3,5.00e-3,8.00e-3,1.30e-2,2.10e-2,3.20e-2,5.00e-2])
+    sigma_HERA70 = np.array([1.438,1.238,1.087,0.984,0.815,0.708,0.620,0.557,0.500])
+    params70,params70_cov = optimize.curve_fit(curve_fit, xbj_HERA70, sigma_HERA70)    
+    
+    ax = f.add_subplot(224)
+    xBjscat70 = ax.scatter(clow.applyCuts(TDIS_xbj_low,cut70),clow.applyCuts(tot_sigma_low,cut70),label='$Q^2$=70 $GeV^2$')
+    HERAscat70 = ax.scatter(xbj_HERA70,sigma_HERA70,label='HERA $Q^2$=70 $GeV^2$',color='r')
+    fit70 = ax.plot(xbj_HERA70,curve_fit(xbj_HERA70, params70[0], params70[1]),color='r')
+    plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    plt.xscale('log')
+    plt.xlim(1e-5,1.0)
+    plt.ylim(0.,1.5)
+    # ax.text(0.45, 0.15, '$Q^2$=70 $GeV^2$', transform=ax.transAxes, fontsize=20, verticalalignment='top', horizontalalignment='right')
+    plt.legend(loc='center left', bbox_to_anchor=(0.05, 0.30), fontsize='small')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))    
+    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    plt.xlabel('TDIS_xbj')
     
     # Cross-section vs xBj
     # hTDIS_xbj_tot_sigma_low = densityPlot(TDIS_xbj_low, tot_sigma_low, 'reduced $\sigma_{dis}$[1-8 GeV] vs TDIS_xbj[0.001-0.008]','TDIS_xbj','reduced $\sigma_{dis}$', 20, 20, 0.001, 0.008)
@@ -4386,6 +4415,6 @@ def main() :
     sigmavX()
     # yCutPlots()
     # sigmaPlot()
-    # plt.show()
+    plt.show()
     
 if __name__=='__main__': main()

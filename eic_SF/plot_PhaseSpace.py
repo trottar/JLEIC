@@ -24,7 +24,6 @@ import numpy as np
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import seaborn as sns
-import scipy as sci
 import matplotlib.backends.backend_pdf
 import matplotlib.pyplot as plt
 from matplotlib import interactive
@@ -53,11 +52,10 @@ T1_arrkey =  "leafName"
 T1_arrhist = "histData"
 
 # pdf = matplotlib.backends.backend_pdf.PdfPages("%s.pdf" % rootName)
-pdf = matplotlib.backends.backend_pdf.PdfPages("fpiPlot.pdf")
 # pdf = matplotlib.backends.backend_pdf.PdfPages("fpiPlot_xbj.pdf")
 # pdf = matplotlib.backends.backend_pdf.PdfPages("fpiPlot_xpi.pdf")
 # pdf = matplotlib.backends.backend_pdf.PdfPages("Q2vxpi-xbj.pdf")
-# pdf = matplotlib.backends.backend_pdf.PdfPages("sigmaPlots.pdf")
+pdf = matplotlib.backends.backend_pdf.PdfPages("sigmaPlots.pdf")
 
 # Arguments for class function
 p = pyPlot(rootName,tree1,T1_arrkey,T1_arrhist)
@@ -175,7 +173,7 @@ i=0
 for x in range(0,len(Q2array_low)) :
     if i < (len(Q2array_low)-1):
         Q2tmp = '{"Q2cut%i" : ((%0.1f < Q2_low) & (Q2_low < %0.1f))}' % (i,Q2array_low[i]-2.5,Q2array_low[i]+2.5)
-        ttmp = '{"tcut" : (t_low < 0.05)}'
+        ttmp = '{"tcut" : (t_low < 0.2)}'
         ytmp = '{"ycut" : (0.05 < y_low)}'
         # ttmp = '{"tcut" : ((0.2 < t_low) & (t_low < 0.3))}'
         # ttmp = '{"tcut" : (t_low < 1.0)}'
@@ -184,7 +182,7 @@ for x in range(0,len(Q2array_low)) :
         print '{"Q2cut%i" : ((%0.1f < Q2_low) & (Q2_low < %0.1f))}' % (i,Q2array_low[i]-2.5,Q2array_low[i]+2.5)
     else:
         Q2tmp = '{"Q2cut%i" : ((%0.1f < Q2_low) & (Q2_low < %0.1f))}' % (i,Q2array_low[i]-2.5,Q2array_low[i]+2.5)
-        ttmp = '{"tcut" : (t_low < 0.05)}'
+        ttmp = '{"tcut" : (t_low < 0.2)}'
         ytmp = '{"ycut" : (0.05 < y_low)}'
         # ttmp = '{"tcut" : ((0.2 < t_low) & (t_low < 0.3))}'
         # ttmp = '{"tcut" : (t_low < 1.0)}'
@@ -693,7 +691,7 @@ def sigmavxBj_Plot():
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
     # plt.xscale('log')
     plt.xlim(1e-3,1.0)
-    plt.ylim(0.,7.)
+    # plt.ylim(0.,15.)
     ax.text(0.65, 0.25, '$Q^2$=10 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
@@ -711,7 +709,7 @@ def sigmavxBj_Plot():
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
     # plt.xscale('log')
     plt.xlim(1e-3,1.0)
-    plt.ylim(0.,7.)
+    # plt.ylim(0.,15.)
     ax.text(0.65, 0.25, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
@@ -724,7 +722,7 @@ def sigmavxBj_Plot():
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
     # plt.xscale('log')
     plt.xlim(1e-3,1.0)
-    plt.ylim(0.,.07)
+    # plt.ylim(0.,1.2)
     ax.text(0.65, 0.25, '$Q^2$=50 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
@@ -737,13 +735,13 @@ def sigmavxBj_Plot():
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
     # plt.xscale('log')
     plt.xlim(1e-3,1.0)
-    plt.ylim(0.,.07)
+    # plt.ylim(0.,1.2)
     ax.text(0.65, 0.25, '$Q^2$=70 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))    
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    
+
     
     # ax = f.add_subplot(335)
     # # xBjscat5 = ax.errorbar(clow.applyCuts(TDIS_xbj_low,cut50),clow.applyCuts(tot_sigma_low,cut50),xerr=np.sqrt(clow.applyCuts(TDIS_xbj_low,cut50))/200,yerr=np.sqrt(clow.applyCuts(tot_sigma_low,cut50))/200,fmt='o',label='$Q^2$=50 $GeV^2$')
@@ -928,16 +926,6 @@ def sigmavxBj_Plot():
     # Reset figure style, otherwise next plot will look weird
     plt.style.use('default')
 
-    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));    
-    Q2scat1 = ax.scatter(clow.applyCuts(Q2_low,tcut1),clow.applyCuts(tot_sigma_low,tcut1))
-    # plt.xscale('log')
-    # plt.xlim(1e-3,1.0)
-    # plt.ylim(0.,15.)
-    plt.title('$d\sigma_{TDIS}$ vs $Q^2$', fontsize =20)
-    plt.xlabel('$Q^2$')
-    plt.ylabel('$d\sigma_{TDIS}$')
-
-    
 
     # xEvts = lumi()
     # Q2Evts = lumi()
@@ -1015,65 +1003,6 @@ def namedtuple_to_str(t, field_widths=15):
     result = '{}( {} )'.format(type(t).__name__, s)
     return result
 
-def piSF_GRV(x):
-
-    # Quark charge
-    qd = -1/3
-    qd_bar = 1/3
-    qu = 2/3
-    qu_bar = -2/3
-    qs = -1/3
-    qs_bar = 1/3
-
-    # x is included in contributions
-    xu_contr = 1.377*(x**0.549)*(1+0.81*(np.sqrt(x))-4.36*x+19.4*(x**0.75))*((1-x)**3.027)
-    xd_contr = 0.328*(x**0.366)*(1+1.114*(np.sqrt(x))-5.71*x+16.9*(x**0.75))*((1-x)**3.774)
-
-    # 
-    fit_f2pi = (qu**2)*xu_contr + (qd**2)*xd_contr
-    
-    return fit_f2pi
-
-def piSF_BLFQ(x):
-    
-    # PDF pion valence quarks, a=b since m_u=m_d. a and b are parameters for fitting the PDF at fixed L_max (the basis resolution in the longitudinal direction)
-    u_contr = []
-    d_contr = []
-    
-    # Heavy flavor contributions
-    s_contr = []
-    
-    # a and b are the extroplated values at L_max->inf (J. Lan et. al., arXiv preprint (2019) arXiv:1907.01509)
-    a=b=0.5961
-
-    # c and d are the extroplated values at L_max->inf (J. Lan et. al., arXiv preprint (2019) arXiv:1907.01509) but unlike pion they are different for strange quark contributions
-    c=0.6337
-    d=0.8546
-
-    # Quark charge
-    qd = -1/3
-    qd_bar = 1/3
-    qu = 2/3
-    qu_bar = -2/3
-    qs = -1/3
-    qs_bar = 1/3
-
-    for i,evt in enumerate(x):
-        u_contr.append(((x[i]**a)*(1-x[i])**b)/sci.special.beta(a+1,b+1))
-    for i,evt in enumerate(x):
-        d_contr.append(((x[i]**a)*(1-x[i])**b)/sci.special.beta(a+1,b+1))        
-    for i,evt in enumerate(x):
-        s_contr.append(((x[i]**c)*(1-x[i])**d)/sci.special.beta(c+1,d+1))
-    
-    # f2pi is related to its PDF by the below equation, which is summed over quark flavor.
-    fit_f2pi = []
-
-    for i,evt in enumerate(x):
-        fit_f2pi.append((qu**2)*(x[i])*u_contr[i]+(qd**2)*(x[i])*d_contr[i]+(qs**2)*(x[i])*s_contr[i])
-
-    return fit_f2pi
-
-
 def pionPlots():
 
     [cutQ2bin10,cutQ2bin16,cutQ2bin25,cutQ2bin40,cutQ2bin63,ycut1,tcut1,cut10, cut30, cut50, cut70, cut150, cut200, cut250, cut300, cut350, cut400, cut450, cut500, cut550, cut600, cut650, cut700, cut750, cut800] = q2_Cut()
@@ -1088,7 +1017,7 @@ def pionPlots():
 
     lum10 = []
     lum100 = []
-
+    
     f = plt.figure(figsize=(11.69,8.27))
     plt.style.use('classic')
 
@@ -1114,7 +1043,7 @@ def pionPlots():
     print (1e-6)*lumi[0], numEvts10_1
     lum10.append((10/(0.031180))*numEvts10_1)
     lum100.append((100/(0.031180))*numEvts10_1)
-    
+
     plt.title('$x_{\pi}$ plots [$Q^2$ = 10 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
@@ -1139,7 +1068,7 @@ def pionPlots():
     print (1e-6)*lumi[0], numEvts10_2
     lum10.append((10/(0.031180))*numEvts10_2)
     lum100.append((100/(0.031180))*numEvts10_2)
-    
+
     ax = f.add_subplot(333)
     numBin10_3 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1162,7 +1091,7 @@ def pionPlots():
     print (1e-6)*lumi[0], numEvts10_3
     lum10.append((10/(0.031180))*numEvts10_3)
     lum100.append((100/(0.031180))*numEvts10_3)
-    
+
     ax = f.add_subplot(334)
     numBin10_4 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1185,7 +1114,7 @@ def pionPlots():
     print (1e-6)*lumi[0], numEvts10_4
     lum10.append((10/(0.031180))*numEvts10_4)
     lum100.append((100/(0.031180))*numEvts10_4)
-    
+
     ax = f.add_subplot(335)
     numBin10_5 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1208,7 +1137,7 @@ def pionPlots():
     print (1e-6)*lumi[0], numEvts10_5
     lum10.append((10/(0.031180))*numEvts10_5)
     lum100.append((100/(0.031180))*numEvts10_5)
-    
+
     ax = f.add_subplot(336)
     numBin10_6 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1231,7 +1160,7 @@ def pionPlots():
     print (1e-6)*lumi[0], numEvts10_6
     lum10.append((10/(0.031180))*numEvts10_6)
     lum100.append((100/(0.031180))*numEvts10_6)
-    
+
     ax = f.add_subplot(337)
     numBin10_7 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1254,7 +1183,7 @@ def pionPlots():
     print (1e-6)*lumi[0], numEvts10_7
     lum10.append((10/(0.031180))*numEvts10_7)
     lum100.append((100/(0.031180))*numEvts10_7)
-    
+
     ax = f.add_subplot(338)
     numBin10_8 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1279,7 +1208,6 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts10_8)
     
     plt.style.use('default')
-    plt.close(f)
     f = plt.figure(figsize=(11.69,8.27))
     plt.style.use('classic')
 
@@ -1305,7 +1233,7 @@ def pionPlots():
     print (1e-6)*lumi[1], numEvts30_1
     lum10.append((10/(0.031180))*numEvts30_1)
     lum100.append((100/(0.031180))*numEvts30_1)
-    
+
     plt.title('$x_{\pi}$ plots [$Q^2$ = 30 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
@@ -1330,7 +1258,7 @@ def pionPlots():
     print (1e-6)*lumi[1], numEvts30_2
     lum10.append((10/(0.031180))*numEvts30_2)
     lum100.append((100/(0.031180))*numEvts30_2)
-    
+
     ax = f.add_subplot(333)
     numBin30_3 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1353,7 +1281,7 @@ def pionPlots():
     print (1e-6)*lumi[1], numEvts30_3
     lum10.append((10/(0.031180))*numEvts30_3)
     lum100.append((100/(0.031180))*numEvts30_3)
-    
+
     ax = f.add_subplot(334)
     numBin30_4 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1376,7 +1304,7 @@ def pionPlots():
     print (1e-6)*lumi[1], numEvts30_4
     lum10.append((10/(0.031180))*numEvts30_4)
     lum100.append((100/(0.031180))*numEvts30_4)
-    
+
     ax = f.add_subplot(335)
     numBin30_5 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1399,7 +1327,7 @@ def pionPlots():
     print (1e-6)*lumi[1], numEvts30_5
     lum10.append((10/(0.031180))*numEvts30_5)
     lum100.append((100/(0.031180))*numEvts30_5)
-    
+
     ax = f.add_subplot(336)
     numBin30_6 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1422,7 +1350,7 @@ def pionPlots():
     print (1e-6)*lumi[1], numEvts30_6
     lum10.append((10/(0.031180))*numEvts30_6)
     lum100.append((100/(0.031180))*numEvts30_6)
-    
+
     ax = f.add_subplot(337)
     numBin30_7 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1445,7 +1373,7 @@ def pionPlots():
     print (1e-6)*lumi[1], numEvts30_7
     lum10.append((10/(0.031180))*numEvts30_7)
     lum100.append((100/(0.031180))*numEvts30_7)
-    
+
     ax = f.add_subplot(338)
     numBin30_8 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1470,7 +1398,6 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts30_8)
     
     plt.style.use('default')
-    plt.close(f)
     f = plt.figure(figsize=(11.69,8.27))
     plt.style.use('classic')
     
@@ -1496,7 +1423,7 @@ def pionPlots():
     print (1e-6)*lumi[2], numEvts50_1
     lum10.append((10/(0.031180))*numEvts50_1)
     lum100.append((100/(0.031180))*numEvts50_1)
-    
+
     plt.title('$x_{\pi}$ plots [$Q^2$ = 50 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
@@ -1521,7 +1448,7 @@ def pionPlots():
     print (1e-6)*lumi[2], numEvts50_2
     lum10.append((10/(0.031180))*numEvts50_2)
     lum100.append((100/(0.031180))*numEvts50_2)
-    
+
     ax = f.add_subplot(333)
     numBin50_3 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1544,7 +1471,7 @@ def pionPlots():
     print (1e-6)*lumi[2], numEvts50_3
     lum10.append((10/(0.031180))*numEvts50_3)
     lum100.append((100/(0.031180))*numEvts50_3)
-    
+
     ax = f.add_subplot(334)
     numBin50_4 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1567,7 +1494,7 @@ def pionPlots():
     print (1e-6)*lumi[2], numEvts50_4
     lum10.append((10/(0.031180))*numEvts50_4)
     lum100.append((100/(0.031180))*numEvts50_4)
-    
+
     ax = f.add_subplot(335)
     numBin50_5 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1590,7 +1517,7 @@ def pionPlots():
     print (1e-6)*lumi[2], numEvts50_5
     lum10.append((10/(0.031180))*numEvts50_5)
     lum100.append((100/(0.031180))*numEvts50_5)
-    
+
     ax = f.add_subplot(336)
     numBin50_6 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1613,7 +1540,7 @@ def pionPlots():
     print (1e-6)*lumi[2], numEvts50_6
     lum10.append((10/(0.031180))*numEvts50_6)
     lum100.append((100/(0.031180))*numEvts50_6)
-    
+
     ax = f.add_subplot(337)
     numBin50_7 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1636,7 +1563,7 @@ def pionPlots():
     print (1e-6)*lumi[2], numEvts50_7
     lum10.append((10/(0.031180))*numEvts50_7)
     lum100.append((100/(0.031180))*numEvts50_7)
-    
+
     ax = f.add_subplot(338)
     numBin50_8 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1661,7 +1588,6 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts50_8)
     
     plt.style.use('default')
-    plt.close(f)
     f = plt.figure(figsize=(11.69,8.27))
     plt.style.use('classic')
     
@@ -1687,7 +1613,7 @@ def pionPlots():
     print (1e-6)*lumi[3], numEvts70_1
     lum10.append((10/(0.031180))*numEvts70_1)
     lum100.append((100/(0.031180))*numEvts70_1)
-    
+
     plt.title('$x_{\pi}$ plots [$Q^2$ = 70 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
@@ -1712,7 +1638,7 @@ def pionPlots():
     print (1e-6)*lumi[3], numEvts70_2
     lum10.append((10/(0.031180))*numEvts70_2)
     lum100.append((100/(0.031180))*numEvts70_2)
-    
+
     ax = f.add_subplot(333)
     numBin70_3 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1735,7 +1661,7 @@ def pionPlots():
     print (1e-6)*lumi[3], numEvts70_3
     lum10.append((10/(0.031180))*numEvts70_3)
     lum100.append((100/(0.031180))*numEvts70_3)
-    
+
     ax = f.add_subplot(334)
     numBin70_4 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1758,7 +1684,7 @@ def pionPlots():
     print (1e-6)*lumi[3], numEvts70_4
     lum10.append((10/(0.031180))*numEvts70_4)
     lum100.append((100/(0.031180))*numEvts70_4)
-    
+
     ax = f.add_subplot(335)
     numBin70_5 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1781,7 +1707,7 @@ def pionPlots():
     print (1e-6)*lumi[3], numEvts70_5
     lum10.append((10/(0.031180))*numEvts70_5)
     lum100.append((100/(0.031180))*numEvts70_5)
-    
+
     ax = f.add_subplot(336)
     numBin70_6 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1804,7 +1730,7 @@ def pionPlots():
     print (1e-6)*lumi[3], numEvts70_6
     lum10.append((10/(0.031180))*numEvts70_6)
     lum100.append((100/(0.031180))*numEvts70_6)
-    
+
     ax = f.add_subplot(337)
     numBin70_7 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1827,7 +1753,7 @@ def pionPlots():
     print (1e-6)*lumi[3], numEvts70_7
     lum10.append((10/(0.031180))*numEvts70_7)
     lum100.append((100/(0.031180))*numEvts70_7)
-    
+
     ax = f.add_subplot(338)
     numBin70_8 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
@@ -1948,7 +1874,548 @@ def pionPlots():
     fout.close()
     
     plt.style.use('default')
-    plt.close(f)
+    
+    # # Need to have numBin for each setting and the uncertainty will be the value uncern
+    # f = plt.figure(figsize=(11.69,8.27))
+    # plt.style.use('classic')
+    
+    # ax = f.add_subplot(331)    
+    # fpiscat10_1 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[0],fmt='.',label='$x_\pi$=(0.20,0.30)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.20,0.30)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+
+    # plt.title('$F^{2}_{\pi}$ vs xpi  [$Q^2$ = 10 $GeV^2$]', fontsize =20)
+    
+    # ax = f.add_subplot(332)    
+    # fpiscat10_2 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[1],fmt='.',label='$x_\pi$=(0.30,0.40)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.30,0.40)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(333)
+    # fpiscat10_3 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[2],fmt='.',label='$x_\pi$=(0.40,0.50)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.40,0.50)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(334)
+    # fpiscat10_4 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[3],fmt='.',label='$x_\pi$=(0.50,0.60)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.50,0.60)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(335)
+    # fpiscat10_5 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[4],fmt='.',label='$x_\pi$=(0.60,0.70)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.60,0.70)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(336)
+    # fpiscat10_6 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[5],fmt='.',label='$x_\pi$=(0.70,0.80)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.70,0.80)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(337)
+    # fpiscat10_7 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[6],fmt='.',label='$x_\pi$=(0.80,0.90)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.80,0.90)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(338)
+    # fpiscat10_8 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[7],fmt='.',label='$x_\pi$=(0.90,1.00)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.90,1.00)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # plt.style.use('default')
+    # f = plt.figure(figsize=(11.69,8.27))
+    # plt.style.use('classic')
+    
+    # ax = f.add_subplot(331)    
+    # fpiscat30_1 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[8],fmt='.',label='$x_\pi$=(0.20,0.30)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.20,0.30)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+
+    # plt.title('$F^{2}_{\pi}$ vs xpi  [$Q^2$ = 30 $GeV^2$]', fontsize =20)
+    
+    # ax = f.add_subplot(332)    
+    # fpiscat30_2 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[9],fmt='.',label='$x_\pi$=(0.30,0.40)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.30,0.40)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(333)
+    # fpiscat30_3 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[10],fmt='.',label='$x_\pi$=(0.40,0.50)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.40,0.50)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(334)
+    # fpiscat30_4 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[11],fmt='.',label='$x_\pi$=(0.50,0.60)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.50,0.60)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(335)
+    # fpiscat30_5 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[12],fmt='.',label='$x_\pi$=(0.60,0.70)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.60,0.70)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(336)
+    # fpiscat30_6 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[13],fmt='.',label='$x_\pi$=(0.70,0.80)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.70,0.80)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(337)
+    # fpiscat30_7 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[14],fmt='.',label='$x_\pi$=(0.80,0.90)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.80,0.90)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(338)
+    # fpiscat30_8 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[15],fmt='.',label='$x_\pi$=(0.90,1.00)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.90,1.00)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+    
+    # plt.style.use('default')
+    # f = plt.figure(figsize=(11.69,8.27))
+    # plt.style.use('classic')
+
+    # ax = f.add_subplot(331)    
+    # fpiscat50_1 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[16],fmt='.',label='$x_\pi$=(0.20,0.30)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.20,0.30)
+    # # plt.ylim(1e-3,0.025)
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+
+    # plt.title('$F^{2}_{\pi}$ vs xpi  [$Q^2$ = 50 $GeV^2$]', fontsize =20)
+    
+    # ax = f.add_subplot(332)    
+    # fpiscat50_2 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[17],fmt='.',label='$x_\pi$=(0.30,0.40)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.30,0.40)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(333)
+    # fpiscat50_3 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[18],fmt='.',label='$x_\pi$=(0.40,0.50)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.40,0.50)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(334)
+    # fpiscat50_4 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[19],fmt='.',label='$x_\pi$=(0.50,0.60)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.50,0.60)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(335)
+    # fpiscat50_5 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[20],fmt='.',label='$x_\pi$=(0.60,0.70)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.60,0.70)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(336)
+    # fpiscat50_6 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[21],fmt='.',label='$x_\pi$=(0.70,0.80)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.70,0.80)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(337)
+    # fpiscat50_7 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[22],fmt='.',label='$x_\pi$=(0.80,0.90)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.80,0.90)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(338)
+    # fpiscat50_8 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[23],fmt='.',label='$x_\pi$=(0.90,1.00)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.90,1.00)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+    
+    # plt.style.use('default')
+    # f = plt.figure(figsize=(11.69,8.27))
+    # plt.style.use('classic')
+    
+    # ax = f.add_subplot(331)    
+    # fpiscat70_1 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[24],fmt='.',label='$x_\pi$=(0.20,0.30)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.20,0.30)
+    # # plt.ylim(1e-3,0.025)
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+
+    # plt.title('$F^{2}_{\pi}$ vs xpi  [$Q^2$ = 70 $GeV^2$]', fontsize =20)
+    
+    # ax = f.add_subplot(332)    
+    # fpiscat70_2 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[25],fmt='.',label='$x_\pi$=(0.30,0.40)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.30,0.40)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(333)
+    # fpiscat70_3 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[26],fmt='.',label='$x_\pi$=(0.40,0.50)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.40,0.50)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(334)
+    # fpiscat70_4 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[27],fmt='.',label='$x_\pi$=(0.50,0.60)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.50,0.60)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(335)
+    # fpiscat70_5 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[28],fmt='.',label='$x_\pi$=(0.60,0.70)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.60,0.70)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(336)
+    # fpiscat70_6 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[29],fmt='.',label='$x_\pi$=(0.70,0.80)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.70,0.80)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(337)
+    # fpiscat70_7 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[30],fmt='.',label='$x_\pi$=(0.80,0.90)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.80,0.90)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
+
+    # ax = f.add_subplot(338)
+    # fpiscat70_8 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[31],fmt='.',label='$x_\pi$=(0.90,1.00)')
+    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
+    # ax.text(0.65, 0.95, '$x_\pi$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # plt.yscale('log')
+    # plt.xlim(0.90,1.00)
+    # # plt.ylim(1e-3,0.025)
+    # plt.xlabel('xpi')
+    # plt.ylabel('$F^{2}_{\pi}$')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+
+    # uncern plots
+
+    uncern10 = []
+    uncern30 = []
+    uncern50 = []
+    uncern70 = []
+    for i in range(0,8):
+        uncern10.append(uncern[i])
+    for i in range(8,16):
+        uncern30.append(uncern[i])
+    for i in range(16,24):
+        uncern50.append(uncern[i])
+    for i in range(24,32):
+        uncern70.append(uncern[i])
+    
+    # uncern 100 plots
+    
+    uncern10 = []
+    uncern30 = []
+    uncern50 = []
+    uncern70 = []
+    for i in range(0,8):
+        uncern10.append(uncern100[i])
+    for i in range(8,16):
+        uncern30.append(uncern100[i])
+    for i in range(16,24):
+        uncern50.append(uncern100[i])
+    for i in range(24,32):
+        uncern70.append(uncern100[i])
+    
+    # uncern100 plots
+    
+    # plt.style.use('default')
+    # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+    
+    # uncern10_1 = ax.scatter(0.25 ,uncern100[0],label='$x_\pi$=(0.20,0.30)')
+    # uncern10_2 = ax.scatter(0.35 ,uncern100[1],label='$x_\pi$=(0.30,0.40)')
+    # uncern10_3 = ax.scatter(0.45 ,uncern100[2],label='$x_\pi$=(0.40,0.50)')
+    # uncern10_4 = ax.scatter(0.55 ,uncern100[3],label='$x_\pi$=(0.50,0.60)')
+    # uncern10_5 = ax.scatter(0.65 ,uncern100[4],label='$x_\pi$=(0.60,0.70)')
+    # uncern10_6 = ax.scatter(0.75 ,uncern100[5],label='$x_\pi$=(0.70,0.80)')
+    # uncern10_7 = ax.scatter(0.85 ,uncern100[6],label='$x_\pi$=(0.80,0.90)')
+    # uncern10_8 = ax.scatter(0.95 ,uncern100[7],label='$x_\pi$=(0.90,1.00)')
+    # plt.yscale('log')
+    # plt.xlabel('xpi')
+    # plt.ylabel('$\delta^{100}_{F^{2}_{\pi}}$')
+    # plt.title('$\delta^{100}_{F^{2}_{\pi}}$ vs xpi  [$Q^2$ = 10 $GeV^2$]', fontsize =20)
+    # leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    # leg.get_frame().set_alpha(1.)
+
+    # plt.style.use('default')
+    # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+    
+    # uncern30_1 = ax.scatter(0.25 ,uncern100[8],label='$x_\pi$=(0.20,0.30)')
+    # uncern30_2 = ax.scatter(0.35 ,uncern100[9],label='$x_\pi$=(0.30,0.40)')
+    # uncern30_3 = ax.scatter(0.45 ,uncern100[10],label='$x_\pi$=(0.40,0.50)')
+    # uncern30_4 = ax.scatter(0.55 ,uncern100[11],label='$x_\pi$=(0.50,0.60)')
+    # uncern30_5 = ax.scatter(0.65 ,uncern100[12],label='$x_\pi$=(0.60,0.70)')
+    # uncern30_6 = ax.scatter(0.75 ,uncern100[13],label='$x_\pi$=(0.70,0.80)')
+    # uncern30_7 = ax.scatter(0.85 ,uncern100[14],label='$x_\pi$=(0.80,0.90)')
+    # uncern30_8 = ax.scatter(0.95 ,uncern100[15],label='$x_\pi$=(0.90,1.00)')
+    # plt.yscale('log')
+    # plt.xlabel('xpi')
+    # plt.ylabel('$\delta^{100}_{F^{2}_{\pi}}$')
+    # plt.title('$\delta^{100}_{F^{2}_{\pi}}$ vs xpi  [$Q^2$ = 30 $GeV^2$]', fontsize =20)
+    # leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    # leg.get_frame().set_alpha(1.)
+
+    # plt.style.use('default')
+    # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+    
+    # uncern50_1 = ax.scatter(0.25 ,uncern100[16],label='$x_\pi$=(0.20,0.30)')
+    # uncern50_2 = ax.scatter(0.35 ,uncern100[17],label='$x_\pi$=(0.30,0.40)')
+    # uncern50_3 = ax.scatter(0.45 ,uncern100[18],label='$x_\pi$=(0.40,0.50)')
+    # uncern50_4 = ax.scatter(0.55 ,uncern100[19],label='$x_\pi$=(0.50,0.60)')
+    # uncern50_5 = ax.scatter(0.65 ,uncern100[20],label='$x_\pi$=(0.60,0.70)')
+    # uncern50_6 = ax.scatter(0.75 ,uncern100[21],label='$x_\pi$=(0.70,0.80)')
+    # uncern50_7 = ax.scatter(0.85 ,uncern100[22],label='$x_\pi$=(0.80,0.90)')
+    # uncern50_8 = ax.scatter(0.95 ,uncern100[23],label='$x_\pi$=(0.90,1.00)')
+    # plt.yscale('log')
+    # plt.xlabel('xpi')
+    # plt.ylabel('$\delta^{100}_{F^{2}_{\pi}}$')
+    # plt.title('$\delta^{100}_{F^{2}_{\pi}}$ vs xpi  [$Q^2$ = 50 $GeV^2$]', fontsize =20)
+    # leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    # leg.get_frame().set_alpha(1.)
+
+    # plt.style.use('default')
+    # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
+    
+    # uncern70_1 = ax.scatter(0.25 ,uncern100[24],label='$x_\pi$=(0.20,0.30)')
+    # uncern70_2 = ax.scatter(0.35 ,uncern100[25],label='$x_\pi$=(0.30,0.40)')
+    # uncern70_3 = ax.scatter(0.45 ,uncern100[26],label='$x_\pi$=(0.40,0.50)')
+    # uncern70_4 = ax.scatter(0.55 ,uncern100[27],label='$x_\pi$=(0.50,0.60)')
+    # uncern70_5 = ax.scatter(0.65 ,uncern100[28],label='$x_\pi$=(0.60,0.70)')
+    # uncern70_6 = ax.scatter(0.75 ,uncern100[29],label='$x_\pi$=(0.70,0.80)')
+    # uncern70_7 = ax.scatter(0.85 ,uncern100[30],label='$x_\pi$=(0.80,0.90)')
+    # uncern70_8 = ax.scatter(0.95 ,uncern100[31],label='$x_\pi$=(0.90,1.00)')
+    # plt.yscale('log')
+    # plt.xlabel('xpi')
+    # plt.ylabel('$\delta^{100}_{F^{2}_{\pi}}$')
+    # plt.title('$\delta^{100}_{F^{2}_{\pi}}$ vs xpi  [$Q^2$ = 70 $GeV^2$]', fontsize =20)
+    # leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    # leg.get_frame().set_alpha(1.)
     
     # Combined plots
 
@@ -2687,36 +3154,17 @@ def pionPlots():
 
     # print xpi_tot70
     # print fpi_tot70
-    
-    print "xpi\n",(xpi_tot10),"fpi\n",(fpi_tot10), "uncern\n",(fpiuncern10)
+
     print len(xpi_tot10),len(fpi_tot10), len(fpiuncern10)
     print len(xpi_tot30),len(fpi_tot30), len(fpiuncern30)
     print len(xpi_tot50),len(fpi_tot50), len(fpiuncern50)
     print len(xpi_tot70),len(fpi_tot70), len(fpiuncern70)
-
-    # counts 0 to 1 over intervals of 1e-3
-    # x = np.linspace(0.,1.,64397,endpoint=True)
-    # x = np.sort(TDIS_xbj_low)
-    x = np.sort(xpi_low)
-
-    Q2 = Q2_low
-
-    # fit_f2pi_10 = piSF_BLFQ(x)
-    fit_f2pi_10 = piSF_GRV(x)
-    
-    print "->", len(fit_f2pi_10)
     
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
     uncernPlots10_10 = ax.errorbar(xpi_tot10,fpi_tot10,yerr=fpiuncern10,fmt='.',label='$Q^2$ = 10 $GeV^2$')
-    BLFQ_Plots10_10 = ax.errorbar([0.0009,0.002,0.004,0.0085,0.018],[0.52,0.45,0.40,0.32,0.25],fmt='.',label='DESY-HERA-H1 \n $Q^2$ = 11 $GeV^2$')
-    GRV_Plots10_10 = ax.plot([0.01,0.1,0.30],[0.25,0.20,0.18],label='GRV fit \n $Q^2$ = 7 $GeV^2$')
-    # fitPlot_10 = ax.plot(x,fit_f2pi_10)
-    # ax.fill_between(xpi_tot10, fit_f2pi_10-error, fit_f2pi_10+error)
-    plt.xscale('log')
     # plt.yscale('log')
-    plt.xlim(0.01,1.0)
-    plt.ylim(1e-6,0.4)
+    plt.ylim(1e-6,0.125)
     plt.xlabel('$x_\pi$')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
@@ -2726,12 +3174,8 @@ def pionPlots():
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
     uncernPlots10_30 = ax.errorbar(xpi_tot30,fpi_tot30,yerr=fpiuncern30,fmt='.',label='$Q^2$ = 30 $GeV^2$')
-    BLFQ_Plots10_30 = ax.errorbar([0.002,0.004,0.008,0.02,0.045],[0.6,0.48,0.35,0.30,0.25],fmt='.',label='DESY-HERA-H1 \n $Q^2$ = 24 $GeV^2$')
-    GRV_Plots10_30 = ax.plot([0.01,0.1,0.30],[0.40,0.20,0.16],label='GRV fit \n $Q^2$ = 30 $GeV^2$')
-    plt.xscale('log')
     # plt.yscale('log')
-    plt.xlim(0.01,1.0)
-    plt.ylim(1e-6,0.4)
+    plt.ylim(1e-6,0.125)
     plt.xlabel('$x_\pi$')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
@@ -2741,12 +3185,8 @@ def pionPlots():
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
     uncernPlots10_50 = ax.errorbar(xpi_tot50,fpi_tot50,yerr=fpiuncern50,fmt='.',label='$Q^2$ = 50 $GeV^2$')
-    BLFQ_Plots10_50 = ax.errorbar([0.008,0.019,0.038,0.075],[0.40,0.38,0.26,0.22],fmt='.',label='DESY-HERA-H1 \n $Q^2$ = 55 $GeV^2$')
-    GRV_Plots10_50 = ax.plot([0.01,0.1,0.30],[0.40,0.20,0.15],label='GRV fit \n $Q^2$ = 60 $GeV^2$')
-    plt.xscale('log')
     # plt.yscale('log')
-    plt.xlim(0.01,1.0)
-    plt.ylim(1e-6,0.4)
+    plt.ylim(1e-6,0.125)
     plt.xlabel('$x_\pi$')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
@@ -2756,87 +3196,22 @@ def pionPlots():
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
     uncernPlots10_70 = ax.errorbar(xpi_tot70,fpi_tot70,yerr=fpiuncern70,fmt='.',label='$Q^2$ = 70 $GeV^2$')
-    BLFQ_Plots10_70 = ax.errorbar([0.023,0.045,0.09],[0.38,0.29,0.32],fmt='.',label='DESY-HERA-H1 \n $Q^2$ = 82 $GeV^2$')
-    GRV_Plots10_70 = ax.plot([0.01,0.1,0.30],[0.40,0.20,0.15],label='GRV fit \n $Q^2$ = 60 $GeV^2$')
-    plt.xscale('log')
     # plt.yscale('log')
-    plt.ylim(1e-6,0.4)
-    plt.xlim(0.01,1.0)
+    plt.ylim(1e-6,0.125)
     plt.xlabel('$x_\pi$')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
     leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     leg.get_frame().set_alpha(1.)
 
-    ####### Linear x, log y
-    
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    uncernPlots10_10 = ax.errorbar(xpi_tot10,fpi_tot10,yerr=fpiuncern10,fmt='.',label='$Q^2$ = 10 $GeV^2$')
-    GRV_Plots10_10 = ax.plot([0.01,0.1,0.30],[0.25,0.20,0.18],label='GRV fit \n $Q^2$ = 7 $GeV^2$')
-    # fitPlot_10 = ax.plot(x, fit_f2pi_10)
-    # ax.fill_between(xpi_tot10, fit_f2pi_10-error, fit_f2pi_10+error)
-    # plt.xscale('log')
-    plt.yscale('log')
-    plt.xlim(0.1,1.0)
-    plt.ylim(1e-6,0.025)
-    plt.xlabel('$x_\pi$')
-    plt.ylabel('$F^{2}_{\pi}$')
-    plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
-    leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    leg.get_frame().set_alpha(1.)
-    
-    plt.style.use('default')
-    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    uncernPlots10_30 = ax.errorbar(xpi_tot30,fpi_tot30,yerr=fpiuncern30,fmt='.',label='$Q^2$ = 30 $GeV^2$')
-    GRV_Plots10_30 = ax.plot([0.01,0.1,0.30],[0.40,0.20,0.16],label='GRV fit \n $Q^2$ = 30 $GeV^2$')
-    # plt.xscale('log')
-    plt.yscale('log')
-    plt.xlim(0.1,1.0)
-    plt.ylim(1e-6,0.025)
-    plt.xlabel('$x_\pi$')
-    plt.ylabel('$F^{2}_{\pi}$')
-    plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
-    leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    leg.get_frame().set_alpha(1.)
-    
-    plt.style.use('default')
-    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    uncernPlots10_50 = ax.errorbar(xpi_tot50,fpi_tot50,yerr=fpiuncern50,fmt='.',label='$Q^2$ = 50 $GeV^2$')
-    GRV_Plots10_50 = ax.plot([0.01,0.1,0.30],[0.40,0.20,0.15],label='GRV fit \n $Q^2$ = 60 $GeV^2$')
-    # plt.xscale('log')
-    plt.yscale('log')
-    plt.xlim(0.1,1.0)
-    plt.ylim(1e-6,0.025)
-    plt.xlabel('$x_\pi$')
-    plt.ylabel('$F^{2}_{\pi}$')
-    plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
-    leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    leg.get_frame().set_alpha(1.)
-    
-    plt.style.use('default')
-    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    uncernPlots10_70 = ax.errorbar(xpi_tot70,fpi_tot70,yerr=fpiuncern70,fmt='.',label='$Q^2$ = 70 $GeV^2$')
-    GRV_Plots10_70 = ax.plot([0.01,0.1,0.30],[0.40,0.20,0.15],label='GRV fit \n $Q^2$ = 60 $GeV^2$')
-    # plt.xscale('log')
-    plt.yscale('log')
-    plt.ylim(1e-6,0.025)
-    plt.xlim(0.1,1.0)
-    plt.xlabel('$x_\pi$')
-    plt.ylabel('$F^{2}_{\pi}$')
-    plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
-    leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    leg.get_frame().set_alpha(1.)
-    
-    plt.style.use('default')
-    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    f2PxbjPlot = ax.scatter(TDIS_xbj_low,f2N_low)
+    f2PxbjPlot = ax.scatter(TDIS_xbj,f2N_low)
     plt.xlim(0.,1.)
     # plt.ylim(1e-6,0.5)
     plt.xlabel('TDIS_xbj')
     plt.ylabel('$F^{2}_{P}$')
     plt.title('$F^{2}_{P}$ vs TDIS_xbj', fontsize =20)
-    plt.close(f)
     
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
@@ -2846,8 +3221,7 @@ def pionPlots():
     plt.xlabel('TDIS_xbj')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs TDIS_xbj', fontsize =20)
-    plt.close(f)
-    
+
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
     fpixbjPlotLog = ax.scatter(TDIS_xbj_low,fpi_low)
@@ -2858,7 +3232,6 @@ def pionPlots():
     plt.xlabel('TDIS_xbj')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs TDIS_xbj', fontsize =20)
-    plt.close(f)
     
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
@@ -2868,28 +3241,13 @@ def pionPlots():
     plt.xlabel('$x_\pi$')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
-    plt.close(f)
-    
-    plt.style.use('default')
-    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    fpixpiPlotLog = ax.scatter(xpi_low,fpi_low)
-    plt.xscale('log')
-    # plt.yscale('log')
-    plt.xlim(0.,1.)
-    # plt.ylim(1e-6,0.5)
-    plt.xlabel('$x_\pi$')
-    plt.ylabel('$F^{2}_{\pi}$')
-    plt.title('$F^{2}_{\pi}$ vs $x_\pi$', fontsize =20)
-    plt.close(f)
-    
-    
+
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
     xL_Plot = ax.hist(xL,bins=p1.setbin(xL,200,0.,1.)[0],label='all events',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.xlabel('$x_L$')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs $x_L$', fontsize =20)
-    plt.close(f)
     
     
     phaseSpace10_10 = densityPlot(xpi_low, Q2_low, '$Q^2$ vs $x_\pi$','$x_\pi$','$Q^{2}$', 200, 200, 0., 1.0, 0., 100.)
@@ -2897,8 +3255,7 @@ def pionPlots():
     plt.xscale('log')
     plt.yscale('log')
     plt.xlim(0.,1.)
-    plt.close(f)
-    
+
     xpiPhase = xpi_low
     
     print len(xpiPhase)
@@ -2909,549 +3266,7 @@ def pionPlots():
         if 0.1 < evt :
             tot_evts.append(evt)
     print len(tot_evts)
-    
-    # # Need to have numBin for each setting and the uncertainty will be the value uncern
-    # f = plt.figure(figsize=(11.69,8.27))
-    # plt.style.use('classic')
-    
-    # ax = f.add_subplot(331)    
-    # fpiscat10_1 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[0],fmt='.',label='$x_\pi$=(0.20,0.30)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.20,0.30)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-
-    # plt.title('$F^{2}_{\pi}$ vs xpi  [$Q^2$ = 10 $GeV^2$]', fontsize =20)
-    
-    # ax = f.add_subplot(332)    
-    # fpiscat10_2 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[1],fmt='.',label='$x_\pi$=(0.30,0.40)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.30,0.40)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(333)
-    # fpiscat10_3 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[2],fmt='.',label='$x_\pi$=(0.40,0.50)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.40,0.50)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(334)
-    # fpiscat10_4 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[3],fmt='.',label='$x_\pi$=(0.50,0.60)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.50,0.60)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(335)
-    # fpiscat10_5 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[4],fmt='.',label='$x_\pi$=(0.60,0.70)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.60,0.70)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(336)
-    # fpiscat10_6 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[5],fmt='.',label='$x_\pi$=(0.70,0.80)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.70,0.80)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(337)
-    # fpiscat10_7 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[6],fmt='.',label='$x_\pi$=(0.80,0.90)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.80,0.90)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(338)
-    # fpiscat10_8 = ax.errorbar(clow.applyCuts(xpi_low,cut10),clow.applyCuts(fpi_low,cut10),yerr=uncern[7],fmt='.',label='$x_\pi$=(0.90,1.00)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.90,1.00)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # plt.style.use('default')
-    # f = plt.figure(figsize=(11.69,8.27))
-    # plt.style.use('classic')
-    
-    # ax = f.add_subplot(331)    
-    # fpiscat30_1 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[8],fmt='.',label='$x_\pi$=(0.20,0.30)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.20,0.30)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-
-    # plt.title('$F^{2}_{\pi}$ vs xpi  [$Q^2$ = 30 $GeV^2$]', fontsize =20)
-    
-    # ax = f.add_subplot(332)    
-    # fpiscat30_2 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[9],fmt='.',label='$x_\pi$=(0.30,0.40)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.30,0.40)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(333)
-    # fpiscat30_3 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[10],fmt='.',label='$x_\pi$=(0.40,0.50)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.40,0.50)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(334)
-    # fpiscat30_4 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[11],fmt='.',label='$x_\pi$=(0.50,0.60)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.50,0.60)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(335)
-    # fpiscat30_5 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[12],fmt='.',label='$x_\pi$=(0.60,0.70)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.60,0.70)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(336)
-    # fpiscat30_6 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[13],fmt='.',label='$x_\pi$=(0.70,0.80)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.70,0.80)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(337)
-    # fpiscat30_7 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[14],fmt='.',label='$x_\pi$=(0.80,0.90)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.80,0.90)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(338)
-    # fpiscat30_8 = ax.errorbar(clow.applyCuts(xpi_low,cut30),clow.applyCuts(fpi_low,cut30),yerr=uncern[15],fmt='.',label='$x_\pi$=(0.90,1.00)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.90,1.00)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    
-    # plt.style.use('default')
-    # f = plt.figure(figsize=(11.69,8.27))
-    # plt.style.use('classic')
-
-    # ax = f.add_subplot(331)    
-    # fpiscat50_1 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[16],fmt='.',label='$x_\pi$=(0.20,0.30)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.20,0.30)
-    # # plt.ylim(1e-3,0.025)
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-
-    # plt.title('$F^{2}_{\pi}$ vs xpi  [$Q^2$ = 50 $GeV^2$]', fontsize =20)
-    
-    # ax = f.add_subplot(332)    
-    # fpiscat50_2 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[17],fmt='.',label='$x_\pi$=(0.30,0.40)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.30,0.40)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(333)
-    # fpiscat50_3 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[18],fmt='.',label='$x_\pi$=(0.40,0.50)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.40,0.50)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(334)
-    # fpiscat50_4 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[19],fmt='.',label='$x_\pi$=(0.50,0.60)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.50,0.60)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(335)
-    # fpiscat50_5 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[20],fmt='.',label='$x_\pi$=(0.60,0.70)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.60,0.70)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(336)
-    # fpiscat50_6 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[21],fmt='.',label='$x_\pi$=(0.70,0.80)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.70,0.80)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(337)
-    # fpiscat50_7 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[22],fmt='.',label='$x_\pi$=(0.80,0.90)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.80,0.90)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(338)
-    # fpiscat50_8 = ax.errorbar(clow.applyCuts(xpi_low,cut50),clow.applyCuts(fpi_low,cut50),yerr=uncern[23],fmt='.',label='$x_\pi$=(0.90,1.00)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.90,1.00)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    
-    # plt.style.use('default')
-    # f = plt.figure(figsize=(11.69,8.27))
-    # plt.style.use('classic')
-    
-    # ax = f.add_subplot(331)    
-    # fpiscat70_1 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[24],fmt='.',label='$x_\pi$=(0.20,0.30)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.20,0.30)
-    # # plt.ylim(1e-3,0.025)
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-
-    # plt.title('$F^{2}_{\pi}$ vs xpi  [$Q^2$ = 70 $GeV^2$]', fontsize =20)
-    
-    # ax = f.add_subplot(332)    
-    # fpiscat70_2 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[25],fmt='.',label='$x_\pi$=(0.30,0.40)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.30,0.40)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(333)
-    # fpiscat70_3 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[26],fmt='.',label='$x_\pi$=(0.40,0.50)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.40,0.50)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(334)
-    # fpiscat70_4 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[27],fmt='.',label='$x_\pi$=(0.50,0.60)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.50,0.60)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(335)
-    # fpiscat70_5 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[28],fmt='.',label='$x_\pi$=(0.60,0.70)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.60,0.70)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(336)
-    # fpiscat70_6 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[29],fmt='.',label='$x_\pi$=(0.70,0.80)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.70,0.80)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(337)
-    # fpiscat70_7 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[30],fmt='.',label='$x_\pi$=(0.80,0.90)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.80,0.90)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-
-    # ax = f.add_subplot(338)
-    # fpiscat70_8 = ax.errorbar(clow.applyCuts(xpi_low,cut70),clow.applyCuts(fpi_low,cut70),yerr=uncern[31],fmt='.',label='$x_\pi$=(0.90,1.00)')
-    # plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    # ax.text(0.65, 0.95, '$x_\pi$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # # plt.yscale('log')
-    # plt.xlim(0.90,1.00)
-    # # plt.ylim(1e-3,0.025)
-    # plt.xlabel('xpi')
-    # plt.ylabel('$F^{2}_{\pi}$')
-    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-
-    # uncern plots
-
-    uncern10 = []
-    uncern30 = []
-    uncern50 = []
-    uncern70 = []
-    for i in range(0,8):
-        uncern10.append(uncern[i])
-    for i in range(8,16):
-        uncern30.append(uncern[i])
-    for i in range(16,24):
-        uncern50.append(uncern[i])
-    for i in range(24,32):
-        uncern70.append(uncern[i])
-    
-    # uncern 100 plots
-    
-    uncern10 = []
-    uncern30 = []
-    uncern50 = []
-    uncern70 = []
-    for i in range(0,8):
-        uncern10.append(uncern100[i])
-    for i in range(8,16):
-        uncern30.append(uncern100[i])
-    for i in range(16,24):
-        uncern50.append(uncern100[i])
-    for i in range(24,32):
-        uncern70.append(uncern100[i])
-    
-    # uncern100 plots
-    
-    # plt.style.use('default')
-    # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    
-    # uncern10_1 = ax.scatter(0.25 ,uncern100[0],label='$x_\pi$=(0.20,0.30)')
-    # uncern10_2 = ax.scatter(0.35 ,uncern100[1],label='$x_\pi$=(0.30,0.40)')
-    # uncern10_3 = ax.scatter(0.45 ,uncern100[2],label='$x_\pi$=(0.40,0.50)')
-    # uncern10_4 = ax.scatter(0.55 ,uncern100[3],label='$x_\pi$=(0.50,0.60)')
-    # uncern10_5 = ax.scatter(0.65 ,uncern100[4],label='$x_\pi$=(0.60,0.70)')
-    # uncern10_6 = ax.scatter(0.75 ,uncern100[5],label='$x_\pi$=(0.70,0.80)')
-    # uncern10_7 = ax.scatter(0.85 ,uncern100[6],label='$x_\pi$=(0.80,0.90)')
-    # uncern10_8 = ax.scatter(0.95 ,uncern100[7],label='$x_\pi$=(0.90,1.00)')
-    # plt.yscale('log')
-    # plt.xlabel('xpi')
-    # plt.ylabel('$\delta^{100}_{F^{2}_{\pi}}$')
-    # plt.title('$\delta^{100}_{F^{2}_{\pi}}$ vs xpi  [$Q^2$ = 10 $GeV^2$]', fontsize =20)
-    # leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    # leg.get_frame().set_alpha(1.)
-
-    # plt.style.use('default')
-    # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    
-    # uncern30_1 = ax.scatter(0.25 ,uncern100[8],label='$x_\pi$=(0.20,0.30)')
-    # uncern30_2 = ax.scatter(0.35 ,uncern100[9],label='$x_\pi$=(0.30,0.40)')
-    # uncern30_3 = ax.scatter(0.45 ,uncern100[10],label='$x_\pi$=(0.40,0.50)')
-    # uncern30_4 = ax.scatter(0.55 ,uncern100[11],label='$x_\pi$=(0.50,0.60)')
-    # uncern30_5 = ax.scatter(0.65 ,uncern100[12],label='$x_\pi$=(0.60,0.70)')
-    # uncern30_6 = ax.scatter(0.75 ,uncern100[13],label='$x_\pi$=(0.70,0.80)')
-    # uncern30_7 = ax.scatter(0.85 ,uncern100[14],label='$x_\pi$=(0.80,0.90)')
-    # uncern30_8 = ax.scatter(0.95 ,uncern100[15],label='$x_\pi$=(0.90,1.00)')
-    # plt.yscale('log')
-    # plt.xlabel('xpi')
-    # plt.ylabel('$\delta^{100}_{F^{2}_{\pi}}$')
-    # plt.title('$\delta^{100}_{F^{2}_{\pi}}$ vs xpi  [$Q^2$ = 30 $GeV^2$]', fontsize =20)
-    # leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    # leg.get_frame().set_alpha(1.)
-
-    # plt.style.use('default')
-    # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    
-    # uncern50_1 = ax.scatter(0.25 ,uncern100[16],label='$x_\pi$=(0.20,0.30)')
-    # uncern50_2 = ax.scatter(0.35 ,uncern100[17],label='$x_\pi$=(0.30,0.40)')
-    # uncern50_3 = ax.scatter(0.45 ,uncern100[18],label='$x_\pi$=(0.40,0.50)')
-    # uncern50_4 = ax.scatter(0.55 ,uncern100[19],label='$x_\pi$=(0.50,0.60)')
-    # uncern50_5 = ax.scatter(0.65 ,uncern100[20],label='$x_\pi$=(0.60,0.70)')
-    # uncern50_6 = ax.scatter(0.75 ,uncern100[21],label='$x_\pi$=(0.70,0.80)')
-    # uncern50_7 = ax.scatter(0.85 ,uncern100[22],label='$x_\pi$=(0.80,0.90)')
-    # uncern50_8 = ax.scatter(0.95 ,uncern100[23],label='$x_\pi$=(0.90,1.00)')
-    # plt.yscale('log')
-    # plt.xlabel('xpi')
-    # plt.ylabel('$\delta^{100}_{F^{2}_{\pi}}$')
-    # plt.title('$\delta^{100}_{F^{2}_{\pi}}$ vs xpi  [$Q^2$ = 50 $GeV^2$]', fontsize =20)
-    # leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    # leg.get_frame().set_alpha(1.)
-
-    # plt.style.use('default')
-    # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    
-    # uncern70_1 = ax.scatter(0.25 ,uncern100[24],label='$x_\pi$=(0.20,0.30)')
-    # uncern70_2 = ax.scatter(0.35 ,uncern100[25],label='$x_\pi$=(0.30,0.40)')
-    # uncern70_3 = ax.scatter(0.45 ,uncern100[26],label='$x_\pi$=(0.40,0.50)')
-    # uncern70_4 = ax.scatter(0.55 ,uncern100[27],label='$x_\pi$=(0.50,0.60)')
-    # uncern70_5 = ax.scatter(0.65 ,uncern100[28],label='$x_\pi$=(0.60,0.70)')
-    # uncern70_6 = ax.scatter(0.75 ,uncern100[29],label='$x_\pi$=(0.70,0.80)')
-    # uncern70_7 = ax.scatter(0.85 ,uncern100[30],label='$x_\pi$=(0.80,0.90)')
-    # uncern70_8 = ax.scatter(0.95 ,uncern100[31],label='$x_\pi$=(0.90,1.00)')
-    # plt.yscale('log')
-    # plt.xlabel('xpi')
-    # plt.ylabel('$\delta^{100}_{F^{2}_{\pi}}$')
-    # plt.title('$\delta^{100}_{F^{2}_{\pi}}$ vs xpi  [$Q^2$ = 70 $GeV^2$]', fontsize =20)
-    # leg = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    # leg.get_frame().set_alpha(1.)
-                        
+                    
     # plt.style.use('default')
     # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));    
     # xpi10_1 = []
@@ -3956,11 +3771,10 @@ def pionPlots():
     plt.ylabel('Number of Events')
     leg = plt.legend(bbox_to_anchor=(0.95,0.3), loc="center right")
     leg.get_frame().set_alpha(1.)
-    plt.close(f)
     
     for f in xrange(1, plt.figure().number):
         pdf.savefig(f)
-    pdf.close()
+    pdf.close()    
 
 def sigmavX():
     
@@ -4420,16 +4234,17 @@ def sigmaPlot():
         pdf.savefig(f)
     pdf.close()
     
+    
 def main() :
 
     # sigmavxBj_Plot()
     # sigmavxpi_Plot()
     # phaseSpace()
     # lumi()
-    pionPlots()
+    # pionPlots()
     # sigmavX()
     # yCutPlots()
-    # sigmaPlot()
+    sigmaPlot()
     plt.show()
     
 if __name__=='__main__': main()
