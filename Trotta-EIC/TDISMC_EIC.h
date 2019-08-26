@@ -30,7 +30,7 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
-const int NEvts = 500000;
+const int NEvts = 5000000;
 /* const int NEvts = 80000; */
 /* const int NEvts = 10000; */
 

@@ -37,7 +37,7 @@ import time,math,sys
 
 # My class function
 sys.path.insert(0,'../../../Analysis/ROOTfiles/python')
-from rootPy import pyMisc, pyPlot
+from test_rootPy import pyPlot, pyCut
 
 # rootName = "TDISpion"
 rootName = "TDISpion_10-100"
@@ -62,13 +62,12 @@ T1_arrhist = "histData"
 # pdf = matplotlib.backends.backend_pdf.PdfPages("fpiPlot_xbj.pdf")
 # pdf = matplotlib.backends.backend_pdf.PdfPages("fpiPlot_xpi.pdf")
 # pdf = matplotlib.backends.backend_pdf.PdfPages("Q2vxpi-xbj.pdf")
-# pdf = matplotlib.backends.backend_pdf.PdfPages("sigmaPlots.pdf")
-pdf = matplotlib.backends.backend_pdf.PdfPages("phasePlots.pdf")
+pdf = matplotlib.backends.backend_pdf.PdfPages("sigmaPlots.pdf")
 
 # Arguments for class function
-p = pyMisc(rootName,tree1,T1_arrkey,T1_arrhist)
-p1 = pyMisc(rootName_low,tree1,T1_arrkey,T1_arrhist)
-p2 = pyMisc(rootName_high,tree1,T1_arrkey,T1_arrhist)
+p = pyPlot(rootName,tree1,T1_arrkey,T1_arrhist)
+p1 = pyPlot(rootName_low,tree1,T1_arrkey,T1_arrhist)
+p2 = pyPlot(rootName_high,tree1,T1_arrkey,T1_arrhist)
 
 t_low = p1.lookup("tPrime")[0]
 t_high = p2.lookup("tPrime")[0]
@@ -234,9 +233,9 @@ sigmaPlotDict = {
     
 }
 
-c = pyPlot(sigmaPlotDict)
-clow = pyPlot(lowDict)
-chigh = pyPlot(highDict)
+c = pyCut(sigmaPlotDict)
+clow = pyCut(lowDict)
+chigh = pyCut(highDict)
 
 
 
@@ -277,7 +276,48 @@ def q2_Cut():
     cut800 = ["Q2cut17","tcut"]
         
     return[cutQ2bin10,cutQ2bin16,cutQ2bin25,cutQ2bin40,cutQ2bin63,ycut1,tcut1,cut10, cut30, cut50, cut70, cut150, cut200, cut250, cut300, cut350, cut400, cut450, cut500, cut550, cut600, cut650, cut700, cut750, cut800]
-        
+    
+def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,ymax=None,cuts=None,figure=None,ax=None,layered=True):
+
+    if cuts:
+        xcut  = c.applyCuts(x,cuts)[0]
+        ycut = c.applyCuts(y,cuts)[0]
+    else:
+        xcut = x
+        ycut = y
+    # if sub or figure:
+    #     ax = figure.add_subplot(sub)
+    if ax or figure:
+        # ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+        print ""
+    else:
+        fig, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
+    if (xmin or xmax or ymin or ymax):
+        # norm=colors.LogNorm() makes colorbar normed and logarithmic
+        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx,xmin,xmax)[0],p.setbin(y,biny,ymin,ymax)[0]))
+    else:
+        # norm=colors.LogNorm() makes colorbar normed and logarithmic
+        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx)[0],p.setbin(y,biny)[0]))
+    if layered is True :
+        # ax.set_title(title)
+        # g = sns.jointplot(x=x, y=y, kind="hex", color="b")
+        # g.ax_marg_x.hist(x, color="b", alpha=.6,bins=p.setbin(x,binx,xmin,xmax)[0])
+        # g.ax_marg_y.hist(y, color="r", alpha=.6,orientation="horizontal",bins=p.setbin(y,biny,ymin,ymax)[0])
+        # g.set_axis_labels(xlabel, ylabel)
+        plt.colorbar(hist[3], ax=ax, spacing='proportional', label='Number of Events')
+    # else :
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    
+    inputVal = [x,y]
+
+    if (xmin or xmax or ymin or ymax):
+        binVal = [p.setbin(x,binx,xmin,xmax)[0],p.setbin(y,biny,ymin,ymax)[0]]
+    else:
+        binVal = [p.setbin(x,binx)[0],p.setbin(y,biny)[0]]
+    return binVal
+    
 def sigmavxpi_Plot():
     
     [cutQ2bin10,cutQ2bin16,cutQ2bin25,cutQ2bin40,cutQ2bin63,ycut1,tcut1,cut10, cut30, cut50, cut70, cut150, cut200, cut250, cut300, cut350, cut400, cut450, cut500, cut550, cut600, cut650, cut700, cut750, cut800] = q2_Cut()
@@ -514,36 +554,36 @@ def phaseSpace():
     
     # Q2 vs xBj
     # hxbj_Q2_low = densityPlot(TDIS_xbj_low, Q2_low, '$Q^{2}$[10-100 GeV] vs TDIS_xbj[0.01-1.00]','TDIS_xbj','$Q^{2}$', 10, 20, 0.01, 1.00, 10., 100.)
-    hxbj_Q2_low = clow.densityPlot(TDIS_xbj_low, Q2_low, '$Q^{2}$[10-100 GeV] vs $x_{Bj}$[0.01-1.00]','$x_{Bj}$','$Q^{2}$', 50, 200, p1,0., 1.0, 10., 100.)
+    hxbj_Q2_low = densityPlot(TDIS_xbj_low, Q2_low, '$Q^{2}$[10-100 GeV] vs TDIS_xbj[0.01-1.00]','TDIS_xbj','$Q^{2}$', 10, 20, 0.035, 0.10, 35., 100.)
     plt.xscale('log')
     # plt.yscale('log')
-    hxbj_Q2_high = clow.densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$[100-800 GeV] vs TDIS_xbj[0.1-1.0]','TDIS_xbj','$Q^{2}$', 10, 200, p1,0.1, 1.0, 100., 1000.)
+    hxbj_Q2_high = densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$[100-800 GeV] vs TDIS_xbj[0.1-1.0]','TDIS_xbj','$Q^{2}$', 10, 200, 0.1, 1.0, 100., 1000.)
     plt.xscale('log')
     # plt.yscale('log')
 
     # Q2 vs xBj chained
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    hxbj_Q2_lowFull = clow.densityPlot(TDIS_xbj_low, Q2_low, '','TDIS_xbj','$Q^{2}$', 10, 20, p1, 0.01, 1.00, 10., 100., figure=f,ax=ax)
+    hxbj_Q2_lowFull = densityPlot(TDIS_xbj_low, Q2_low, '','TDIS_xbj','$Q^{2}$', 10, 20, 0.01, 1.00, 10., 100., figure=f,ax=ax)
     # hxbj_Q2_high = densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$ vs TDIS_xbj (all sets)','TDIS_xbj','$Q^{2}$', 10, 200, 0.1, 1.0, 100., 1000., figure=f,ax=ax,layered=False)
-    hxbj_Q2_highFull = clow.densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$ vs TDIS_xbj (all sets)','TDIS_xbj','$Q^{2}$', 10, 200,  p1, 0.1, 1.0, 100., 1000., figure=f,ax=ax)
+    hxbj_Q2_highFull = densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$ vs TDIS_xbj (all sets)','TDIS_xbj','$Q^{2}$', 10, 200, 0.1, 1.0, 100., 1000., figure=f,ax=ax)
     plt.xscale('log')
     plt.xlim(0.,1.)
     # plt.yscale('log')
     plt.ylim(0.,800.)
     
     # Q2 vs xpi
-    hxpi_Q2_low = clow.densityPlot(xpi_low, Q2_low, '$Q^{2}$[10-100 GeV] vs $x_{pi}$[0.01-1.00]','$x_{pi}$','$Q^{2}$', 10, 20, p1, 0.01, 1., 10., 100.)
+    hxpi_Q2_low = densityPlot(xpi_low, Q2_low, '$Q^{2}$[10-100 GeV] vs $x_{pi}$[0.01-1.00]','$x_{pi}$','$Q^{2}$', 10, 20, 0.01, 1., 10., 100.)
     plt.xscale('log')
     # plt.yscale('log')
-    hxpi_Q2_high = clow.densityPlot(xpi_high, Q2_high, '$Q^{2}$[100-800 GeV] vs $x_{pi}$[0.1-1.0]','$x_{pi}$','$Q^{2}$', 10, 200, p1, 0.1, 1., 100., 800.)
+    hxpi_Q2_high = densityPlot(xpi_high, Q2_high, '$Q^{2}$[100-800 GeV] vs $x_{pi}$[0.1-1.0]','$x_{pi}$','$Q^{2}$', 10, 200, 0.1, 1., 100., 800.)
     plt.xscale('log')
     # plt.yscale('log')
 
     # Q2 vs xpi chained
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    hxpi_Q2_low = clow.densityPlot(xpi_low, Q2_low, '','$x_{pi}$','$Q^{2}$', 10, 20,  p1, 0.01, 1., 10., 100., figure=f,ax=ax)
+    hxpi_Q2_low = densityPlot(xpi_low, Q2_low, '','$x_{pi}$','$Q^{2}$', 10, 20, 0.01, 1., 10., 100., figure=f,ax=ax)
     # hxpi_Q2_high = densityPlot(xpi_high, Q2_high, '$Q^{2}$ vs $x_{pi}$ (all sets)','$x_{pi}$','$Q^{2}$', 10, 200, 0.1, 1., 100., 800., figure=f,ax=ax,layered=False)
-    hxpi_Q2_high = clow.densityPlot(xpi_high, Q2_high, '$Q^{2}$ vs $x_{pi}$ (all sets)','$x_{pi}$','$Q^{2}$', 10, 200,  p1, 0.1, 1., 100., 800., figure=f,ax=ax)
+    hxpi_Q2_high = densityPlot(xpi_high, Q2_high, '$Q^{2}$ vs $x_{pi}$ (all sets)','$x_{pi}$','$Q^{2}$', 10, 200, 0.1, 1., 100., 800., figure=f,ax=ax)
     plt.xscale('log')
     plt.xlim(0.,1.)
     # plt.yscale('log')
@@ -2857,7 +2897,7 @@ def pionPlots():
     plt.close(f)
     
     
-    phaseSpace10_10 = clow.densityPlot(xpi_low, Q2_low, '$Q^2$ vs $x_\pi$','$x_\pi$','$Q^{2}$', 200, 200,  p1, 0., 1.0, 0., 100.)
+    phaseSpace10_10 = densityPlot(xpi_low, Q2_low, '$Q^2$ vs $x_\pi$','$x_\pi$','$Q^{2}$', 200, 200, 0., 1.0, 0., 100.)
     # phaseSpace10_10 = ax.scatter(clow.applyCuts(TDIS_xbj_low,tcut1),clow.applyCuts(Q2_low,tcut1))
     plt.xscale('log')
     plt.yscale('log')
@@ -3820,7 +3860,7 @@ def curve_fit(x, a, b):
 def sigmavX():
 
     [cutQ2bin10,cutQ2bin16,cutQ2bin25,cutQ2bin40,cutQ2bin63,ycut1,tcut1,cut10, cut30, cut50, cut70, cut150, cut200, cut250, cut300, cut350, cut400, cut450, cut500, cut550, cut600, cut650, cut700, cut750, cut800] = q2_Cut()
-    
+
     f = plt.figure(figsize=(11.69,8.27))
     plt.style.use('classic')   
 
@@ -4372,9 +4412,9 @@ def main() :
     # phaseSpace()
     # lumi()
     # pionPlots()
-    # sigmavX()
+    sigmavX()
     # yCutPlots()
-    sigmaPlot()
+    # sigmaPlot()
     plt.show()
     
 if __name__=='__main__': main()
