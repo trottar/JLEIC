@@ -3,7 +3,9 @@
 
 # GEMC stuff
 *.txt
+*.dat
 *.evio
+*.ev
 
 # large files
 *.root

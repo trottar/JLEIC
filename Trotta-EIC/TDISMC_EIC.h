@@ -32,7 +32,7 @@ using std::ios;
 
 /* const int NEvts = 5000000; */
 const int NEvts = 80000;
-/* const int NEvts = 10000; */
+/* const int NEvts = 1000; */
 
 
 // spectator proton either proton beam or deuteron beam

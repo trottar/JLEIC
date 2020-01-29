@@ -367,8 +367,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 
   double pS_rest, csThRecoil, phiRecoil;
 
-  //name of output file : = "TDIS_lund.txt";
-  ofstream OUT ("TDIS_lund.txt", ios::app);
+  //name of output file : = "TDIS_lund.dat";
+  ofstream OUT ("TDIS_lund.dat", ios::app);
 
   // **********************************************************************************
   // define TDIS pSpectator with fermi momentum from  data file "moment_ld2b.dat" from G4SBS 
