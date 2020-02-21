@@ -1,0 +1,123 @@
+ macro kfit.kumac
+   opt nfile
+   opt nstat
+   set *
+   opt liny
+   opt linx
+   set ncol 28; pal 1;
+
+   set ymgl 1.7
+   set ymgu 2.2
+   set ywin 1.4
+   set xwin 2.2
+   set xmgl 2.3
+   set xmgr 0.9
+   set vsiz 0.45
+   set asiz 0.45
+   set tsiz 0.00000001
+   set csiz 0.35
+
+   set xlab 1.6
+   set ylab .9
+
+ 
+   set xval 0.4
+   set NDVX 10.01
+   set NDVY 10.00
+   set smgr 0.00565
+   
+   opt stat
+
+    
+    set fcol 2
+    
+
+    
+    xmin0 = 0.01
+    xmax0 = 0.1
+
+      | do loop for thrown and reconstruction event
+    
+
+      filename1  = ./x_1_2_dis1_typ2.dat 
+		
+      vec/cre x(200),fpi(200)
+      vec/read x,fpi [filename1]
+      vec/cre err(200) r 200*0.
+      vec/cre erry(200) r 200*0.0000001
+     
+      
+      opt liny
+      SIGMA yy = vmax(fpi)
+				|vec/write yy
+      if yy .gt. 0 then
+	ymax0 = yy+yy*50.5
+      endif
+      if yy .le. 0 then
+	ymax0 = 5.
+      endif
+      
+      ymin0= 0.000000001	  
+      ymax0 = 0.00002
+      opt logy
+	    
+	    
+|||||||||   new calculation : 2sigma MMX cut & nominal DeltaT2 < 0.5GeV2, W > 2.0GeV
+      IGSET PMCI 4
+      IGSET PLCI 4
+      IGSET LTYP 1
+      set hcol 4
+      /GRAPHICS/HPLOT/NULL [xmin0] [xmax0] [ymin0] [ymax0] 
+      /GRAPHICS/HPLOT/ERRORS x fpi err erry 200 10 0.24 1
+      
+      atitle 'p' 'fpi' 
+      | x = 0.0555 ; 0.083
+|      a0 = -0.954
+|      a1 = 66.5
+|      a2 = -1632.4
+|      a3 = 14573.0
+      
+      | s-dependence exp
+      a0 = -0.29467e-04 
+      a1 = 0.15654e-02 
+      a2 = -0.27710e-01 
+      a3 = 0.16353
+      
+      | t-dependence exp
+      b0 = -0.34245e-04
+      b1 = 0.18324e-02
+      b2 = -0.32667e-01  
+      b3 = 0.19410 
+      
+      SET LWID 7
+      IGSET PMCI 2
+      IGSET PLCI 2
+      set hcol 4
+
+      f/plot [a0]+([a1])*x+([a2])*x*x+([a3])*x*x*x 0.02 1.0  s
+      SET LWID 7
+      IGSET PMCI 4
+      IGSET PLCI 4
+      set hcol 2
+      f/plot [b0]+([b1])*x+([b2])*x*x+([b3])*x*x*x 0.02 1.0  s
+      
+      |wait
+      
+       SET LWID 7
+      IGSET PMCI 4
+      IGSET PLCI 4
+      set hcol 2
+|      f/plot (([a0])+([a1])*x+([a2])*x*x+([a3])*x*x*x)/(([b0])+([b1])*x+([b2])*x*x+([b3])*x*x*x) 0.02 0.1  
+ 
+ 
+      SET LWID 7
+      IGSET PMCI 2
+      IGSET PLCI 2
+      VEC/FIT x fpi erry p5 s 6 p ! ! ! dp 
+      IGSET PMCI 1
+      IGSET PLCI 1
+      
+ 
+    
+    vec/del x,fpi,err,erry
+
