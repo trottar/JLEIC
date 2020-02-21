@@ -19,3 +19,7 @@ Specifically, simulations of the pion and kaon structure functions will pro-
 vide feedback on the feasibility of studying the different gluon content and
 hadronic structure at large values of x. The results of the simulations may
 also guide the detector design for such measurements.
+
+
+* eic_SF/ for meson MC
+* Trotta_EIC/ Richard Trotta's workspace for plots, enter at your own risk
