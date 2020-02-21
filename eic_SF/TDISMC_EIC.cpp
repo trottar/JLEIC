@@ -58,6 +58,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
   sp_particle_charge=1;
   pr_particle_charge=1;
 
+  // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
+  initcteqpdf();
+  
   //  Int_t rnumber = gRandom->Uniform(10000); // big number in (<10000000000)
 					       //  double rnumber = rand() ;
   TRandom3 ran3;// Random number generator [45ns/call]
@@ -364,8 +367,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 
   double pS_rest, csThRecoil, phiRecoil;
 
-  //name of output file : = "TDIS_lund.txt";
-  ofstream OUT ("TDIS_lund.txt", ios::app);
+  //name of output file : = "TDIS_lund.dat";
+  ofstream OUT ("TDIS_lund.dat", ios::app);
 
   // **********************************************************************************
   // define TDIS pSpectator with fermi momentum from  data file "moment_ld2b.dat" from G4SBS 
@@ -803,7 +806,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
       // fpi = fpifac*f2pipaulvillas(P_pi, TDIS_xbj, theta_p2/D2R);
 
       //  ZEUS parameterization with F2N (proton SF)
-      // fpi = fpifac*F2N(xpi, invts.Q2, inucl);
+      // fpi = fpifac*(0.361)*F2N(xpi, invts.Q2, inucl);
       fpi = fpifac*f2piZEUS(TDIS_xbj);
 
       /*

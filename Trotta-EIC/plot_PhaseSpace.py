@@ -23,6 +23,7 @@ import warnings
 import numpy as np
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+import uproot as up
 import scipy as sci
 import matplotlib.backends.backend_pdf
 import matplotlib.pyplot as plt
@@ -36,25 +37,28 @@ import time,math,sys
 # np.set_printoptions(threshold=sys.maxsize)
 
 # My class function
-sys.path.insert(0,'../../../Analysis/ROOTfiles/python')
-from rootPy import pyMisc, pyPlot
+sys.path.insert(0,'/home/trottar/bin/python/root2py/')
+from root2py import pyPlot, pyBranch, pyBin
 
-# rootName = "TDISpion"
-rootName = "TDISpion_10-100"
+# rootName = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion"
+rootName = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_10-100.root"
 
-rootName_low = "TDISpion"
+rootName_low = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion.root"
 # rootName_low = "TDISpion_10-100"
 # rootName_low = "TDISpion_10-100_OLD"
 # rootName_low = "TDISpion_xpi"
 # rootName_low = "TDISpion_med"
 
-rootName_high = "TDISpion_100-800"
+rootName_high = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_100-800.root"
 # rootName_high = "TDISpion_high"
 
-tree1 = "T"
+tree = up.open(rootName)["Evnts"]
+tree_low = up.open(rootName_low)["Evnts"]
+tree_high = up.open(rootName_high)["Evnts"]
 
-T1_arrkey =  "leafName"
-T1_arrhist = "histData"
+branch = pyBranch(tree)
+branch_low = pyBranch(tree_low)
+branch_high = pyBranch(tree_high)
 
 # pdf = matplotlib.backends.backend_pdf.PdfPages("%s.pdf" % rootName)
 # pdf = matplotlib.backends.backend_pdf.PdfPages("fpiPlot.pdf")
@@ -65,45 +69,40 @@ pdf = matplotlib.backends.backend_pdf.PdfPages("fpiPlot_xpi.pdf")
 # pdf = matplotlib.backends.backend_pdf.PdfPages("sigmaPlots.pdf")
 # pdf = matplotlib.backends.backend_pdf.PdfPages("phasePlots.pdf")
 
-# Arguments for class function
-p = pyMisc(rootName,tree1,T1_arrkey,T1_arrhist)
-p1 = pyMisc(rootName_low,tree1,T1_arrkey,T1_arrhist)
-p2 = pyMisc(rootName_high,tree1,T1_arrkey,T1_arrhist)
+t_low = branch_low.findBranch("invts","tPrime")
+t_high = branch_high.findBranch("invts","tPrime")
 
-t_low = p1.lookup("tPrime")[0]
-t_high = p2.lookup("tPrime")[0]
+Q2_low = branch_low.findBranch("invts","Q2")
+Q2_high = branch_high.findBranch("invts","Q2")
 
-Q2_low = p1.lookup("Q2")[0]
-Q2_high = p2.lookup("Q2")[0]
+TDIS_xbj_low = tree_low.array("TDIS_xbj")
+TDIS_xbj_high = tree_high.array("TDIS_xbj")
 
-TDIS_xbj_low = p1.lookup("TDIS_xbj")[0]
-TDIS_xbj_high = p2.lookup("TDIS_xbj")[0]
-
-xpi_low = p1.lookup("xpi")[0]
+xpi_low = tree_low.array("xpi")
 # Look for xpi_low below xL if commented out
-xpi_high = p2.lookup("xpi")[0]
+xpi_high = tree_high.array("xpi")
 
-# fpi_low = p1.lookup("fpi")[0]
-# fpi_low = 0.361*p1.lookup("fpi")[0]
-fpi_low = 0.361*p1.lookup("f2N")[0]
-fpi_high = p2.lookup("fpi")[0]
+# fpi_low = tree_low.array("fpi")
+# fpi_low = 0.361*tree_low.array("fpi")
+fpi_low = 0.361*tree_low.array("f2N")
+fpi_high = tree_high.array("fpi")
 
-f2N_low = p1.lookup("f2N")[0]
-f2N_high = p2.lookup("f2N")[0]
+f2N_low = tree_low.array("f2N")
+f2N_high = tree_high.array("f2N")
 
-# sigma_dis_low = p1.lookup("sigma_dis")[0]*(1e-5)
-# sigma_dis_high = p2.lookup("sigma_dis")[0]*(1e-5)
+# sigma_dis_low = tree_low.array("sigma_dis")*(1e-5)
+# sigma_dis_high = tree_high.array("sigma_dis")*(1e-5)
 
-sigma_dis_low = p1.lookup("sigma_dis")[0]
-sigma_dis_high = p2.lookup("sigma_dis")[0]
+sigma_dis_low = tree_low.array("sigma_dis")
+sigma_dis_high = tree_high.array("sigma_dis")
 
-pprz_inc = p1.lookup("pprz_inc")[0]
-ppiz_Lab = p1.lookup("ppiz_Lab")[0]
+pprz_inc = tree_low.array("pprz_inc")
+ppiz_Lab = tree_low.array("ppiz_Lab")
 
 pNz_Lab = pprz_inc-ppiz_Lab # Long neutron momentum
 xL = pNz_Lab/pprz_inc # Frac of proton momentum
-# sigma_tdis_low = p1.lookup("sigma_tdis")[0]
-# sigma_tdis_high = p2.lookup("sigma_tdis")[0]
+# sigma_tdis_low = tree_low.array("sigma_tdis")
+# sigma_tdis_high = tree_high.array("sigma_tdis")
 
 # xpi_low = TDIS_xbj_low/(1-xL)
 
@@ -113,8 +112,8 @@ xL = pNz_Lab/pprz_inc # Frac of proton momentum
 sigma_tdis_low = sigma_dis_low*(fpi_low/f2N_low)
 sigma_tdis_high = sigma_dis_high*(fpi_high/f2N_high)
 
-y_low = p1.lookup("y")[0]
-y_high = p2.lookup("y")[0]
+y_low = tree_low.array("y")
+y_high = tree_high.array("y")
 
 yplus_low = 1+((1-y_low)*(1-y_low))
 yplus_high = 1+((1-y_high)*(1-y_high))
@@ -129,32 +128,33 @@ tot_sigma_low = (sigma_tdis_low)*((TDIS_xbj_low*(Q2_low*Q2_low)*(137)*(137))/(2*
 tot_sigma_high = (sigma_tdis_high)
 
 # Define phyisics data
-s_e = p.lookup("s_e")[0]
-s_q = p.lookup("s_q")[0]
-xBj = p.lookup("xBj")[0]
-TDIS_xbj = p.lookup("TDIS_xbj")[0]
-sigma_dis = p.lookup("sigma_dis")[0]*(1e-5)
-TDIS_y = p.lookup("TDIS_y")[0]
-ppix_Lab = p.lookup("ppix_Lab")[0] # Long pion momentum
-ppiy_Lab = p.lookup("ppiy_Lab")[0]
-ppiz_Lab = p.lookup("ppiz_Lab")[0]
-EpiE_Lab = p.lookup("EpiE_Lab")[0]
-pprx_inc = p.lookup("pprx_inc")[0] # Long proton momentum
-ppry_inc = p.lookup("ppry_inc")[0]
-pprz_inc = p.lookup("pprz_inc")[0]
-EprE_inc = p.lookup("EprE_inc")[0]
-y = p.lookup("y")[0]
-Q2 = p.lookup("Q2")[0]
-fpi = p.lookup("fpi")[0]
-f2N = p.lookup("f2N")[0]
-xpi = p.lookup("xpi")[0]
-ypi = p.lookup("ypi")[0]
-tpi = p.lookup("tpi")[0]
-t = -p.lookup("tPrime")[0]
-y_D = p.lookup("y_D")[0]
-escat = p.lookup("EScatRest")[0]
-nu = p.lookup("nu")[0]
-TwoPdotk = p.lookup("TwoPdotk")[0]
+s_e = branch.findBranch("invts","s_e")
+s_q = branch.findBranch("invts","s_q")
+Q2 = branch.findBranch("invts","Q2")
+xBj = branch.findBranch("invts","xBj")
+t = -branch.findBranch("invts","tPrime")
+y_D = branch.findBranch("invts","y_D")
+nu = branch.findBranch("invts","nu")
+TwoPdotk = branch.findBranch("invts","TwoPdotk")
+TDIS_xbj = tree.array("TDIS_xbj")
+sigma_dis = tree.array("sigma_dis")*(1e-5)
+TDIS_y = tree.array("TDIS_y")
+ppix_Lab = tree.array("ppix_Lab") # Long pion momentum
+ppiy_Lab = tree.array("ppiy_Lab")
+ppiz_Lab = tree.array("ppiz_Lab")
+EpiE_Lab = tree.array("EpiE_Lab")
+pprx_inc = tree.array("pprx_inc") # Long proton momentum
+ppry_inc = tree.array("ppry_inc")
+pprz_inc = tree.array("pprz_inc")
+EprE_inc = tree.array("EprE_inc")
+y = tree.array("y")
+fpi = tree.array("fpi")
+f2N = tree.array("f2N")
+xpi = tree.array("xpi")
+ypi = tree.array("ypi")
+tpi = tree.array("tpi")
+escat = tree.array("EScatRest")
+
 
 # Q2_new = s_q/(xBj*y)
 Q2_new = xBj/TwoPdotk
@@ -233,6 +233,8 @@ sigmaPlotDict = {
     "Q2bin63" : ((63 < Q2_low) & (Q2_low < 100)),
     
 }
+
+b = pyBin()
 
 c = pyPlot(sigmaPlotDict)
 clow = pyPlot(lowDict)
@@ -514,36 +516,36 @@ def phaseSpace():
     
     # Q2 vs xBj
     # hxbj_Q2_low = densityPlot(TDIS_xbj_low, Q2_low, '$Q^{2}$[10-100 GeV] vs TDIS_xbj[0.01-1.00]','TDIS_xbj','$Q^{2}$', 10, 20, 0.01, 1.00, 10., 100.)
-    hxbj_Q2_low = clow.densityPlot(TDIS_xbj_low, Q2_low, '$Q^{2}$[10-100 GeV] vs $x_{Bj}$[0.01-1.00]','$x_{Bj}$','$Q^{2}$', 50, 200, p1,0., 1.0, 10., 100.)
+    hxbj_Q2_low = clow.densityPlot(TDIS_xbj_low, Q2_low, '$Q^{2}$[10-100 GeV] vs $x_{Bj}$[0.01-1.00]','$x_{Bj}$','$Q^{2}$', 50, 200, b,0., 1.0, 10., 100.)
     plt.xscale('log')
     # plt.yscale('log')
-    hxbj_Q2_high = clow.densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$[100-800 GeV] vs TDIS_xbj[0.1-1.0]','TDIS_xbj','$Q^{2}$', 10, 200, p1,0.1, 1.0, 100., 1000.)
+    hxbj_Q2_high = clow.densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$[100-800 GeV] vs TDIS_xbj[0.1-1.0]','TDIS_xbj','$Q^{2}$', 10, 200, b,0.1, 1.0, 100., 1000.)
     plt.xscale('log')
     # plt.yscale('log')
 
     # Q2 vs xBj chained
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    hxbj_Q2_lowFull = clow.densityPlot(TDIS_xbj_low, Q2_low, '','TDIS_xbj','$Q^{2}$', 10, 20, p1, 0.01, 1.00, 10., 100., figure=f,ax=ax)
+    hxbj_Q2_lowFull = clow.densityPlot(TDIS_xbj_low, Q2_low, '','TDIS_xbj','$Q^{2}$', 10, 20, b, 0.01, 1.00, 10., 100., figure=f,ax=ax)
     # hxbj_Q2_high = densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$ vs TDIS_xbj (all sets)','TDIS_xbj','$Q^{2}$', 10, 200, 0.1, 1.0, 100., 1000., figure=f,ax=ax,layered=False)
-    hxbj_Q2_highFull = clow.densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$ vs TDIS_xbj (all sets)','TDIS_xbj','$Q^{2}$', 10, 200,  p1, 0.1, 1.0, 100., 1000., figure=f,ax=ax)
+    hxbj_Q2_highFull = clow.densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$ vs TDIS_xbj (all sets)','TDIS_xbj','$Q^{2}$', 10, 200,  b, 0.1, 1.0, 100., 1000., figure=f,ax=ax)
     plt.xscale('log')
     plt.xlim(0.,1.)
     # plt.yscale('log')
     plt.ylim(0.,800.)
     
     # Q2 vs xpi
-    hxpi_Q2_low = clow.densityPlot(xpi_low, Q2_low, '$Q^{2}$[10-100 GeV] vs $x_{pi}$[0.01-1.00]','$x_{pi}$','$Q^{2}$', 10, 20, p1, 0.01, 1., 10., 100.)
+    hxpi_Q2_low = clow.densityPlot(xpi_low, Q2_low, '$Q^{2}$[10-100 GeV] vs $x_{pi}$[0.01-1.00]','$x_{pi}$','$Q^{2}$', 10, 20, b, 0.01, 1., 10., 100.)
     plt.xscale('log')
     # plt.yscale('log')
-    hxpi_Q2_high = clow.densityPlot(xpi_high, Q2_high, '$Q^{2}$[100-800 GeV] vs $x_{pi}$[0.1-1.0]','$x_{pi}$','$Q^{2}$', 10, 200, p1, 0.1, 1., 100., 800.)
+    hxpi_Q2_high = clow.densityPlot(xpi_high, Q2_high, '$Q^{2}$[100-800 GeV] vs $x_{pi}$[0.1-1.0]','$x_{pi}$','$Q^{2}$', 10, 200, b, 0.1, 1., 100., 800.)
     plt.xscale('log')
     # plt.yscale('log')
 
     # Q2 vs xpi chained
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    hxpi_Q2_low = clow.densityPlot(xpi_low, Q2_low, '','$x_{pi}$','$Q^{2}$', 10, 20,  p1, 0.01, 1., 10., 100., figure=f,ax=ax)
+    hxpi_Q2_low = clow.densityPlot(xpi_low, Q2_low, '','$x_{pi}$','$Q^{2}$', 10, 20,  b, 0.01, 1., 10., 100., figure=f,ax=ax)
     # hxpi_Q2_high = densityPlot(xpi_high, Q2_high, '$Q^{2}$ vs $x_{pi}$ (all sets)','$x_{pi}$','$Q^{2}$', 10, 200, 0.1, 1., 100., 800., figure=f,ax=ax,layered=False)
-    hxpi_Q2_high = clow.densityPlot(xpi_high, Q2_high, '$Q^{2}$ vs $x_{pi}$ (all sets)','$x_{pi}$','$Q^{2}$', 10, 200,  p1, 0.1, 1., 100., 800., figure=f,ax=ax)
+    hxpi_Q2_high = clow.densityPlot(xpi_high, Q2_high, '$Q^{2}$ vs $x_{pi}$ (all sets)','$x_{pi}$','$Q^{2}$', 10, 200,  b, 0.1, 1., 100., 800., figure=f,ax=ax)
     plt.xscale('log')
     plt.xlim(0.,1.)
     # plt.yscale('log')
@@ -963,8 +965,8 @@ def sigmavxBj_Plot():
 
     
     # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    # scat1 = ax.hist(lumi,bins=p1.setbin(lumi,20)[0],label='Low',histtype='step', alpha=0.5, stacked=True, fill=True)
-    # # scat1 = ax.hist(t_low,bins=p1.setbin(t_low,200,0.,1.0)[0],label='Low',histtype='step', alpha=0.5, stacked=True, fill=True)
+    # scat1 = ax.hist(lumi,bins=b.setbin(lumi,20),label='Low',histtype='step', alpha=0.5, stacked=True, fill=True)
+    # # scat1 = ax.hist(t_low,bins=b.setbin(t_low,200,0.,1.0),label='Low',histtype='step', alpha=0.5, stacked=True, fill=True)
     # # plt.title('$f_\pi$ vs TDIS_xbj', fontsize =20)
     # # plt.xlabel('TDIS_xbj')
     # # plt.ylabel('$f_\pi$')
@@ -1058,7 +1060,7 @@ def pionPlots():
     plt.style.use('classic')
 
     ax = f.add_subplot(331)
-    numBin10_1 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.20,0.30)')
+    numBin10_1 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.20,0.30)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.20,0.30)
@@ -1083,7 +1085,7 @@ def pionPlots():
     plt.title('$x_{\pi}$ plots [$Q^2$ = 10 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
-    numBin10_2 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.30,0.40)')
+    numBin10_2 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.30,0.40)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.30,0.40)
@@ -1106,7 +1108,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts10_2)
     
     ax = f.add_subplot(333)
-    numBin10_3 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
+    numBin10_3 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.40,0.50)
@@ -1129,7 +1131,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts10_3)
     
     ax = f.add_subplot(334)
-    numBin10_4 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
+    numBin10_4 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.50,0.60)
@@ -1152,7 +1154,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts10_4)
     
     ax = f.add_subplot(335)
-    numBin10_5 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
+    numBin10_5 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.60,0.70)
@@ -1175,7 +1177,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts10_5)
     
     ax = f.add_subplot(336)
-    numBin10_6 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
+    numBin10_6 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.70,0.80)
@@ -1198,7 +1200,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts10_6)
     
     ax = f.add_subplot(337)
-    numBin10_7 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
+    numBin10_7 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.80,0.90)
@@ -1221,7 +1223,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts10_7)
     
     ax = f.add_subplot(338)
-    numBin10_8 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
+    numBin10_8 = ax.hist(clow.applyCuts(xpi_low,cut10),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.90,1.00)
@@ -1249,7 +1251,7 @@ def pionPlots():
     plt.style.use('classic')
 
     ax = f.add_subplot(331)
-    numBin30_1 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.20,0.30)')
+    numBin30_1 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.20,0.30)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.20,0.30)
@@ -1274,7 +1276,7 @@ def pionPlots():
     plt.title('$x_{\pi}$ plots [$Q^2$ = 30 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
-    numBin30_2 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.30,0.40)')
+    numBin30_2 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.30,0.40)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.30,0.40)
@@ -1297,7 +1299,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts30_2)
     
     ax = f.add_subplot(333)
-    numBin30_3 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
+    numBin30_3 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.40,0.50)
@@ -1320,7 +1322,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts30_3)
     
     ax = f.add_subplot(334)
-    numBin30_4 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
+    numBin30_4 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.50,0.60)
@@ -1343,7 +1345,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts30_4)
     
     ax = f.add_subplot(335)
-    numBin30_5 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
+    numBin30_5 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.60,0.70)
@@ -1366,7 +1368,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts30_5)
     
     ax = f.add_subplot(336)
-    numBin30_6 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
+    numBin30_6 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.70,0.80)
@@ -1389,7 +1391,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts30_6)
     
     ax = f.add_subplot(337)
-    numBin30_7 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
+    numBin30_7 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.80,0.90)
@@ -1412,7 +1414,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts30_7)
     
     ax = f.add_subplot(338)
-    numBin30_8 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
+    numBin30_8 = ax.hist(clow.applyCuts(xpi_low,cut30),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.90,1.00)
@@ -1440,7 +1442,7 @@ def pionPlots():
     plt.style.use('classic')
     
     ax = f.add_subplot(331)
-    numBin50_1 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.20,0.30)')
+    numBin50_1 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.20,0.30)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.20,0.30)
@@ -1465,7 +1467,7 @@ def pionPlots():
     plt.title('$x_{\pi}$ plots [$Q^2$ = 50 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
-    numBin50_2 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.30,0.40)')
+    numBin50_2 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.30,0.40)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.30,0.40)
@@ -1488,7 +1490,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts50_2)
     
     ax = f.add_subplot(333)
-    numBin50_3 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
+    numBin50_3 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.40,0.50)
@@ -1511,7 +1513,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts50_3)
     
     ax = f.add_subplot(334)
-    numBin50_4 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
+    numBin50_4 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.50,0.60)
@@ -1534,7 +1536,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts50_4)
     
     ax = f.add_subplot(335)
-    numBin50_5 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
+    numBin50_5 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.60,0.70)
@@ -1557,7 +1559,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts50_5)
     
     ax = f.add_subplot(336)
-    numBin50_6 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
+    numBin50_6 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.70,0.80)
@@ -1580,7 +1582,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts50_6)
     
     ax = f.add_subplot(337)
-    numBin50_7 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
+    numBin50_7 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.80,0.90)
@@ -1603,7 +1605,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts50_7)
     
     ax = f.add_subplot(338)
-    numBin50_8 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
+    numBin50_8 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.90,1.00)
@@ -1631,7 +1633,7 @@ def pionPlots():
     plt.style.use('classic')
     
     ax = f.add_subplot(331)
-    numBin70_1 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.20,0.30)')
+    numBin70_1 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.20,0.30)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.20,0.30)
@@ -1656,7 +1658,7 @@ def pionPlots():
     plt.title('$x_{\pi}$ plots [$Q^2$ = 70 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
-    numBin70_2 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.30,0.40)')
+    numBin70_2 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.30,0.40)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.30,0.40)
@@ -1679,7 +1681,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts70_2)
     
     ax = f.add_subplot(333)
-    numBin70_3 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
+    numBin70_3 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.40,0.50)
@@ -1702,7 +1704,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts70_3)
     
     ax = f.add_subplot(334)
-    numBin70_4 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
+    numBin70_4 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.50,0.60)
@@ -1725,7 +1727,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts70_4)
     
     ax = f.add_subplot(335)
-    numBin70_5 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
+    numBin70_5 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.60,0.70)
@@ -1748,7 +1750,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts70_5)
     
     ax = f.add_subplot(336)
-    numBin70_6 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
+    numBin70_6 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.70,0.80)
@@ -1771,7 +1773,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts70_6)
     
     ax = f.add_subplot(337)
-    numBin70_7 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
+    numBin70_7 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.80,0.90)
@@ -1794,7 +1796,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts70_7)
     
     ax = f.add_subplot(338)
-    numBin70_8 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
+    numBin70_8 = ax.hist(clow.applyCuts(xpi_low,cut70),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_\pi$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.90,1.00)
@@ -1817,7 +1819,7 @@ def pionPlots():
     lum100.append((100/(0.031180))*numEvts70_8)
     
     # ax = f.add_subplot(335)
-    # numBin5 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=50 $GeV^2$')
+    # numBin5 = ax.hist(clow.applyCuts(xpi_low,cut50),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=50 $GeV^2$')
     # plt.subplots_adjust(hspace=0.0,wspace=0.3)
     # # plt.xscale('log')
     # plt.xlim(1e-6,1.)
@@ -1848,7 +1850,7 @@ def pionPlots():
     # lum100.append((100/(1e-6*lumi)[4])*numEvts5)
     # Out of range
     # ax = f.add_subplot(336)    
-    # numBin6 = ax.hist(clow.applyCuts(xpi_low,cut100),bins=p1.setbin(xpi_low,200,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=100 $GeV^2$')
+    # numBin6 = ax.hist(clow.applyCuts(xpi_low,cut100),bins=b.setbin(xpi_low,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=100 $GeV^2$')
     # plt.subplots_adjust(hspace=0.0,wspace=0.3)
     # # plt.xscale('log')
     # plt.xlim(1e-6,1.)
@@ -1924,11 +1926,11 @@ def pionPlots():
     xpi10_1 = []
     fpi10_1 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut10)[0]:
-        # print clow.applyCuts(xpi_low,cut10)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut10):
+        # print clow.applyCuts(xpi_low,cut10)[i]
         if 0.240 < evt < 0.260 :
             xpi10_1.append(evt)
-            fpi10_1.append(clow.applyCuts(fpi_low,cut10)[0][i])
+            fpi10_1.append(clow.applyCuts(fpi_low,cut10)[i])
             # print "good", i, xpi10_1
             # print xpi10_1
         i+=1
@@ -1946,11 +1948,11 @@ def pionPlots():
     xpi10_2 = []
     fpi10_2 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut10)[0]:
-        # print clow.applyCuts(xpi_low,cut10)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut10):
+        # print clow.applyCuts(xpi_low,cut10)[i]
         if 0.340 < evt < 0.360 :
             xpi10_2.append(evt)
-            fpi10_2.append(clow.applyCuts(fpi_low,cut10)[0][i])
+            fpi10_2.append(clow.applyCuts(fpi_low,cut10)[i])
             # print "good", i, xpi10_2
             # print xpi10_2
         i+=1
@@ -1968,11 +1970,11 @@ def pionPlots():
     xpi10_3 = []
     fpi10_3 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut10)[0]:
-        # print clow.applyCuts(xpi_low,cut10)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut10):
+        # print clow.applyCuts(xpi_low,cut10)[i]
         if 0.440 < evt < 0.460 :
             xpi10_3.append(evt)
-            fpi10_3.append(clow.applyCuts(fpi_low,cut10)[0][i])
+            fpi10_3.append(clow.applyCuts(fpi_low,cut10)[i])
             # print "good", i, xpi10_3
             # print xpi10_3
         i+=1
@@ -1990,11 +1992,11 @@ def pionPlots():
     xpi10_4 = []
     fpi10_4 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut10)[0]:
-        # print clow.applyCuts(xpi_low,cut10)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut10):
+        # print clow.applyCuts(xpi_low,cut10)[i]
         if 0.540 < evt < 0.560 :
             xpi10_4.append(evt)
-            fpi10_4.append(clow.applyCuts(fpi_low,cut10)[0][i])
+            fpi10_4.append(clow.applyCuts(fpi_low,cut10)[i])
             # print "good", i, xpi10_4
             # print xpi10_4
         i+=1
@@ -2012,11 +2014,11 @@ def pionPlots():
     xpi10_5 = []
     fpi10_5 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut10)[0]:
-        # print clow.applyCuts(xpi_low,cut10)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut10):
+        # print clow.applyCuts(xpi_low,cut10)[i]
         if 0.640 < evt < 0.660 :
             xpi10_5.append(evt)
-            fpi10_5.append(clow.applyCuts(fpi_low,cut10)[0][i])
+            fpi10_5.append(clow.applyCuts(fpi_low,cut10)[i])
             # print "good", i, xpi10_5
             # print xpi10_5
         i+=1
@@ -2034,11 +2036,11 @@ def pionPlots():
     xpi10_6 = []
     fpi10_6 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut10)[0]:
-        # print clow.applyCuts(xpi_low,cut10)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut10):
+        # print clow.applyCuts(xpi_low,cut10)[i]
         if 0.740 < evt < 0.760 :
             xpi10_6.append(evt)
-            fpi10_6.append(clow.applyCuts(fpi_low,cut10)[0][i])
+            fpi10_6.append(clow.applyCuts(fpi_low,cut10)[i])
             # print "good", i, xpi10_6
             # print xpi10_6
         i+=1
@@ -2056,11 +2058,11 @@ def pionPlots():
     xpi10_7 = []
     fpi10_7 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut10)[0]:
-        # print clow.applyCuts(xpi_low,cut10)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut10):
+        # print clow.applyCuts(xpi_low,cut10)[i]
         if 0.840 < evt < 0.860 :
             xpi10_7.append(evt)
-            fpi10_7.append(clow.applyCuts(fpi_low,cut10)[0][i])
+            fpi10_7.append(clow.applyCuts(fpi_low,cut10)[i])
             # print "good", i, xpi10_7
             # print xpi10_7
         i+=1
@@ -2078,11 +2080,11 @@ def pionPlots():
     xpi10_8 = []
     fpi10_8 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut10)[0]:
-        # print clow.applyCuts(xpi_low,cut10)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut10):
+        # print clow.applyCuts(xpi_low,cut10)[i]
         if 0.940 < evt < 0.960 :
             xpi10_8.append(evt)
-            fpi10_8.append(clow.applyCuts(fpi_low,cut10)[0][i])
+            fpi10_8.append(clow.applyCuts(fpi_low,cut10)[i])
             # print "good", i, xpi10_8
             # print xpi10_8
         i+=1
@@ -2108,11 +2110,11 @@ def pionPlots():
     xpi30_1 = []
     fpi30_1 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut30)[0]:
-        # print clow.applyCuts(xpi_low,cut30)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut30):
+        # print clow.applyCuts(xpi_low,cut30)[i]
         if 0.240 < evt < 0.260 :
             xpi30_1.append(evt)
-            fpi30_1.append(clow.applyCuts(fpi_low,cut30)[0][i])
+            fpi30_1.append(clow.applyCuts(fpi_low,cut30)[i])
             # print "good", i, xpi30_1
             # print xpi30_1
         i+=1
@@ -2130,11 +2132,11 @@ def pionPlots():
     xpi30_2 = []
     fpi30_2 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut30)[0]:
-        # print clow.applyCuts(xpi_low,cut30)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut30):
+        # print clow.applyCuts(xpi_low,cut30)[i]
         if 0.440 < evt < 0.460 :
             xpi30_2.append(evt)
-            fpi30_2.append(clow.applyCuts(fpi_low,cut30)[0][i])
+            fpi30_2.append(clow.applyCuts(fpi_low,cut30)[i])
             # print "good", i, xpi30_2
             # print xpi30_2
         i+=1
@@ -2152,11 +2154,11 @@ def pionPlots():
     xpi30_3 = []
     fpi30_3 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut30)[0]:
-        # print clow.applyCuts(xpi_low,cut30)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut30):
+        # print clow.applyCuts(xpi_low,cut30)[i]
         if 0.340 < evt < 0.360 :
             xpi30_3.append(evt)
-            fpi30_3.append(clow.applyCuts(fpi_low,cut30)[0][i])
+            fpi30_3.append(clow.applyCuts(fpi_low,cut30)[i])
             # print "good", i, xpi30_3
             # print xpi30_3
         i+=1
@@ -2174,11 +2176,11 @@ def pionPlots():
     xpi30_4 = []
     fpi30_4 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut30)[0]:
-        # print clow.applyCuts(xpi_low,cut30)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut30):
+        # print clow.applyCuts(xpi_low,cut30)[i]
         if 0.540 < evt < 0.560 :
             xpi30_4.append(evt)
-            fpi30_4.append(clow.applyCuts(fpi_low,cut30)[0][i])
+            fpi30_4.append(clow.applyCuts(fpi_low,cut30)[i])
             # print "good", i, xpi30_4
             # print xpi30_4
         i+=1
@@ -2196,11 +2198,11 @@ def pionPlots():
     xpi30_5 = []
     fpi30_5 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut30)[0]:
-        # print clow.applyCuts(xpi_low,cut30)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut30):
+        # print clow.applyCuts(xpi_low,cut30)[i]
         if 0.640 < evt < 0.660 :
             xpi30_5.append(evt)
-            fpi30_5.append(clow.applyCuts(fpi_low,cut30)[0][i])
+            fpi30_5.append(clow.applyCuts(fpi_low,cut30)[i])
             # print "good", i, xpi30_5
             # print xpi30_5
         i+=1
@@ -2218,11 +2220,11 @@ def pionPlots():
     xpi30_6 = []
     fpi30_6 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut30)[0]:
-        # print clow.applyCuts(xpi_low,cut30)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut30):
+        # print clow.applyCuts(xpi_low,cut30)[i]
         if 0.740 < evt < 0.760 :
             xpi30_6.append(evt)
-            fpi30_6.append(clow.applyCuts(fpi_low,cut30)[0][i])
+            fpi30_6.append(clow.applyCuts(fpi_low,cut30)[i])
             # print "good", i, xpi30_6
             # print xpi30_6
         i+=1
@@ -2240,11 +2242,11 @@ def pionPlots():
     xpi30_7 = []
     fpi30_7 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut30)[0]:
-        # print clow.applyCuts(xpi_low,cut30)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut30):
+        # print clow.applyCuts(xpi_low,cut30)[i]
         if 0.840 < evt < 0.860 :
             xpi30_7.append(evt)
-            fpi30_7.append(clow.applyCuts(fpi_low,cut30)[0][i])
+            fpi30_7.append(clow.applyCuts(fpi_low,cut30)[i])
             # print "good", i, xpi30_7
             # print xpi30_7
         i+=1
@@ -2262,11 +2264,11 @@ def pionPlots():
     xpi30_8 = []
     fpi30_8 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut30)[0]:
-        # print clow.applyCuts(xpi_low,cut30)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut30):
+        # print clow.applyCuts(xpi_low,cut30)[i]
         if 0.940 < evt < 0.960 :
             xpi30_8.append(evt)
-            fpi30_8.append(clow.applyCuts(fpi_low,cut30)[0][i])
+            fpi30_8.append(clow.applyCuts(fpi_low,cut30)[i])
             # print "good", i, xpi30_8
             # print xpi30_8
         i+=1
@@ -2292,11 +2294,11 @@ def pionPlots():
     xpi50_1 = []
     fpi50_1 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut50)[0]:
-        # print clow.applyCuts(xpi_low,cut50)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut50):
+        # print clow.applyCuts(xpi_low,cut50)[i]
         if 0.240 < evt < 0.260 :
             xpi50_1.append(evt)
-            fpi50_1.append(clow.applyCuts(fpi_low,cut50)[0][i])
+            fpi50_1.append(clow.applyCuts(fpi_low,cut50)[i])
             # print "good", i, xpi50_1
             # print xpi50_1
         i+=1
@@ -2314,11 +2316,11 @@ def pionPlots():
     xpi50_2 = []
     fpi50_2 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut50)[0]:
-        # print clow.applyCuts(xpi_low,cut50)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut50):
+        # print clow.applyCuts(xpi_low,cut50)[i]
         if 0.340 < evt < 0.360 :
             xpi50_2.append(evt)
-            fpi50_2.append(clow.applyCuts(fpi_low,cut50)[0][i])
+            fpi50_2.append(clow.applyCuts(fpi_low,cut50)[i])
             # print "good", i, xpi50_2
             # print xpi50_2
         i+=1
@@ -2336,11 +2338,11 @@ def pionPlots():
     xpi50_3 = []
     fpi50_3 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut50)[0]:
-        # print clow.applyCuts(xpi_low,cut50)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut50):
+        # print clow.applyCuts(xpi_low,cut50)[i]
         if 0.440 < evt < 0.460 :
             xpi50_3.append(evt)
-            fpi50_3.append(clow.applyCuts(fpi_low,cut50)[0][i])
+            fpi50_3.append(clow.applyCuts(fpi_low,cut50)[i])
             # print "good", i, xpi50_3
             # print xpi50_3
         i+=1
@@ -2358,11 +2360,11 @@ def pionPlots():
     xpi50_4 = []
     fpi50_4 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut50)[0]:
-        # print clow.applyCuts(xpi_low,cut50)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut50):
+        # print clow.applyCuts(xpi_low,cut50)[i]
         if 0.540 < evt < 0.560 :
             xpi50_4.append(evt)
-            fpi50_4.append(clow.applyCuts(fpi_low,cut50)[0][i])
+            fpi50_4.append(clow.applyCuts(fpi_low,cut50)[i])
             # print "good", i, xpi50_4
             # print xpi50_4
         i+=1
@@ -2380,11 +2382,11 @@ def pionPlots():
     xpi50_5 = []
     fpi50_5 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut50)[0]:
-        # print clow.applyCuts(xpi_low,cut50)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut50):
+        # print clow.applyCuts(xpi_low,cut50)[i]
         if 0.640 < evt < 0.660 :
             xpi50_5.append(evt)
-            fpi50_5.append(clow.applyCuts(fpi_low,cut50)[0][i])
+            fpi50_5.append(clow.applyCuts(fpi_low,cut50)[i])
             # print "good", i, xpi50_5
             # print xpi50_5
         i+=1
@@ -2402,11 +2404,11 @@ def pionPlots():
     xpi50_6 = []
     fpi50_6 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut50)[0]:
-        # print clow.applyCuts(xpi_low,cut50)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut50):
+        # print clow.applyCuts(xpi_low,cut50)[i]
         if 0.740 < evt < 0.760 :
             xpi50_6.append(evt)
-            fpi50_6.append(clow.applyCuts(fpi_low,cut50)[0][i])
+            fpi50_6.append(clow.applyCuts(fpi_low,cut50)[i])
             # print "good", i, xpi50_6
             # print xpi50_6
         i+=1
@@ -2424,11 +2426,11 @@ def pionPlots():
     xpi50_7 = []
     fpi50_7 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut50)[0]:
-        # print clow.applyCuts(xpi_low,cut50)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut50):
+        # print clow.applyCuts(xpi_low,cut50)[i]
         if 0.840 < evt < 0.860 :
             xpi50_7.append(evt)
-            fpi50_7.append(clow.applyCuts(fpi_low,cut50)[0][i])
+            fpi50_7.append(clow.applyCuts(fpi_low,cut50)[i])
             # print "good", i, xpi50_7
             # print xpi50_7
         i+=1
@@ -2446,11 +2448,11 @@ def pionPlots():
     xpi50_8 = []
     fpi50_8 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut50)[0]:
-        # print clow.applyCuts(xpi_low,cut50)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut50):
+        # print clow.applyCuts(xpi_low,cut50)[i]
         if 0.940 < evt < 0.960 :
             xpi50_8.append(evt)
-            fpi50_8.append(clow.applyCuts(fpi_low,cut50)[0][i])
+            fpi50_8.append(clow.applyCuts(fpi_low,cut50)[i])
             # print "good", i, xpi50_8
             # print xpi50_8
         i+=1
@@ -2476,11 +2478,11 @@ def pionPlots():
     xpi70_1 = []
     fpi70_1 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut70)[0]:
-        # print clow.applyCuts(xpi_low,cut70)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut70):
+        # print clow.applyCuts(xpi_low,cut70)[i]
         if 0.240 < evt < 0.260 :
             xpi70_1.append(evt)
-            fpi70_1.append(clow.applyCuts(fpi_low,cut70)[0][i])
+            fpi70_1.append(clow.applyCuts(fpi_low,cut70)[i])
             # print "good", i, xpi70_1
             # print xpi70_1
         i+=1
@@ -2498,11 +2500,11 @@ def pionPlots():
     xpi70_2 = []
     fpi70_2 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut70)[0]:
-        # print clow.applyCuts(xpi_low,cut70)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut70):
+        # print clow.applyCuts(xpi_low,cut70)[i]
         if 0.340 < evt < 0.360 :
             xpi70_2.append(evt)
-            fpi70_2.append(clow.applyCuts(fpi_low,cut70)[0][i])
+            fpi70_2.append(clow.applyCuts(fpi_low,cut70)[i])
             # print "good", i, xpi70_2
             # print xpi70_2
         i+=1
@@ -2520,11 +2522,11 @@ def pionPlots():
     xpi70_3 = []
     fpi70_3 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut70)[0]:
-        # print clow.applyCuts(xpi_low,cut70)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut70):
+        # print clow.applyCuts(xpi_low,cut70)[i]
         if 0.440 < evt < 0.460 :
             xpi70_3.append(evt)
-            fpi70_3.append(clow.applyCuts(fpi_low,cut70)[0][i])
+            fpi70_3.append(clow.applyCuts(fpi_low,cut70)[i])
             # print "good", i, xpi70_3
             # print xpi70_3
         i+=1
@@ -2542,11 +2544,11 @@ def pionPlots():
     xpi70_4 = []
     fpi70_4 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut70)[0]:
-        # print clow.applyCuts(xpi_low,cut70)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut70):
+        # print clow.applyCuts(xpi_low,cut70)[i]
         if 0.540 < evt < 0.560 :
             xpi70_4.append(evt)
-            fpi70_4.append(clow.applyCuts(fpi_low,cut70)[0][i])
+            fpi70_4.append(clow.applyCuts(fpi_low,cut70)[i])
             # print "good", i, xpi70_4
             # print xpi70_4
         i+=1
@@ -2564,11 +2566,11 @@ def pionPlots():
     xpi70_5 = []
     fpi70_5 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut70)[0]:
-        # print clow.applyCuts(xpi_low,cut70)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut70):
+        # print clow.applyCuts(xpi_low,cut70)[i]
         if 0.640 < evt < 0.660 :
             xpi70_5.append(evt)
-            fpi70_5.append(clow.applyCuts(fpi_low,cut70)[0][i])
+            fpi70_5.append(clow.applyCuts(fpi_low,cut70)[i])
             # print "good", i, xpi70_5
             # print xpi70_5
         i+=1
@@ -2586,11 +2588,11 @@ def pionPlots():
     xpi70_6 = []
     fpi70_6 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut70)[0]:
-        # print clow.applyCuts(xpi_low,cut70)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut70):
+        # print clow.applyCuts(xpi_low,cut70)[i]
         if 0.740 < evt < 0.760 :
             xpi70_6.append(evt)
-            fpi70_6.append(clow.applyCuts(fpi_low,cut70)[0][i])
+            fpi70_6.append(clow.applyCuts(fpi_low,cut70)[i])
             # print "good", i, xpi70_6
             # print xpi70_6
         i+=1
@@ -2608,11 +2610,11 @@ def pionPlots():
     xpi70_7 = []
     fpi70_7 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut70)[0]:
-        # print clow.applyCuts(xpi_low,cut70)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut70):
+        # print clow.applyCuts(xpi_low,cut70)[i]
         if 0.840 < evt < 0.860 :
             xpi70_7.append(evt)
-            fpi70_7.append(clow.applyCuts(fpi_low,cut70)[0][i])
+            fpi70_7.append(clow.applyCuts(fpi_low,cut70)[i])
             # print "good", i, xpi70_7
             # print xpi70_7
         i+=1
@@ -2630,11 +2632,11 @@ def pionPlots():
     xpi70_8 = []
     fpi70_8 = []
     i=0
-    for evt in clow.applyCuts(xpi_low,cut70)[0]:
-        # print clow.applyCuts(xpi_low,cut70)[0][i]
+    for evt in clow.applyCuts(xpi_low,cut70):
+        # print clow.applyCuts(xpi_low,cut70)[i]
         if 0.940 < evt < 0.960 :
             xpi70_8.append(evt)
-            fpi70_8.append(clow.applyCuts(fpi_low,cut70)[0][i])
+            fpi70_8.append(clow.applyCuts(fpi_low,cut70)[i])
             # print "good", i, xpi70_8
             # print xpi70_8
         i+=1
@@ -2863,14 +2865,14 @@ def pionPlots():
     
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    xL_Plot = ax.hist(xL,bins=p1.setbin(xL,200,0.,1.)[0],label='all events',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xL_Plot = ax.hist(xL,bins=b.setbin(xL,200,0.,1.),label='all events',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.xlabel('$x_L$')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs $x_L$', fontsize =20)
     plt.close(f)
     
     
-    phaseSpace10_10 = clow.densityPlot(xpi_low, Q2_low, '$Q^2$ vs $x_\pi$','$x_\pi$','$Q^{2}$', 200, 200,  p1, 0., 1.0, 0., 100.)
+    phaseSpace10_10 = clow.densityPlot(xpi_low, Q2_low, '$Q^2$ vs $x_\pi$','$x_\pi$','$Q^{2}$', 200, 200,  b, 0., 1.0, 0., 100.)
     # phaseSpace10_10 = ax.scatter(clow.applyCuts(TDIS_xbj_low,tcut1),clow.applyCuts(Q2_low,tcut1))
     plt.xscale('log')
     plt.yscale('log')
@@ -3322,11 +3324,11 @@ def pionPlots():
     # xpi10_1 = []
     # fpi10_1 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut10)[0])):
-    #     # print clow.applyCuts(xpi_low,cut10)[0][i]
-    #     if 0.20 < clow.applyCuts(xpi_low,cut10)[0][i] < 0.30 :
-    #         xpi10_1.append(clow.applyCuts(xpi_low,cut10)[0][i])
-    #         fpi10_1.append(clow.applyCuts(fpi_low,cut10)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut10))):
+    #     # print clow.applyCuts(xpi_low,cut10)[i]
+    #     if 0.20 < clow.applyCuts(xpi_low,cut10)[i] < 0.30 :
+    #         xpi10_1.append(clow.applyCuts(xpi_low,cut10)[i])
+    #         fpi10_1.append(clow.applyCuts(fpi_low,cut10)[i])
     #         # print xpi10_1
     #     i+=1
     # fpiPlot10_1 = ax.errorbar(xpi10_1,fpi10_1,yerr=uncern[0],fmt='.',label='$x_\pi$=(0.20,0.30)')
@@ -3341,11 +3343,11 @@ def pionPlots():
     # xpi10_2 = []
     # fpi10_2 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut10)[0])):
-    #     # print clow.applyCuts(xpi_low,cut10)[0][i]
-    #     if 0.30 < clow.applyCuts(xpi_low,cut10)[0][i] < 0.40 :
-    #         xpi10_2.append(clow.applyCuts(xpi_low,cut10)[0][i])
-    #         fpi10_2.append(clow.applyCuts(fpi_low,cut10)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut10))):
+    #     # print clow.applyCuts(xpi_low,cut10)[i]
+    #     if 0.30 < clow.applyCuts(xpi_low,cut10)[i] < 0.40 :
+    #         xpi10_2.append(clow.applyCuts(xpi_low,cut10)[i])
+    #         fpi10_2.append(clow.applyCuts(fpi_low,cut10)[i])
     #         # print xpi10_2
     #     i+=1
     # fpiPlot10_2 = ax.errorbar(xpi10_2,fpi10_2,yerr=uncern[1],fmt='.',label='$x_\pi$=(0.30,0.40)')
@@ -3355,11 +3357,11 @@ def pionPlots():
     # xpi10_3 = []
     # fpi10_3 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut10)[0])):
-    #     # print clow.applyCuts(xpi_low,cut10)[0][i]
-    #     if 0.40 < clow.applyCuts(xpi_low,cut10)[0][i] < 0.50 :
-    #         xpi10_3.append(clow.applyCuts(xpi_low,cut10)[0][i])
-    #         fpi10_3.append(clow.applyCuts(fpi_low,cut10)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut10))):
+    #     # print clow.applyCuts(xpi_low,cut10)[i]
+    #     if 0.40 < clow.applyCuts(xpi_low,cut10)[i] < 0.50 :
+    #         xpi10_3.append(clow.applyCuts(xpi_low,cut10)[i])
+    #         fpi10_3.append(clow.applyCuts(fpi_low,cut10)[i])
     #         # print xpi10_3
     #     i+=1
     # fpiPlot10_3 = ax.errorbar(xpi10_3,fpi10_3,yerr=uncern[2],fmt='.',label='$x_\pi$=(0.40,0.50)')
@@ -3369,11 +3371,11 @@ def pionPlots():
     # xpi10_4 = []
     # fpi10_4 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut10)[0])):
-    #     # print clow.applyCuts(xpi_low,cut10)[0][i]
-    #     if 0.50 < clow.applyCuts(xpi_low,cut10)[0][i] < 0.60 :
-    #         xpi10_4.append(clow.applyCuts(xpi_low,cut10)[0][i])
-    #         fpi10_4.append(clow.applyCuts(fpi_low,cut10)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut10))):
+    #     # print clow.applyCuts(xpi_low,cut10)[i]
+    #     if 0.50 < clow.applyCuts(xpi_low,cut10)[i] < 0.60 :
+    #         xpi10_4.append(clow.applyCuts(xpi_low,cut10)[i])
+    #         fpi10_4.append(clow.applyCuts(fpi_low,cut10)[i])
     #         # print xpi10_4
     #     i+=1
     # fpiPlot10_4 = ax.errorbar(xpi10_4,fpi10_4,yerr=uncern[3],fmt='.',label='$x_\pi$=(0.50,0.60)')
@@ -3385,11 +3387,11 @@ def pionPlots():
     # xpi10_5 = []
     # fpi10_5 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut10)[0])):
-    #     # print clow.applyCuts(xpi_low,cut10)[0][i]
-    #     if 0.60 < clow.applyCuts(xpi_low,cut10)[0][i] < 0.70 :
-    #         xpi10_5.append(clow.applyCuts(xpi_low,cut10)[0][i])
-    #         fpi10_5.append(clow.applyCuts(fpi_low,cut10)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut10))):
+    #     # print clow.applyCuts(xpi_low,cut10)[i]
+    #     if 0.60 < clow.applyCuts(xpi_low,cut10)[i] < 0.70 :
+    #         xpi10_5.append(clow.applyCuts(xpi_low,cut10)[i])
+    #         fpi10_5.append(clow.applyCuts(fpi_low,cut10)[i])
     #         # print xpi10_5
     #     i+=1
     # fpiPlot10_5 = ax.errorbar(xpi10_5,fpi10_5,yerr=uncern[4],fmt='.',label='$x_\pi$=(0.60,0.70)')
@@ -3399,11 +3401,11 @@ def pionPlots():
     # xpi10_6 = []
     # fpi10_6 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut10)[0])):
-    #     # print clow.applyCuts(xpi_low,cut10)[0][i]
-    #     if 0.70 < clow.applyCuts(xpi_low,cut10)[0][i] < 0.80 :
-    #         xpi10_6.append(clow.applyCuts(xpi_low,cut10)[0][i])
-    #         fpi10_6.append(clow.applyCuts(fpi_low,cut10)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut10))):
+    #     # print clow.applyCuts(xpi_low,cut10)[i]
+    #     if 0.70 < clow.applyCuts(xpi_low,cut10)[i] < 0.80 :
+    #         xpi10_6.append(clow.applyCuts(xpi_low,cut10)[i])
+    #         fpi10_6.append(clow.applyCuts(fpi_low,cut10)[i])
     #         # print xpi10_6
     #     i+=1
     # fpiPlot10_6 = ax.errorbar(xpi10_6,fpi10_6,yerr=uncern[5],fmt='.',label='$x_\pi$=(0.70,0.80)')
@@ -3413,11 +3415,11 @@ def pionPlots():
     # xpi10_7 = []
     # fpi10_7 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut10)[0])):
-    #     # print clow.applyCuts(xpi_low,cut10)[0][i]
-    #     if 0.80 < clow.applyCuts(xpi_low,cut10)[0][i] < 0.90 :
-    #         xpi10_7.append(clow.applyCuts(xpi_low,cut10)[0][i])
-    #         fpi10_7.append(clow.applyCuts(fpi_low,cut10)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut10))):
+    #     # print clow.applyCuts(xpi_low,cut10)[i]
+    #     if 0.80 < clow.applyCuts(xpi_low,cut10)[i] < 0.90 :
+    #         xpi10_7.append(clow.applyCuts(xpi_low,cut10)[i])
+    #         fpi10_7.append(clow.applyCuts(fpi_low,cut10)[i])
     #         # print xpi10_7
     #     i+=1
     # fpiPlot10_7 = ax.errorbar(xpi10_7,fpi10_7,yerr=uncern[6],fmt='.',label='$x_\pi$=(0.80,0.90)')
@@ -3427,11 +3429,11 @@ def pionPlots():
     # xpi10_8 = []
     # fpi10_8 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut10)[0])):
-    #     # print clow.applyCuts(xpi_low,cut10)[0][i]
-    #     if 0.90 < clow.applyCuts(xpi_low,cut10)[0][i] < 1.00 :
-    #         xpi10_8.append(clow.applyCuts(xpi_low,cut10)[0][i])
-    #         fpi10_8.append(clow.applyCuts(fpi_low,cut10)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut10))):
+    #     # print clow.applyCuts(xpi_low,cut10)[i]
+    #     if 0.90 < clow.applyCuts(xpi_low,cut10)[i] < 1.00 :
+    #         xpi10_8.append(clow.applyCuts(xpi_low,cut10)[i])
+    #         fpi10_8.append(clow.applyCuts(fpi_low,cut10)[i])
     #         # print xpi10_8
     #     i+=1
     # fpiPlot10_8 = ax.errorbar(xpi10_8,fpi10_8,yerr=uncern[7],fmt='.',label='$x_\pi$=(0.90,1.00)')
@@ -3445,11 +3447,11 @@ def pionPlots():
     # xpi30_1 = []
     # fpi30_1 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut30)[0])):
-    #     # print clow.applyCuts(xpi_low,cut30)[0][i]
-    #     if 0.20 < clow.applyCuts(xpi_low,cut30)[0][i] < 0.30 :
-    #         xpi30_1.append(clow.applyCuts(xpi_low,cut30)[0][i])
-    #         fpi30_1.append(clow.applyCuts(fpi_low,cut30)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut30))):
+    #     # print clow.applyCuts(xpi_low,cut30)[i]
+    #     if 0.20 < clow.applyCuts(xpi_low,cut30)[i] < 0.30 :
+    #         xpi30_1.append(clow.applyCuts(xpi_low,cut30)[i])
+    #         fpi30_1.append(clow.applyCuts(fpi_low,cut30)[i])
     #         # print xpi30_1
     #     i+=1
     # fpiPlot30_1 = ax.errorbar(xpi30_1,fpi30_1,yerr=uncern[8],fmt='.',label='$x_\pi$=(0.20,0.30)')
@@ -3464,11 +3466,11 @@ def pionPlots():
     # xpi30_2 = []
     # fpi30_2 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut30)[0])):
-    #     # print clow.applyCuts(xpi_low,cut30)[0][i]
-    #     if 0.30 < clow.applyCuts(xpi_low,cut30)[0][i] < 0.40 :
-    #         xpi30_2.append(clow.applyCuts(xpi_low,cut30)[0][i])
-    #         fpi30_2.append(clow.applyCuts(fpi_low,cut30)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut30))):
+    #     # print clow.applyCuts(xpi_low,cut30)[i]
+    #     if 0.30 < clow.applyCuts(xpi_low,cut30)[i] < 0.40 :
+    #         xpi30_2.append(clow.applyCuts(xpi_low,cut30)[i])
+    #         fpi30_2.append(clow.applyCuts(fpi_low,cut30)[i])
     #         # print xpi30_2
     #     i+=1
     # fpiPlot30_2 = ax.errorbar(xpi30_2,fpi30_2,yerr=uncern[9],fmt='.',label='$x_\pi$=(0.30,0.40)')
@@ -3478,11 +3480,11 @@ def pionPlots():
     # xpi30_3 = []
     # fpi30_3 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut30)[0])):
-    #     # print clow.applyCuts(xpi_low,cut30)[0][i]
-    #     if 0.40 < clow.applyCuts(xpi_low,cut30)[0][i] < 0.50 :
-    #         xpi30_3.append(clow.applyCuts(xpi_low,cut30)[0][i])
-    #         fpi30_3.append(clow.applyCuts(fpi_low,cut30)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut30))):
+    #     # print clow.applyCuts(xpi_low,cut30)[i]
+    #     if 0.40 < clow.applyCuts(xpi_low,cut30)[i] < 0.50 :
+    #         xpi30_3.append(clow.applyCuts(xpi_low,cut30)[i])
+    #         fpi30_3.append(clow.applyCuts(fpi_low,cut30)[i])
     #         # print xpi30_3
     #     i+=1
     # fpiPlot30_3 = ax.errorbar(xpi30_3,fpi30_3,yerr=uncern[10],fmt='.',label='$x_\pi$=(0.40,0.50)')
@@ -3492,11 +3494,11 @@ def pionPlots():
     # xpi30_4 = []
     # fpi30_4 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut30)[0])):
-    #     # print clow.applyCuts(xpi_low,cut30)[0][i]
-    #     if 0.50 < clow.applyCuts(xpi_low,cut30)[0][i] < 0.60 :
-    #         xpi30_4.append(clow.applyCuts(xpi_low,cut30)[0][i])
-    #         fpi30_4.append(clow.applyCuts(fpi_low,cut30)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut30))):
+    #     # print clow.applyCuts(xpi_low,cut30)[i]
+    #     if 0.50 < clow.applyCuts(xpi_low,cut30)[i] < 0.60 :
+    #         xpi30_4.append(clow.applyCuts(xpi_low,cut30)[i])
+    #         fpi30_4.append(clow.applyCuts(fpi_low,cut30)[i])
     #         # print xpi30_4
     #     i+=1
     # fpiPlot30_4 = ax.errorbar(xpi30_4,fpi30_4,yerr=uncern[11],fmt='.',label='$x_\pi$=(0.50,0.60)')
@@ -3508,11 +3510,11 @@ def pionPlots():
     # xpi30_5 = []
     # fpi30_5 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut30)[0])):
-    #     # print clow.applyCuts(xpi_low,cut30)[0][i]
-    #     if 0.60 < clow.applyCuts(xpi_low,cut30)[0][i] < 0.70 :
-    #         xpi30_5.append(clow.applyCuts(xpi_low,cut30)[0][i])
-    #         fpi30_5.append(clow.applyCuts(fpi_low,cut30)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut30))):
+    #     # print clow.applyCuts(xpi_low,cut30)[i]
+    #     if 0.60 < clow.applyCuts(xpi_low,cut30)[i] < 0.70 :
+    #         xpi30_5.append(clow.applyCuts(xpi_low,cut30)[i])
+    #         fpi30_5.append(clow.applyCuts(fpi_low,cut30)[i])
     #         # print xpi30_5
     #     i+=1
     # fpiPlot30_5 = ax.errorbar(xpi30_5,fpi30_5,yerr=uncern[12],fmt='.',label='$x_\pi$=(0.60,0.70)')
@@ -3522,11 +3524,11 @@ def pionPlots():
     # xpi30_6 = []
     # fpi30_6 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut30)[0])):
-    #     # print clow.applyCuts(xpi_low,cut30)[0][i]
-    #     if 0.70 < clow.applyCuts(xpi_low,cut30)[0][i] < 0.80 :
-    #         xpi30_6.append(clow.applyCuts(xpi_low,cut30)[0][i])
-    #         fpi30_6.append(clow.applyCuts(fpi_low,cut30)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut30))):
+    #     # print clow.applyCuts(xpi_low,cut30)[i]
+    #     if 0.70 < clow.applyCuts(xpi_low,cut30)[i] < 0.80 :
+    #         xpi30_6.append(clow.applyCuts(xpi_low,cut30)[i])
+    #         fpi30_6.append(clow.applyCuts(fpi_low,cut30)[i])
     #         # print xpi30_6
     #     i+=1
     # fpiPlot30_6 = ax.errorbar(xpi30_6,fpi30_6,yerr=uncern[13],fmt='.',label='$x_\pi$=(0.70,0.80)')
@@ -3536,11 +3538,11 @@ def pionPlots():
     # xpi30_7 = []
     # fpi30_7 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut30)[0])):
-    #     # print clow.applyCuts(xpi_low,cut30)[0][i]
-    #     if 0.80 < clow.applyCuts(xpi_low,cut30)[0][i] < 0.90 :
-    #         xpi30_7.append(clow.applyCuts(xpi_low,cut30)[0][i])
-    #         fpi30_7.append(clow.applyCuts(fpi_low,cut30)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut30))):
+    #     # print clow.applyCuts(xpi_low,cut30)[i]
+    #     if 0.80 < clow.applyCuts(xpi_low,cut30)[i] < 0.90 :
+    #         xpi30_7.append(clow.applyCuts(xpi_low,cut30)[i])
+    #         fpi30_7.append(clow.applyCuts(fpi_low,cut30)[i])
     #         # print xpi30_7
     #     i+=1
     # fpiPlot30_7 = ax.errorbar(xpi30_7,fpi30_7,yerr=uncern[14],fmt='.',label='$x_\pi$=(0.80,0.90)')
@@ -3550,11 +3552,11 @@ def pionPlots():
     # xpi30_8 = []
     # fpi30_8 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut30)[0])):
-    #     # print clow.applyCuts(xpi_low,cut30)[0][i]
-    #     if 0.90 < clow.applyCuts(xpi_low,cut30)[0][i] < 1.00 :
-    #         xpi30_8.append(clow.applyCuts(xpi_low,cut30)[0][i])
-    #         fpi30_8.append(clow.applyCuts(fpi_low,cut30)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut30))):
+    #     # print clow.applyCuts(xpi_low,cut30)[i]
+    #     if 0.90 < clow.applyCuts(xpi_low,cut30)[i] < 1.00 :
+    #         xpi30_8.append(clow.applyCuts(xpi_low,cut30)[i])
+    #         fpi30_8.append(clow.applyCuts(fpi_low,cut30)[i])
     #         # print xpi30_8
     #     i+=1
     # fpiPlot30_8 = ax.errorbar(xpi30_8,fpi30_8,yerr=uncern[15],fmt='.',label='$x_\pi$=(0.90,1.00)')
@@ -3568,11 +3570,11 @@ def pionPlots():
     # xpi50_1 = []
     # fpi50_1 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut50)[0])):
-    #     # print clow.applyCuts(xpi_low,cut50)[0][i]
-    #     if 0.20 < clow.applyCuts(xpi_low,cut50)[0][i] < 0.30 :
-    #         xpi50_1.append(clow.applyCuts(xpi_low,cut50)[0][i])
-    #         fpi50_1.append(clow.applyCuts(fpi_low,cut50)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut50))):
+    #     # print clow.applyCuts(xpi_low,cut50)[i]
+    #     if 0.20 < clow.applyCuts(xpi_low,cut50)[i] < 0.30 :
+    #         xpi50_1.append(clow.applyCuts(xpi_low,cut50)[i])
+    #         fpi50_1.append(clow.applyCuts(fpi_low,cut50)[i])
     #         # print xpi50_1
     #     i+=1
     # fpiPlot50_1 = ax.errorbar(xpi50_1,fpi50_1,yerr=uncern[16],fmt='.',label='$x_\pi$=(0.20,0.30)')
@@ -3587,11 +3589,11 @@ def pionPlots():
     # xpi50_2 = []
     # fpi50_2 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut50)[0])):
-    #     # print clow.applyCuts(xpi_low,cut50)[0][i]
-    #     if 0.30 < clow.applyCuts(xpi_low,cut50)[0][i] < 0.40 :
-    #         xpi50_2.append(clow.applyCuts(xpi_low,cut50)[0][i])
-    #         fpi50_2.append(clow.applyCuts(fpi_low,cut50)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut50))):
+    #     # print clow.applyCuts(xpi_low,cut50)[i]
+    #     if 0.30 < clow.applyCuts(xpi_low,cut50)[i] < 0.40 :
+    #         xpi50_2.append(clow.applyCuts(xpi_low,cut50)[i])
+    #         fpi50_2.append(clow.applyCuts(fpi_low,cut50)[i])
     #         # print xpi50_2
     #     i+=1
     # fpiPlot50_2 = ax.errorbar(xpi50_2,fpi50_2,yerr=uncern[17],fmt='.',label='$x_\pi$=(0.30,0.40)')
@@ -3601,11 +3603,11 @@ def pionPlots():
     # xpi50_3 = []
     # fpi50_3 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut50)[0])):
-    #     # print clow.applyCuts(xpi_low,cut50)[0][i]
-    #     if 0.40 < clow.applyCuts(xpi_low,cut50)[0][i] < 0.50 :
-    #         xpi50_3.append(clow.applyCuts(xpi_low,cut50)[0][i])
-    #         fpi50_3.append(clow.applyCuts(fpi_low,cut50)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut50))):
+    #     # print clow.applyCuts(xpi_low,cut50)[i]
+    #     if 0.40 < clow.applyCuts(xpi_low,cut50)[i] < 0.50 :
+    #         xpi50_3.append(clow.applyCuts(xpi_low,cut50)[i])
+    #         fpi50_3.append(clow.applyCuts(fpi_low,cut50)[i])
     #         # print xpi50_3
     #     i+=1
     # fpiPlot50_3 = ax.errorbar(xpi50_3,fpi50_3,yerr=uncern[18],fmt='.',label='$x_\pi$=(0.40,0.50)')
@@ -3615,11 +3617,11 @@ def pionPlots():
     # xpi50_4 = []
     # fpi50_4 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut50)[0])):
-    #     # print clow.applyCuts(xpi_low,cut50)[0][i]
-    #     if 0.50 < clow.applyCuts(xpi_low,cut50)[0][i] < 0.60 :
-    #         xpi50_4.append(clow.applyCuts(xpi_low,cut50)[0][i])
-    #         fpi50_4.append(clow.applyCuts(fpi_low,cut50)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut50))):
+    #     # print clow.applyCuts(xpi_low,cut50)[i]
+    #     if 0.50 < clow.applyCuts(xpi_low,cut50)[i] < 0.60 :
+    #         xpi50_4.append(clow.applyCuts(xpi_low,cut50)[i])
+    #         fpi50_4.append(clow.applyCuts(fpi_low,cut50)[i])
     #         # print xpi50_4
     #     i+=1
     # fpiPlot50_4 = ax.errorbar(xpi50_4,fpi50_4,yerr=uncern[19],fmt='.',label='$x_\pi$=(0.50,0.60)')
@@ -3631,11 +3633,11 @@ def pionPlots():
     # xpi50_5 = []
     # fpi50_5 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut50)[0])):
-    #     # print clow.applyCuts(xpi_low,cut50)[0][i]
-    #     if 0.60 < clow.applyCuts(xpi_low,cut50)[0][i] < 0.70 :
-    #         xpi50_5.append(clow.applyCuts(xpi_low,cut50)[0][i])
-    #         fpi50_5.append(clow.applyCuts(fpi_low,cut50)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut50))):
+    #     # print clow.applyCuts(xpi_low,cut50)[i]
+    #     if 0.60 < clow.applyCuts(xpi_low,cut50)[i] < 0.70 :
+    #         xpi50_5.append(clow.applyCuts(xpi_low,cut50)[i])
+    #         fpi50_5.append(clow.applyCuts(fpi_low,cut50)[i])
     #         # print xpi50_5
     #     i+=1
     # fpiPlot50_5 = ax.errorbar(xpi50_5,fpi50_5,yerr=uncern[20],fmt='.',label='$x_\pi$=(0.60,0.70)')
@@ -3645,11 +3647,11 @@ def pionPlots():
     # xpi50_6 = []
     # fpi50_6 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut50)[0])):
-    #     # print clow.applyCuts(xpi_low,cut50)[0][i]
-    #     if 0.70 < clow.applyCuts(xpi_low,cut50)[0][i] < 0.80 :
-    #         xpi50_6.append(clow.applyCuts(xpi_low,cut50)[0][i])
-    #         fpi50_6.append(clow.applyCuts(fpi_low,cut50)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut50))):
+    #     # print clow.applyCuts(xpi_low,cut50)[i]
+    #     if 0.70 < clow.applyCuts(xpi_low,cut50)[i] < 0.80 :
+    #         xpi50_6.append(clow.applyCuts(xpi_low,cut50)[i])
+    #         fpi50_6.append(clow.applyCuts(fpi_low,cut50)[i])
     #         # print xpi50_6
     #     i+=1
     # fpiPlot50_6 = ax.errorbar(xpi50_6,fpi50_6,yerr=uncern[21],fmt='.',label='$x_\pi$=(0.70,0.80)')
@@ -3659,11 +3661,11 @@ def pionPlots():
     # xpi50_7 = []
     # fpi50_7 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut50)[0])):
-    #     # print clow.applyCuts(xpi_low,cut50)[0][i]
-    #     if 0.80 < clow.applyCuts(xpi_low,cut50)[0][i] < 0.90 :
-    #         xpi50_7.append(clow.applyCuts(xpi_low,cut50)[0][i])
-    #         fpi50_7.append(clow.applyCuts(fpi_low,cut50)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut50))):
+    #     # print clow.applyCuts(xpi_low,cut50)[i]
+    #     if 0.80 < clow.applyCuts(xpi_low,cut50)[i] < 0.90 :
+    #         xpi50_7.append(clow.applyCuts(xpi_low,cut50)[i])
+    #         fpi50_7.append(clow.applyCuts(fpi_low,cut50)[i])
     #         # print xpi50_7
     #     i+=1
     # fpiPlot50_7 = ax.errorbar(xpi50_7,fpi50_7,yerr=uncern[22],fmt='.',label='$x_\pi$=(0.80,0.90)')
@@ -3673,11 +3675,11 @@ def pionPlots():
     # xpi50_8 = []
     # fpi50_8 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut50)[0])):
-    #     # print clow.applyCuts(xpi_low,cut50)[0][i]
-    #     if 0.90 < clow.applyCuts(xpi_low,cut50)[0][i] < 1.00 :
-    #         xpi50_8.append(clow.applyCuts(xpi_low,cut50)[0][i])
-    #         fpi50_8.append(clow.applyCuts(fpi_low,cut50)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut50))):
+    #     # print clow.applyCuts(xpi_low,cut50)[i]
+    #     if 0.90 < clow.applyCuts(xpi_low,cut50)[i] < 1.00 :
+    #         xpi50_8.append(clow.applyCuts(xpi_low,cut50)[i])
+    #         fpi50_8.append(clow.applyCuts(fpi_low,cut50)[i])
     #         # print xpi50_8
     #     i+=1
     # fpiPlot50_8 = ax.errorbar(xpi50_8,fpi50_8,yerr=uncern[23],fmt='.',label='$x_\pi$=(0.90,1.00)')
@@ -3691,11 +3693,11 @@ def pionPlots():
     # xpi70_1 = []
     # fpi70_1 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut70)[0])):
-    #     # print clow.applyCuts(xpi_low,cut70)[0][i]
-    #     if 0.20 < clow.applyCuts(xpi_low,cut70)[0][i] < 0.30 :
-    #         xpi70_1.append(clow.applyCuts(xpi_low,cut70)[0][i])
-    #         fpi70_1.append(clow.applyCuts(fpi_low,cut70)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut70))):
+    #     # print clow.applyCuts(xpi_low,cut70)[i]
+    #     if 0.20 < clow.applyCuts(xpi_low,cut70)[i] < 0.30 :
+    #         xpi70_1.append(clow.applyCuts(xpi_low,cut70)[i])
+    #         fpi70_1.append(clow.applyCuts(fpi_low,cut70)[i])
     #         # print xpi70_1
     #     i+=1
     # fpiPlot70_1 = ax.errorbar(xpi70_1,fpi70_1,yerr=uncern[24],fmt='.',label='$x_\pi$=(0.20,0.30)')
@@ -3710,11 +3712,11 @@ def pionPlots():
     # xpi70_2 = []
     # fpi70_2 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut70)[0])):
-    #     # print clow.applyCuts(xpi_low,cut70)[0][i]
-    #     if 0.30 < clow.applyCuts(xpi_low,cut70)[0][i] < 0.40 :
-    #         xpi70_2.append(clow.applyCuts(xpi_low,cut70)[0][i])
-    #         fpi70_2.append(clow.applyCuts(fpi_low,cut70)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut70))):
+    #     # print clow.applyCuts(xpi_low,cut70)[i]
+    #     if 0.30 < clow.applyCuts(xpi_low,cut70)[i] < 0.40 :
+    #         xpi70_2.append(clow.applyCuts(xpi_low,cut70)[i])
+    #         fpi70_2.append(clow.applyCuts(fpi_low,cut70)[i])
     #         # print xpi70_2
     #     i+=1
     # fpiPlot70_2 = ax.errorbar(xpi70_2,fpi70_2,yerr=uncern[25],fmt='.',label='$x_\pi$=(0.30,0.40)')
@@ -3724,11 +3726,11 @@ def pionPlots():
     # xpi70_3 = []
     # fpi70_3 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut70)[0])):
-    #     # print clow.applyCuts(xpi_low,cut70)[0][i]
-    #     if 0.40 < clow.applyCuts(xpi_low,cut70)[0][i] < 0.50 :
-    #         xpi70_3.append(clow.applyCuts(xpi_low,cut70)[0][i])
-    #         fpi70_3.append(clow.applyCuts(fpi_low,cut70)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut70))):
+    #     # print clow.applyCuts(xpi_low,cut70)[i]
+    #     if 0.40 < clow.applyCuts(xpi_low,cut70)[i] < 0.50 :
+    #         xpi70_3.append(clow.applyCuts(xpi_low,cut70)[i])
+    #         fpi70_3.append(clow.applyCuts(fpi_low,cut70)[i])
     #         # print xpi70_3
     #     i+=1
     # fpiPlot70_3 = ax.errorbar(xpi70_3,fpi70_3,yerr=uncern[26],fmt='.',label='$x_\pi$=(0.40,0.50)')
@@ -3738,11 +3740,11 @@ def pionPlots():
     # xpi70_4 = []
     # fpi70_4 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut70)[0])):
-    #     # print clow.applyCuts(xpi_low,cut70)[0][i]
-    #     if 0.50 < clow.applyCuts(xpi_low,cut70)[0][i] < 0.60 :
-    #         xpi70_4.append(clow.applyCuts(xpi_low,cut70)[0][i])
-    #         fpi70_4.append(clow.applyCuts(fpi_low,cut70)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut70))):
+    #     # print clow.applyCuts(xpi_low,cut70)[i]
+    #     if 0.50 < clow.applyCuts(xpi_low,cut70)[i] < 0.60 :
+    #         xpi70_4.append(clow.applyCuts(xpi_low,cut70)[i])
+    #         fpi70_4.append(clow.applyCuts(fpi_low,cut70)[i])
     #         # print xpi70_4
     #     i+=1
     # fpiPlot70_4 = ax.errorbar(xpi70_4,fpi70_4,yerr=uncern[27],fmt='.',label='$x_\pi$=(0.50,0.60)')
@@ -3754,11 +3756,11 @@ def pionPlots():
     # xpi70_5 = []
     # fpi70_5 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut70)[0])):
-    #     # print clow.applyCuts(xpi_low,cut70)[0][i]
-    #     if 0.60 < clow.applyCuts(xpi_low,cut70)[0][i] < 0.70 :
-    #         xpi70_5.append(clow.applyCuts(xpi_low,cut70)[0][i])
-    #         fpi70_5.append(clow.applyCuts(fpi_low,cut70)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut70))):
+    #     # print clow.applyCuts(xpi_low,cut70)[i]
+    #     if 0.60 < clow.applyCuts(xpi_low,cut70)[i] < 0.70 :
+    #         xpi70_5.append(clow.applyCuts(xpi_low,cut70)[i])
+    #         fpi70_5.append(clow.applyCuts(fpi_low,cut70)[i])
     #         # print xpi70_5
     #     i+=1
     # fpiPlot70_5 = ax.errorbar(xpi70_5,fpi70_5,yerr=uncern[28],fmt='.',label='$x_\pi$=(0.60,0.70)')
@@ -3768,11 +3770,11 @@ def pionPlots():
     # xpi70_6 = []
     # fpi70_6 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut70)[0])):
-    #     # print clow.applyCuts(xpi_low,cut70)[0][i]
-    #     if 0.70 < clow.applyCuts(xpi_low,cut70)[0][i] < 0.80 :
-    #         xpi70_6.append(clow.applyCuts(xpi_low,cut70)[0][i])
-    #         fpi70_6.append(clow.applyCuts(fpi_low,cut70)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut70))):
+    #     # print clow.applyCuts(xpi_low,cut70)[i]
+    #     if 0.70 < clow.applyCuts(xpi_low,cut70)[i] < 0.80 :
+    #         xpi70_6.append(clow.applyCuts(xpi_low,cut70)[i])
+    #         fpi70_6.append(clow.applyCuts(fpi_low,cut70)[i])
     #         # print xpi70_6
     #     i+=1
     # fpiPlot70_6 = ax.errorbar(xpi70_6,fpi70_6,yerr=uncern[29],fmt='.',label='$x_\pi$=(0.70,0.80)')
@@ -3782,11 +3784,11 @@ def pionPlots():
     # xpi70_7 = []
     # fpi70_7 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut70)[0])):
-    #     # print clow.applyCuts(xpi_low,cut70)[0][i]
-    #     if 0.80 < clow.applyCuts(xpi_low,cut70)[0][i] < 0.90 :
-    #         xpi70_7.append(clow.applyCuts(xpi_low,cut70)[0][i])
-    #         fpi70_7.append(clow.applyCuts(fpi_low,cut70)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut70))):
+    #     # print clow.applyCuts(xpi_low,cut70)[i]
+    #     if 0.80 < clow.applyCuts(xpi_low,cut70)[i] < 0.90 :
+    #         xpi70_7.append(clow.applyCuts(xpi_low,cut70)[i])
+    #         fpi70_7.append(clow.applyCuts(fpi_low,cut70)[i])
     #         # print xpi70_7
     #     i+=1
     # fpiPlot70_7 = ax.errorbar(xpi70_7,fpi70_7,yerr=uncern[30],fmt='.',label='$x_\pi$=(0.80,0.90)')
@@ -3796,11 +3798,11 @@ def pionPlots():
     # xpi70_8 = []
     # fpi70_8 = []
     # i=0
-    # for i in range(0,len(clow.applyCuts(xpi_low,cut70)[0])):
-    #     # print clow.applyCuts(xpi_low,cut70)[0][i]
-    #     if 0.90 < clow.applyCuts(xpi_low,cut70)[0][i] < 1.00 :
-    #         xpi70_8.append(clow.applyCuts(xpi_low,cut70)[0][i])
-    #         fpi70_8.append(clow.applyCuts(fpi_low,cut70)[0][i])
+    # for i in range(0,len(clow.applyCuts(xpi_low,cut70))):
+    #     # print clow.applyCuts(xpi_low,cut70)[i]
+    #     if 0.90 < clow.applyCuts(xpi_low,cut70)[i] < 1.00 :
+    #         xpi70_8.append(clow.applyCuts(xpi_low,cut70)[i])
+    #         fpi70_8.append(clow.applyCuts(fpi_low,cut70)[i])
     #         # print xpi70_8
     #     i+=1
     # fpiPlot70_8 = ax.errorbar(xpi70_8,fpi70_8,yerr=uncern[31],fmt='.',label='$x_\pi$=(0.90,1.00)')
@@ -3814,8 +3816,8 @@ def pionPlots():
 
     plt.style.use('default')  
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    tscat = ax.hist(t_low,bins=p1.setbin(t_low,200,0.,1.0)[0],label='Low',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tscat1 = ax.hist(clow.applyCuts(t_low,tcut1),bins=p1.setbin(t_low,200,0.,1.0)[0],label='Low cut',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tscat = ax.hist(t_low,bins=b.setbin(t_low,200,0.,1.0),label='Low',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tscat1 = ax.hist(clow.applyCuts(t_low,tcut1),bins=b.setbin(t_low,200,0.,1.0),label='Low cut',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('t Distribution', fontsize =20)
     plt.xlabel('t')
     plt.ylabel('Number of Events')
@@ -3968,7 +3970,7 @@ def yCutPlots():
     [cutQ2bin10,cutQ2bin16,cutQ2bin25,cutQ2bin40,cutQ2bin63,ycut1,tcut1,cut10, cut30, cut50, cut70, cut150, cut200, cut250, cut300, cut350, cut400, cut450, cut500, cut550, cut600, cut650, cut700, cut750, cut800] = q2_Cut()
 
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    Q2hist = ax.hist(Q2_low,bins=p1.setbin(Q2_low,200,0.,100.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    Q2hist = ax.hist(Q2_low,bins=b.setbin(Q2_low,200,0.,100.0),histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.xscale('log')
     plt.title('$Q^2$ Distribution', fontsize =20)
     plt.xlabel('$Q^2$')
@@ -4036,9 +4038,9 @@ def yCutPlots():
     plt.ylabel('$Q^2$')
     plt.title('$Q^2$ vs $x_\pi$ [y > 0.05]', fontsize =20)
 
-    xpi_ycut = clow.applyCuts(xpi_low,ycut1)[0]
-    Q2_ycut = clow.applyCuts(Q2_low,ycut1)[0]
-    Q2xpi_ycut = [xpi_ycut,clow.applyCuts(Q2_low,ycut1)[0]]
+    xpi_ycut = clow.applyCuts(xpi_low,ycut1)
+    Q2_ycut = clow.applyCuts(Q2_low,ycut1)
+    Q2xpi_ycut = [xpi_ycut,clow.applyCuts(Q2_low,ycut1)]
     
     binxpi = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
     binQ2 = [10,20,30,40,50,60,70,80,90,100]
@@ -4170,10 +4172,10 @@ def sigmaPlot():
     for i in range(0,len(binxbj)-1):
         tmp1=[]
         tmp2=[]
-        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin10)[0]:
+        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin10):
             if binxbj[i] <= evt <= binxbj[i+1]:
                 tmp1.append(evt)
-                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin10)[0][i])
+                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin10)[i])
                 # print binxbj[i], "<", evt, "<", binxbj[i+1]
         # numEvt_xbj.append([binxbj[i],len(tmp1)])
         numEvt_xbj.append(len(tmp1))
@@ -4205,10 +4207,10 @@ def sigmaPlot():
     for i in range(0,len(binxbj)-1):
         tmp1=[]
         tmp2=[]
-        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin16)[0]:
+        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin16):
             if binxbj[i] <= evt <= binxbj[i+1]:
                 tmp1.append(evt)
-                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin16)[0][i])
+                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin16)[i])
                 # print binxbj[i], "<", evt, "<", binxbj[i+1]
         # numEvt_xbj.append([binxbj[i],len(tmp1)])
         numEvt_xbj.append(len(tmp1))
@@ -4240,10 +4242,10 @@ def sigmaPlot():
     for i in range(0,len(binxbj)-1):
         tmp1=[]
         tmp2=[]
-        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin25)[0]:
+        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin25):
             if binxbj[i] <= evt <= binxbj[i+1]:
                 tmp1.append(evt)
-                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin25)[0][i])
+                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin25)[i])
                 # print binxbj[i], "<", evt, "<", binxbj[i+1]
         # numEvt_xbj.append([binxbj[i],len(tmp1)])
         numEvt_xbj.append(len(tmp1))
@@ -4275,10 +4277,10 @@ def sigmaPlot():
     for i in range(0,len(binxbj)-1):
         tmp1=[]
         tmp2=[]
-        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin40)[0]:
+        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin40):
             if binxbj[i] <= evt <= binxbj[i+1]:
                 tmp1.append(evt)
-                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin40)[0][i])
+                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin40)[i])
                 # print binxbj[i], "<", evt, "<", binxbj[i+1]
         # numEvt_xbj.append([binxbj[i],len(tmp1)])
         numEvt_xbj.append(len(tmp1))
@@ -4310,10 +4312,10 @@ def sigmaPlot():
     for i in range(0,len(binxbj)-1):
         tmp1=[]
         tmp2=[]
-        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin63)[0]:
+        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin63):
             if binxbj[i] <= evt <= binxbj[i+1]:
                 tmp1.append(evt)
-                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin63)[0][i])
+                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin63)[i])
                 # print binxbj[i], "<", evt, "<", binxbj[i+1]
         # numEvt_xbj.append([binxbj[i],len(tmp1)])
         numEvt_xbj.append(len(tmp1))
@@ -4347,10 +4349,10 @@ def sigmaPlot():
     for i in range(0,len(binxbj)-1):
         tmp1=[]
         tmp2=[]
-        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin10)[0]:
+        for evt in c.applyCuts(TDIS_xbj_low,cutQ2bin10):
             if binxbj[i] <= evt <= binxbj[i+1]:
                 tmp1.append(evt)
-                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin10)[0][i])
+                tmp2.append(c.applyCuts(tot_sigma_low,cutQ2bin10)[i])
                 # print binxbj[i], "<", evt, "<", binxbj[i+1]
         # numEvt_xbj.append([binxbj[i],len(tmp1)])
         numEvt_xbj.append(len(tmp1))

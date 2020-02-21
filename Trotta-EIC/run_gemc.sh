@@ -3,12 +3,12 @@
 lund_LOC="$HOME/ResearchNP/JLEIC/Trotta-EIC/"
 
 # gCARD_LOC="$HOME/ResearchNP/gemc/detectors_JLab/basic_examples/exampleCentralTOF/"
-# gCARD_LOC="$HOME/ResearchNP/gemc/detectors_JLab/basic_examples/my_example/"
-gCARD_LOC="/home/trottar/ResearchNP/gemc/detectors_JLab/eic/script/"
+gCARD_LOC="$HOME/ResearchNP/gemc/detectors_JLab/basic_examples/my_example/"
+# gCARD_LOC="/home/trottar/ResearchNP/gemc/detectors_JLab/eic/script/"
 
 # gCARD="ctof.gcard"
-# gCARD="example.gcard"
-gCARD="det1_beamline.gcard"
+gCARD="example.gcard"
+# gCARD="detabx1_beamline.gcard"
 
 FOUT="TDIS_lund"
 input_LUND="$FOUT.dat"

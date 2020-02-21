@@ -15,7 +15,4 @@ fi
 
 eval "root -q -b -l $SCRIPT"
 
-python getTDISpionHisto.py
-
-
 # mv *.png OUTPUT/

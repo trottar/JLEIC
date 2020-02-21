@@ -30,9 +30,9 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
-/* const int NEvts = 50000; */
+/* const int NEvts = 5000000; */
 const int NEvts = 80000;
-/* const int NEvts = 10000; */
+/* const int NEvts = 1000; */
 
 
 // spectator proton either proton beam or deuteron beam
@@ -589,6 +589,10 @@ TVector3 TVector3::Unit() const {
 // Use CTEQ6 parameterization
 cteq_pdf_t *__dis_pdf;
 
+
+// ERROR: This or it being called below in F2N, the cteq_pdf_alloc_id
+// function is opening and closing a file for every event, using up
+// resources.
 void initcteqpdf(){
   __dis_pdf = cteq_pdf_alloc_id(400); // mode 400 = cteq6.6?
 
@@ -597,11 +601,10 @@ void initcteqpdf(){
 
 double F2N(double x, double Q2, int nucl){
   // nucl =2; // for neutron;
+
   // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
-  //
-  __dis_pdf = cteq_pdf_alloc_id(400); // mode 400 = cteq6.6?
-  assert(__dis_pdf);
-  //
+  /* initcteqpdf(); */
+  
   double qu = cteq_pdf_evolvepdf(__dis_pdf, 1, x, sqrt(Q2) );
   double qd = cteq_pdf_evolvepdf(__dis_pdf, 2, x, sqrt(Q2) );
   double qubar = cteq_pdf_evolvepdf(__dis_pdf, -1, x, sqrt(Q2) );

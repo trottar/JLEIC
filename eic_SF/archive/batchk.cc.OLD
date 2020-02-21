@@ -1,5 +1,0 @@
-void batchk()
-{
-    gROOT->ProcessLine(".L TDISMC_EICK.cpp+");
-    gROOT->ProcessLine("mainxk(0.001,1.0,3.6,3.9,30001)");
-}

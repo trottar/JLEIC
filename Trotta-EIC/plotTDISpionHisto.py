@@ -27,57 +27,57 @@ import matplotlib.backends.backend_pdf
 import matplotlib.pyplot as plt
 from matplotlib import interactive
 from matplotlib import colors
+import uproot as up
 from sys import path
 import time,math,sys
 # np.set_printoptions(threshold=sys.maxsize)
 
 # My class function
-sys.path.insert(0,'../../../Analysis/ROOTfiles/python')
-from test_rootPy import pyPlot, pyCut
+sys.path.insert(0,'/home/trottar/bin/python/root2py/')
+from root2py import pyPlot, pyBranch
 
 # rootName = "TDISpion_80k"
-rootName_low = "TDISpion_low"
-rootName_mid = "TDISpion_med"
-rootName_high = "TDISpion_high"
-rootName = "TDISpion"
+rootName_low = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_low.root"
+rootName_mid = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_med.root"
+rootName_high = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_high.root"
+rootName = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion.root"
 
 # rootName = "chain_20k"
 # rootName = "chain_low"
 
-tree1 = "T"
+tree = up.open(rootName)["Evnts"]
+tree_low = up.open(rootName_low)["Evnts"]
+tree_mid = up.open(rootName_mid)["Evnts"]
+tree_high = up.open(rootName_high)["Evnts"]
 
-T1_arrkey =  "leafName"
-T1_arrhist = "histData"
+branch = pyBranch(tree)
+branch_low = pyBranch(tree_low)
+branch_mid = pyBranch(tree_mid)
+branch_high = pyBranch(tree_high)
 
 pdf = matplotlib.backends.backend_pdf.PdfPages("%s.pdf" % rootName)
 pdf_q2 = matplotlib.backends.backend_pdf.PdfPages("Q2vxbj-xpi.pdf")
 pdf_sigma = matplotlib.backends.backend_pdf.PdfPages("sigmavxbj-xpi.pdf")
 
-# Arguments for class function
-p = pyPlot(rootName,tree1,T1_arrkey,T1_arrhist)
-p1 = pyPlot(rootName_low,tree1,T1_arrkey,T1_arrhist)
-p2 = pyPlot(rootName_mid,tree1,T1_arrkey,T1_arrhist)
-p3 = pyPlot(rootName_high,tree1,T1_arrkey,T1_arrhist)
+Q2_low = branch_low.findBranch("invts","Q2")
+Q2_mid = branch_mid.findBranch("invts","Q2")
+Q2_high = branch_high.findBranch("invts","Q2")
 
-Q2_low = p1.lookup("Q2")[0]
-Q2_mid = p2.lookup("Q2")[0]
-Q2_high = p3.lookup("Q2")[0]
+TDIS_xbj_low = tree_low.array("TDIS_xbj")
+TDIS_xbj_mid = tree_mid.array("TDIS_xbj")
+TDIS_xbj_high = tree_high.array("TDIS_xbj")
 
-TDIS_xbj_low = p1.lookup("TDIS_xbj")[0]
-TDIS_xbj_mid = p2.lookup("TDIS_xbj")[0]
-TDIS_xbj_high = p3.lookup("TDIS_xbj")[0]
+xpi_low = tree_low.array("xpi")
+xpi_mid = tree_mid.array("xpi")
+xpi_high = tree_high.array("xpi")
 
-xpi_low = p1.lookup("xpi")[0]
-xpi_mid = p2.lookup("xpi")[0]
-xpi_high = p3.lookup("xpi")[0]
+sigma_dis_low = tree_low.array("sigma_dis")*(1e-6)
+sigma_dis_mid = tree_mid.array("sigma_dis")*(1e-6)
+sigma_dis_high = tree_high.array("sigma_dis")*(1e-6)
 
-sigma_dis_low = p1.lookup("sigma_dis")[0]*(1e-6)
-sigma_dis_mid = p2.lookup("sigma_dis")[0]*(1e-6)
-sigma_dis_high = p3.lookup("sigma_dis")[0]*(1e-6)
-
-y_low = p1.lookup("y")[0]
-y_mid = p2.lookup("y")[0]
-y_high = p3.lookup("y")[0]
+y_low = tree_low.array("y")
+y_mid = tree_mid.array("y")
+y_high = tree_high.array("y")
 
 yplus_low = 1+((1-y_low)*(1-y_low))
 yplus_mid = 1+((1-y_mid)*(1-y_mid))
@@ -88,32 +88,32 @@ tot_sigma_mid = (sigma_dis_mid)*((TDIS_xbj_mid*(Q2_mid*Q2_mid)*(137)*(137))/(2*m
 tot_sigma_high = (sigma_dis_high)*((TDIS_xbj_high*(Q2_high*Q2_high)*(137)*(137))/(2*math.pi*yplus_high))
 
 # Define phyisics data
-s_e = p.lookup("s_e")[0]
-s_q = p.lookup("s_q")[0]
-xBj = p.lookup("xBj")[0]
-TDIS_xbj = p.lookup("TDIS_xbj")[0]
-sigma_dis = p.lookup("sigma_dis")[0]*(1e-6)
-TDIS_y = p.lookup("TDIS_y")[0]
-ppix_Lab = p.lookup("ppix_Lab")[0] # Long pion momentum
-ppiy_Lab = p.lookup("ppiy_Lab")[0]
-ppiz_Lab = p.lookup("ppiz_Lab")[0]
-EpiE_Lab = p.lookup("EpiE_Lab")[0]
-pprx_inc = p.lookup("pprx_inc")[0] # Long proton momentum
-ppry_inc = p.lookup("ppry_inc")[0]
-pprz_inc = p.lookup("pprz_inc")[0]
-EprE_inc = p.lookup("EprE_inc")[0]
-y = p.lookup("y")[0]
-Q2 = p.lookup("Q2")[0]
-fpi = p.lookup("fpi")[0]
-f2N = p.lookup("f2N")[0]
-xpi = p.lookup("xpi")[0]
-ypi = p.lookup("ypi")[0]
-tpi = p.lookup("tpi")[0]
-t = -p.lookup("tPrime")[0]
-y_D = p.lookup("y_D")[0]
-escat = p.lookup("EScatRest")[0]
-nu = p.lookup("nu")[0]
-TwoPdotk = p.lookup("TwoPdotk")[0]
+s_e = branch.findBranch("invts","s_e")
+s_q = branch.findBranch("invts","s_q")
+Q2 = branch.findBranch("invts","Q2")
+xBj = branch.findBranch("invts","xBj")
+t = -branch.findBranch("invts","tPrime")
+y_D = branch.findBranch("invts","y_D")
+nu = branch.findBranch("invts","nu")
+TwoPdotk = branch.findBranch("invts","TwoPdotk")
+TDIS_xbj = tree.array("TDIS_xbj")
+sigma_dis = tree.array("sigma_dis")*(1e-5)
+TDIS_y = tree.array("TDIS_y")
+ppix_Lab = tree.array("ppix_Lab") # Long pion momentum
+ppiy_Lab = tree.array("ppiy_Lab")
+ppiz_Lab = tree.array("ppiz_Lab")
+EpiE_Lab = tree.array("EpiE_Lab")
+pprx_inc = tree.array("pprx_inc") # Long proton momentum
+ppry_inc = tree.array("ppry_inc")
+pprz_inc = tree.array("pprz_inc")
+EprE_inc = tree.array("EprE_inc")
+y = tree.array("y")
+fpi = tree.array("fpi")
+f2N = tree.array("f2N")
+xpi = tree.array("xpi")
+ypi = tree.array("ypi")
+tpi = tree.array("tpi")
+escat = tree.array("EScatRest")
 
 # Q2_new = s_q/(xBj*y)
 Q2_new = xBj/TwoPdotk
@@ -213,13 +213,13 @@ for x in range(0,len(xarray)) :
     cutBinDict.update(eval(Q2tmp))
     i+=1
 
-c = pyCut(cutDict)
+c = pyPlot(cutDict)
 
-clow = pyCut(lowDict)
-cmid = pyCut(midDict)
-chigh = pyCut(highDict)
+clow = pyPlot(lowDict)
+cmid = pyPlot(midDict)
+chigh = pyPlot(highDict)
 
-cbin = pyCut(cutBinDict)
+cbin = pyPlot(cutBinDict)
 
 def uncern_Cut():
 
@@ -289,8 +289,8 @@ def sigmaBin_Cut():
 def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,ymax=None,cuts=None,figure=None,ax=None,layered=True):
 
     if cuts:
-        xcut  = c.applyCuts(x,cuts)[0]
-        ycut = c.applyCuts(y,cuts)[0]
+        xcut  = c.applyCuts(x,cuts)
+        ycut = c.applyCuts(y,cuts)
     else:
         xcut = x
         ycut = y
@@ -303,10 +303,10 @@ def densityPlot(x,y,title,xlabel,ylabel,binx,biny,xmin=None,xmax=None,ymin=None,
         fig, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
     if (xmin or xmax or ymin or ymax):
         # norm=colors.LogNorm() makes colorbar normed and logarithmic
-        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx,xmin,xmax)[0],p.setbin(y,biny,ymin,ymax)[0]))
+        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx,xmin,xmax),p.setbin(y,biny,ymin,ymax)))
     else:
         # norm=colors.LogNorm() makes colorbar normed and logarithmic
-        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx)[0],p.setbin(y,biny)[0]))
+        hist = ax.hist2d(xcut, ycut,bins=(p.setbin(x,binx),p.setbin(y,biny)))
     if layered is True :    
         plt.colorbar(hist[3], ax=ax, spacing='proportional', label='Number of Events')
     plt.title(title)
@@ -330,22 +330,22 @@ def sigmaDIS_Plot():
     f = plt.figure(figsize=(11.69,8.27))
     f.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.7, wspace=0.35, hspace=0.45)
     ax = f.add_subplot(331)
-    hsigma_dis = ax.hist(sigma_dis,bins=p.setbin(sigma_dis,200,0.,10.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True )
+    hsigma_dis = ax.hist(sigma_dis,bins=p.setbin(sigma_dis,200,0.,10.0),histtype='step', alpha=0.5, stacked=True, fill=True )
     plt.title("d$\sigma_{dis}$")
     ax = f.add_subplot(332)
-    totsigplot = ax.hist(tot_sigma,bins=p.setbin(tot_sigma,200,0.,100.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True);
+    totsigplot = ax.hist(tot_sigma,bins=p.setbin(tot_sigma,200,0.,100.0),histtype='step', alpha=0.5, stacked=True, fill=True);
     plt.title('Reduced $\sigma_{dis}$',fontsize =16)
     ax = f.add_subplot(333)
-    f2Nplot = ax.hist(f2N,bins=p.setbin(f2N,200,0.,100.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True);
+    f2Nplot = ax.hist(f2N,bins=p.setbin(f2N,200,0.,100.0),histtype='step', alpha=0.5, stacked=True, fill=True);
     plt.title('$f^{2}_{N}$',fontsize =16)
     ax = f.add_subplot(334)
-    hxbj = ax.hist(TDIS_xbj,bins=p.setbin(TDIS_xbj,200,0.,2.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True )
+    hxbj = ax.hist(TDIS_xbj,bins=p.setbin(TDIS_xbj,200,0.,2.0),histtype='step', alpha=0.5, stacked=True, fill=True )
     plt.title("TDIS_xbj")
     ax = f.add_subplot(335)
-    hy = ax.hist(y,bins=p.setbin(y,200,0.,2.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True )
+    hy = ax.hist(y,bins=p.setbin(y,200,0.,2.0),histtype='step', alpha=0.5, stacked=True, fill=True )
     plt.title("y")
     ax = f.add_subplot(336)
-    h1mmiss = ax.hist(yplus,bins=p.setbin(yplus,200,0.002,2.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True )
+    h1mmiss = ax.hist(yplus,bins=p.setbin(yplus,200,0.002,2.0),histtype='step', alpha=0.5, stacked=True, fill=True )
     plt.title("$Y_+$")
 
     f = plt.figure(figsize=(11.69,8.27))
@@ -358,7 +358,7 @@ def sigmaDIS_Plot():
 
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
     mysigscat = ax.scatter(red_x,my_sigma,label='Zeus')
-    sigscat2 = ax.scatter(c.applyCuts(TDIS_xbj,cuts2)[0],c.applyCuts(alt_sigma_dis,cuts2)[0],label='$Q^2$=15.0 $GeV^2$')
+    sigscat2 = ax.scatter(c.applyCuts(TDIS_xbj,cuts2),c.applyCuts(alt_sigma_dis,cuts2),label='$Q^2$=15.0 $GeV^2$')
     plt.title('d$\sigma_{DIS}$ vs TDIS_xbj', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
     leg.get_frame().set_alpha(1.)
@@ -438,9 +438,9 @@ def sigmaDIS_Plot():
     print "tot_sigma Q^2=250.0:\n",totsigscat6.get_offsets()
     
     # f, ax = plt.subplots()
-    # thist1 = ax.hist(c.applyCuts(t,cuts1),bins=p.setbin(t,100,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=6.5 $GeV^2$' )
-    # thist2 = ax.hist(c.applyCuts(t,cuts2),bins=p.setbin(t,100,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=15.0 $GeV^2$' )
-    # thist3 = ax.hist(c.applyCuts(t,cuts3),bins=p.setbin(t,100,0.,1.)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=35.0 $GeV^2$' )
+    # thist1 = ax.hist(c.applyCuts(t,cuts1),bins=p.setbin(t,100,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=6.5 $GeV^2$' )
+    # thist2 = ax.hist(c.applyCuts(t,cuts2),bins=p.setbin(t,100,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=15.0 $GeV^2$' )
+    # thist3 = ax.hist(c.applyCuts(t,cuts3),bins=p.setbin(t,100,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$Q^2$=35.0 $GeV^2$' )
     # plt.title("t cuts", fontsize =16)
     # leg = plt.legend(bbox_to_anchor=(0.6,0.5), loc="center right")
     # leg.get_frame().set_alpha(1.)
@@ -454,21 +454,21 @@ def sigmaBin_Plot():
     [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
 
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    sigbin1 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts1)[0],cbin.applyCuts(sigma_dis,cuts1)[0],label='cut1')
-    sigbin2 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts2)[0],cbin.applyCuts(sigma_dis,cuts2)[0],label='cut2')
-    sigbin3 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts3)[0],cbin.applyCuts(sigma_dis,cuts3)[0],label='cut3')
-    sigbin4 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts4)[0],cbin.applyCuts(sigma_dis,cuts4)[0],label='cut4')
-    sigbin5 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts5)[0],cbin.applyCuts(sigma_dis,cuts5)[0],label='cut5')
-    sigbin6 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts6)[0],cbin.applyCuts(sigma_dis,cuts6)[0],label='cut6')
-    sigbin7 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts7)[0],cbin.applyCuts(sigma_dis,cuts7)[0],label='cut7')
-    sigbin8 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts8)[0],cbin.applyCuts(sigma_dis,cuts8)[0],label='cut8')
-    sigbin9 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts9)[0],cbin.applyCuts(sigma_dis,cuts9)[0],label='cut9')
-    sigbin10 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts10)[0],cbin.applyCuts(sigma_dis,cuts10)[0],label='cut10')
-    sigbin11 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts11)[0],cbin.applyCuts(sigma_dis,cuts11)[0],label='cut11')
-    sigbin12 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts12)[0],cbin.applyCuts(sigma_dis,cuts12)[0],label='cut12')
-    sigbin13 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts13)[0],cbin.applyCuts(sigma_dis,cuts13)[0],label='cut13')
-    sigbin14 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts14)[0],cbin.applyCuts(sigma_dis,cuts14)[0],label='cut14')
-    sigbin15 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts15)[0],cbin.applyCuts(sigma_dis,cuts15)[0],label='cut15')
+    sigbin1 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts1),cbin.applyCuts(sigma_dis,cuts1),label='cut1')
+    sigbin2 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts2),cbin.applyCuts(sigma_dis,cuts2),label='cut2')
+    sigbin3 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts3),cbin.applyCuts(sigma_dis,cuts3),label='cut3')
+    sigbin4 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts4),cbin.applyCuts(sigma_dis,cuts4),label='cut4')
+    sigbin5 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts5),cbin.applyCuts(sigma_dis,cuts5),label='cut5')
+    sigbin6 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts6),cbin.applyCuts(sigma_dis,cuts6),label='cut6')
+    sigbin7 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts7),cbin.applyCuts(sigma_dis,cuts7),label='cut7')
+    sigbin8 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts8),cbin.applyCuts(sigma_dis,cuts8),label='cut8')
+    sigbin9 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts9),cbin.applyCuts(sigma_dis,cuts9),label='cut9')
+    sigbin10 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts10),cbin.applyCuts(sigma_dis,cuts10),label='cut10')
+    sigbin11 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts11),cbin.applyCuts(sigma_dis,cuts11),label='cut11')
+    sigbin12 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts12),cbin.applyCuts(sigma_dis,cuts12),label='cut12')
+    sigbin13 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts13),cbin.applyCuts(sigma_dis,cuts13),label='cut13')
+    sigbin14 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts14),cbin.applyCuts(sigma_dis,cuts14),label='cut14')
+    sigbin15 = ax.scatter(cbin.applyCuts(TDIS_xbj,cuts15),cbin.applyCuts(sigma_dis,cuts15),label='cut15')
     plt.title('d$\sigma_{DIS}$ vs TDIS_xbj', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
     leg.get_frame().set_alpha(1.)
@@ -502,21 +502,21 @@ def neutronDist() :
     [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
 
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    sigbin1 = ax.hist(cbin.applyCuts(f2N,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin2 = ax.hist(cbin.applyCuts(f2N,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin3 = ax.hist(cbin.applyCuts(f2N,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin4 = ax.hist(cbin.applyCuts(f2N,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin5 = ax.hist(cbin.applyCuts(f2N,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin6 = ax.hist(cbin.applyCuts(f2N,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin7 = ax.hist(cbin.applyCuts(f2N,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin8 = ax.hist(cbin.applyCuts(f2N,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin9 = ax.hist(cbin.applyCuts(f2N,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin10 = ax.hist(cbin.applyCuts(f2N,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin11 = ax.hist(cbin.applyCuts(f2N,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin12 = ax.hist(cbin.applyCuts(f2N,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin13 = ax.hist(cbin.applyCuts(f2N,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin14 = ax.hist(cbin.applyCuts(f2N,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
-    sigbin15 = ax.hist(cbin.applyCuts(f2N,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin1 = ax.hist(cbin.applyCuts(f2N,cuts1),label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin2 = ax.hist(cbin.applyCuts(f2N,cuts2),label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin3 = ax.hist(cbin.applyCuts(f2N,cuts3),label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin4 = ax.hist(cbin.applyCuts(f2N,cuts4),label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin5 = ax.hist(cbin.applyCuts(f2N,cuts5),label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin6 = ax.hist(cbin.applyCuts(f2N,cuts6),label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin7 = ax.hist(cbin.applyCuts(f2N,cuts7),label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin8 = ax.hist(cbin.applyCuts(f2N,cuts8),label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin9 = ax.hist(cbin.applyCuts(f2N,cuts9),label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin10 = ax.hist(cbin.applyCuts(f2N,cuts10),label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin11 = ax.hist(cbin.applyCuts(f2N,cuts11),label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin12 = ax.hist(cbin.applyCuts(f2N,cuts12),label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin13 = ax.hist(cbin.applyCuts(f2N,cuts13),label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin14 = ax.hist(cbin.applyCuts(f2N,cuts14),label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    sigbin15 = ax.hist(cbin.applyCuts(f2N,cuts15),label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$f^{2}_{N}$ binned', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
     leg.get_frame().set_alpha(1.)
@@ -532,125 +532,125 @@ def pionDist() :
     [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
 
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    xpibin = ax.hist(xpi,bins=p.setbin(xpi,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin = ax.hist(xpi,bins=p.setbin(xpi,200,0.,1.0),histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$x_{pi}$ binned', fontsize =16)
     plt.xlabel('$x_{pi}$')
     plt.ylabel('Number of Events')
     
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    ypibin = ax.hist(ypi,bins=p.setbin(ypi,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin = ax.hist(ypi,bins=p.setbin(ypi,200,0.,1.0),histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$y_{pi}$', fontsize =16)
     plt.xlabel('$y_{pi}$')
     plt.ylabel('Number of Events')
     
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    tpibin = ax.hist(tpi,bins=p.setbin(tpi,200,-1.0,0.)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin = ax.hist(tpi,bins=p.setbin(tpi,200,-1.0,0.),histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$t_{pi}$', fontsize =16)
     plt.xlabel('$t_{pi}$')
     plt.ylabel('Number of Events')
     
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
     fpibin = ax.hist(fpi,histtype='step', alpha=0.5, stacked=True, fill=True)
-    # fpibin = ax.hist(fpi,bins=p.setbin(fpi,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    # fpibin = ax.hist(fpi,bins=p.setbin(fpi,200,0.,1.0),histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$f_{pi}$', fontsize =16)
     plt.xlabel('$f_{pi}$')
     plt.ylabel('Number of Events')
     
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    xpibin1 = ax.hist(cbin.applyCuts(xpi,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin2 = ax.hist(cbin.applyCuts(xpi,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin3 = ax.hist(cbin.applyCuts(xpi,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin4 = ax.hist(cbin.applyCuts(xpi,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin5 = ax.hist(cbin.applyCuts(xpi,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin6 = ax.hist(cbin.applyCuts(xpi,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin7 = ax.hist(cbin.applyCuts(xpi,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin8 = ax.hist(cbin.applyCuts(xpi,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin9 = ax.hist(cbin.applyCuts(xpi,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin10 = ax.hist(cbin.applyCuts(xpi,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin11 = ax.hist(cbin.applyCuts(xpi,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin12 = ax.hist(cbin.applyCuts(xpi,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin13 = ax.hist(cbin.applyCuts(xpi,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin14 = ax.hist(cbin.applyCuts(xpi,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
-    xpibin15 = ax.hist(cbin.applyCuts(xpi,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin1 = ax.hist(cbin.applyCuts(xpi,cuts1),label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin2 = ax.hist(cbin.applyCuts(xpi,cuts2),label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin3 = ax.hist(cbin.applyCuts(xpi,cuts3),label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin4 = ax.hist(cbin.applyCuts(xpi,cuts4),label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin5 = ax.hist(cbin.applyCuts(xpi,cuts5),label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin6 = ax.hist(cbin.applyCuts(xpi,cuts6),label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin7 = ax.hist(cbin.applyCuts(xpi,cuts7),label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin8 = ax.hist(cbin.applyCuts(xpi,cuts8),label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin9 = ax.hist(cbin.applyCuts(xpi,cuts9),label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin10 = ax.hist(cbin.applyCuts(xpi,cuts10),label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin11 = ax.hist(cbin.applyCuts(xpi,cuts11),label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin12 = ax.hist(cbin.applyCuts(xpi,cuts12),label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin13 = ax.hist(cbin.applyCuts(xpi,cuts13),label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin14 = ax.hist(cbin.applyCuts(xpi,cuts14),label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xpibin15 = ax.hist(cbin.applyCuts(xpi,cuts15),label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$x_{pi}$ binned', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
     leg.get_frame().set_alpha(1.)
     plt.xlabel('$x_{pi}$')
     plt.ylabel('Number of Events')
     props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(xpi,cuts3)[0])), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(xpi,cuts3))), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
     
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    ypibin1 = ax.hist(cbin.applyCuts(ypi,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin2 = ax.hist(cbin.applyCuts(ypi,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin3 = ax.hist(cbin.applyCuts(ypi,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin4 = ax.hist(cbin.applyCuts(ypi,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin5 = ax.hist(cbin.applyCuts(ypi,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin6 = ax.hist(cbin.applyCuts(ypi,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin7 = ax.hist(cbin.applyCuts(ypi,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin8 = ax.hist(cbin.applyCuts(ypi,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin9 = ax.hist(cbin.applyCuts(ypi,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin10 = ax.hist(cbin.applyCuts(ypi,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin11 = ax.hist(cbin.applyCuts(ypi,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin12 = ax.hist(cbin.applyCuts(ypi,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin13 = ax.hist(cbin.applyCuts(ypi,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin14 = ax.hist(cbin.applyCuts(ypi,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
-    ypibin15 = ax.hist(cbin.applyCuts(ypi,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin1 = ax.hist(cbin.applyCuts(ypi,cuts1),label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin2 = ax.hist(cbin.applyCuts(ypi,cuts2),label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin3 = ax.hist(cbin.applyCuts(ypi,cuts3),label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin4 = ax.hist(cbin.applyCuts(ypi,cuts4),label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin5 = ax.hist(cbin.applyCuts(ypi,cuts5),label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin6 = ax.hist(cbin.applyCuts(ypi,cuts6),label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin7 = ax.hist(cbin.applyCuts(ypi,cuts7),label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin8 = ax.hist(cbin.applyCuts(ypi,cuts8),label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin9 = ax.hist(cbin.applyCuts(ypi,cuts9),label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin10 = ax.hist(cbin.applyCuts(ypi,cuts10),label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin11 = ax.hist(cbin.applyCuts(ypi,cuts11),label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin12 = ax.hist(cbin.applyCuts(ypi,cuts12),label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin13 = ax.hist(cbin.applyCuts(ypi,cuts13),label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin14 = ax.hist(cbin.applyCuts(ypi,cuts14),label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    ypibin15 = ax.hist(cbin.applyCuts(ypi,cuts15),label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$y_{pi}$ binned', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
     leg.get_frame().set_alpha(1.)
     plt.xlabel('$y_{pi}$')
     plt.ylabel('Number of Events')
     props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(ypi,cuts3)[0])), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(ypi,cuts3))), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
     
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    tpibin1 = ax.hist(cbin.applyCuts(tpi,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin2 = ax.hist(cbin.applyCuts(tpi,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin3 = ax.hist(cbin.applyCuts(tpi,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin4 = ax.hist(cbin.applyCuts(tpi,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin5 = ax.hist(cbin.applyCuts(tpi,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin6 = ax.hist(cbin.applyCuts(tpi,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin7 = ax.hist(cbin.applyCuts(tpi,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin8 = ax.hist(cbin.applyCuts(tpi,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin9 = ax.hist(cbin.applyCuts(tpi,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin10 = ax.hist(cbin.applyCuts(tpi,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin11 = ax.hist(cbin.applyCuts(tpi,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin12 = ax.hist(cbin.applyCuts(tpi,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin13 = ax.hist(cbin.applyCuts(tpi,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin14 = ax.hist(cbin.applyCuts(tpi,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
-    tpibin15 = ax.hist(cbin.applyCuts(tpi,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin1 = ax.hist(cbin.applyCuts(tpi,cuts1),label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin2 = ax.hist(cbin.applyCuts(tpi,cuts2),label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin3 = ax.hist(cbin.applyCuts(tpi,cuts3),label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin4 = ax.hist(cbin.applyCuts(tpi,cuts4),label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin5 = ax.hist(cbin.applyCuts(tpi,cuts5),label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin6 = ax.hist(cbin.applyCuts(tpi,cuts6),label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin7 = ax.hist(cbin.applyCuts(tpi,cuts7),label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin8 = ax.hist(cbin.applyCuts(tpi,cuts8),label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin9 = ax.hist(cbin.applyCuts(tpi,cuts9),label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin10 = ax.hist(cbin.applyCuts(tpi,cuts10),label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin11 = ax.hist(cbin.applyCuts(tpi,cuts11),label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin12 = ax.hist(cbin.applyCuts(tpi,cuts12),label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin13 = ax.hist(cbin.applyCuts(tpi,cuts13),label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin14 = ax.hist(cbin.applyCuts(tpi,cuts14),label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    tpibin15 = ax.hist(cbin.applyCuts(tpi,cuts15),label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$t_{pi}$ binned', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
     leg.get_frame().set_alpha(1.)
     plt.xlabel('$t_{pi}$')
     plt.ylabel('Number of Events')
     props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(tpi,cuts3)[0])), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(tpi,cuts3))), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
     
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    fpibin1 = ax.hist(cbin.applyCuts(fpi,cuts1)[0],label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin2 = ax.hist(cbin.applyCuts(fpi,cuts2)[0],label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin3 = ax.hist(cbin.applyCuts(fpi,cuts3)[0],label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin4 = ax.hist(cbin.applyCuts(fpi,cuts4)[0],label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin5 = ax.hist(cbin.applyCuts(fpi,cuts5)[0],label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin6 = ax.hist(cbin.applyCuts(fpi,cuts6)[0],label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin7 = ax.hist(cbin.applyCuts(fpi,cuts7)[0],label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin8 = ax.hist(cbin.applyCuts(fpi,cuts8)[0],label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin9 = ax.hist(cbin.applyCuts(fpi,cuts9)[0],label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin10 = ax.hist(cbin.applyCuts(fpi,cuts10)[0],label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin11 = ax.hist(cbin.applyCuts(fpi,cuts11)[0],label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin12 = ax.hist(cbin.applyCuts(fpi,cuts12)[0],label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin13 = ax.hist(cbin.applyCuts(fpi,cuts13)[0],label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin14 = ax.hist(cbin.applyCuts(fpi,cuts14)[0],label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
-    fpibin15 = ax.hist(cbin.applyCuts(fpi,cuts15)[0],label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin1 = ax.hist(cbin.applyCuts(fpi,cuts1),label='cut1',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin2 = ax.hist(cbin.applyCuts(fpi,cuts2),label='cut2',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin3 = ax.hist(cbin.applyCuts(fpi,cuts3),label='cut3',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin4 = ax.hist(cbin.applyCuts(fpi,cuts4),label='cut4',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin5 = ax.hist(cbin.applyCuts(fpi,cuts5),label='cut5',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin6 = ax.hist(cbin.applyCuts(fpi,cuts6),label='cut6',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin7 = ax.hist(cbin.applyCuts(fpi,cuts7),label='cut7',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin8 = ax.hist(cbin.applyCuts(fpi,cuts8),label='cut8',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin9 = ax.hist(cbin.applyCuts(fpi,cuts9),label='cut9',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin10 = ax.hist(cbin.applyCuts(fpi,cuts10),label='cut10',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin11 = ax.hist(cbin.applyCuts(fpi,cuts11),label='cut11',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin12 = ax.hist(cbin.applyCuts(fpi,cuts12),label='cut12',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin13 = ax.hist(cbin.applyCuts(fpi,cuts13),label='cut13',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin14 = ax.hist(cbin.applyCuts(fpi,cuts14),label='cut14',histtype='step', alpha=0.5, stacked=True, fill=True)
+    fpibin15 = ax.hist(cbin.applyCuts(fpi,cuts15),label='cut15',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$f_{pi}$ binned', fontsize =16)
     leg = plt.legend(bbox_to_anchor=(0.2,0.3), loc="center right")
     leg.get_frame().set_alpha(1.)
     plt.xlabel('$f_{pi}$')
     plt.ylabel('Number of Events')
     props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(fpi,cuts3)[0])), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+    ax.text(0.05, 0.95, 'Num Evts cut 3 = %0.f' % (len(cbin.applyCuts(fpi,cuts3))), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
     
     # for f in xrange(1, plt.figure().number):
     #     pdf.savefig(f)
@@ -661,8 +661,8 @@ def momentumPlots():
     [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
 
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    # pprx_incbin = ax.hist(pprx_inc,bins=p.setbin(pprx_inc,200,-150.,150.)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
-    EprE_incbin = ax.hist(EprE_inc,bins=p.setbin(EprE_inc,200,-150.,150.)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    # pprx_incbin = ax.hist(pprx_inc,bins=p.setbin(pprx_inc,200,-150.,150.),histtype='step', alpha=0.5, stacked=True, fill=True)
+    EprE_incbin = ax.hist(EprE_inc,bins=p.setbin(EprE_inc,200,-150.,150.),histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$p_{pr}$', fontsize =16)
     plt.xlabel('$p_{pr}$')
     plt.ylabel('Number of Events')
@@ -670,7 +670,7 @@ def momentumPlots():
     ax.text(0.05, 0.95, 'Num Evts = %0.f' % (len(pprz_inc)), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
 
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    ppiz_fracbin = ax.hist(ppiz_frac,bins=p.setbin(ppiz_frac,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    ppiz_fracbin = ax.hist(ppiz_frac,bins=p.setbin(ppiz_frac,200,0.,1.0),histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$p_{\pi}$/$p_{pr}$', fontsize =16)
     plt.xlabel('$p_{\pi}$/$p_{pr}$')
     plt.ylabel('Number of Events')
@@ -678,7 +678,7 @@ def momentumPlots():
     ax.text(0.75, 0.95, 'Num Evts = %0.f' % (len(ppiz_frac)), transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
 
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    pNz_fracbin = ax.hist(pNz_frac,bins=p.setbin(pNz_frac,200,0.,1.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True)
+    pNz_fracbin = ax.hist(pNz_frac,bins=p.setbin(pNz_frac,200,0.,1.0),histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('$p_{N}$/$p_{pr}$', fontsize =16)
     plt.xlabel('$p_{N}$/$p_{pr}$')
     plt.ylabel('Number of Events')
@@ -690,9 +690,9 @@ def q2Plots():
     [cuts1,cuts2,cuts3,cuts4,cuts5,cuts6,cuts7,cuts8,cuts9,cuts10,cuts11,cuts12,cuts13,cuts14,cuts15] = sigmaBin_Cut()
 
     f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
-    q2bin = ax.hist(Q2,bins=p.setbin(Q2,200,1.,8.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='Q2')
-    # q2_newbin = ax.hist(Q2_new,bins=p.setbin(Q2,200,1.,8.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='Q2 new')
-    piq2bin = ax.hist(piQ2,bins=p.setbin(Q2,200,1.,8.0)[0],histtype='step', alpha=0.5, stacked=True, fill=True,label='$\pi$ Q2')
+    q2bin = ax.hist(Q2,bins=p.setbin(Q2,200,1.,8.0),histtype='step', alpha=0.5, stacked=True, fill=True,label='Q2')
+    # q2_newbin = ax.hist(Q2_new,bins=p.setbin(Q2,200,1.,8.0),histtype='step', alpha=0.5, stacked=True, fill=True,label='Q2 new')
+    piq2bin = ax.hist(piQ2,bins=p.setbin(Q2,200,1.,8.0),histtype='step', alpha=0.5, stacked=True, fill=True,label='$\pi$ Q2')
     plt.title('$Q^{2}$', fontsize =16)
     plt.xlabel('$Q^{2}$')
     plt.ylabel('Number of Events')
@@ -703,7 +703,7 @@ def q2Plots():
 
 def uncernCalc():
 
-    # [low1,mid1,high1,low2,mid2,high2,low3,mid3,high3,low4,mid4,high4,low5,mid5,high5,low6,mid6,high6] = uncern_Cut()
+    [low1,mid1,high1,low2,mid2,high2,low3,mid3,high3,low4,mid4,high4,low5,mid5,high5,low6,mid6,high6] = uncern_Cut()
     
     # f, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
     # # xerr, yerr
