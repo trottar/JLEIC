@@ -22,4 +22,4 @@ also guide the detector design for such measurements.
 
 
 * eic_SF/ for meson MC
-* Trotta_EIC/ Richard Trotta's workspace for plots, enter at your own risk
+* USERS/ for user directories
