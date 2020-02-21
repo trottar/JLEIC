@@ -1,6 +1,10 @@
 *.png
 *.pdf
 
+# Don't ignore these files from eic_SF/intro_slides/
+!EICMC_Overview.pdf
+!EICPlot_Overview.pdf
+
 # GEMC stuff
 *.txt
 *.dat
