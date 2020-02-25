@@ -11,7 +11,7 @@
         "run_mac_file": "jleic_mesonMC_500k.run.mac",
         "source_file": "../TDIS_lund_500k.dat",
         "thread_count": 1,
-        "work_dir": "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/g4e_files"
+        "work_dir": "/home/trottar/ResearchNP/JLEIC/USERS/trottar/g4e_files"
     },
     "user_commands": [
         "/generator/select pythiaAscii",

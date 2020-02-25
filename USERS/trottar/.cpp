@@ -1069,7 +1069,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
 	// the second spectator proton 
 	OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << sp_particle_charge << " \t " << " 1 "<< " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< psx_Lab << " \t " << psy_Lab << " \t " << psz_Lab << " \t " << EsE_Lab << " \t " << spmass << " \t " << vsx_Lab  << " \t " << vsy_Lab << " \t " << vsz_Lab << endl; 
 	// pion :  DIS: do NOT need to be detected
-	OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << pi_particle_charge << " \t " << " 1 "<< " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
+	//       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << pi_particle_charge << " \t " << " 1 "<< " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
 	// the first spectator protn (TDIS)
 	OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << pr_particle_charge << " \t " << " 1 "<< " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << MProton << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl; 
 
@@ -1087,7 +1087,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
       // the scattered electron
       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << " 1 "<< " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific <<pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
       // pion :  DIS: do NOT need to be detected
-      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << pi_particle_charge << " \t " << " 1 "<< " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
+      //       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << pi_particle_charge << " \t " << " 1 "<< " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
       // the first spectator proton (TDIS)
       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pr_particle_charge << " \t " << " 1 "<< " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << MProton << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl; 
 

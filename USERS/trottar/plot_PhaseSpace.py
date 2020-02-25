@@ -40,16 +40,16 @@ import time,math,sys
 sys.path.insert(0,'/home/trottar/bin/python/root2py/')
 from root2py import pyPlot, pyBranch, pyBin
 
-# rootName = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion"
-rootName = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_10-100.root"
+# rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion"
+rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion_10-100.root"
 
-rootName_low = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion.root"
+rootName_low = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion.root"
 # rootName_low = "TDISpion_10-100"
 # rootName_low = "TDISpion_10-100_OLD"
 # rootName_low = "TDISpion_xpi"
 # rootName_low = "TDISpion_med"
 
-rootName_high = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_100-800.root"
+rootName_high = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion_100-800.root"
 # rootName_high = "TDISpion_high"
 
 tree = up.open(rootName)["Evnts"]
@@ -518,10 +518,10 @@ def phaseSpace():
     # hxbj_Q2_low = densityPlot(TDIS_xbj_low, Q2_low, '$Q^{2}$[10-100 GeV] vs TDIS_xbj[0.01-1.00]','TDIS_xbj','$Q^{2}$', 10, 20, 0.01, 1.00, 10., 100.)
     hxbj_Q2_low = clow.densityPlot(TDIS_xbj_low, Q2_low, '$Q^{2}$[10-100 GeV] vs $x_{Bj}$[0.01-1.00]','$x_{Bj}$','$Q^{2}$', 50, 200, b,0., 1.0, 10., 100.)
     plt.xscale('log')
-    # plt.yscale('log')
+    plt.yscale('log')
     hxbj_Q2_high = clow.densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$[100-800 GeV] vs TDIS_xbj[0.1-1.0]','TDIS_xbj','$Q^{2}$', 10, 200, b,0.1, 1.0, 100., 1000.)
     plt.xscale('log')
-    # plt.yscale('log')
+    plt.yscale('log')
 
     # Q2 vs xBj chained
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
@@ -530,16 +530,16 @@ def phaseSpace():
     hxbj_Q2_highFull = clow.densityPlot(TDIS_xbj_high, Q2_high, '$Q^{2}$ vs TDIS_xbj (all sets)','TDIS_xbj','$Q^{2}$', 10, 200,  b, 0.1, 1.0, 100., 1000., figure=f,ax=ax)
     plt.xscale('log')
     plt.xlim(0.,1.)
-    # plt.yscale('log')
+    plt.yscale('log')
     plt.ylim(0.,800.)
     
     # Q2 vs xpi
     hxpi_Q2_low = clow.densityPlot(xpi_low, Q2_low, '$Q^{2}$[10-100 GeV] vs $x_{pi}$[0.01-1.00]','$x_{pi}$','$Q^{2}$', 10, 20, b, 0.01, 1., 10., 100.)
     plt.xscale('log')
-    # plt.yscale('log')
+    plt.yscale('log')
     hxpi_Q2_high = clow.densityPlot(xpi_high, Q2_high, '$Q^{2}$[100-800 GeV] vs $x_{pi}$[0.1-1.0]','$x_{pi}$','$Q^{2}$', 10, 200, b, 0.1, 1., 100., 800.)
     plt.xscale('log')
-    # plt.yscale('log')
+    plt.yscale('log')
 
     # Q2 vs xpi chained
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
@@ -548,7 +548,7 @@ def phaseSpace():
     hxpi_Q2_high = clow.densityPlot(xpi_high, Q2_high, '$Q^{2}$ vs $x_{pi}$ (all sets)','$x_{pi}$','$Q^{2}$', 10, 200,  b, 0.1, 1., 100., 800., figure=f,ax=ax)
     plt.xscale('log')
     plt.xlim(0.,1.)
-    # plt.yscale('log')
+    plt.yscale('log')
     plt.ylim(0.,800.)
 
     
@@ -4384,9 +4384,9 @@ def main() :
 
     # sigmavxBj_Plot()
     # sigmavxpi_Plot()
-    # phaseSpace()
+    phaseSpace()
     # lumi()
-    pionPlots()
+    # pionPlots()
     # sigmavX()
     # yCutPlots()
     # sigmaPlot()

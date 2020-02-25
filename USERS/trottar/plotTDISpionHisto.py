@@ -37,10 +37,10 @@ sys.path.insert(0,'/home/trottar/bin/python/root2py/')
 from root2py import pyPlot, pyBranch
 
 # rootName = "TDISpion_80k"
-rootName_low = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_low.root"
-rootName_mid = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_med.root"
-rootName_high = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion_high.root"
-rootName = "/home/trottar/ResearchNP/JLEIC/Trotta-EIC/TDISpion.root"
+rootName_low = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion_low.root"
+rootName_mid = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion_med.root"
+rootName_high = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion_high.root"
+rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion.root"
 
 # rootName = "chain_20k"
 # rootName = "chain_low"
@@ -855,8 +855,8 @@ def main() :
     # sigmaBin_Plot()
     # sigmaDIS_Plot()
     # recreateLeaves()
-    uncernCalc()
-    # phaseSpace()
+    # uncernCalc()
+    phaseSpace()
     # sigmavX()
     plt.show()
     
