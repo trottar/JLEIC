@@ -52,8 +52,8 @@ const double alphaQED  = 1./137.03;
 const double pi        = acos(-1.0);
 
 // Initialize Beam
-const double PBeam = 100.0;  // ion Beam momentum/Z, GeV/c
-const double kBeam =  5.;  // Electron Beam Momentum
+const double PBeam = 275.0;  // ion Beam momentum/Z, GeV/c
+const double kBeam =  10.;  // Electron Beam Momentum
 //  electron and ion beam polarization
 const double eBeamPol = 1.;
 const double DBeamPol = 1.;
@@ -66,7 +66,7 @@ const  double D2R    = PI/(180.0);
 const double ZBeam =   1.;
 const double ABeam =   1.;           // 1 for proton beam, 2 for deuteron beam
 //const double CrossingTheta = 0.050;
-const double CrossingTheta = -0.050;
+const double CrossingTheta = +0.025;
 //0.050; // 0.010 for eRHIC/ePHENIX
 const double CrossingPhi   = 0.0;   // pi/2.0 for eRHIC/ePHENIX
 
