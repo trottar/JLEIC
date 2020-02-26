@@ -2,7 +2,7 @@
 
 INPUT=$1
 
-python3 mcInputs.py
+python3 "src/mcInputs.py"
 
 inputFile="tmp"
 
@@ -20,6 +20,8 @@ NEVTS=${tmp[4]}
 PBEAM=${tmp[5]}
 KBEAM=${tmp[6]}
 
+cd "src/"
+
 if [[ $INPUT == "kaon" ]]; then
     echo "Kaon selected"
     SCRIPT="TDISMC_EICk.cpp"
@@ -35,5 +37,7 @@ root -l<<EOF
 .L $SCRIPT+
 mainx($XMIN,$XMAX,$Q2MIN,$Q2MAX,$RANNUM,$NEVTS,$PBEAM,$KBEAM)
 EOF
+
+cd "../"
 
 rm tmp

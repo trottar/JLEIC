@@ -1,3 +1,3 @@
 #! /bin/bash
 
-eval "python plot_PhaseSpace.py"
+eval "python scripts/plot_PhaseSpace.py"
