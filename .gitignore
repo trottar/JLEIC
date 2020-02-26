@@ -6,9 +6,6 @@
 !EICPlot_Overview.pdf
 !EICDocker_Overview.pdf
 
-# Don't ignore OUTPUTS/ directory
-!OUTPUTS
-
 # GEMC stuff
 *.txt
 *.dat
