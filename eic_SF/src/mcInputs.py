@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-02-26 14:25:43 trottar"
+# Time-stamp: "2020-02-26 14:43:58 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -13,7 +13,7 @@
 
 import sys
 
-mcinputs="inputs/constants.input"
+mcinputs="inputs/kinematics.input"
 f    = open(mcinputs)
 fout = open('tmp','wb')
 

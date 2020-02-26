@@ -1,15 +1,13 @@
 What you need:
 ====================================
-ROOT 5.34/35
+ROOT 5.34/35+
 gcc compiler(general)
 
 
-
-
-
-
-Codes:
+Source codes:
 ====================================
+Located in src directory...
+
 TDISMC_EIC.cpp  :  pion structure function with ep scattering at JLEIC
 TDISMC_EICn.cpp :  pion structure function with eD scattering at JLEIC
 TDISMC_EICK.cpp :  kaon structure function with ep scattering at JLEIC
@@ -18,20 +16,22 @@ cteq-tbls/      :  nucleon PDFs table
 tim_hobbs/      :  various regularization form for pion FF 
 
 
-
-
-
-
 How to run:
 ====================================
 ./run_batch.sh <scattered particle> ; Only pion is currently updated
 
-To change the number of events, beam energies, polarizations, etc.: TDISMC_EIC.h
+
+How to change inputs:
+====================================
+Located in inputs directory...
+
+kinematics.inputs : edit this document to change simulation kinematics (e.g. number of events, x range, Q2 range, pbeam, kbeam)
+
+* All other constants are changed in src/TDISMC_EIC(k,n).h
 
 
 Plotting:
 ====================================
 The plots spit out as rootfiles. I convert these root files to numpy arrays since I prefer python.
-If you prefer root then you need to comment out "python roothist2numpy.py" from run_batch.sh script!
 
-** More infomation under intro_slides/ directory
+This code is maintained by Richard Trotta (trotta@cua.edu).
