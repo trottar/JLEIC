@@ -30,10 +30,10 @@ using std::scientific;
 using std::fixed;
 using std::ios;
 
-/* const int NEvts = 5000000; */
-const int NEvts = 80000;
-/* const int NEvts = 1000; */
 
+int NEvts = 0; // Defined in batch.cc
+
+/* const int NEvts; */
 
 // spectator proton either proton beam or deuteron beam
 const double pSMax=  0.3;
@@ -52,8 +52,8 @@ const double alphaQED  = 1./137.03;
 const double pi        = acos(-1.0);
 
 // Initialize Beam
-const double PBeam = 275.0;  // ion Beam momentum/Z, GeV/c
-const double kBeam =  10.;  // Electron Beam Momentum
+double PBeam = 0;  // ion Beam momentum/Z (GeV/c), Defined in batch.cc
+double kBeam =  0.;  // Electron Beam Momentum, Defined in batch.cc
 //  electron and ion beam polarization
 const double eBeamPol = 1.;
 const double DBeamPol = 1.;
