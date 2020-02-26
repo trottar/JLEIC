@@ -2,7 +2,7 @@
 
 INPUT=$1
 
-python mcInputs.py
+python3 mcInputs.py
 
 inputFile="tmp"
 
