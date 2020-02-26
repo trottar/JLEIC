@@ -50,8 +50,13 @@ double GRV_xSpi(double x,double q2);
 double sigma_th(double pInc, double mInc, double NormEmit, double betaSt);
 	//
 
-int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum){
+int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const int nevts, const double pbeam, const double kbeam){
 
+  NEvts = nevts;
+  PBeam = pbeam;
+  kBeam = kbeam;
+  
+  
   int e_particle_charge,d_particle_charge,sp_particle_charge,pi_particle_charge,pr_particle_charge;
   e_particle_charge=-1;
   d_particle_charge=1;

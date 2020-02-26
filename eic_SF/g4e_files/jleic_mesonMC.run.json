@@ -1,17 +1,17 @@
 {
     "config": {
         "beamline": "erhic",
-        "build_prefix": "/container/app/g4e/g4e-dev/cmake-build-debug",
+        "build_prefix": "/home/trottar/ResearchNP/gemc/eic/g4e/g4e-dev/cmake-build-debug",
         "detector": "jleic",
-        "executable": "/container/app/g4e/g4e-dev/cmake-build-debug/g4e",
-        "g4e_home": "/container/app/g4e/g4e-dev",
+        "executable": "/home/trottar/ResearchNP/gemc/eic/g4e/g4e-dev/cmake-build-debug/g4e",
+        "g4e_home": "/home/trottar/ResearchNP/gemc/eic/g4e/g4e-dev",
         "is_batch": false,
         "output": "jleic_mesonMC",
         "run_context_file": "jleic_mesonMC.run.json",
         "run_mac_file": "jleic_mesonMC.run.mac",
         "source_file": "../TDIS_lund.dat",
         "thread_count": 1,
-        "work_dir": "/home/eicuser/epw/share/g4e_files"
+        "work_dir": "/home/trottar/ResearchNP/JLEIC/eic_SF/g4e_files"
     },
     "user_commands": [
         "/generator/select pythiaAscii",
