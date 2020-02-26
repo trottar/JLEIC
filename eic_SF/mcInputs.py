@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-02-26 13:18:18 trottar"
+# Time-stamp: "2020-02-26 13:42:56 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -20,7 +20,7 @@ fout = open('tmp','wb')
 def main():
     for line in f:
         data = line.split('=')
-        fout.write(data[1])
+        fout.write(str(data[1]))
     f.close()
     return data
     
