@@ -9,13 +9,13 @@
         "output": "jleic_mesonMC_500k",
         "run_context_file": "jleic_mesonMC_500k.run.json",
         "run_mac_file": "jleic_mesonMC_500k.run.mac",
-        "source_file": "../TDIS_lund_500k.dat",
+        "source_file": "../OUTPUTS/TDIS_lund_500k.dat",
         "thread_count": 1,
         "work_dir": "/home/trottar/ResearchNP/JLEIC/USERS/trottar/g4e_files"
     },
     "user_commands": [
         "/generator/select pythiaAscii",
-        "/generator/pythiaAscii/open ../TDIS_lund_500k.dat",
+        "/generator/pythiaAscii/open ../OUTPUTS/TDIS_lund_500k.dat",
         "/run/initialize",
         "/run/beamOn 1"
     ]

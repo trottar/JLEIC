@@ -1,6 +1,6 @@
 /control/execute jleicvis.mac
 /detsetup/beamlineName erhic
 /generator/select pythiaAscii
-/generator/pythiaAscii/open ../TDIS_lund_500k.dat
+/generator/pythiaAscii/open ../OUTPUTS/TDIS_lund_500k.dat
 /run/initialize
 /run/beamOn 1
