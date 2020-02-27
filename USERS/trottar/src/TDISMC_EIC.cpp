@@ -85,7 +85,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     inucl = 2; // for neutron target in deuteron
   }
   else{
-    NumPtls =4; // Ion beam is proton 
+    NumPtls =5; // Ion beam is proton 
     MNucleon1 = MProton; 
     mPion = mPi0; // pi0
     pi_particle_id = 111;
