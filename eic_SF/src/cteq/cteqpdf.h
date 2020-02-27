@@ -115,7 +115,7 @@ extern "C" {
    *****/
   
   /**   Returns the description  */
-  const char ** cteq_pdf_desc(const cteq_pdf_t *);
+  /* const char ** cteq_pdf_desc(const cteq_pdf_t *); */
 
    
   

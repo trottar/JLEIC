@@ -9,7 +9,7 @@
 
 // General definition in this header
 #include "TDISMC_EIC.h"
-#include "timhobbs.h" //! no need to call because parametrization by fit
+#include "tim_hobbs/timhobbs.h" //! no need to call because parametrization by fit
 #include <time.h>
 #include <TCanvas.h>
 #include <TGraph.h>
@@ -18,7 +18,6 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-#include <TGraphErrors.h>
 #include <TROOT.h>
 
 // init DIS cteq pdf
@@ -48,14 +47,12 @@ double GRV_xSpi(double x,double q2);
 
 // Define function calls for beam smearing
 double sigma_th(double pInc, double mInc, double NormEmit, double betaSt);
-	//
 
 int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const int nevts, const double pbeam, const double kbeam){
 
   NEvts = nevts;
   PBeam = pbeam;
   kBeam = kbeam;
-  
   
   int e_particle_charge,d_particle_charge,sp_particle_charge,pi_particle_charge,pr_particle_charge;
   e_particle_charge=-1;
@@ -66,17 +63,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
   initcteqpdf();
   
-  //  Int_t rnumber = gRandom->Uniform(10000); // big number in (<10000000000)
-					       //  double rnumber = rand() ;
   TRandom3 ran3;// Random number generator [45ns/call]
   ran3.SetSeed(rnum);// Sets random generator seed which is used initialize the random number generator
-  //ran3.SetSeed(rnumber);
-  
-  //TRandom2 ran2;// Random number generator [37ns/call]
-  //ran2.SetSeed(rnum);// Sets random generator seed which is used initialize the random number generator
-  //ran2.SetSeed(rnumber);
-
-  //cout << "test random number = "<< rnumber << endl;
   
   Bool_t iran=kTRUE;      // TRUE==include incident beam emittance
   //Bool_t iran=kFALSE;      // Falut NO incident beam emittance
@@ -226,7 +214,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 	
   double TDIS_xbj, TDIS_znq, TDIS_Mx2, TDIS_y;
 
-  const Int_t bufsize=32000; // what it was !
+  const Int_t bufsize=32000;
 
   // invariants
   tree->Branch("invts",&invts,		     "s_e/D:s_q/D:Q2/D:xBj/D:nu/D:W/D:x_D/D:y_D/D:Yplus/D:tSpectator/D:tPrime/D:TwoPdotk/D:TwoPdotq/D:p_RT/D:pDrest/D:tempVar/D:MX2/D:alphaS/D:pPerpS/D:pPerpZ/D");
@@ -373,7 +361,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output file : = "TDIS_lund.dat";
-  ofstream OUT ("../OUTPUTS/TDIS_lund.dat", ios::app);
+  ofstream OUT ("../OUTPUTS/TDISpion_lund.dat", ios::app);
 
   // **********************************************************************************
   // define TDIS pSpectator with fermi momentum from  data file "moment_ld2b.dat" from G4SBS 
@@ -519,20 +507,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     invts.xBj  = pow(xMin,1.-uv)*pow(xMax,uv);
     invts.x_D  = invts.xBj*(MProton/MIon);
     invts.y_D  = invts.Q2/(invts.x_D*invts.TwoPdotk);
-    // cout << invts.y_D << '\n';
-    // invts.y_D  = invts.Q2/(invts.xBj*invts.TwoPdotk);
-    // invts.y_D  = (abs(invts.TwoPdotq))/(abs(invts.TwoPdotk));
     invts.Yplus = 1 + ((1-invts.y_D)*(1-invts.y_D));
 
-    // cout << "y_D: " << invts.y_D << '\n';
-    // cout << "TwoPdotq: " << invts.TwoPdotq << '\n';
-    // cout << "TwoPdotk: " << invts.TwoPdotk << '\n';
-
     y = invts.y_D;
-    // if ( 0. < invts.y_D && invts.y_D < 1. ){
-      // invts.y = invts.y_D;
-      // cout << "y_D: " << invts.y_D << '\n';
-    // }
 
     if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
       // Unphysical kinematics
@@ -553,8 +530,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     
     if (EScatRest<mElectron) {
       // should never happen
-      printf("illegal Rest frame scattered electron energy =%10.6f \n",
-	     EScatRest);
+      printf("illegal Rest frame scattered electron energy =%10.6f \n",EScatRest);
       continue;
     }
     
@@ -710,6 +686,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     //cout << "TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
 	  
     pScatterProton_Rest.SetXYZM(P_p2*sin(theta_p2)*cos(phi_p2), P_p2*sin(theta_p2)*sin(phi_p2), P_p2*cos(theta_p2),MProton);
+    
     // *****************************************************************************
 
     // for dubugging purpose:
@@ -1096,19 +1073,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     }	
 	  
-
-    // printf("%d:%d\n",MEvts,iEvt);
-
-    // cout << "y: " << invts.y_D << '\n';
-    // cout << "y_D: " << invts.y_D << '\n';
-
     MEvts++;
     
     tree->Fill();
-    // tree->ResetBranchAddresses(); // disconnect from local variables
-    // tree->Print();
-    // tree->Scan(); // do you see correct values printed?
-    
+
   }
   
   // itree->Fill();

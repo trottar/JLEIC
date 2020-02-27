@@ -24,10 +24,13 @@ cd "src/"
 
 if [[ $INPUT == "kaon" ]]; then
     echo "Kaon selected"
-    SCRIPT="TDISMC_EICk.cpp"
+    SCRIPT="TDISMC_EICK.cpp"
 elif [[ $INPUT == "pion" ]]; then
     echo "Pion selected"
     SCRIPT="TDISMC_EIC.cpp"
+elif [[ $INPUT == "neutron" ]]; then
+    echo "Pion with leading neutron selected"
+    SCRIPT="TDISMC_EICn.cpp"
 else
     echo "Invalid input"
     exit 2

@@ -21,8 +21,7 @@
 #include <TRandom.h>
 #include <assert.h>
 #include <TBuffer.h>
-#include "cteqpdf.h"
-
+#include "cteq/cteqpdf.h"
 
 using std::cout;
 using std::endl;
@@ -31,9 +30,7 @@ using std::fixed;
 using std::ios;
 
 
-int NEvts = 0; // Defined in batch.cc
-
-/* const int NEvts; */
+int NEvts = 0; // Defined in kinematics.input
 
 // spectator proton either proton beam or deuteron beam
 const double pSMax=  0.3;
@@ -44,7 +41,10 @@ const double MProton   = 0.93827203;
 const double MNeutron  = 0.93956536;
 const double mElectron = 0.5110e-3;
 const double mPim     = 0.13957018;
+const double mPip     = 0.13957018;
 const double mPi0     = 0.1349766;
+const double mKp      = 0.493667;
+const double MLambda  = 1.1156;
 const double MDeut     = MProton+MNeutron-0.0022;
 const double MBindA    = -0.008; // Average Binding Energy
 const double MPSq      = MProton*MProton;
@@ -52,8 +52,8 @@ const double alphaQED  = 1./137.03;
 const double pi        = acos(-1.0);
 
 // Initialize Beam
-double PBeam = 0;  // ion Beam momentum/Z (GeV/c), Defined in batch.cc
-double kBeam =  0.;  // Electron Beam Momentum, Defined in batch.cc
+double PBeam = 0;  // ion Beam momentum/Z (GeV/c), Defined in kinematics.input
+double kBeam =  0.;  // Electron Beam Momentum, Defined in kinematics.input
 //  electron and ion beam polarization
 const double eBeamPol = 1.;
 const double DBeamPol = 1.;
@@ -484,6 +484,223 @@ double f2piZEUS(double x){
 }
 
 
+// Testing K. Park  Nov. 08 2016
+// subroutine to calculate the f2kp as function of recoiled nucleon momentum, xbj, theta
+// This is user parametrization by fit the Wally's codes 3KVar_x.f() with integration of finite momentum range
+// typ = 2 ! s-exp For factor
+// dis = 0 ! Charge EXCHANGE
+// FLAG = 0  --- THE Kaon CONTRIBUTION      | J = 0 + 1/2
+
+double f2kp(double p, double x, double th){
+  
+  double p0, p1, p2, p3, p4, p5;
+  int xflag = 0;
+  double fk = 0.0;
+  double fth = 0.0;
+
+  if (p > 0.05 && p <= 0.1){
+      p0 = 0.83443E-07;
+      p1 = -0.13408E-05;
+      p2 = 0.22470E-03;
+      p3 = -0.75778E-02;
+      p4 = 0.85898E-01;
+      p5 = -0.32083;
+      //if (x < 0.0555 || x > 0.083) xflag = 1;
+    fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p;
+    //    cout << "--> momentum region 1: "  << endl;  
+  }
+
+  if (p > 0.1 && p <= 0.2){
+      p0 = 0.32072E-05;
+      p1 = 0.50358E-03;
+      p2 = -0.76921E-02;
+      p3 = 0.23637E-01;
+      p4 = 0.87552E-01;
+      p5 = -0.39142;
+      //if (x < 0.0555 || x > 0.16) xflag = 1;
+    fk = 0.464 -15.4*p + 126.5*p*p;
+    //    cout << "--> momentum region 2: "  << endl;
+  }
+  
+  if (p > 0.2 && p <= 0.3){
+      p0 = 0.26275E-04;
+      p1 = 0.30344E-02;
+      p2 = -0.38997E-01;
+      p3 = 0.15174;
+      p4 = -0.16257;
+      p5 = -0.80353E-01;
+      //if (x < 0.0555 || x > 0.226) xflag =1;
+     fk = -1.133 + 8.5354*p;
+     //    cout << "--> momentum region 3: "  << endl;
+  }
+
+  if (p > 0.3 && p <= 0.5){
+    p0 = 0.18012E-03;
+    p1 = 0.18799E-01;
+    p2 = -0.20900;
+    p3 = 0.88713;
+    p4 = -1.8633;
+    p5 = 1.7046;
+    // if (x < 0.0555 || x > 0.281) xflag = 1;
+     fk = -1.345 + 9.47*p -7.91*p*p;
+     //    cout << "--> momentum region 4: "  << endl;
+  }
+
+
+  if (p > 0.5 && p <= 1.){
+    p0 = 0.12115E-02;
+    p1 = 0.72634E-01;
+    p2 = -0.60468;
+    p3 = 2.4920;
+    p4 = -6.1261;
+    p5 = 6.3972;
+    fk = -1.345 + 9.47*p -7.91*p*p; // same as p=0.3-0.5 GeV/c 
+    //    cout << "--> momentum region 5: "  << endl;
+  }
+
+  
+  if (p > 1.0 && p <= 5.){
+    p0 = 0.50862E-03;
+    p1 = 0.30568E-01;
+    p2 = -0.23605;
+    p3 = 0.98762;
+    p4 = -2.4529;
+    p5 =  2.5330;
+    fk = -1.345 + 9.47*p -7.91*p*p; // same as p=0.3-0.5 GeV/c 
+    //    cout << "--> momentum region 6: "  << endl;
+  }
+
+
+
+  if (p > 5.0 && p <= 100.){
+    p0 = 0.20262E-06;
+    p1 = 0.25285E-04;
+    p2 = -0.45309E-03;
+    p3 = 0.28817E-02;
+    p4 = -0.80264E-02;
+    p5 =  0.83156E-02;
+    fk = -1.345 + 9.47*p -7.91*p*p; // same as p=0.3-0.5 GeV/c 
+    //    cout << "--> momentum region 7: "  << endl;
+  }
+
+  
+
+  
+  if (p < 0.05){
+    p0 = 0.0;
+    p1 = 0.0;
+    p2 = 0.0;
+    p3 = 0.0;
+    p4 = 0.0;
+    p5 = 0.0;
+    //    cout << "--> momentum region 0: "  << endl;
+  }
+  
+
+  if (th < 1.8 || th > 74){
+    fth = 0.0;}
+  else{
+    fth = -0.183 + 0.0976*th -0.0024*th*th + 0.000015*th*th*th; }
+  
+  //  if( xflag == 1 || x < 0.0555 || x > 0.3){
+  if( xflag == 1){
+    return 0.0;}
+  else{
+    double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
+    double f2temp = f2*fk*fth;
+    return f2temp;
+  }
+  
+  
+ }
+
+
+// typ = 3 ! t-exp For factor
+// dis = 0 ! Charge EXCHANGE
+// FLAG = 0  --- THE Kaon CONTRIBUTION      | J = 0 + 1/2
+
+double f2kptmono(double p, double x, double th){
+  
+  double p0, p1, p2, p3, p4, p5;
+  int xflag = 0;
+  double fk = 0.0;
+  double fth = 0.0;
+
+  if (p > 0.05 && p <= 0.1){
+    p0 = 0.20488E-05;
+    p1 = 0.63463E-03;
+    p2 = -0.27479E-01; 
+    p3 = 0.41698;
+    p4 = -2.7294;
+    p5 = 6.5210;
+    //if (x < 0.0555 || x > 0.083) xflag = 1;
+    if (x > 0.08) xflag = 1;
+    fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p; 
+  }
+
+  if (p > 0.1 && p <= 0.2){
+      p0 = 0.41053E-04;
+      p1 = 0.55437E-02;
+      p2 = -0.14278;
+      p3 = 1.3096;
+      p4 = -5.3818;
+      p5 = 8.4883;
+      //if (x < 0.0555 || x > 0.16) xflag = 1;
+      if ( x > 0.2) xflag = 1;
+    fk = 0.464 -15.4*p + 126.5*p*p;
+  }
+  
+  if (p > 0.2 && p <= 0.3){
+      p0 = 0.16415E-03;
+      p1 = 0.13833E-01;
+      p2 = -0.25650;
+      p3 = 1.6955;
+      p4 = -5.0825;
+      p5 = 5.9353;
+      //if (x < 0.0555 || x > 0.226) xflag =1;
+      if ( x > 0.226) xflag =1;
+     fk = -1.133 + 8.5354*p;
+  }
+
+  if (p > 0.3 && p <= 0.5){
+      p0 = 0.69820E-03;
+      p1 = 0.48810E-01;
+      p2 = -0.70672;
+      p3 = 3.8132;
+      p4 = -9.6119;
+      p5 = 9.5429;
+      //if (x < 0.0555 || x > 0.281) xflag = 1;
+      if ( x > 0.28) xflag = 1;
+     fk = -1.345 + 9.47*p -7.91*p*p;
+  }
+
+  if (p < 0.05 || p > 0.5){
+    p0 = 0.0;
+    p1 = 0.0;
+    p2 = 0.0;
+    p3 = 0.0;
+    p4 = 0.0;
+    p5 = 0.0;
+  }
+
+  if (th < 1.8 || th > 74){
+    fth = 0.0;}
+  else{
+    fth = -0.183 + 0.0976*th -0.0024*th*th + 0.000015*th*th*th; }
+  
+  if( xflag == 1 || x < 0.001 || x > 0.3){
+      //if( xflag == 1 ){ // testing 
+      return 0.0;}
+  else{
+    double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
+    double f2temp = f2*fk*fth;
+    return f2temp;
+  }
+  
+  
+ }
+
+
 // subroutine to calculate the f2p as a function xbj
 double f2p( double x ){
   double f2 = 0.0;
@@ -496,14 +713,9 @@ double f2p( double x ){
   double p6 = -973.9;
   double p7 = 363.2;
 
-
-  // EIC collider no limit
-  /* if( x < 0.0 || x > 0.6 )  */
-    /* return 0.0;     */
-  /* else{ */
   f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5) + p6*pow(x,6) + p7*pow(x,7);
+  
   return f2;
-  /* } */
 }
 
 // pimake with smearing of fermi motion

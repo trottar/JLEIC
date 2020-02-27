@@ -72,7 +72,8 @@ void __cteq_pdf_setlmd(cteq_pdf_t *pdf)
 }
 
 
-
+// First check for ERROR!
+// CLEAR
 static
 double __cteq_pdf_polint4f(double *xa, double *ya, double x)
 {
@@ -108,7 +109,8 @@ double __cteq_pdf_polint4f(double *xa, double *ya, double x)
   return ya[0] + c1 + cc1 + dc1;
 } 
 
-
+// Second check for ERROR!
+// CLEAR
 static 
 double __cteq_pdf_pardis(const cteq_pdf_t *pdf, int iprtn, double x, double q)
 {
@@ -163,7 +165,7 @@ double __cteq_pdf_pardis(const cteq_pdf_t *pdf, int iprtn, double x, double q)
 	  j1 = jtmp + (it+1)*(nx+1);
 	  
 	  fij[0] = 0.0;
-	  fij[1] = (pdf->upd[j1  ])*(pdf->xv[1])*(pdf->xv[1]);
+	  fij[1] = (pdf->upd[j1])*(pdf->xv[1])*(pdf->xv[1]);
 	  fij[2] = (pdf->upd[j1+1])*(pdf->xv[2])*(pdf->xv[2]);
 	  fij[3] = (pdf->upd[j1+2])*(pdf->xv[3])*(pdf->xv[3]);
 	  
@@ -413,7 +415,9 @@ label_free_pdf: free(pdf);
   return 0;
 }
 
-
+// Fourth check for ERROR!
+// This is where the files open, its important.
+// They may not have closed properly
 /*    Exported functions    */
 cteq_pdf_t * cteq_pdf_alloc(const cteq_pdfset_t *pdfset)
 {
@@ -512,10 +516,14 @@ cteq_pdf_t * cteq_pdf_alloc_name(const char *name)
 }
 
 
+// Fifth check for ERROR!
+// Error may be here because it may be reading in the file for each run!
 cteq_pdf_t * cteq_pdf_alloc_id(int id)
 {
   /*   First we try to find the pdfset in the database. */
   const cteq_pdfset_t *pdfset = cteq_pdfset_find_id(cteq_pdfset_database, id);
+
+  // This calls cteq_pdf_alloc(), which opens a file for the table
   if(pdfset) return cteq_pdf_alloc(pdfset);
   
   return 0;
@@ -534,6 +542,7 @@ void cteq_pdf_free(cteq_pdf_t *pdf)
   free(pdf);
 }
 
+// Third check for ERROR!
 double cteq_pdf_evolvepdf(const cteq_pdf_t *pdf, int iprtn, double x, double q)
 {
   if(abs(iprtn) > pdf->nfmx) return 0.0;  
