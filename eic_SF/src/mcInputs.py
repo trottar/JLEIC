@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-02-26 14:43:58 trottar"
+# Time-stamp: "2020-03-02 04:22:08 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -22,6 +22,7 @@ def main():
         data = line.split('=')
         fout.write(bytes(data[1], 'UTF-8'))
     f.close()
+    fout.close()
     return data
     
 if __name__=='__main__': main()
