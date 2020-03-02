@@ -1,5 +1,15 @@
+# File extensions
+*#*#*
+*.d
+*.so
+*.pcm
 *.png
+*.ps
+*.eps
 *.pdf
+.nfs*
+*.root
+
 
 # Don't ignore these files from eic_SF/intro_slides/
 !EICMC_Overview.pdf

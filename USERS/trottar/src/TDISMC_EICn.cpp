@@ -86,10 +86,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   }
   else{
     NumPtls =5; // Ion beam is proton 
-    MNucleon1 = MProton; 
-    mPion = mPi0; // pi0
-    pi_particle_id = 111;
-    pi_particle_charge=0;
+    MNucleon1 = MNeutron; 
+    mPion = mPip; // pi0
+    pi_particle_id = 211;
+    pi_particle_charge=1;
     inucl = 1; 
   }
   
