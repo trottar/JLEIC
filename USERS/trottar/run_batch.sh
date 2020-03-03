@@ -22,17 +22,17 @@ KBEAM=${tmp[6]}
 
 cd "src/"
 
-if [[ $INPUT == "kaon" ]]; then
-    echo "Kaon selected"
+if [[ $INPUT == "k/lambda" ]]; then
+    echo "Kaon with lambda final state selected"
     SCRIPT="TDISMC_EICK.cpp"
-elif [[ $INPUT == "pion" ]]; then
-    echo "Pion selected"
+elif [[ $INPUT == "pi/p" ]]; then
+    echo "Pion with proton final state selected"
     SCRIPT="TDISMC_EIC.cpp"
-elif [[ $INPUT == "neutron" ]]; then
-    echo "Pion with leading neutron selected"
+elif [[ $INPUT == "pi/n" ]]; then
+    echo "Pion with neutron final state selected"
     SCRIPT="TDISMC_EICn.cpp"
 else
-    echo "Invalid input"
+    echo "Please select final states (i.e. pi/p, pi/n, k/lambda)"
     exit 2
 fi
 

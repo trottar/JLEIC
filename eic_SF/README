@@ -18,7 +18,7 @@ tim_hobbs/      :  various regularization form for pion FF
 
 How to run:
 ====================================
-./run_batch.sh <scattered particle> : pion (for pi/p), neutron (for pi/n), kaon (for k/lambda)
+./run_batch.sh <final state> : pi/p, pi/n, k/lambda
 
 
 How to change inputs:
@@ -27,7 +27,7 @@ Located in inputs directory...
 
 kinematics.inputs : edit this document to change simulation kinematics (e.g. number of events, x range, Q2 range, pbeam, kbeam)
 
-* All other constants are changed in src/TDISMC_EIC(k,n).h
+* All other constants are changed in src/TDISMC_EIC(K,n).h
 
 
 Plotting:
