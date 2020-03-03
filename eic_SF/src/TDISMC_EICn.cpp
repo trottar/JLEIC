@@ -1051,7 +1051,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 	// pion :  DIS: do NOT need to be detected
 	OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
 	// the first spectator protn (TDIS)
-	OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << pr_particle_charge << " \t " << "7" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << MProton << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl; 
+	OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << pr_particle_charge << " \t " << "1" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << MProton << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl; 
 
       }
     }
@@ -1069,7 +1069,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       // pion :  DIS: do NOT need to be detected
       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
       // the first spectator proton (TDIS)
-      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "8" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << spmass << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl;  
+      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << spmass << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl;  
 
     }	
 	  
