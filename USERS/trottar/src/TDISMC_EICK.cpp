@@ -6,6 +6,7 @@
  * 
  * This code is for ep or eD : by change ABeam in "TDISMC_EIC.h" 
  */
+
 // General definition in this header
 #include "TDISMC_EIC.h"
 #include "tim_hobbs/timhobbs.h" //! no need to call because parametrization by fit
@@ -181,10 +182,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   char tTitle[80], tName[18], rName[32];
   
   sprintf(tTitle,"p(e,e'Lambda)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/TDISkaon.root");
+  sprintf(rName,"../OUTPUTS/k_lambda.root");
   
   TFile fRoot(rName,"Recreate", tTitle);
-  sprintf(tName,"TDISkaon");
+  sprintf(tName,"k_lambda");
   
   TTree *tree = new TTree("Evnts",tTitle);
   
@@ -365,7 +366,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
   
   //name of output file : = "TDIS_lund.dat";
-  ofstream OUT ("../OUTPUTS/TDISkaon_lund.dat", ios::app);
+  ofstream OUT ("../OUTPUTS/k_lambda_lund.dat", ios::app);
 
   // **********************************************************************************
   // define TDIS pSpectator with fermi momentum from  data file "moment_ld2b.dat" from G4SBS 
@@ -1047,7 +1048,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     
       
       if(ABeam>1.){
-		  
+
 	if( invts.alphaS<2.0 &&  invts.alphaS>0.0){
 	  OUT << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xpi << " \t" << ypi << " \t"  << tpi  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
 
