@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-03-10 17:24:45 trottar"
+# Time-stamp: "2020-03-12 13:39:54 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -25,7 +25,8 @@ import time,math,sys
 sys.path.insert(0,'/home/trottar/bin/python/root2py/')
 from root2py import pyPlot, pyBranch, pyBin
 
-rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_p.root"
+rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_p_5on100.root"
+# rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_n_5on100.root"
 tree = up.open(rootName)["Evnts"]
 branch = pyBranch(tree)
 
@@ -79,7 +80,7 @@ red_Q2 = np.array([15,15,15,15,15,15,15,15])
 red_yplus = 1+(1-red_y)*(1-red_y)
 my_sigma = (red_sig)*((2*math.pi*red_yplus)/(red_x*(red_Q2*red_Q2)*(137)*(137)))
 
-Q2array =[10.,20.,30.,40.,50.,70.,100.,150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,650.,700.,750.,800.]
+Q2array =[10.,20.,30.,40.,50.,70.,80.,80.,100.]
 
 cutDict = {}
 
@@ -97,11 +98,6 @@ for x in range(0,len(Q2array)) :
 b = pyBin()
 c = pyPlot(cutDict)
 
-cutQ2bin10 = ["Q2bin10"]
-cutQ2bin16 = ["Q2bin16"]
-cutQ2bin25 = ["Q2bin25"]
-cutQ2bin40 = ["Q2bin40"]
-cutQ2bin63 = ["Q2bin63"]
 ycut1 = ["ycut"]
 tcut1 = ["tcut"]
 cut10 = ["Q2cut0","tcut","ycut"]
@@ -110,21 +106,9 @@ cut30 = ["Q2cut2","tcut","ycut"]
 cut40 = ["Q2cut3","tcut","ycut"]
 cut50 = ["Q2cut4","tcut","ycut"]
 cut70 = ["Q2cut5","tcut","ycut"]
-cut100 = ["Q2cut6","tcut","ycut"]
-cut150 = ["Q2cut7","tcut","ycut"]
-cut200 = ["Q2cut8","tcut","ycut"]
-cut250 = ["Q2cut9","tcut","ycut"]
-cut300 = ["Q2cut10","tcut","ycut"]
-cut350 = ["Q2cut11","tcut","ycut"]
-cut400 = ["Q2cut12","tcut","ycut"]
-cut450 = ["Q2cut13","tcut","ycut"]
-cut500 = ["Q2cut14","tcut","ycut"]
-cut550 = ["Q2cut15","tcut","ycut"]
-cut600 = ["Q2cut16","tcut","ycut"]
-cut650 = ["Q2cut17","tcut","ycut"]
-cut700 = ["Q2cut18","tcut","ycut"]
-cut750 = ["Q2cut19","tcut","ycut"]
-cut800 = ["Q2cut20","tcut","ycut"]
+cut80 = ["Q2cut6","tcut","ycut"]
+cut90 = ["Q2cut7","tcut","ycut"]
+cut100 = ["Q2cut8","tcut","ycut"]
 
 def sigmavxpi_Plot():
     
@@ -188,171 +172,173 @@ def sigmavxpi_Plot():
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
     ax = f.add_subplot(456)
-    xpiscat6 = ax.errorbar(c.applyCuts(xpi,cut100),c.applyCuts(tot_sigma,cut100),xerr=np.sqrt(c.applyCuts(xpi,cut100))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut100))/200,fmt='o',label='$Q^2$=100 $GeV^2$')
+    xpiscat6 = ax.errorbar(c.applyCuts(xpi,cut70),c.applyCuts(tot_sigma,cut70),xerr=np.sqrt(c.applyCuts(xpi,cut70))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut70))/200,fmt='o',label='$Q^2$=70 $GeV^2$')
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
     plt.xscale('log')
     plt.xlim(1e-3,1.)
     plt.ylim(0.,1.0)
-    ax.text(0.65, 0.25, '$Q^2$=100 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.25, '$Q^2$=70 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
 
     ax = f.add_subplot(457)
-    xpiscat7 = ax.errorbar(c.applyCuts(xpi,cut150),c.applyCuts(tot_sigma,cut150),xerr=np.sqrt(c.applyCuts(xpi,cut150))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut150))/200,fmt='o',label='$Q^2$=150 $GeV^2$')
+    xpiscat7 = ax.errorbar(c.applyCuts(xpi,cut80),c.applyCuts(tot_sigma,cut80),xerr=np.sqrt(c.applyCuts(xpi,cut80))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut80))/200,fmt='o',label='$Q^2$=80 $GeV^2$')
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
     plt.xscale('log')
     plt.xlim(1e-3,1.)
     plt.ylim(0.,1.0)
-    ax.text(0.65, 0.25, '$Q^2$=150 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.25, '$Q^2$=80 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
     ax = f.add_subplot(458)
-    xpiscat8 = ax.errorbar(c.applyCuts(xpi,cut200),c.applyCuts(tot_sigma,cut200),xerr=np.sqrt(c.applyCuts(xpi,cut200))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut200))/200,fmt='o',label='$Q^2$=200 $GeV^2$')
+    xpiscat8 = ax.errorbar(c.applyCuts(xpi,cut90),c.applyCuts(tot_sigma,cut90),xerr=np.sqrt(c.applyCuts(xpi,cut90))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut90))/200,fmt='o',label='$Q^2$=90 $GeV^2$')
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
     plt.xscale('log')
     plt.xlim(1e-3,1.)
     plt.ylim(0.,1.0)
-    ax.text(0.65, 0.25, '$Q^2$=200 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.25, '$Q^2$=90 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
     ax = f.add_subplot(459)
-    xpiscat9 = ax.errorbar(c.applyCuts(xpi,cut250),c.applyCuts(tot_sigma,cut250),xerr=np.sqrt(c.applyCuts(xpi,cut250))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut250))/200,fmt='o',label='$Q^2$=250 $GeV^2$')
+    xpiscat9 = ax.errorbar(c.applyCuts(xpi,cut100),c.applyCuts(tot_sigma,cut100),xerr=np.sqrt(c.applyCuts(xpi,cut100))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut100))/200,fmt='o',label='$Q^2$=100 $GeV^2$')
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
     plt.xscale('log')
     plt.xlim(1e-3,1.)
     plt.ylim(0.,1.0)
-    ax.text(0.65, 0.25, '$Q^2$=250 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.25, '$Q^2$=100 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
-    ax = f.add_subplot(4,5,10)
-    xpiscat10 = ax.errorbar(c.applyCuts(xpi,cut300),c.applyCuts(tot_sigma,cut300),xerr=np.sqrt(c.applyCuts(xpi,cut300))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut300))/200,fmt='o',label='$Q^2$=300 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,1.0)
-    ax.text(0.65, 0.25, '$Q^2$=300 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # ax = f.add_subplot(4,5,10)
+    # xpiscat10 = ax.errorbar(c.applyCuts(xpi,cut300),c.applyCuts(tot_sigma,cut300),xerr=np.sqrt(c.applyCuts(xpi,cut300))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut300))/200,fmt='o',label='$Q^2$=300 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,1.0)
+    # ax.text(0.65, 0.25, '$Q^2$=300 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
 
-    ax = f.add_subplot(4,5,11)
-    xpiscat11 = ax.errorbar(c.applyCuts(xpi,cut350),c.applyCuts(tot_sigma,cut350),xerr=np.sqrt(c.applyCuts(xpi,cut350))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut350))/200,fmt='o',label='$Q^2$=350 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=350 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax = f.add_subplot(4,5,11)
+    # xpiscat11 = ax.errorbar(c.applyCuts(xpi,cut350),c.applyCuts(tot_sigma,cut350),xerr=np.sqrt(c.applyCuts(xpi,cut350))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut350))/200,fmt='o',label='$Q^2$=350 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=350 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+
+    # ax = f.add_subplot(4,5,12)
+    # xpiscat12 = ax.errorbar(c.applyCuts(xpi,cut400),c.applyCuts(tot_sigma,cut400),xerr=np.sqrt(c.applyCuts(xpi,cut400))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut400))/200,fmt='o',label='$Q^2$=400 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=400 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+
+    # ax = f.add_subplot(4,5,13)
+    # xpiscat13 = ax.errorbar(c.applyCuts(xpi,cut450),c.applyCuts(tot_sigma,cut450),xerr=np.sqrt(c.applyCuts(xpi,cut450))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut450))/200,fmt='o',label='$Q^2$=450 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=450 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+
+    # ax = f.add_subplot(4,5,14)
+    # xpiscat14 = ax.errorbar(c.applyCuts(xpi,cut500),c.applyCuts(tot_sigma,cut500),xerr=np.sqrt(c.applyCuts(xpi,cut500))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut500))/200,fmt='o',label='$Q^2$=500 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=500 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+
+    # ax = f.add_subplot(4,5,15)
+    # xpiscat15 = ax.errorbar(c.applyCuts(xpi,cut550),c.applyCuts(tot_sigma,cut550),xerr=np.sqrt(c.applyCuts(xpi,cut550))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut550))/2000,fmt='o',label='$Q^2$=550 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=550 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+
+    # ax = f.add_subplot(4,5,16)
+    # xpiscat16 = ax.errorbar(c.applyCuts(xpi,cut600),c.applyCuts(tot_sigma,cut600),xerr=np.sqrt(c.applyCuts(xpi,cut600))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut600))/200,fmt='o',label='$Q^2$=600 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=600 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+
+    # ax = f.add_subplot(4,5,17)
+    # xpiscat17 = ax.errorbar(c.applyCuts(xpi,cut650),c.applyCuts(tot_sigma,cut650),xerr=np.sqrt(c.applyCuts(xpi,cut650))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut650))/200,fmt='o',label='$Q^2$=650 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=650 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-
-    ax = f.add_subplot(4,5,12)
-    xpiscat12 = ax.errorbar(c.applyCuts(xpi,cut400),c.applyCuts(tot_sigma,cut400),xerr=np.sqrt(c.applyCuts(xpi,cut400))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut400))/200,fmt='o',label='$Q^2$=400 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=400 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-
-    ax = f.add_subplot(4,5,13)
-    xpiscat13 = ax.errorbar(c.applyCuts(xpi,cut450),c.applyCuts(tot_sigma,cut450),xerr=np.sqrt(c.applyCuts(xpi,cut450))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut450))/200,fmt='o',label='$Q^2$=450 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=450 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-
-    ax = f.add_subplot(4,5,14)
-    xpiscat14 = ax.errorbar(c.applyCuts(xpi,cut500),c.applyCuts(tot_sigma,cut500),xerr=np.sqrt(c.applyCuts(xpi,cut500))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut500))/200,fmt='o',label='$Q^2$=500 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=500 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-
-    ax = f.add_subplot(4,5,15)
-    xpiscat15 = ax.errorbar(c.applyCuts(xpi,cut550),c.applyCuts(tot_sigma,cut550),xerr=np.sqrt(c.applyCuts(xpi,cut550))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut550))/2000,fmt='o',label='$Q^2$=550 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=550 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-
-    ax = f.add_subplot(4,5,16)
-    xpiscat16 = ax.errorbar(c.applyCuts(xpi,cut600),c.applyCuts(tot_sigma,cut600),xerr=np.sqrt(c.applyCuts(xpi,cut600))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut600))/200,fmt='o',label='$Q^2$=600 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=600 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    
+    # ax = f.add_subplot(4,5,18)
+    # xpiscat18 = ax.errorbar(c.applyCuts(xpi,cut700),c.applyCuts(tot_sigma,cut700),xerr=np.sqrt(c.applyCuts(xpi,cut700))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut700))/200,fmt='o',label='$Q^2$=700 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=700 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-
-    ax = f.add_subplot(4,5,17)
-    xpiscat17 = ax.errorbar(c.applyCuts(xpi,cut650),c.applyCuts(tot_sigma,cut650),xerr=np.sqrt(c.applyCuts(xpi,cut650))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut650))/200,fmt='o',label='$Q^2$=650 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=650 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
-    ax = f.add_subplot(4,5,18)
-    xpiscat18 = ax.errorbar(c.applyCuts(xpi,cut700),c.applyCuts(tot_sigma,cut700),xerr=np.sqrt(c.applyCuts(xpi,cut700))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut700))/200,fmt='o',label='$Q^2$=700 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=700 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax = f.add_subplot(4,5,19)
+    # xpiscat19 = ax.errorbar(c.applyCuts(xpi,cut750),c.applyCuts(tot_sigma,cut750),xerr=np.sqrt(c.applyCuts(xpi,cut750))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut750))/200,fmt='o',label='$Q^2$=750 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=750 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
-    ax = f.add_subplot(4,5,19)
-    xpiscat19 = ax.errorbar(c.applyCuts(xpi,cut750),c.applyCuts(tot_sigma,cut750),xerr=np.sqrt(c.applyCuts(xpi,cut750))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut750))/200,fmt='o',label='$Q^2$=750 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=750 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-    
-    ax = f.add_subplot(4,5,20)
-    xpiscat20 = ax.errorbar(c.applyCuts(xpi,cut800),c.applyCuts(tot_sigma,cut800),xerr=np.sqrt(c.applyCuts(xpi,cut800))/800,yerr=np.sqrt(c.applyCuts(tot_sigma,cut800))/800,fmt='o',label='$Q^2$=800 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,1.)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=800 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax = f.add_subplot(4,5,20)
+    # xpiscat20 = ax.errorbar(c.applyCuts(xpi,cut800),c.applyCuts(tot_sigma,cut800),xerr=np.sqrt(c.applyCuts(xpi,cut800))/800,yerr=np.sqrt(c.applyCuts(tot_sigma,cut800))/800,fmt='o',label='$Q^2$=800 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,1.)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=800 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
     plt.xlabel('$x_\pi$')
-    # plt.tight_layout()
+    plt.tight_layout()
+
+    plt.style.use('default')
     
 def sigmavxBj_Plot():
 
@@ -431,202 +417,204 @@ def sigmavxBj_Plot():
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))        
         
     ax = f.add_subplot(456)
-    # xBjscat6 = ax.errorbar(c.applyCuts(TDIS_xbj,cut100),c.applyCuts(tot_sigma,cut100),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut100))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut100))/200,fmt='o',label='$Q^2$=100 $GeV^2$')
-    xBjscat6 = ax.scatter(c.applyCuts(TDIS_xbj,cut100),c.applyCuts(tot_sigma,cut100),label='$Q^2$=100 $GeV^2$')
+    # xBjscat6 = ax.errorbar(c.applyCuts(TDIS_xbj,cut70),c.applyCuts(tot_sigma,cut70),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut70))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut70))/200,fmt='o',label='$Q^2$=70 $GeV^2$')
+    xBjscat6 = ax.scatter(c.applyCuts(TDIS_xbj,cut70),c.applyCuts(tot_sigma,cut70),label='$Q^2$=70 $GeV^2$')
+    plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    plt.xscale('log')
+    plt.xlim(1e-3,0.6)
+    plt.ylim(0.,1.0)
+    ax.text(0.65, 0.25, '$Q^2$=70 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    ax = f.add_subplot(457)
+
+    # xBjscat7 = ax.errorbar(c.applyCuts(TDIS_xbj,cut80),c.applyCuts(tot_sigma,cut80),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut80))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut80))/200,fmt='o',label='$Q^2$=80 $GeV^2$')
+    xBjscat7 = ax.scatter(c.applyCuts(TDIS_xbj,cut80),c.applyCuts(tot_sigma,cut80),label='$Q^2$=80 $GeV^2$')
+    plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    plt.xscale('log')
+    plt.xlim(1e-3,0.6)
+    plt.ylim(0.,1.0)
+    ax.text(0.65, 0.25, '$Q^2$=80 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+        
+    ax = f.add_subplot(458)
+    # xBjscat8 = ax.errorbar(c.applyCuts(TDIS_xbj,cut90),c.applyCuts(tot_sigma,cut90),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut90))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut90))/200,fmt='o',label='$Q^2$=90 $GeV^2$')
+    xBjscat8 = ax.scatter(c.applyCuts(TDIS_xbj,cut90),c.applyCuts(tot_sigma,cut90),label='$Q^2$=90 $GeV^2$')
+    plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    plt.xscale('log')
+    plt.xlim(1e-3,0.6)
+    plt.ylim(0.,1.0)
+    ax.text(0.65, 0.25, '$Q^2$=90 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    
+    ax = f.add_subplot(459)
+    # xBjscat9 = ax.errorbar(c.applyCuts(TDIS_xbj,cut100),c.applyCuts(tot_sigma,cut100),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut100))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut100))/200,fmt='o',label='$Q^2$=100 $GeV^2$')
+    xBjscat9 = ax.scatter(c.applyCuts(TDIS_xbj,cut100),c.applyCuts(tot_sigma,cut100),label='$Q^2$=100 $GeV^2$')
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
     plt.xscale('log')
     plt.xlim(1e-3,0.6)
     plt.ylim(0.,1.0)
     ax.text(0.65, 0.25, '$Q^2$=100 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    
+    # ax = f.add_subplot(4,5,10)
+    # # xBjscat10 = ax.errorbar(c.applyCuts(TDIS_xbj,cut300),c.applyCuts(tot_sigma,cut300),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut300))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut300))/200,fmt='o',label='$Q^2$=300 $GeV^2$')
+    # xBjscat10 = ax.scatter(c.applyCuts(TDIS_xbj,cut300),c.applyCuts(tot_sigma,cut300),label='$Q^2$=300 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,1.0)
+    # ax.text(0.65, 0.25, '$Q^2$=300 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    
+    # ax = f.add_subplot(4,5,11)
+    # # xBjscat11 = ax.errorbar(c.applyCuts(TDIS_xbj,cut350),c.applyCuts(tot_sigma,cut350),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut350))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut350))/200,fmt='o',label='$Q^2$=350 $GeV^2$')
+    # xBjscat11 = ax.scatter(c.applyCuts(TDIS_xbj,cut350),c.applyCuts(tot_sigma,cut350),label='$Q^2$=350 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=350 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    
+    # ax = f.add_subplot(4,5,12)
+    # # xBjscat12 = ax.errorbar(c.applyCuts(TDIS_xbj,cut400),c.applyCuts(tot_sigma,cut400),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut400))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut400))/200,fmt='o',label='$Q^2$=400 $GeV^2$')
+    # xBjscat12 = ax.scatter(c.applyCuts(TDIS_xbj,cut400),c.applyCuts(tot_sigma,cut400),label='$Q^2$=400 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=400 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    
+    # ax = f.add_subplot(4,5,13)
+    # # xBjscat13 = ax.errorbar(c.applyCuts(TDIS_xbj,cut450),c.applyCuts(tot_sigma,cut450),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut450))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut450))/200,fmt='o',label='$Q^2$=450 $GeV^2$')
+    # xBjscat13 = ax.scatter(c.applyCuts(TDIS_xbj,cut450),c.applyCuts(tot_sigma,cut450),label='$Q^2$=450 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=450 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    
+    # ax = f.add_subplot(4,5,14)
+    # # xBjscat14 = ax.errorbar(c.applyCuts(TDIS_xbj,cut500),c.applyCuts(tot_sigma,cut500),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut500))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut500))/200,fmt='o',label='$Q^2$=500 $GeV^2$')
+    # xBjscat14 = ax.scatter(c.applyCuts(TDIS_xbj,cut500),c.applyCuts(tot_sigma,cut500),label='$Q^2$=500 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=500 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    
+    # ax = f.add_subplot(4,5,15)
+    # # xBjscat15 = ax.errorbar(c.applyCuts(TDIS_xbj,cut550),c.applyCuts(tot_sigma,cut550),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut550))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut550))/2000,fmt='o',label='$Q^2$=550 $GeV^2$')
+    # xBjscat15 = ax.scatter(c.applyCuts(TDIS_xbj,cut550),c.applyCuts(tot_sigma,cut550),label='$Q^2$=550 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.8)
+    # ax.text(0.65, 0.25, '$Q^2$=550 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    
+    # ax = f.add_subplot(4,5,16)
+    # # xBjscat16 = ax.errorbar(c.applyCuts(TDIS_xbj,cut600),c.applyCuts(tot_sigma,cut600),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut600))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut600))/200,fmt='o',label='$Q^2$=600 $GeV^2$')
+    # xBjscat16 = ax.scatter(c.applyCuts(TDIS_xbj,cut600),c.applyCuts(tot_sigma,cut600),label='$Q^2$=600 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=600 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    
+    # ax = f.add_subplot(4,5,17)
+    # # xBjscat17 = ax.errorbar(c.applyCuts(TDIS_xbj,cut650),c.applyCuts(tot_sigma,cut650),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut650))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut650))/200,fmt='o',label='$Q^2$=650 $GeV^2$')
+    # xBjscat17 = ax.scatter(c.applyCuts(TDIS_xbj,cut650),c.applyCuts(tot_sigma,cut650),label='$Q^2$=650 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=650 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-    ax = f.add_subplot(457)
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
-    # xBjscat7 = ax.errorbar(c.applyCuts(TDIS_xbj,cut150),c.applyCuts(tot_sigma,cut150),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut150))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut150))/200,fmt='o',label='$Q^2$=150 $GeV^2$')
-    xBjscat7 = ax.scatter(c.applyCuts(TDIS_xbj,cut150),c.applyCuts(tot_sigma,cut150),label='$Q^2$=150 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,1.0)
-    ax.text(0.65, 0.25, '$Q^2$=150 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    
-    ax = f.add_subplot(458)
-    # xBjscat8 = ax.errorbar(c.applyCuts(TDIS_xbj,cut200),c.applyCuts(tot_sigma,cut200),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut200))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut200))/200,fmt='o',label='$Q^2$=200 $GeV^2$')
-    xBjscat8 = ax.scatter(c.applyCuts(TDIS_xbj,cut200),c.applyCuts(tot_sigma,cut200),label='$Q^2$=200 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,1.0)
-    ax.text(0.65, 0.25, '$Q^2$=200 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    
-    ax = f.add_subplot(459)
-    # xBjscat9 = ax.errorbar(c.applyCuts(TDIS_xbj,cut250),c.applyCuts(tot_sigma,cut250),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut250))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut250))/200,fmt='o',label='$Q^2$=250 $GeV^2$')
-    xBjscat9 = ax.scatter(c.applyCuts(TDIS_xbj,cut250),c.applyCuts(tot_sigma,cut250),label='$Q^2$=250 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,1.0)
-    ax.text(0.65, 0.25, '$Q^2$=250 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    
-    ax = f.add_subplot(4,5,10)
-    # xBjscat10 = ax.errorbar(c.applyCuts(TDIS_xbj,cut300),c.applyCuts(tot_sigma,cut300),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut300))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut300))/200,fmt='o',label='$Q^2$=300 $GeV^2$')
-    xBjscat10 = ax.scatter(c.applyCuts(TDIS_xbj,cut300),c.applyCuts(tot_sigma,cut300),label='$Q^2$=300 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,1.0)
-    ax.text(0.65, 0.25, '$Q^2$=300 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    
-    ax = f.add_subplot(4,5,11)
-    # xBjscat11 = ax.errorbar(c.applyCuts(TDIS_xbj,cut350),c.applyCuts(tot_sigma,cut350),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut350))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut350))/200,fmt='o',label='$Q^2$=350 $GeV^2$')
-    xBjscat11 = ax.scatter(c.applyCuts(TDIS_xbj,cut350),c.applyCuts(tot_sigma,cut350),label='$Q^2$=350 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=350 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax = f.add_subplot(4,5,18)
+    # # xBjscat18 = ax.errorbar(c.applyCuts(TDIS_xbj,cut700),c.applyCuts(tot_sigma,cut700),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut700))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut700))/200,fmt='o',label='$Q^2$=700 $GeV^2$')
+    # xBjscat18 = ax.scatter(c.applyCuts(TDIS_xbj,cut700),c.applyCuts(tot_sigma,cut700),label='$Q^2$=700 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=700 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
-    ax = f.add_subplot(4,5,12)
-    # xBjscat12 = ax.errorbar(c.applyCuts(TDIS_xbj,cut400),c.applyCuts(tot_sigma,cut400),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut400))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut400))/200,fmt='o',label='$Q^2$=400 $GeV^2$')
-    xBjscat12 = ax.scatter(c.applyCuts(TDIS_xbj,cut400),c.applyCuts(tot_sigma,cut400),label='$Q^2$=400 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=400 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    
-    ax = f.add_subplot(4,5,13)
-    # xBjscat13 = ax.errorbar(c.applyCuts(TDIS_xbj,cut450),c.applyCuts(tot_sigma,cut450),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut450))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut450))/200,fmt='o',label='$Q^2$=450 $GeV^2$')
-    xBjscat13 = ax.scatter(c.applyCuts(TDIS_xbj,cut450),c.applyCuts(tot_sigma,cut450),label='$Q^2$=450 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=450 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    
-    ax = f.add_subplot(4,5,14)
-    # xBjscat14 = ax.errorbar(c.applyCuts(TDIS_xbj,cut500),c.applyCuts(tot_sigma,cut500),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut500))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut500))/200,fmt='o',label='$Q^2$=500 $GeV^2$')
-    xBjscat14 = ax.scatter(c.applyCuts(TDIS_xbj,cut500),c.applyCuts(tot_sigma,cut500),label='$Q^2$=500 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=500 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    
-    ax = f.add_subplot(4,5,15)
-    # xBjscat15 = ax.errorbar(c.applyCuts(TDIS_xbj,cut550),c.applyCuts(tot_sigma,cut550),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut550))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut550))/2000,fmt='o',label='$Q^2$=550 $GeV^2$')
-    xBjscat15 = ax.scatter(c.applyCuts(TDIS_xbj,cut550),c.applyCuts(tot_sigma,cut550),label='$Q^2$=550 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.8)
-    ax.text(0.65, 0.25, '$Q^2$=550 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    
-    ax = f.add_subplot(4,5,16)
-    # xBjscat16 = ax.errorbar(c.applyCuts(TDIS_xbj,cut600),c.applyCuts(tot_sigma,cut600),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut600))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut600))/200,fmt='o',label='$Q^2$=600 $GeV^2$')
-    xBjscat16 = ax.scatter(c.applyCuts(TDIS_xbj,cut600),c.applyCuts(tot_sigma,cut600),label='$Q^2$=600 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=600 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax = f.add_subplot(4,5,19)
+    # # xBjscat19 = ax.errorbar(c.applyCuts(TDIS_xbj,cut750),c.applyCuts(tot_sigma,cut750),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut750))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut750))/200,fmt='o',label='$Q^2$=750 $GeV^2$')
+    # xBjscat19 = ax.scatter(c.applyCuts(TDIS_xbj,cut750),c.applyCuts(tot_sigma,cut750),label='$Q^2$=750 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=750 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
-    ax = f.add_subplot(4,5,17)
-    # xBjscat17 = ax.errorbar(c.applyCuts(TDIS_xbj,cut650),c.applyCuts(tot_sigma,cut650),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut650))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut650))/200,fmt='o',label='$Q^2$=650 $GeV^2$')
-    xBjscat17 = ax.scatter(c.applyCuts(TDIS_xbj,cut650),c.applyCuts(tot_sigma,cut650),label='$Q^2$=650 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=650 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax = f.add_subplot(4,5,20)
+    # # xBjscat20 = ax.errorbar(c.applyCuts(TDIS_xbj,cut800),c.applyCuts(tot_sigma,cut800),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut800))/800,yerr=np.sqrt(c.applyCuts(tot_sigma,cut800))/800,fmt='o',label='$Q^2$=800 $GeV^2$')
+    # xBjscat20 = ax.scatter(c.applyCuts(TDIS_xbj,cut800),c.applyCuts(tot_sigma,cut800),label='$Q^2$=800 $GeV^2$')
+    # plt.subplots_adjust(hspace=0.0,wspace=0.0)
+    # plt.xscale('log')
+    # plt.xlim(1e-3,0.6)
+    # plt.ylim(0.,0.6)
+    # ax.text(0.65, 0.25, '$Q^2$=800 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    # # ax.xaxis.set_major_formatter(plt.NullFormatter())
+    # ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
+    # # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
-    ax = f.add_subplot(4,5,18)
-    # xBjscat18 = ax.errorbar(c.applyCuts(TDIS_xbj,cut700),c.applyCuts(tot_sigma,cut700),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut700))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut700))/200,fmt='o',label='$Q^2$=700 $GeV^2$')
-    xBjscat18 = ax.scatter(c.applyCuts(TDIS_xbj,cut700),c.applyCuts(tot_sigma,cut700),label='$Q^2$=700 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=700 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-    
-    ax = f.add_subplot(4,5,19)
-    # xBjscat19 = ax.errorbar(c.applyCuts(TDIS_xbj,cut750),c.applyCuts(tot_sigma,cut750),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut750))/200,yerr=np.sqrt(c.applyCuts(tot_sigma,cut750))/200,fmt='o',label='$Q^2$=750 $GeV^2$')
-    xBjscat19 = ax.scatter(c.applyCuts(TDIS_xbj,cut750),c.applyCuts(tot_sigma,cut750),label='$Q^2$=750 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=750 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-    
-    ax = f.add_subplot(4,5,20)
-    # xBjscat20 = ax.errorbar(c.applyCuts(TDIS_xbj,cut800),c.applyCuts(tot_sigma,cut800),xerr=np.sqrt(c.applyCuts(TDIS_xbj,cut800))/800,yerr=np.sqrt(c.applyCuts(tot_sigma,cut800))/800,fmt='o',label='$Q^2$=800 $GeV^2$')
-    xBjscat20 = ax.scatter(c.applyCuts(TDIS_xbj,cut800),c.applyCuts(tot_sigma,cut800),label='$Q^2$=800 $GeV^2$')
-    plt.subplots_adjust(hspace=0.0,wspace=0.0)
-    plt.xscale('log')
-    plt.xlim(1e-3,0.6)
-    plt.ylim(0.,0.6)
-    ax.text(0.65, 0.25, '$Q^2$=800 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
-    # ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
-    # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-    
-    plt.xlabel('TDIS_xbj')
-    # plt.tight_layout()
-    # plt.setp(ax.get_xticklabels()[0], visible=False)
-    # plt.setp(ax.get_xticklabels()[-1], visible=False)
+    # plt.xlabel('TDIS_xbj')
+    # # plt.tight_layout()
+    # # plt.setp(ax.get_xticklabels()[0], visible=False)
+    # # plt.setp(ax.get_xticklabels()[-1], visible=False)
         
-    # Reset figure style, otherwise next plot will look weird
+    # # Reset figure style, otherwise next plot will look weird
     plt.style.use('default')
 
-    f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));    
-    Q2scat1 = ax.scatter(c.applyCuts(Q2,tcut1),c.applyCuts(tot_sigma,tcut1))
-    # plt.xscale('log')
-    # plt.xlim(1e-3,1.0)
-    # plt.ylim(0.,15.)
-    plt.title('$d\sigma_{TDIS}$ vs $Q^2$', fontsize =20)
-    plt.xlabel('$Q^2$')
-    plt.ylabel('$d\sigma_{TDIS}$')
+    # f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));    
+    # Q2scat1 = ax.scatter(c.applyCuts(Q2,tcut1),c.applyCuts(tot_sigma,tcut1))
+    # # plt.xscale('log')
+    # # plt.xlim(1e-3,1.0)
+    # # plt.ylim(0.,15.)
+    # plt.title('$d\sigma_{TDIS}$ vs $Q^2$', fontsize =20)
+    # plt.xlabel('$Q^2$')
+    # plt.ylabel('$d\sigma_{TDIS}$')
 
-    return [xBjscat1,xBjscat2,xBjscat3,xBjscat4,xBjscat5,xBjscat6,xBjscat7,xBjscat8,xBjscat9,xBjscat10,xBjscat11,xBjscat12,xBjscat13,xBjscat14,xBjscat15,xBjscat16,xBjscat17,xBjscat18,xBjscat19,xBjscat20]
+    return [xBjscat1,xBjscat2,xBjscat3,xBjscat4,xBjscat5,xBjscat6,xBjscat7,xBjscat8,xBjscat9]
+
+# [xBjscat1,xBjscat2,xBjscat3,xBjscat4,xBjscat5,xBjscat6,xBjscat7,xBjscat8,xBjscat9,xBjscat10,xBjscat11,xBjscat12,xBjscat13,xBjscat14,xBjscat15,xBjscat16,xBjscat17,xBjscat18,xBjscat19,xBjscat20]
 
 def phaseSpace():
 
@@ -679,14 +667,16 @@ def phaseSpace():
 
 def Lumi():
 
-    [xBjscat1,xBjscat2,xBjscat3,xBjscat4,xBjscat5,xBjscat6,xBjscat7,xBjscat8,xBjscat9,xBjscat10,xBjscat11,xBjscat12,xBjscat13,xBjscat14,xBjscat15,xBjscat16,xBjscat17,xBjscat18,xBjscat19,xBjscat20]=sigmavxBj_Plot()
+    # [xBjscat1,xBjscat2,xBjscat3,xBjscat4,xBjscat5,xBjscat6,xBjscat7,xBjscat8,xBjscat9,xBjscat10,xBjscat11,xBjscat12,xBjscat13,xBjscat14,xBjscat15,xBjscat16,xBjscat17,xBjscat18,xBjscat19,xBjscat20]=sigmavxBj_Plot()
+
+    [xBjscat1,xBjscat2,xBjscat3,xBjscat4,xBjscat5,xBjscat6,xBjscat7,xBjscat8,xBjscat9]=sigmavxBj_Plot()
 
     # Luminosity
     lumi = []
     uncern = []
 
     # xEvts,Q2Evts
-    for j in range(0,19):
+    for j in range(0,8):
 
         tmp = 'xBjscat%i.get_offsets()' % (j+1)
         # print tmp
@@ -802,9 +792,9 @@ def piSF_BLFQ(x):
 lumi = Lumi()
 
 def pionPlots(Q2_inp):
-    
-    tot_lumi = lumi*(1e-6) # nano to femto
 
+    tot_lumi = lumi*(1e-6) # nano to femto
+    
     lum10 = []
     lum100 = []
 
@@ -825,15 +815,15 @@ def pionPlots(Q2_inp):
     plt.style.use('classic')
 
     ax = f.add_subplot(331)
-    numBin1 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{/pi}$=(0.20,0.30)')
+    numBin1 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.20,0.30)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.20,0.30)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    plt.xlabel('$x_{/pi}$')
+    plt.xlabel('$x_{\pi}$')
     plt.ylabel('$N^{bin}_{\pi}$')
     i=0
     j=0
@@ -843,21 +833,21 @@ def pionPlots(Q2_inp):
             maxEvts1.append(numBin1[0][i])
         i+=1
     numEvts1 = np.sum(maxEvts1)
-    lum10.append((10/(tot_lumi[0]))*numEvts1)
-    lum100.append((100/(tot_lumi[0]))*numEvts1)
+    lum10.append((10/(tot_lumi[1-1]))*numEvts1)
+    lum100.append((100/(tot_lumi[1-1]))*numEvts1)
     
-    plt.title('$x_{/pi}$ plots [$Q^2$ = 10 $GeV^2$]', fontsize =20)
+    plt.title('$x_{\pi}$ plots [$Q^2$ = 10 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
-    numBin2 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{/pi}$=(0.30,0.40)')
+    numBin2 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.30,0.40)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.30,0.40)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    plt.xlabel('$x_{/pi}$')
+    plt.xlabel('$x_{\pi}$')
     plt.ylabel('$N^{bin}_{\pi}$')
     i=0
     j=0
@@ -867,19 +857,19 @@ def pionPlots(Q2_inp):
             maxEvts2.append(numBin2[0][i])
         i+=1
     numEvts2 = np.sum(maxEvts2)
-    lum10.append((10/(tot_lumi[1]))*numEvts2)
-    lum100.append((100/(tot_lumi[1]))*numEvts2)
+    lum10.append((10/(tot_lumi[2-1]))*numEvts2)
+    lum100.append((100/(tot_lumi[2-1]))*numEvts2)
     
     ax = f.add_subplot(333)
-    numBin3 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{/pi}$=(0.40,0.50)')
+    numBin3 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.40,0.50)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    plt.xlabel('$x_{/pi}$')
+    plt.xlabel('$x_{\pi}$')
     plt.ylabel('$N^{bin}_{\pi}$')
     i=0
     j=0
@@ -889,19 +879,19 @@ def pionPlots(Q2_inp):
             maxEvts3.append(numBin3[0][i])
         i+=1
     numEvts3 = np.sum(maxEvts3)
-    lum10.append((10/(tot_lumi[2]))*numEvts3)
-    lum100.append((100/(tot_lumi[2]))*numEvts3)
+    lum10.append((10/(tot_lumi[3-1]))*numEvts3)
+    lum100.append((100/(tot_lumi[3-1]))*numEvts3)
     
     ax = f.add_subplot(334)
-    numBin4 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{/pi}$=(0.50,0.60)')
+    numBin4 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.50,0.60)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    plt.xlabel('$x_{/pi}$')
+    plt.xlabel('$x_{\pi}$')
     plt.ylabel('$N^{bin}_{\pi}$')
     i=0
     j=0
@@ -911,19 +901,19 @@ def pionPlots(Q2_inp):
             maxEvts4.append(numBin4[0][i])
         i+=1
     numEvts4 = np.sum(maxEvts4)
-    lum10.append((10/(tot_lumi[3]))*numEvts4)
-    lum100.append((100/(tot_lumi[3]))*numEvts4)
+    lum10.append((10/(tot_lumi[4-1]))*numEvts4)
+    lum100.append((100/(tot_lumi[4-1]))*numEvts4)
     
     ax = f.add_subplot(335)
-    numBin5 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{/pi}$=(0.60,0.70)')
+    numBin5 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.60,0.70)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    plt.xlabel('$x_{/pi}$')
+    plt.xlabel('$x_{\pi}$')
     plt.ylabel('$N^{bin}_{\pi}$')
     i=0
     j=0
@@ -933,19 +923,19 @@ def pionPlots(Q2_inp):
             maxEvts5.append(numBin5[0][i])
         i+=1
     numEvts5 = np.sum(maxEvts5)
-    lum10.append((10/(tot_lumi[4]))*numEvts5)
-    lum100.append((100/(tot_lumi[4]))*numEvts5)
+    lum10.append((10/(tot_lumi[5-1]))*numEvts5)
+    lum100.append((100/(tot_lumi[5-1]))*numEvts5)
     
     ax = f.add_subplot(336)
-    numBin6 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{/pi}$=(0.70,0.80)')
+    numBin6 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.70,0.80)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    plt.xlabel('$x_{/pi}$')
+    plt.xlabel('$x_{\pi}$')
     plt.ylabel('$N^{bin}_{\pi}$')
     i=0
     j=0
@@ -955,19 +945,19 @@ def pionPlots(Q2_inp):
             maxEvts6.append(numBin6[0][i])
         i+=1
     numEvts6 = np.sum(maxEvts6)
-    lum10.append((10/(tot_lumi[5]))*numEvts6)
-    lum100.append((100/(tot_lumi[5]))*numEvts6)
+    lum10.append((10/(tot_lumi[6-1]))*numEvts6)
+    lum100.append((100/(tot_lumi[6-1]))*numEvts6)
     
     ax = f.add_subplot(337)
-    numBin7 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{/pi}$=(0.80,0.90)')
+    numBin7 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.80,0.90)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    plt.xlabel('$x_{/pi}$')
+    plt.xlabel('$x_{\pi}$')
     plt.ylabel('$N^{bin}_{\pi}$')
     i=0
     j=0
@@ -977,19 +967,19 @@ def pionPlots(Q2_inp):
             maxEvts7.append(numBin7[0][i])
         i+=1
     numEvts7 = np.sum(maxEvts7)
-    lum10.append((10/(tot_lumi[6]))*numEvts7)
-    lum100.append((100/(tot_lumi[6]))*numEvts7)
+    lum10.append((10/(tot_lumi[7-1]))*numEvts7)
+    lum100.append((100/(tot_lumi[7-1]))*numEvts7)
     
     ax = f.add_subplot(338)
-    numBin8 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{/pi}$=(0.90,1.00)')
+    numBin8 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.90,1.00)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
-    plt.xlabel('$x_{/pi}$')
+    plt.xlabel('$x_{\pi}$')
     plt.ylabel('$N^{bin}_{\pi}$')
     i=0
     j=0
@@ -999,8 +989,8 @@ def pionPlots(Q2_inp):
             maxEvts8.append(numBin8[0][i])
         i+=1
     numEvts8 = np.sum(maxEvts8)
-    lum10.append((10/(tot_lumi[7]))*numEvts8)
-    lum100.append((100/(tot_lumi[7]))*numEvts8)
+    lum10.append((10/(tot_lumi[8-1]))*numEvts8)
+    lum100.append((100/(tot_lumi[8-1]))*numEvts8)
     
     print "\n\nLumi10: ", lum10
     print "\n\nLumi100: ", lum100, "\n\n"
@@ -1256,9 +1246,9 @@ def pionPlots(Q2_inp):
     # plt.yscale('log')
     plt.xlim(0.01,1.0)
     plt.ylim(1e-6,1.0)
-    plt.xlabel('$x_{/pi}$', fontsize =20)
+    plt.xlabel('$x_{\pi}$', fontsize =20)
     plt.ylabel('$F^{2}_{\pi}$', fontsize =20)
-    plt.title('$F^{2}_{\pi}$ vs $x_{/pi}$', fontsize =20)
+    plt.title('$F^{2}_{\pi}$ vs $x_{\pi}$', fontsize =20)
     leg = plt.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
     leg.get_frame().set_alpha(1.)
     
@@ -1289,9 +1279,9 @@ def pionPlots(Q2_inp):
     plt.xlim(0.1,1.0)
     # plt.ylim(1e-6,0.025)
     plt.ylim(1e-6,1.0)
-    plt.xlabel('$x_{/pi}$', fontsize =20)
+    plt.xlabel('$x_{\pi}$', fontsize =20)
     plt.ylabel('$F^{2}_{\pi}$', fontsize =20)
-    plt.title('$F^{2}_{\pi}$ vs $x_{/pi}$', fontsize =20)
+    plt.title('$F^{2}_{\pi}$ vs $x_{\pi}$', fontsize =20)
     leg = plt.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
     leg.get_frame().set_alpha(1.)
     
@@ -1380,9 +1370,9 @@ def pionPlots(Q2_inp):
     f = plt.figure(figsize=(11.69,8.27))
     plt.style.use('classic')    
     ax = f.add_subplot(331)    
-    fpiscat1 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[0],fmt='.',label='$x_{/pi}$=(0.20,0.30)')
+    fpiscat1 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[0],fmt='.',label='$x_{\pi}$=(0.20,0.30)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.20,0.30)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # plt.yscale('log')
     plt.xlim(0.20,0.30)
     # plt.ylim(1e-3,0.025)
@@ -1394,9 +1384,9 @@ def pionPlots(Q2_inp):
     plt.title('$F^{2}_{\pi}$ vs xpi  [$Q^2$ = %s $GeV^2$]' % Q2_val, fontsize =20)
     
     ax = f.add_subplot(332)    
-    fpiscat2 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[1],fmt='.',label='$x_{/pi}$=(0.30,0.40)')
+    fpiscat2 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[1],fmt='.',label='$x_{\pi}$=(0.30,0.40)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.30,0.40)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # plt.yscale('log')
     plt.xlim(0.30,0.40)
     # plt.ylim(1e-3,0.025)
@@ -1407,9 +1397,9 @@ def pionPlots(Q2_inp):
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
     ax = f.add_subplot(333)
-    fpiscat3 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[2],fmt='.',label='$x_{/pi}$=(0.40,0.50)')
+    fpiscat3 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[2],fmt='.',label='$x_{\pi}$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.40,0.50)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # plt.yscale('log')
     plt.xlim(0.40,0.50)
     # plt.ylim(1e-3,0.025)
@@ -1420,9 +1410,9 @@ def pionPlots(Q2_inp):
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
     ax = f.add_subplot(334)
-    fpiscat4 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[3],fmt='.',label='$x_{/pi}$=(0.50,0.60)')
+    fpiscat4 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[3],fmt='.',label='$x_{\pi}$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.50,0.60)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # plt.yscale('log')
     plt.xlim(0.50,0.60)
     # plt.ylim(1e-3,0.025)
@@ -1433,9 +1423,9 @@ def pionPlots(Q2_inp):
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
     ax = f.add_subplot(335)
-    fpiscat5 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[4],fmt='.',label='$x_{/pi}$=(0.60,0.70)')
+    fpiscat5 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[4],fmt='.',label='$x_{\pi}$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.60,0.70)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # plt.yscale('log')
     plt.xlim(0.60,0.70)
     # plt.ylim(1e-3,0.025)
@@ -1446,9 +1436,9 @@ def pionPlots(Q2_inp):
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
     ax = f.add_subplot(336)
-    fpiscat6 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[5],fmt='.',label='$x_{/pi}$=(0.70,0.80)')
+    fpiscat6 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[5],fmt='.',label='$x_{\pi}$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.70,0.80)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # plt.yscale('log')
     plt.xlim(0.70,0.80)
     # plt.ylim(1e-3,0.025)
@@ -1459,9 +1449,9 @@ def pionPlots(Q2_inp):
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
     ax = f.add_subplot(337)
-    fpiscat7 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[6],fmt='.',label='$x_{/pi}$=(0.80,0.90)')
+    fpiscat7 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[6],fmt='.',label='$x_{\pi}$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.80,0.90)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # plt.yscale('log')
     plt.xlim(0.80,0.90)
     # plt.ylim(1e-3,0.025)
@@ -1472,9 +1462,9 @@ def pionPlots(Q2_inp):
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     
     ax = f.add_subplot(338)
-    fpiscat8 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[7],fmt='.',label='$x_{/pi}$=(0.90,1.00)')
+    fpiscat8 = ax.errorbar(c.applyCuts(xpi,apply_cut),c.applyCuts(fpi,apply_cut),yerr=uncern[7],fmt='.',label='$x_{\pi}$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
-    ax.text(0.65, 0.95, '$x_{/pi}$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.95, '$x_{\pi}$=(0.90,1.00)', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
     # plt.yscale('log')
     plt.xlim(0.90,1.00)
     # plt.ylim(1e-3,0.025)
@@ -1507,7 +1497,7 @@ def pionPlots(Q2_inp):
             xpi1.append(c.applyCuts(xpi,apply_cut)[i])
             fpi1.append(c.applyCuts(fpi,apply_cut)[i])
         i+=1
-    fpiPlot1 = ax.errorbar(xpi1,fpi1,yerr=uncern[0],fmt='.',label='$x_{/pi}$=(0.20,0.30)')
+    fpiPlot1 = ax.errorbar(xpi1,fpi1,yerr=uncern[0],fmt='.',label='$x_{\pi}$=(0.20,0.30)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
     plt.yscale('log')
     # plt.xlim(0.20,0.30)
@@ -1525,7 +1515,7 @@ def pionPlots(Q2_inp):
             xpi2.append(c.applyCuts(xpi,apply_cut)[i])
             fpi2.append(c.applyCuts(fpi,apply_cut)[i])
         i+=1
-    fpiPlot2 = ax.errorbar(xpi2,fpi2,yerr=uncern[1],fmt='.',label='$x_{/pi}$=(0.30,0.40)')
+    fpiPlot2 = ax.errorbar(xpi2,fpi2,yerr=uncern[1],fmt='.',label='$x_{\pi}$=(0.30,0.40)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
     # plt.yscale('log')
     # plt.xlim(0.30,0.40)
@@ -1538,7 +1528,7 @@ def pionPlots(Q2_inp):
             xpi3.append(c.applyCuts(xpi,apply_cut)[i])
             fpi3.append(c.applyCuts(fpi,apply_cut)[i])
         i+=1
-    fpiPlot3 = ax.errorbar(xpi3,fpi3,yerr=uncern[2],fmt='.',label='$x_{/pi}$=(0.40,0.50)')
+    fpiPlot3 = ax.errorbar(xpi3,fpi3,yerr=uncern[2],fmt='.',label='$x_{\pi}$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
     # plt.yscale('log')
     # plt.xlim(0.40,0.50)
@@ -1551,7 +1541,7 @@ def pionPlots(Q2_inp):
             xpi4.append(c.applyCuts(xpi,apply_cut)[i])
             fpi4.append(c.applyCuts(fpi,apply_cut)[i])
         i+=1
-    fpiPlot4 = ax.errorbar(xpi4,fpi4,yerr=uncern[3],fmt='.',label='$x_{/pi}$=(0.50,0.60)')
+    fpiPlot4 = ax.errorbar(xpi4,fpi4,yerr=uncern[3],fmt='.',label='$x_{\pi}$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
     # plt.yscale('log')
     # plt.xlim(0.50,0.60)
@@ -1566,7 +1556,7 @@ def pionPlots(Q2_inp):
             xpi5.append(c.applyCuts(xpi,apply_cut)[i])
             fpi5.append(c.applyCuts(fpi,apply_cut)[i])
         i+=1
-    fpiPlot5 = ax.errorbar(xpi5,fpi5,yerr=uncern[4],fmt='.',label='$x_{/pi}$=(0.60,0.70)')
+    fpiPlot5 = ax.errorbar(xpi5,fpi5,yerr=uncern[4],fmt='.',label='$x_{\pi}$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
     # plt.yscale('log')
     # plt.xlim(0.60,0.70)
@@ -1579,7 +1569,7 @@ def pionPlots(Q2_inp):
             xpi6.append(c.applyCuts(xpi,apply_cut)[i])
             fpi6.append(c.applyCuts(fpi,apply_cut)[i])
         i+=1
-    fpiPlot6 = ax.errorbar(xpi6,fpi6,yerr=uncern[5],fmt='.',label='$x_{/pi}$=(0.70,0.80)')
+    fpiPlot6 = ax.errorbar(xpi6,fpi6,yerr=uncern[5],fmt='.',label='$x_{\pi}$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
     # plt.yscale('log')
     # plt.xlim(0.70,0.80)
@@ -1592,7 +1582,7 @@ def pionPlots(Q2_inp):
             xpi7.append(c.applyCuts(xpi,apply_cut)[i])
             fpi7.append(c.applyCuts(fpi,apply_cut)[i])
         i+=1
-    fpiPlot7 = ax.errorbar(xpi7,fpi7,yerr=uncern[6],fmt='.',label='$x_{/pi}$=(0.80,0.90)')
+    fpiPlot7 = ax.errorbar(xpi7,fpi7,yerr=uncern[6],fmt='.',label='$x_{\pi}$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
     # plt.yscale('log')
     # plt.xlim(0.80,0.90)
@@ -1605,7 +1595,7 @@ def pionPlots(Q2_inp):
             xpi8.append(c.applyCuts(xpi,apply_cut)[i])
             fpi8.append(c.applyCuts(fpi,apply_cut)[i])
         i+=1
-    fpiPlot8 = ax.errorbar(xpi8,fpi8,yerr=uncern[7],fmt='.',label='$x_{/pi}$=(0.90,1.00)')
+    fpiPlot8 = ax.errorbar(xpi8,fpi8,yerr=uncern[7],fmt='.',label='$x_{\pi}$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.45)
     # plt.yscale('log')
     # plt.xlim(0.90,1.00)
@@ -1693,7 +1683,7 @@ def main() :
 
     # sigmavxpi_Plot()
     # phaseSpace()
-    sigmavxBj_Plot()
+    # sigmavxBj_Plot()
     # lumi()
     for i in [10,30,50,70]:
         pionPlots(i)

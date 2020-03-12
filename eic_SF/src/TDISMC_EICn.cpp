@@ -178,7 +178,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   char tTitle[80], tName[18], rName[32];
   
   sprintf(tTitle,"p(e,e'np)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/pi_n.root");
+  sprintf(rName,"../OUTPUTS/pi_n_%.0fon%.0f.root", kBeam, PBeam);
 
   TFile fRoot(rName,"Recreate", tTitle);
   sprintf(tName,"pi_n");
@@ -361,7 +361,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output file : = "TDIS_lund.dat";
-  ofstream OUT ("../OUTPUTS/pi_n_lund.dat", ios::app);
+  ofstream OUT (Form("../OUTPUTS/pi_n_lund_%.0fon%.0f.dat", kBeam, PBeam), ios::app);
 
   // **********************************************************************************
   // define TDIS pSpectator with fermi momentum from  data file "moment_ld2b.dat" from G4SBS 

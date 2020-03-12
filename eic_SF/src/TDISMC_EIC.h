@@ -1579,7 +1579,7 @@ double uncerW(double val,int numData,double weight[]){
   mean = val/numData;
   stanDev += pow(val - mean, 2);
   //printf("Uncertainty is +/- %e for F2K \n", sqrt(stanDev/numData));
-  for(int i=0; i<sizeof((int)weight[0]);i++){
+  for(int i=0; i<(int)sizeof(weight[0]);i++){
     double numWeight = weight[i];
     return numWeight;
   }
