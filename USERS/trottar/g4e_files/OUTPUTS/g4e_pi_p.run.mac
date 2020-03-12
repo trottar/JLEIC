@@ -1,0 +1,6 @@
+/control/execute jleic.mac
+/detsetup/beamlineName erhic
+/generator/select pythiaAscii
+/generator/pythiaAscii/open ../OUTPUTS/pi_p_lund.dat
+/run/initialize
+/run/beamOn 10000

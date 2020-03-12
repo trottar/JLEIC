@@ -41,15 +41,15 @@ sys.path.insert(0,'/home/trottar/bin/python/root2py/')
 from root2py import pyPlot, pyBranch, pyBin
 
 # rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion"
-rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion_10-100.root"
+rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/TDISpion_10-100.root"
 
-rootName_low = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion.root"
+rootName_low = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/TDISpion.root"
 # rootName_low = "TDISpion_10-100"
 # rootName_low = "TDISpion_10-100_OLD"
 # rootName_low = "TDISpion_xpi"
 # rootName_low = "TDISpion_med"
 
-rootName_high = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion_100-800.root"
+rootName_high = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/TDISpion_100-800.root"
 # rootName_high = "TDISpion_high"
 
 tree = up.open(rootName)["Evnts"]
@@ -279,7 +279,7 @@ def q2_Cut():
     cut800 = ["Q2cut17","tcut"]
         
     return[cutQ2bin10,cutQ2bin16,cutQ2bin25,cutQ2bin40,cutQ2bin63,ycut1,tcut1,cut10, cut30, cut50, cut70, cut150, cut200, cut250, cut300, cut350, cut400, cut450, cut500, cut550, cut600, cut650, cut700, cut750, cut800]
-        
+         
 def sigmavxpi_Plot():
     
     [cutQ2bin10,cutQ2bin16,cutQ2bin25,cutQ2bin40,cutQ2bin63,ycut1,tcut1,cut10, cut30, cut50, cut70, cut150, cut200, cut250, cut300, cut350, cut400, cut450, cut500, cut550, cut600, cut650, cut700, cut750, cut800] = q2_Cut()
@@ -4382,9 +4382,9 @@ def sigmaPlot():
     
 def main() :
 
-    # sigmavxBj_Plot()
+    sigmavxBj_Plot()
     # sigmavxpi_Plot()
-    phaseSpace()
+    # phaseSpace()
     # lumi()
     # pionPlots()
     # sigmavX()
