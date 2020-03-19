@@ -9,8 +9,12 @@
 *.pdf
 .nfs*
 *.root
-*.*.*
-
+*.npz
+*.bgn.rndm
+*.end.rndm
+*.geo.gdml
+*.run.json
+*.run.mac
 
 # Don't ignore these files from eic_SF/intro_slides/
 !EICMC_Overview.pdf
@@ -22,10 +26,6 @@
 *.dat
 *.evio
 *.ev
-
-# large files
-*.root
-*.npz
 
 # sym link
 EIC_talks
