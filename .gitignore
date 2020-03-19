@@ -21,7 +21,10 @@
 !EICPlot_Overview.pdf
 !EICDocker_Overview.pdf
 
-# GEMC stuff
+# Don't ignore output directories
+!OUTPUTS
+
+# GEANT4
 *.txt
 *.dat
 *.evio
