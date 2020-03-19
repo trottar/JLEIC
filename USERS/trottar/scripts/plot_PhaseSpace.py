@@ -41,9 +41,11 @@ sys.path.insert(0,'/home/trottar/bin/python/root2py/')
 from root2py import pyPlot, pyBranch, pyBin
 
 # rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/TDISpion"
-rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/TDISpion_10-100.root"
+# rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/TDISpion_10-100.root"
+rootName = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_n_5on100.root"
 
-rootName_low = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/TDISpion.root"
+# rootName_low = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/TDISpion.root"
+rootName_low = "/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_n_5on100.root"
 # rootName_low = "TDISpion_10-100"
 # rootName_low = "TDISpion_10-100_OLD"
 # rootName_low = "TDISpion_xpi"
@@ -4382,12 +4384,12 @@ def sigmaPlot():
     
 def main() :
 
-    sigmavxBj_Plot()
+    # sigmavxBj_Plot()
     # sigmavxpi_Plot()
     # phaseSpace()
     # lumi()
     # pionPlots()
-    # sigmavX()
+    sigmavX()
     # yCutPlots()
     # sigmaPlot()
     plt.show()

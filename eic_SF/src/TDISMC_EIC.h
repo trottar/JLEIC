@@ -1,5 +1,6 @@
 /* for the JLEIC configuration
  *  TDISMC_collMC
+ *  Created by K.Park and R.Trotta <trotta@cua.edu>
  */
 
 #include <stdio.h>

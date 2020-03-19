@@ -1,8 +1,7 @@
 /*
  *  TDISMC.cpp
  *  
- *  Created by K.Park on 08/10/2016
- *  Copyright 2016. All rights reserved.
+ *  Created by K.Park and R.Trotta <trotta@cua.edu>
  * 
  * This code is for ep or eD : by change ABeam in "TDISMC_EIC.h" 
  */
@@ -361,7 +360,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output file : = "TDIS_lund.dat";
-  ofstream OUT (Form("../OUTPUTS/pi_p_lund_%.0fon%.0f.dat", kBeam, PBeam), ios::app);
+  ofstream OUT (Form("../OUTPUTS/pi_p_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::app);
 
   // **********************************************************************************
   // define TDIS pSpectator with fermi momentum from  data file "moment_ld2b.dat" from G4SBS 

@@ -9,6 +9,7 @@
 *.pdf
 .nfs*
 *.root
+*.*.*
 
 
 # Don't ignore these files from eic_SF/intro_slides/
