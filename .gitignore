@@ -22,7 +22,7 @@
 !EICDocker_Overview.pdf
 
 # Don't ignore output directories
-!OUTPUTS
+!OUTPUTS/
 
 # GEANT4
 *.txt
