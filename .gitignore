@@ -21,12 +21,6 @@
 !EICPlot_Overview.pdf
 !EICDocker_Overview.pdf
 
-# Don't ignore output directories
-!eic_SF/OUTPUTS
-!eic_SF/g4e/OUTPUTS
-!USERS/trottar/OUTPUTS
-!USERS/trottar/g4e/OUTPUTS
-
 # GEANT4
 *.txt
 *.dat
