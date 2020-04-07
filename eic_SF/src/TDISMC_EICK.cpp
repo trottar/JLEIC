@@ -510,7 +510,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     invts.Q2   = Q2Max*uu + Q2Min*(1.-uu);
     uv   = ran3.Uniform();
     invts.xBj  = pow(xMin,1.-uv)*pow(xMax,uv);
-    invts.x_D  = invts.xBj*MProton/MIon;
+    invts.x_D  = invts.xBj*(MProton/MIon);
     invts.y_D  = invts.Q2/(invts.x_D*invts.TwoPdotk);
     invts.Yplus = 1 + ((1-invts.y_D)*(1-invts.y_D));
 
@@ -690,7 +690,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
     //cout << "TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
     
-    pScatterProton_Rest.SetXYZM(P_p2*sin(theta_p2)*cos(phi_p2), P_p2*sin(theta_p2)*sin(phi_p2), P_p2*cos(theta_p2),MNucleon1);
+    // pScatterProton_Rest.SetXYZM(P_p2*sin(theta_p2)*cos(phi_p2), P_p2*sin(theta_p2)*sin(phi_p2), P_p2*cos(theta_p2),MNucleon1); // What was previously there
+    pScatterProton_Rest.SetXYZM(P_p2*sin(theta_p2)*cos(phi_p2), P_p2*sin(theta_p2)*sin(phi_p2), P_p2*cos(theta_p2),MProton); // Same as TDIS_EIC.cpp
     
     // *****************************************************************************
 		

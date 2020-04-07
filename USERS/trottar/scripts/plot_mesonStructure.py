@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-03-15 22:56:46 trottar"
+# Time-stamp: "2020-04-02 14:37:48 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -11,25 +11,25 @@
 # Copyright (c) trottar
 #
 
-import numpy as np
 import uproot as up
 import scipy as sci
 from scipy import optimize
-import matplotlib.backends.backend_pdf
+import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.backends.backend_pdf
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
 from sys import path
 import time,math,sys
 
-sys.path.insert(0,'/home/trottar/bin/python/root2py/')
-from root2py import pyPlot, pyBranch, pyBin
+sys.path.insert(0,'/home/trottar/bin/python/')
+import root2py as r2p
 
 # rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_p_5on100.root"
 rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_n_5on100.root"
 # rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/k_lambda_5on100.root"
 tree = up.open(rootName)["Evnts"]
-branch = pyBranch(tree)
+branch = r2p.pyBranch(tree)
 
 pdf = matplotlib.backends.backend_pdf.PdfPages("fpiPlot_xpi.pdf")
 
@@ -96,8 +96,8 @@ for x in range(0,len(Q2array)) :
     cutDict.update(eval(ytmp))
     i+=1
 
-b = pyBin()
-c = pyPlot(cutDict)
+b = r2p.pyBin()
+c = r2p.pyPlot(cutDict)
 
 ycut1 = ["ycut"]
 tcut1 = ["tcut"]
@@ -936,11 +936,11 @@ def pionPlots(Q2_inp):
     plt.xscale('log')
     # plt.yscale('log')
     plt.xlim(0.01,1.0)
-    plt.ylim(1e-6,1.0)
+    plt.ylim(1e-6,0.5)
     plt.xlabel('$x_{\pi}$', fontsize =20)
     plt.ylabel('$F^{2}_{\pi}$', fontsize =20)
     plt.title('$F^{2}_{\pi}$ vs $x_{\pi}$', fontsize =20)
-    leg = plt.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
+    leg = plt.legend(loc='center left', bbox_to_anchor=(0.8, 0.5), fontsize=10)
     leg.get_frame().set_alpha(1.)
     
     ####### Linear x, log y
@@ -1339,13 +1339,13 @@ def sigmavX(Q2_inp):
     plt.xlim(1e-5,1.0)
     plt.ylim(0.,1.5)
     # ax.text(0.45, 0.15, '$Q^2$=10 $GeV^2$', transform=ax.transAxes, fontsize=20, verticalalignment='top', horizontalalignment='right')
-    plt.legend(loc='center left', bbox_to_anchor=(0.05, 0.30), fontsize='small')
+    plt.legend(loc='center left', bbox_to_anchor=(0.05, 0.30), fontsize=20)
     ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
 
     plt.title('reduced d$\sigma$ vs $x_{Bj}$', fontsize =20)
-    plt.ylabel('reduced d$\sigma$ ($10^-5$*$nb/GeV^{2}$)')
-    plt.xlabel('$x_{Bj}$')
+    plt.ylabel('reduced d$\sigma$ ($10^-5$*$nb/GeV^{2}$)',fontsize=20)
+    plt.xlabel('$x_{Bj}$',fontsize=20)
 
     plt.style.use('default')
         

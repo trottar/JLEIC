@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-03-19 12:49:35 trottar"
+# Time-stamp: "2020-03-20 18:06:48 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -14,7 +14,7 @@
 import numpy as np
 import uproot as up
 import awkward
-import matplotlib.pyplot as plt#
+import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 import sys, math
 
@@ -22,11 +22,10 @@ sys.path.insert(0,'/home/trottar/bin/python/root2py/')
 from root2py import pyPlot, pyBranch, pyBin
 
 # kinematics = "pi_n_10on100"
-kinematics = "pi_n_10on275"
-# kinematics = "pi_n_18on275"
+# kinematics = "pi_n_10on275"
+kinematics = "pi_n_18on275"
 
-# pdf = matplotlib.backends.backend_pdf.PdfPages("g4e_pi_p.pdf")
-pdf = matplotlib.backends.backend_pdf.PdfPages("g4e_%s_PIDcut.pdf") % kinematics
+pdf = matplotlib.backends.backend_pdf.PdfPages("g4e_%s_PIDcut.pdf" % kinematics) 
 
 # rootName = "OUTPUTS/g4e_TDISpion_lund_p275_e10_10k.root" # Yulia root file
 rootName = "OUTPUTS/g4e_%s.root" % kinematics
@@ -36,9 +35,9 @@ branch = pyBranch(tree)
 
 gen_prt_charge = tree.array("gen_prt_charge")
 gen_prt_id = tree.array("gen_prt_id")
-gen_prt_dir_x = tree.array("gen_prt_dir_x")
-gen_prt_dir_y = tree.array("gen_prt_dir_y")
-gen_prt_dir_z = tree.array("gen_prt_dir_z")*(180/math.pi)
+gen_prt_dir_x = np.arccos(tree.array("gen_prt_dir_x"))*(180/math.pi)
+gen_prt_dir_y = np.arccos(tree.array("gen_prt_dir_y"))*(180/math.pi)
+gen_prt_dir_z = np.arccos(tree.array("gen_prt_dir_z"))*(180/math.pi)
 gen_prt_tot_mom = tree.array("gen_prt_tot_mom")
 
 # Convert from awkward array to 1D
@@ -81,28 +80,28 @@ ax.legend(loc=2)
 plt.title('gen_prt_dir_z', fontsize =20)
 
 phaseSpace = c.densityPlot(c.applyCuts(gen_prt_tot_mom,picut), c.applyCuts(gen_prt_dir_z,picut), 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b)
-plt.ylim(-180.,180.)
+# plt.ylim(0.,60.)
 plt.xlim(0.,600.)
-plt.xlabel('tot_mom (GeV)')
-plt.ylabel('Theta (deg)')
+plt.xlabel('tot_mom (GeV)', fontsize =20)
+plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('pi cut', fontsize =20)
 phaseSpace = c.densityPlot(c.applyCuts(gen_prt_tot_mom,ecut), c.applyCuts(gen_prt_dir_z,ecut), 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b)
-plt.ylim(-180.,180.)
-# plt.xlim(0.,50.)
-plt.xlabel('tot_mom (GeV)')
-plt.ylabel('Theta (deg)')
+# plt.ylim(0.,180.)
+plt.xlim(0.,50.)
+plt.xlabel('tot_mom (GeV)', fontsize =20)
+plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('e cut', fontsize =20)
 phaseSpace = c.densityPlot(c.applyCuts(gen_prt_tot_mom,ncut), c.applyCuts(gen_prt_dir_z,ncut), 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b)
-plt.ylim(-180.,180.)
-# plt.xlim(0.,50.)
-plt.xlabel('tot_mom (GeV)')
-plt.ylabel('Theta (deg)')
+# plt.ylim(0.,180.)
+# plt.xlim(0.,500.)
+plt.xlabel('tot_mom (GeV)', fontsize =20)
+plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('n cut', fontsize =20)
-phaseSpace = c.densityPlot(gen_prt_tot_mom, gen_prt_dir_z, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b, 0., 50., -180., 180.)
-plt.ylim(-180.,180.)
-# plt.xlim(0.,50.)
-plt.xlabel('tot_mom (GeV)')
-plt.ylabel('Theta (deg)')
+phaseSpace = c.densityPlot(gen_prt_tot_mom, gen_prt_dir_z, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b,0., 50.,-30.,180.)
+plt.ylim(-30.,180.)
+plt.xlim(0.,50.)
+plt.xlabel('tot_mom (GeV)', fontsize =20)
+plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('no cut', fontsize =20)
 
 for f in xrange(1, plt.figure().number):
