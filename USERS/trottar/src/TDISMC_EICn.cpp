@@ -727,7 +727,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     //   ", pz= " << qVirtual_Rest.Z() << endl;
 
     // HERE
-    // if(E_p2 < PBeam){      
     // Back to Lab frame
     pScatterProton_Vertex = pScatterProton_Rest;
     pScatterProton_Vertex.Boost(BoostRest);
@@ -1061,10 +1060,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vex_Lab = 0.0;
     vey_Lab = 0.0;
     vez_Lab = 0.0;
+    
+    // cout << "OUTPUT FOR GEMC " <<  Jacob << " \t"  <<  eBeamPol <<  " \t"  <<  DBeamPol << endl;
 
     // HERE
+    if (EprE_Lab > PBeam || EpiE_Lab > PBeam){
+      cout << ppiz_Lab << endl;
+      cout << pprz_Lab << endl;
     }
-    // cout << "OUTPUT FOR GEMC " <<  Jacob << " \t"  <<  eBeamPol <<  " \t"  <<  DBeamPol << endl;
     
     // cout << MSpectator << " " << sp_particle_id <<  " " << sp_particle_charge << endl;    
     if(ABeam>1.){
@@ -1103,7 +1106,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << spmass << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl;  
 
     }	
-	  
+
+    // HERE
+    }
+    
     MEvts++;
     
     tree->Fill();
