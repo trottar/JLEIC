@@ -1065,9 +1065,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     }
     
     // HERE
-    // if (EprE_Lab > 1 || EpiE_Lab > 1){
-    //   cout << EprE_Lab << ":" << PBeam << "||" << EpiE_Lab <<  ":" << PBeam << endl;
-    // }
+    if (EprE_Lab > 1 || EpiE_Lab > 1){
+      cout << EprE_Lab << ":" << PBeam << "||" << EpiE_Lab <<  ":" << PBeam << endl;
+    }
+
+    // HERE
     // if (pprz_Lab <1){
     // 	pprz_Lab = 0;
     //   }
