@@ -3,7 +3,7 @@
 #
 # Description: Source escalate first....source ~/ResearchNP/gemc/escalate/escalate/escalate.csh
 # ================================================================
-# Time-stamp: "2020-04-03 14:07:16 trottar"
+# Time-stamp: "2020-04-09 18:59:11 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -38,8 +38,8 @@ def runG4e(numEvts,g4e_flag=False):
         g4e = Geant4Eic(detector='jleic', beamline='erhic')\
                                   .source('../OUTPUTS/%s_lund.dat' % final_state)\
                                   .output('OUTPUTS/g4e_%s' % final_state)\
-                                  .beam_on(numEvts)
-        g4e.vis()
+                                  .beam_on(numEvts)\
+        # g4e.vis()
         g4e.run()
 
     jana = Jana(nevents=numEvts, output='OUTPUTS/jana_%s.root' % final_state)

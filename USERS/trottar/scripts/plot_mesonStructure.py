@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-04-02 14:37:48 trottar"
+# Time-stamp: "2020-04-12 16:33:46 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -26,8 +26,9 @@ sys.path.insert(0,'/home/trottar/bin/python/')
 import root2py as r2p
 
 # rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_p_5on100.root"
-rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_n_5on100.root"
+# rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_n_5on100.root"
 # rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/k_lambda_5on100.root"
+rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/k_lambda_18on275.root"
 tree = up.open(rootName)["Evnts"]
 branch = r2p.pyBranch(tree)
 

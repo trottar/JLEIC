@@ -713,13 +713,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     ppr_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab);
 	  
     // For debugging purpose
-    /*
-      if (ppr_Lab > (PBeam/ABeam) ) { 
-      // Unphysical kinematics  // if TDIS spectator momentum larger than 50% ion momentum
-      printf("impossible of TDIS spectator momentum= %6.2f \n", ppr_Lab);
-      continue;
-      }
-    */
+    // HERE
+    // if (ppr_Lab > (PBeam/ABeam) ) { 
+    //   // Unphysical kinematics  // if TDIS spectator momentum larger than 50% ion momentum
+    //   printf("impossible of TDIS spectator momentum= %6.2f \n", ppr_Lab);
+    //   continue;
+    // }
+  
     
     E_pi  = pSpectator_RestNew.E() - pScatterProton_Rest.E();
     Px_pi = pSpectator_RestNew.X() - pScatterProton_Rest.X(); 
@@ -959,24 +959,23 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       }
 
       // For debugging purpose
-      /*
-	cout  << "(6L) proton(TDIS spectator) Vertex, pRx= " << pprx_Lab << ", pPy= " << ppry_Lab <<
-	", pPz= " << pprz_Lab << ", Epr= " << ppr_Lab << endl;
-	cout  << "(6R) proton(TDIS spectator) Rest, pRx= " << pScatterProton_Rest.X() << ", pPy= " << pScatterProton_Rest.Y() <<
-	", pPz= " << pScatterProton_Rest.Z() << ", Epr= " << pScatterProton_Rest.E() << endl;
-	cout  << "(6L_S) proton(spectator) Vertex, pRx= " << pSpectator_Vertex.X()  << ", pPy= " << pSpectator_Vertex.Y()  <<
-	", pPz= " << pSpectator_Vertex.Z()  << ", Epr= " << pSpectator_Vertex.E()  << endl;
-	cout  << "(6R_S) proton(spectator) Rest, pRx= " << pSpectator_Rest.X()  << ", pPy= " << pSpectator_Rest.Y()  <<
-	", pPz= " << pSpectator_Rest.Z()  << ", Epr= " << pSpectator_Rest.E()  << endl;
+      
+      // cout  << "(6L) proton(TDIS spectator) Vertex, pRx= " << pprx_Lab << ", pPy= " << ppry_Lab <<
+      // 	", pPz= " << pprz_Lab << ", Epr= " << ppr_Lab << endl;
+      // cout  << "(6R) proton(TDIS spectator) Rest, pRx= " << pScatterProton_Rest.X() << ", pPy= " << pScatterProton_Rest.Y() <<
+      // 	", pPz= " << pScatterProton_Rest.Z() << ", Epr= " << pScatterProton_Rest.E() << endl;
+      // cout  << "(6L_S) proton(spectator) Vertex, pRx= " << pSpectator_Vertex.X()  << ", pPy= " << pSpectator_Vertex.Y()  <<
+      // 	", pPz= " << pSpectator_Vertex.Z()  << ", Epr= " << pSpectator_Vertex.E()  << endl;
+      // cout  << "(6R_S) proton(spectator) Rest, pRx= " << pSpectator_Rest.X()  << ", pPy= " << pSpectator_Rest.Y()  <<
+      // 	", pPz= " << pSpectator_Rest.Z()  << ", Epr= " << pSpectator_Rest.E()  << endl;
 		
-	cout << "Vertex: kScatteredPx=" << kScattered_Vertex.X() << ", kScatteredPy=" << kScattered_Vertex.Y() << ", kScatteredPz=" << kScattered_Vertex.Z() << endl;
-	cout << "Rest: kScatteredPx=" << kScattered_Rest.X() << ", kScatteredPy=" << kScattered_Rest.Y() << ", kScatteredPz=" << kScattered_Rest.Z() << endl;
+      // cout << "Vertex: kScatteredPx=" << kScattered_Vertex.X() << ", kScatteredPy=" << kScattered_Vertex.Y() << ", kScatteredPz=" << kScattered_Vertex.Z() << endl;
+      // cout << "Rest: kScatteredPx=" << kScattered_Rest.X() << ", kScatteredPy=" << kScattered_Rest.Y() << ", kScatteredPz=" << kScattered_Rest.Z() << endl;
 	      
-	cout  << "(6L) pion(TDIS) Vertex, pRix= " << ppix_Lab << ", pPiy= " << ppiy_Lab <<
-	", pPiz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
-	cout  << "(6R) pion(TDIS) Rest, pPix= " << Px_pi << ", pPiy= " << Py_pi <<
-	", pPiz= " << Pz_pi << ", Epi= " << E_pi << endl;
-      */
+      // cout  << "(6L) pion(TDIS) Vertex, pRix= " << ppix_Lab << ", pPiy= " << ppiy_Lab <<
+      // 	", pPiz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
+      // cout  << "(6R) pion(TDIS) Rest, pPix= " << Px_pi << ", pPiy= " << Py_pi <<
+      // 	", pPiz= " << Pz_pi << ", Epi= " << E_pi << endl;
 			      		
       invts.tSpectator = MIon*MIon+MSpectator*MSpectator-2.*pSpectator_Vertex.Dot(PIncident_Vertex);
       invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;

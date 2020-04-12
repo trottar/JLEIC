@@ -65,9 +65,10 @@ const  double D2R    = PI/(180.0);
 
 const double ZBeam =   1.;
 const double ABeam =   1.;           // 1 for proton beam, 2 for deuteron beam
-//const double CrossingTheta = 0.050; // JLEIC angle
+//const doubleb CrossingTheta = 0.050; // JLEIC angle
 const double CrossingTheta = 0.025; // eRHIC angle (online says 0.022 mrad)
-const double CrossingPhi   = 0.0;   // pi/2.0 for eRHIC/ePHENIX
+const double CrossingPhi   = 0.0;  // value set before
+/* const double CrossingPhi   = PI/2.0;   // pi/2.0 for eRHIC/ePHENIX */
 
 const double eBetaStarX = 0.10; // electron, ion beta at IP (m)
 const double eBetaStarY = 0.02;
