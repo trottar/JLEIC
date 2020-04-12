@@ -360,7 +360,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output file : = "TDIS_lund.dat";
-  ofstream OUT (Form("../OUTPUTS/pi_n_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::app);
+  ofstream OUT (Form("../OUTPUTS/pi_n_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::trunc);
 
   // **********************************************************************************
   // define TDIS pSpectator with fermi momentum from  data file "moment_ld2b.dat" from G4SBS 
@@ -645,7 +645,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // TDIS in SBS software, they define the spector(proton) with pt[0.:0.5GeV], z[0.:1.0] with plat random
     // in TDIS kinematics, the general Spectator particle (proton) is nothing to do with following calculation.
     //
-    // neutron config = proton + pion(-):  this proton called additional spectator in TDIS concept
+    // neutron config = proton + pion(-):  this proton called additional spectator in TDIS concept    
     // randomize in pt and z
     p2_pt = gRandom->Uniform(0.005*PBeam); // .5% of incoming ion beam momentum, this is the limit of the transverse momentum of  recoil particle...
     p2_z = gRandom->Uniform(1.);
@@ -766,12 +766,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       ppiy_Lab = pScatterPion_Vertex.Y();
       ppiz_Lab = pScatterPion_Vertex.Z();
       EpiE_Lab = sqrt(ppix_Lab*ppix_Lab+ppiy_Lab*ppiy_Lab+ppiz_Lab*ppiz_Lab+mPion*mPion);
-   
+      
     // for debuggin purpose
-    /*
-      cout  << "(7L) pion Vertex, px= " << ppix_Lab << ", py= " << ppiy_Lab <<
-      ", pz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
-    */
+      // cout  << "(7L) pion Vertex, px= " << ppix_Lab << ", py= " << ppiy_Lab <<
+      // ", pz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
     
     vpix_Lab = 0.0;
     vpiy_Lab = 0.0;
@@ -1064,11 +1062,27 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // cout << "OUTPUT FOR GEMC " <<  Jacob << " \t"  <<  eBeamPol <<  " \t"  <<  DBeamPol << endl;
 
     // HERE
-    if (EprE_Lab > PBeam || EpiE_Lab > PBeam){
-      cout << ppiz_Lab << endl;
-      cout << pprz_Lab << endl;
     }
     
+    // HERE
+    // if (EprE_Lab > 1 || EpiE_Lab > 1){
+    //   cout << EprE_Lab << ":" << PBeam << "||" << EpiE_Lab <<  ":" << PBeam << endl;
+    // }
+    // if (pprz_Lab <1){
+    // 	pprz_Lab = 0;
+    //   }
+    //   if (EprE_Lab < 1){
+    // 	EprE_Lab = 0;
+    //   }
+    // if (ppiz_Lab <1){
+    // 	cout << "------------->" << ppiz_Lab << endl;
+    // 	ppiz_Lab = 0;
+    //   }
+    //   if (EpiE_Lab < 1){
+    // 	EpiE_Lab = 0;
+    //   }
+
+
     // cout << MSpectator << " " << sp_particle_id <<  " " << sp_particle_charge << endl;    
     if(ABeam>1.){
       if( invts.alphaS<2.0 &&  invts.alphaS>0.0){
@@ -1099,16 +1113,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
       // daughter particles
       // the scattered electron
-      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << "1" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific <<pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
+      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << "1" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
       // pion :  DIS: do NOT need to be detected
-      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
+      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
       // the first spectator proton (TDIS)
-      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << spmass << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl;  
+      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << spmass << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl;  
 
     }	
-
-    // HERE
-    }
     
     MEvts++;
     
