@@ -213,6 +213,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 	
   double TDIS_xbj, TDIS_znq, TDIS_Mx2, TDIS_y;
 
+  // HERE
+  double t;
+
   const Int_t bufsize=32000;
 
   // invariants
@@ -233,6 +236,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   tree->Branch("xpi", &xpi, "xpi/D");
   tree->Branch("ypi", &ypi, "ypi/D");
   tree->Branch("y", &y, "y/D");
+  tree->Branch("t", &y, "t/D");
   tree->Branch("tpi", &tpi, "tpi/D");
   tree->Branch("fpi", &fpi, "fpi/D");
 	
@@ -650,6 +654,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     p2_pt = gRandom->Uniform(0.005*PBeam); // .5% of incoming ion beam momentum, this is the limit of the transverse momentum of  recoil particle...
     p2_z = gRandom->Uniform(1.);
 
+    // HERE
+    if (TMath::Sqrt(pSpectator_RestNew.Mag2()) > PBeam/2){
+      cout << "spec rest new: " << pSpectator_RestNew.Mag2() << endl;
+    }
+    if (TMath::Sqrt(TMath::Abs(qVirtual_Rest.Mag2())) > PBeam/2){
+      cout << "virt rest: |" << qVirtual_Rest.Mag2() << "|" << endl;
+    }
     //  definition are moved at the beginning of code
     //		double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
     TDIS_xbj = invts.Q2/(2*pSpectator_RestNew.Dot(qVirtual_Rest));
@@ -708,17 +719,18 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     */
 	  
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
-    //cout << "TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
+    if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
+      cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
+    }
 
     // HERE
     // pScatterProton_Rest.SetXYZM(P_p2*sin(theta_p2)*cos(phi_p2), P_p2*sin(theta_p2)*sin(phi_p2), P_p2*cos(theta_p2),MProton);
-    pScatterProton_Rest.SetXYZM(Px_p2*sin(theta_p2), Py_p2*sin(theta_p2), Pz_p2*cos(theta_p2),MProton);
+    pScatterProton_Rest.SetXYZM(Px_p2*sin(theta_p2), Py_p2*sin(theta_p2), Pz_p2*cos(theta_p2),MProton); // my version, broken into transverse and longitudinal components
     
     // *****************************************************************************
 
     // for dubugging purpose:
     // Generated additional spectator proton from TDIS reaction
-    //HERE
     // cout << "\n" << "(4) Spectator(T), px= " << pScatterProton_Rest.X() << ", py= " << pScatterProton_Rest.Y()<<
     //   ", pz= " << pScatterProton_Rest.Z() << ", it's random numbers (pt,z)"<< endl;	    
     // cout  << "(5) Active(N), px= " << pSpectator_RestNew.X() << ", py= " << pSpectator_RestNew.Y()<<
@@ -727,11 +739,17 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     //   ", pz= " << qVirtual_Rest.Z() << endl;
 
     // HERE
+    t = -2.*kIncident_Vertex.Dot(kScattered_Vertex);
+    
+    // HERE
     // Back to Lab frame
     pScatterProton_Vertex = pScatterProton_Rest;
     pScatterProton_Vertex.Boost(BoostRest);
+    
     if (pScatterProton_Vertex.E() < PBeam){
-
+    // if ((pScatterProton_Vertex.E()+pScatterPion_Vertex.E()) < PBeam){
+    // if (invts.tPrime < 1.0 && invts.tPrime > -0.00001){
+      
       pprx_Lab = pScatterProton_Vertex.X();
       ppry_Lab = pScatterProton_Vertex.Y();
       pprz_Lab = pScatterProton_Vertex.Z();
@@ -742,31 +760,34 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
       ppr_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab);
     
-      // For debugging purpose
-      // HERE
-      // if (ppr_Lab > (PBeam/ABeam) ) { 
-      //   // Unphysical kinematics  // if TDIS spectator momentum larger than 50% ion momentum
-      //   printf("impossible of TDIS spectator momentum= %6.2f \n", ppr_Lab);
-      //   continue;
-      // }
+    // For debugging purpose
+    // HERE
+    // if (ppr_Lab > (PBeam/ABeam) ) { 
+    //   // Unphysical kinematics  // if TDIS spectator momentum larger than 50% ion momentum
+    //   printf("impossible of TDIS spectator momentum= %6.2f \n", ppr_Lab);
+    //   continue;
+    // }
       
-      E_pi  = pSpectator_RestNew.E() - pScatterProton_Rest.E();
-      Px_pi = pSpectator_RestNew.X() - pScatterProton_Rest.X(); 
-      Py_pi = pSpectator_RestNew.Y() - pScatterProton_Rest.Y();
-      Pz_pi = pSpectator_RestNew.Z() - pScatterProton_Rest.Z();
+    E_pi  = pSpectator_RestNew.E() - pScatterProton_Rest.E();
+    Px_pi = pSpectator_RestNew.X() - pScatterProton_Rest.X(); 
+    Py_pi = pSpectator_RestNew.Y() - pScatterProton_Rest.Y();
+    Pz_pi = pSpectator_RestNew.Z() - pScatterProton_Rest.Z();
       
-      pScatterPion_Rest.SetXYZM(Px_pi,Py_pi,Pz_pi,mPion);
+    pScatterPion_Rest.SetXYZM(Px_pi,Py_pi,Pz_pi,mPion);
       
-      pScatterPion_V3.SetXYZ(Px_pi,Py_pi,Pz_pi);
+    pScatterPion_V3.SetXYZ(Px_pi,Py_pi,Pz_pi);
 		
-      // Back to Lab frame
-      pScatterPion_Vertex = pScatterPion_Rest;
-      pScatterPion_Vertex.Boost(BoostRest);
+    // Back to Lab frame
+    pScatterPion_Vertex = pScatterPion_Rest;
+    pScatterPion_Vertex.Boost(BoostRest);
+    
+    P_pi = pScatterPion_V3.Mag();
+    // if (((pScatterPion_Vertex.Theta())*(180/pi)) > 13.0)
       ppix_Lab = pScatterPion_Vertex.X();
       ppiy_Lab = pScatterPion_Vertex.Y();
       ppiz_Lab = pScatterPion_Vertex.Z();
       EpiE_Lab = sqrt(ppix_Lab*ppix_Lab+ppiy_Lab*ppiy_Lab+ppiz_Lab*ppiz_Lab+mPion*mPion);
-      
+
     // for debuggin purpose
       // cout  << "(7L) pion Vertex, px= " << ppix_Lab << ", py= " << ppiy_Lab <<
       // ", pz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
@@ -774,15 +795,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vpix_Lab = 0.0;
     vpiy_Lab = 0.0;
     vpiz_Lab = 0.0;
-		
+	       
     // Definition of pion variable
     //double tpi, ypi, fpi, xpi; 
     xpi = TDIS_xbj/(1 - p2_z);
     tpi = (E_pi*E_pi) - (pScatterPion_V3.Mag()*pScatterPion_V3.Mag());
     ypi = pScatterPion_Rest.Dot(qVirtual_Rest)/(pScatterPion_Rest.Dot(kIncident_Rest));
-	  
-    P_pi = pScatterPion_V3.Mag();
-	  
+    
     // *****
     // for debugging purpose
     /*
@@ -981,9 +1000,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       */
 	    
       // alpha cut for select event with minimizing coherrent effects
-      if(pow(invts.alphaS-1,2)<0.0001){
-	continue;
-      }
+      // if(pow(invts.alphaS-1,2)<0.0001){
+      // 	continue;
+      // }
 
       // For debugging purpose
       /*

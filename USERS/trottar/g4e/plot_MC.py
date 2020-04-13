@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-04-12 15:33:17 trottar"
+# Time-stamp: "2020-04-13 14:45:22 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -37,12 +37,13 @@ branch = r2p.pyBranch(tree)
 # pdf = matplotlib.backends.backend_pdf.PdfPages("MC_%s_Q2_%i.pdf" % (kinematics,num))
 # pdf = matplotlib.backends.backend_pdf.PdfPages("MC_%s_t_0p1_%i_cut.pdf" % (kinematics,num))
 # pdf = matplotlib.backends.backend_pdf.PdfPages("MC_%s_t_spec_0p01_cut.pdf" % (kinematics))
-pdf = matplotlib.backends.backend_pdf.PdfPages("MC_%s_Econs_cut.pdf" % (kinematics)) 
+pdf = matplotlib.backends.backend_pdf.PdfPages("MC_%s_MM.pdf" % (kinematics)) 
 
 Q2 = branch.findBranch("invts","Q2")
 # t = -branch.findBranch("invts","tPrime")
 t = -branch.findBranch("invts","tSpectator")
 TDIS_znq = tree.array("TDIS_znq")
+TDIS_Mx2 = tree.array("TDIS_Mx2")
 xpi = tree.array("xpi")
 EprE_Lab = tree.array("EprE_Lab")
 EpiE_Lab = tree.array("EpiE_Lab")
@@ -79,7 +80,7 @@ for entryNum in range(0,mytree.GetEntries()):
     neutron = getattr(mytree ,"p1_Sp.")
     
     # if Q2[entryNum] > num:
-    # if t[entryNum]<-0.0 and t[entryNum]>-num:
+    # if t[entryNum]<-0. and t[entryNum]>-1.0:
     
     # if EpiE_Lab[entryNum] == pion.E():
     pion_theta = np.append(pion_theta,pion.Theta()*(180/math.pi))
@@ -97,7 +98,7 @@ for entryNum in range(0,mytree.GetEntries()):
     Q2_cut = np.append(Q2_cut,Q2[entryNum])
     t_cut = np.append(t_cut,t[entryNum])
     TDIS_znq_cut = np.append(TDIS_znq_cut,TDIS_znq[entryNum])
-
+    
 f = plt.figure(figsize=(11.69,8.27))
 plt.style.use('default')
 
@@ -112,8 +113,16 @@ ax = f.add_subplot(212)
 hist1 = ax.hist(pion_mom,bins=b.setbin(pion_mom,200),label='pi cut',histtype='step', alpha=0.5, stacked=True, fill=True)
 hist1a = ax.hist(scat_electron_mom,bins=b.setbin(scat_electron_mom,200),label='e cut',histtype='step', alpha=0.5, stacked=True, fill=True)
 hist1b = ax.hist(neutron_mom,bins=b.setbin(neutron_mom,200),label='n cut',histtype='step', alpha=0.5, stacked=True, fill=True)
+hist1c = ax.hist(np.sqrt(TDIS_Mx2),bins=b.setbin(np.sqrt(TDIS_Mx2),200),label='TDIS_Mx2 cut',histtype='step', alpha=0.5, stacked=True, fill=True)
 ax.legend(loc=1)
 plt.title('tot_mom', fontsize =20)
+
+mmplot = c.densityPlot(np.sqrt(TDIS_Mx2),Q2, '$Q^2$ vs MM','MM','$Q^2$', 200, 200,  b)
+# plt.ylim(-180.,180.)
+# plt.xlim(0.,50.)
+plt.xlabel('MM', fontsize =20)
+plt.ylabel('$Q^2$', fontsize =20)
+plt.title('$Q^2$ vs MM', fontsize =20)
 
 # gamma = c.densityPlot(photon_mom,TDIS_znq_cut, 'TDIS_znq vs $\gamma$ tot_mom','tot_mom','TDIS_znq', 200, 200,  b)
 # # plt.ylim(-180.,180.)
@@ -136,19 +145,34 @@ plt.title('tot_mom', fontsize =20)
 # plt.ylabel('$Q^2$ ($GeV^2$)', fontsize =20)
 # plt.title('$Q^2$ vs e $\Theta$', fontsize =20)
 
-# emomt = c.densityPlot(pion_mom,t_cut, 't vs k tot_mom','tot_mom','t', 200, 200,  b)
-# # plt.ylim(-180.,180.)
-# # plt.xlim(0.,50.)
-# plt.xlabel('tot_mom (GeV)', fontsize =20)
-# plt.ylabel('t ($GeV^2$)', fontsize =20)
-# plt.title('t vs k tot_mom', fontsize =20)
+pimomt = c.densityPlot(pion_mom,t_cut, 't vs pi tot_mom','tot_mom','t', 200, 200,  b)
+# plt.ylim(-180.,180.)
+# plt.xlim(0.,50.)
+plt.xlabel('tot_mom (GeV)', fontsize =20)
+plt.ylabel('t ($GeV^2$)', fontsize =20)
+plt.title('t vs pi tot_mom', fontsize =20)
 
-# ethetat = c.densityPlot(pion_theta,t_cut, 't vs k $\Theta$','$\Theta$','t', 200, 200,  b)
-# # plt.ylim(-180.,180.)
-# # plt.xlim(0.,50.)
-# plt.xlabel('$\Theta$', fontsize =20)
-# plt.ylabel('t ($GeV^2$)', fontsize =20)
-# plt.title('t vs k $\Theta$', fontsize =20)
+pithetat = c.densityPlot(pion_theta,t_cut, 't vs pi $\Theta$','$\Theta$','t', 200, 200,  b)
+# plt.ylim(-180.,180.)
+# plt.xlim(0.,50.)
+plt.xlabel('$\Theta$', fontsize =20)
+plt.ylabel('t ($GeV^2$)', fontsize =20)
+plt.title('t vs pi $\Theta$', fontsize =20)
+
+
+nmomt = c.densityPlot(neutron_mom,t_cut, 't vs n tot_mom','tot_mom','t', 200, 200,  b)
+# plt.ylim(-180.,180.)
+# plt.xlim(0.,50.)
+plt.xlabel('tot_mom (GeV)', fontsize =20)
+plt.ylabel('t ($GeV^2$)', fontsize =20)
+plt.title('t vs n tot_mom', fontsize =20)
+
+nthetat = c.densityPlot(neutron_theta,t_cut, 't vs n $\Theta$','$\Theta$','t', 200, 200,  b)
+# plt.ylim(-180.,180.)
+# plt.xlim(0.,50.)
+plt.xlabel('$\Theta$', fontsize =20)
+plt.ylabel('t ($GeV^2$)', fontsize =20)
+plt.title('t vs n $\Theta$', fontsize =20)
 
 phaseSpace = c.densityPlot(scat_electron_mom, scat_electron_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b)
 # plt.ylim(-180.,180.)
@@ -157,14 +181,14 @@ plt.xlabel('tot_mom (GeV)', fontsize =20)
 plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('e cut', fontsize =20)
 phaseSpace = c.densityPlot(pion_mom, pion_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b)
-plt.ylim(1.4,1.5)
-plt.xlim(40.,50)
+# plt.ylim(13.0,20.0)
+# plt.xlim(40.,50)
 plt.xlabel('tot_mom (GeV)', fontsize =20)
 plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('pi cut', fontsize =20)
 phaseSpace = c.densityPlot(neutron_mom, neutron_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b)
 # plt.ylim(-180.,180.)
-plt.xlim(250.,300.)
+# plt.xlim(250.,300.)
 plt.xlabel('tot_mom (GeV)', fontsize =20)
 plt.ylabel('Theta (deg)', fontsize =20)
 # plt.title('$\Lambda$ cut', fontsize =20)

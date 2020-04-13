@@ -689,9 +689,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
     //cout << "TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
-    
+
+    // HERE
     // pScatterProton_Rest.SetXYZM(P_p2*sin(theta_p2)*cos(phi_p2), P_p2*sin(theta_p2)*sin(phi_p2), P_p2*cos(theta_p2),MNucleon1); // What was previously there
-    pScatterProton_Rest.SetXYZM(P_p2*sin(theta_p2)*cos(phi_p2), P_p2*sin(theta_p2)*sin(phi_p2), P_p2*cos(theta_p2),MProton); // Same as TDIS_EIC.cpp
+    // pScatterProton_Rest.SetXYZM(P_p2*sin(theta_p2)*cos(phi_p2), P_p2*sin(theta_p2)*sin(phi_p2), P_p2*cos(theta_p2),MProton); // Same as TDIS_EIC.cpp
+    pScatterProton_Rest.SetXYZM(Px_p2*sin(theta_p2), Py_p2*sin(theta_p2), Pz_p2*cos(theta_p2),MProton); // my version, broken into transverse and longitudinal components
     
     // *****************************************************************************
 		
@@ -706,18 +708,21 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 		  ", pz= " << qVirtual_Rest.Z() << endl;
     */
     
+    // HERE
     // Back to Lab frame
     pScatterProton_Vertex = pScatterProton_Rest;
     pScatterProton_Vertex.Boost(BoostRest);
-    pprx_Lab = pScatterProton_Vertex.X();
-    ppry_Lab = pScatterProton_Vertex.Y();
-    pprz_Lab = pScatterProton_Vertex.Z();
-    EprE_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab+MProton*MProton);
-    vprx_Lab = 0.0;
-    vpry_Lab = 0.0;
-    vprz_Lab = 0.0;
+    if (pScatterProton_Vertex.E() < PBeam){
+      
+      pprx_Lab = pScatterProton_Vertex.X();
+      ppry_Lab = pScatterProton_Vertex.Y();
+      pprz_Lab = pScatterProton_Vertex.Z();
+      EprE_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab+MProton*MProton);
+      vprx_Lab = 0.0;
+      vpry_Lab = 0.0;
+      vprz_Lab = 0.0;
 
-    ppr_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab);
+      ppr_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab);
     
     // For debugging purpose
     /*
@@ -1045,8 +1050,28 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     //
     //  OUTPUT FOR GEMC 
     //<<  Jacob << " \t"  <<  eBeamPol <<  " \t"  <<  DBeamPol << endl;
+
+    // HERE
+    }
     
-      
+    // HERE
+    // if (pprz_Lab <1){
+    // 	pprz_Lab = 0;
+    //   }
+    //   if (EprE_Lab < 1){
+    // 	EprE_Lab = 0;
+    //   }
+    // if (ppiz_Lab <1){
+    // 	cout << "------------->" << ppiz_Lab << endl;
+    // 	ppiz_Lab = 0;
+    //   }
+    //   if (EpiE_Lab < 1){
+    // 	EpiE_Lab = 0;
+    //   }
+
+    // HERE
+    if (EprE_Lab > 1 || EpiE_Lab > 1){
+ 
       if(ABeam>1.){
 
 	if( invts.alphaS<2.0 &&  invts.alphaS>0.0){
@@ -1083,7 +1108,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
        // the first spectator protn (TDIS)
        OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << spmass << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl; 
 
-		}		
+      }
+    }
 
 		MEvts++;
 
