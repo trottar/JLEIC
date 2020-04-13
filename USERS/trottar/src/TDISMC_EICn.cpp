@@ -1063,11 +1063,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // HERE
     }
-    
-    // HERE
-    if (EprE_Lab > 1 || EpiE_Lab > 1){
-      cout << EprE_Lab << ":" << PBeam << "||" << EpiE_Lab <<  ":" << PBeam << endl;
-    }
 
     // HERE
     // if (pprz_Lab <1){
@@ -1084,8 +1079,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // 	EpiE_Lab = 0;
     //   }
 
-
-    // cout << MSpectator << " " << sp_particle_id <<  " " << sp_particle_charge << endl;    
+    // HERE
+    if (EprE_Lab > 1 || EpiE_Lab > 1){
+      cout << EprE_Lab << ":" << PBeam << "||" << EpiE_Lab <<  ":" << PBeam << endl;
+    // cout << MSpectator << " " << sp_particle_id <<  " " << sp_particle_charge << endl;
     if(ABeam>1.){
       if( invts.alphaS<2.0 &&  invts.alphaS>0.0){
 	OUT << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xpi << " \t" << ypi << " \t"  << tpi  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
@@ -1121,7 +1118,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       // the first spectator proton (TDIS)
       OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << spmass << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl;  
 
-    }	
+    }
+    
+    }
     
     MEvts++;
     
