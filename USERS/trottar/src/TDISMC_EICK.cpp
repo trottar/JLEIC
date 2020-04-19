@@ -463,7 +463,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     kIncident_Vertex.SetXYZM(kBeamMCx, kBeamMCy, kBeamMCz, mElectron);// Set 4-momentum of incident electron beam
     PIncident_Vertex.SetXYZM(PBeamMCx, PBeamMCy, PBeamMCz, MIon);// Set 4-momentum of incident ion beam
     
-    //  Crossing angle JLEIC with smearing
+    //  Crossing angle ehric with smearing
     PIncident_Vertex.RotateY(CrossingTheta);
     PIncident_Vertex.RotateZ(CrossingPhi);
 		
