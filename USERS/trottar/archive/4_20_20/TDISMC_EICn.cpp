@@ -1,5 +1,5 @@
 /*
- *  TDISMC.cpp
+ *  TDISMCn.cpp
  *  
  *  Created by K.Park and R.Trotta <trotta@cua.edu>
  * 
@@ -56,7 +56,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   int e_particle_charge,d_particle_charge,sp_particle_charge,pi_particle_charge,pr_particle_charge;
   e_particle_charge=-1;
   d_particle_charge=1;
-  sp_particle_charge=1;
+  sp_particle_charge=0;
   pr_particle_charge=1;
 
   // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
@@ -68,8 +68,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   Bool_t iran=kTRUE;      // TRUE==include incident beam emittance
   //Bool_t iran=kFALSE;      // Falut NO incident beam emittance
   
-  Bool_t iProton = kTRUE; // TRUE == Spectator Proton
-  //Bool_t iProton = kFALSE; // FALSE == Spectator Neutron
+  // Bool_t iProton = kTRUE; // TRUE == Spectator Proton
+  Bool_t iProton = kFALSE; // FALSE == Spectator Neutron
 
   double MSpectator,mPion,MNucleon1;
   int NumPtls,inucl,pi_particle_id;
@@ -85,10 +85,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   }
   else{
     NumPtls =5; // Ion beam is proton 
-    MNucleon1 = MProton; 
-    mPion = mPi0; // pi0
-    pi_particle_id = 111;
-    pi_particle_charge=0;
+    MNucleon1 = MNeutron; 
+    mPion = mPip; // pi0
+    pi_particle_id = 211;
+    pi_particle_charge=1;
     inucl = 1; 
   }
   
@@ -177,10 +177,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   char tTitle[80], tName[18], rName[32];
   
   sprintf(tTitle,"p(e,e'np)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/pi_p_%.0fon%.0f.root", kBeam, PBeam);
+  sprintf(rName,"../OUTPUTS/pi_n_%.0fon%.0f.root", kBeam, PBeam);
 
   TFile fRoot(rName,"Recreate", tTitle);
-  sprintf(tName,"pi_p");
+  sprintf(tName,"pi_n");
 
   TTree *tree = new TTree("Evnts",tTitle);
   
@@ -208,10 +208,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double sigma_dis;
   double sigma_tdis;
   double f2N;   
-  double p2_pt, p2_z;
+  // double p2_pt, p2_z;
   Double_t qMag, pDotq;
 	
   double TDIS_xbj, TDIS_znq, TDIS_Mx2, TDIS_y;
+
+  // HERE
+  double t;
 
   const Int_t bufsize=32000;
 
@@ -233,12 +236,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   tree->Branch("xpi", &xpi, "xpi/D");
   tree->Branch("ypi", &ypi, "ypi/D");
   tree->Branch("y", &y, "y/D");
+  tree->Branch("t", &y, "t/D");
   tree->Branch("tpi", &tpi, "tpi/D");
   tree->Branch("fpi", &fpi, "fpi/D");
 	
   tree->Branch("f2N", &f2N, "f2N/D");
-  tree->Branch("p2_pt", &p2_pt, "p2_pt/D");
-  tree->Branch("p2_z", &p2_z, "p2_z/D");
+  // tree->Branch("p2_pt", &p2_pt, "p2_pt/D");
+  // tree->Branch("p2_z", &p2_z, "p2_z/D");
 	
   tree->Branch("sigma_dis", &sigma_dis, "sigma_dis/D");
   tree->Branch("sigma_tdis", &sigma_tdis, "sigma_tdis/D");
@@ -344,9 +348,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   kIncident_0.SetXYZM(0.0,0.0,-kBeam,mElectron);
   PIncident_0.SetXYZM(PIon*sin(CrossingTheta)*cos(CrossingPhi),PIon*sin(CrossingTheta)*sin(CrossingPhi),PIon*cos(CrossingTheta),MIon);
   
-  // TTree *itree = new TTree("Init",tTitle);
-  // itree->Branch("e0.", &kIncident_0,bufsize,1);
-  // itree->Branch("P0.",  &PIncident_0, bufsize, 1);
+  TTree *itree = new TTree("Init",tTitle);
+  itree->Branch("e0.", &kIncident_0,bufsize,1);
+  itree->Branch("P0.",  &PIncident_0, bufsize, 1);
   
   typedef struct {
     Int_t nEvts;
@@ -355,12 +359,23 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   static	MonteCarlo mc;
   mc.nEvts = NEvts;
   mc.PhSpFct   = (Q2Max-Q2Min)*(log(xMax)-log(xMin))*4.*pi*pow((pSMax),3)/3.;
-  // itree->Branch("MC", &mc, "nEvts/I:PhSpFct/F");
+  itree->Branch("MC", &mc, "nEvts/I:PhSpFct/F");
+
+  typedef struct {
+    Double_t p2_pt, p2_z,
+      phi_p2, theta_p2,
+      Pz_p2, P_p2, E_p2,
+      Px_p2, Py_p2,Pz_p2_1,
+      Pz_p2_2,Pz_p2_3,Pz_p2_4; 
+  } P2;
+  static P2 p2;
+
+  itree->Branch("P2", &p2, "p2_pt/D:p2_z/D:phi_p2/D:theta_p2/D:Pz_p2/D:P_p2/D:E_p2/D:Px_p2/D:Py_p2/D:Pz_p2_1/D:Pz_p2_2/D:Pz_p2_3/D:Pz_p2_4/D");
 
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output file : = "TDIS_lund.dat";
-  ofstream OUT (Form("../OUTPUTS/pi_p_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::app);
+  ofstream OUT (Form("../OUTPUTS/pi_n_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::trunc);
 
   // **********************************************************************************
   // define TDIS pSpectator with fermi momentum from  data file "moment_ld2b.dat" from G4SBS 
@@ -371,12 +386,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double Px_p1, Py_p1, Pz_p1, P_p1, E_p1, theta_p1, phi_p1;
 
   // Re-defined the LorentzVector after taking into count fermi momentum : REST frame
-  TLorentzVector pSpectator_RestNew;
+  TLorentzVector pSpectator_RestNew, pSpectator_VertexNew;
 
-  double phi_p2;
+  // double phi_p2;
   
   // TDIS-SBS xbj means xbj_D (xbj of nucleon should be xbj/2 ? Asking Dasuni for xbj definition
-  double Px_p2,Py_p2,Pz_p2,P_p2,theta_p2,E_p2;
+  // double Px_p2,Py_p2,Pz_p2,P_p2,theta_p2,E_p2;
 
   // Get LorentzVector for the pScattered Proton for TDIS in rest frame
   TLorentzVector pScatterProton_Rest;
@@ -391,7 +406,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
   TLorentzVector pScatterPion_Rest;
 
-  TVector3 pScatterPion_V3;
+  TVector3 pScatterPion_V3, pScatterProton_V3;
 
   double P_pi;
 
@@ -420,7 +435,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 	else std::cout << " ";
       }
       std::cout << "] " << int(progress * 100.0) << " %\r";
-      std::cout.flush();	    
+      std::cout.flush();
     }	 
     
     Jacob = 1.0;
@@ -457,7 +472,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     kIncident_Vertex.SetXYZM(kBeamMCx, kBeamMCy, kBeamMCz, mElectron);// Set 4-momentum of incident electron beam
     PIncident_Vertex.SetXYZM(PBeamMCx, PBeamMCy, PBeamMCz, MIon);// Set 4-momentum of incident ion beam
     
-    //  Crossing angle JLEIC with smearing
+    //  Crossing angle ehric with smearing
     PIncident_Vertex.RotateY(CrossingTheta);
     PIncident_Vertex.RotateZ(CrossingPhi);
 		
@@ -510,14 +525,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     y = invts.y_D;
 
-    if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
-      // Unphysical kinematics
-      continue;
-    }
-    if (invts.y_D>=1./(1.+invts.x_D*MIon*MIon/invts.TwoPdotk) ) {
-      // Unphysical kinematics
-      continue;
-    }
+    // if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
+    //   // Unphysical kinematics
+    //   continue;
+    // }
+    // if (invts.y_D>=1./(1.+invts.x_D*MIon*MIon/invts.TwoPdotk) ) {
+    //   // Unphysical kinematics
+    //   continue;
+    // }
 	  
     Jacob *=invts.xBj;   // Jacobian  dx/dlnx
     //		psf *=2.*pi;
@@ -527,22 +542,22 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     //  mElectron-->0 approximation
     EScatRest = invts.TwoPdotk*(1.-invts.y_D)/(2.*MIon);
     
-    if (EScatRest<mElectron) {
-      // should never happen
-      printf("illegal Rest frame scattered electron energy =%10.6f \n",EScatRest);
-      continue;
-    }
+    // if (EScatRest<mElectron) {
+    //   // should never happen
+    //   printf("illegal Rest frame scattered electron energy =%10.6f \n",EScatRest);
+    //   continue;
+    // }
     
     kScatRest = sqrt(EScatRest*EScatRest-mElectron*mElectron);// scattered electron momentum in rest frame
     csTheRest = (2.*EScatRest*kIncident_Rest.E() - invts.Q2 - 2.*mElectron*mElectron) /(2.*kScatRest*kIncident_Rest.P());   // scattered electron \cosine\theta in rest frame	                                                 	  
 		
-    if (csTheRest*csTheRest>1.0) {
-      // should never happen
-      printf("illegal Rest frame cos(the) = %6.2f \n", csTheRest);
-      printf(" (k_Rest, k'_Rest, Q2, xBj) = (%8.3f,  %8.4f, %6.2f, %5.3f) \n",kIncident_Rest.E(),kScatRest,invts.Q2,invts.xBj);
-      printf(" (2k.P, invts.s_e, y_D, x_D) = (%6.2f, %6.2f,%10.6f, %8.4f) \n",invts.TwoPdotk, invts.s_e, invts.y_D, invts.x_D);
-      continue;
-    }
+    // if (csTheRest*csTheRest>1.0) {
+    //   // should never happen
+    //   printf("illegal Rest frame cos(the) = %6.2f \n", csTheRest);
+    //   printf(" (k_Rest, k'_Rest, Q2, xBj) = (%8.3f,  %8.4f, %6.2f, %5.3f) \n",kIncident_Rest.E(),kScatRest,invts.Q2,invts.xBj);
+    //   printf(" (2k.P, invts.s_e, y_D, x_D) = (%6.2f, %6.2f,%10.6f, %8.4f) \n",invts.TwoPdotk, invts.s_e, invts.y_D, invts.x_D);
+    //   continue;
+    // }
 	  
     // Definition of unit vector in rest frame (norm vector)
     UnitZRest  = -kIncident_Rest.Vect();
@@ -593,7 +608,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     p_ST = pSpectator_Vertex -(pDotq/qMag/qMag)*qVirtual_Rest;		
     
     V3Px_p1    = -PIncident_Rest.X()/ABeam; // simply opposite of fermi momentum in rest frame (same as TDIS SBS)
-    V3Py_p1    = -PIncident_Rest.Y()/ABeam; // n,p momentum carrying : half of mementum of deuteron
+    V3Py_p1    = -PIncident_Rest.Y()/ABeam; // n,p momentum carrying : half of momentum of deuteron
     V3Pz_p1    = -PIncident_Rest.Z()/ABeam;
     V3_p1.SetXYZ(V3Px_p1,V3Py_p1,V3Pz_p1);
     V3n_p1    = V3_p1 + V3_p1.Unit();  // adding up fermi momentum
@@ -635,25 +650,38 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       cout << "(2) Beam initial neutron from D with fermi momentum in RestFrame =" << Px_p1 << ", " << Py_p1 << ", " << Pz_p1 << ", "<< "should be same as (0)" << endl;
       cout << "(***) invts.TwoPdotk= " <<  invts.TwoPdotk << ", invts.y_D= " << invts.y_D << ", EScatRest= " << EScatRest << endl;
     */
-    
-    pSpectator_RestNew.SetXYZM(Px_p1,Py_p1,Pz_p1,MNucleon1);
+
+    // HERE
+    // Re-defined the LorentzVector after taking into count fermi momentum : REST frame
+    // Null for proton beam
+    // pSpectator_RestNew.SetXYZM(Px_p1,Py_p1,Pz_p1,MNucleon1);
+    // pSpectator_RestNew.SetXYZM(Px_p1,Py_p1,Pz_p1,MProton);
+    pSpectator_RestNew  = PIncident_Rest;
 		
     // *****************************************************************************
     // Generate pScattered Proton for TDIS with Spherically Symmetric in rest frame (this is P2: scattered proton)
     // neutron -> proton + pi
     // *****************************************************************************
-    // TDIS in SBS software, they define the speactor(proton) with pt[0.:0.5GeV], z[0.:1.0] with plat random
+    // TDIS in SBS software, they define the spector(proton) with pt[0.:0.5GeV], z[0.:1.0] with plat random
     // in TDIS kinematics, the general Spectator particle (proton) is nothing to do with following calculation.
     //
-    // neutron config = proton + pion(-):  this proton called additional speactator in TDIS concept
+    // neutron config = proton + pion(-):  this proton called additional spectator in TDIS concept    
     // randomize in pt and z
-    p2_pt = gRandom->Uniform(0.005*PBeam); // .5% of incoming ion beam momentum, this is the limit of the transverse momentum of  recoil particle...
-    p2_z = gRandom->Uniform(1.);
+    p2.p2_pt = gRandom->Uniform(0.005*PBeam); // .5% of incoming ion beam momentum, this is the limit of the transverse momentum of  recoil particle...
+    p2.p2_z = gRandom->Uniform(1.);
 
+    // HERE
+    if (TMath::Sqrt(pSpectator_RestNew.Mag2()) > PBeam/2){
+      cout << "spec rest new: " << pSpectator_RestNew.Mag2() << endl;
+    }
+    if (TMath::Sqrt(TMath::Abs(qVirtual_Rest.Mag2())) > PBeam/2){
+      cout << "virt rest: |" << qVirtual_Rest.Mag2() << "|" << endl;
+    }
+    
     //  definition are moved at the beginning of code
     //		double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
     TDIS_xbj = invts.Q2/(2*pSpectator_RestNew.Dot(qVirtual_Rest));
-    TDIS_znq = p2_z*pSpectator_RestNew.Dot(qVirtual_Rest);
+    TDIS_znq = p2.p2_z*pSpectator_RestNew.Dot(qVirtual_Rest);
     TDIS_Mx2 = (qVirtual_Rest + pSpectator_RestNew).Mag2();
     TDIS_y   = (pSpectator_RestNew.Dot(qVirtual_Rest))/(pSpectator_RestNew.Dot(kIncident_Rest));
 		
@@ -664,16 +692,61 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       cout << "(3*) generating: p2_pt " << p2_pt <<  ", p2_z= " << p2_z <<  ", phi_p2= " << phi_p2 << endl; 
     */
 
-    phi_p2 = gRandom->Uniform(360.0*D2R);
+    // HERE
+    p2.phi_p2 = gRandom->Uniform(360.0*D2R); // D2R-> degree to radian
 
-    Pz_p2 = ( -1.0*TDIS_znq*qVirtual_Rest.Z() +sqrt( TDIS_znq*qVirtual_Rest.Z()*TDIS_znq*qVirtual_Rest.Z() +invts.Q2*(qVirtual_Rest.E()*qVirtual_Rest.E())*(MProton*MProton + p2_pt*p2_pt)-invts.Q2*TDIS_znq*TDIS_znq) )/invts.Q2/1000.;  // unit match with "p2_pt" (GeV)
-	  
-    P_p2  = sqrt (Pz_p2*Pz_p2 + p2_pt*p2_pt);
-    theta_p2 = acos (Pz_p2/P_p2);
-    E_p2 = sqrt ( P_p2*P_p2 + MProton*MProton);
-	  
-    Px_p2 = p2_pt*cos(phi_p2);
-    Py_p2 = p2_pt*sin(phi_p2);
+    // HERE
+    p2.Pz_p2 = ( -1.0*TDIS_znq*qVirtual_Rest.Z()
+    	      +sqrt(TDIS_znq*qVirtual_Rest.Z()*TDIS_znq*qVirtual_Rest.Z()
+    		    +invts.Q2*(qVirtual_Rest.E()*qVirtual_Rest.E())*(MNucleon1*MNucleon1
+    								     + p2.p2_pt*p2.p2_pt)
+    		    -invts.Q2*TDIS_znq*TDIS_znq) )/invts.Q2/1000.;  // unit match with "p2_pt" (GeV)
+
+    p2.Px_p2 = p2.p2_pt*cos(p2.phi_p2);
+    p2.Py_p2 = p2.p2_pt*sin(p2.phi_p2);
+
+    p2.P_p2  = sqrt(p2.Pz_p2*p2.Pz_p2 + p2.p2_pt*p2.p2_pt);
+    // P_p2  = 320.0; // as long as over 10, it is fine (320+ has diminishing returns)
+    /*
+    if P_p2  is... (off 80k events)
+    320.0, 0.17k
+    160.0, 1.6k
+    80.0, 4k
+    40.0, 9k
+    20.0, 14k
+    10.0, 20k
+    5.0, 26k
+    2.0, 33k
+    1.4, 36k
+    1.0, 39k
+    0.5, 45k
+    0.1, 55k
+    0.0, 80k
+    p2_pt  is fixed, based off .5% of incoming ion beam momentum
+    */
+    
+    // HERE
+    p2.theta_p2 = acos(p2.Pz_p2/p2.P_p2);
+	
+    p2.E_p2 = sqrt(p2.P_p2*p2.P_p2 + MNucleon1*MNucleon1);
+
+    // HERE, from Spectator for STEG
+    uw       = ran3.Uniform();
+    pS_rest   = (pSMax)*pow(uw,1./3.); // uniform in 3p^2 dp = d(p^3), pSMax=0.3
+    ux       = ran3.Uniform();
+    csThRecoil = (2.*ux-1.);
+    uy       = ran3.Uniform();
+    phiRecoil  = pi*(2.*uy-1.);
+    
+    pScatterProton_V3  = pS_rest*sin(acos(csThRecoil))*(cos(phiRecoil)*UnitXqCM
+							+ sin(phiRecoil)*UnitYqCM);
+    pScatterProton_V3 += pS_rest*csThRecoil*UnitZqCM;
+    
+    pScatterProton_Rest.SetVectM(pScatterProton_V3,MSpectator);
+    Jacob     *= 1./(2.*pScatterProton_Rest.E());
+
+    PX_Vertex_Rest = kIncident_Rest+PIncident_Rest-(kScattered_Rest+pScatterProton_Rest);
+
 
     // for dubugging purpose:
     // Generated additional spectator proton from TDIS reaction
@@ -682,80 +755,109 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     */
 	  
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
-    //cout << "TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
-	  
-    pScatterProton_Rest.SetXYZM(P_p2*sin(theta_p2)*cos(phi_p2), P_p2*sin(theta_p2)*sin(phi_p2), P_p2*cos(theta_p2),MProton);
+    if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
+      cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
+    }
+
+    // HERE
+    // pScatterProton_Rest.SetXYZM(p2.P_p2*sin(p2.theta_p2)*cos(p2.phi_p2), p2.P_p2*sin(p2.theta_p2)*sin(p2.phi_p2), p2.P_p2*cos(p2.theta_p2),MNucleon1);
+    // pScatterProton_Rest.SetXYZM(p2.Px_p2*sin(p2.theta_p2), p2.Py_p2*sin(p2.theta_p2), p2.Pz_p2*cos(p2.theta_p2),MNucleon1); // my version, broken into transverse and longitudinal components
     
     // *****************************************************************************
 
     // for dubugging purpose:
     // Generated additional spectator proton from TDIS reaction
-    /*
-      cout << "\n" << "(4) Spectator(T), px= " << pScatterProton_Rest.X() << ", py= " << pScatterProton_Rest.Y()<<
-      ", pz= " << pScatterProton_Rest.Z() << ", it's random numbers (pt,z)"<< endl;	    
-      cout  << "(5) Active(N), px= " << pSpectator_RestNew.X() << ", py= " << pSpectator_RestNew.Y()<<
-      ", pz= " << pSpectator_RestNew.Z() << ",  Should be same as (2)"<< endl;	    
-      cout  << "(6) qVirtual REST, px= " << qVirtual_Rest.X() << ", py= " << qVirtual_Rest.Y()<<
-      ", pz= " << qVirtual_Rest.Z() << endl;
-    */
+    // cout << "\n" << "(4) Spectator(T), px= " << pScatterProton_Rest.X() << ", py= " << pScatterProton_Rest.Y()<<
+    //   ", pz= " << pScatterProton_Rest.Z() << ", it's random numbers (pt,z)"<< endl;	    
+    // cout  << "(5) Active(N), px= " << pSpectator_RestNew.X() << ", py= " << pSpectator_RestNew.Y()<<
+    //   ", pz= " << pSpectator_RestNew.Z() << ",  Should be same as (2)"<< endl;	    
+    // cout  << "(6) qVirtual REST, px= " << qVirtual_Rest.X() << ", py= " << qVirtual_Rest.Y()<<
+    //   ", pz= " << qVirtual_Rest.Z() << endl;
 
+    // HERE
+    t = -2.*kIncident_Vertex.Dot(kScattered_Vertex);
+      
+    E_pi  = pSpectator_RestNew.E() - pScatterProton_Rest.E();
+    Px_pi = pSpectator_RestNew.X() - pScatterProton_Rest.X(); 
+    Py_pi = pSpectator_RestNew.Y() - pScatterProton_Rest.Y();
+    Pz_pi = pSpectator_RestNew.Z() - pScatterProton_Rest.Z();
+      
+    // pScatterPion_Rest.SetXYZM(Px_pi,Py_pi,Pz_pi,mPion);
+    pScatterPion_Rest = pSpectator_RestNew - (pScatterProton_Rest+PX_Vertex_Rest);
+    // pScatterPion_Rest = pSpectator_RestNew - pScatterProton_Rest;
+      
+    pScatterPion_V3.SetXYZ(Px_pi,Py_pi,Pz_pi);
+
+    // HERE
+    p2.Pz_p2_1 = pScatterPion_Rest.Z();
+    p2.Pz_p2_2 = pScatterPion_Rest.E();
+    
+    // HERE
+    //  Crossing angle ehric with smearing
+    // pScatterProton_Rest.RotateY(CrossingTheta);
+    // pScatterProton_Rest.RotateZ(CrossingPhi);
+    // BoostRest = pScatterProton_Rest.BoostVector();
+
+    // HERE
     // Back to Lab frame
-    pScatterProton_Vertex = pScatterProton_Rest;
+    pScatterProton_Vertex = pScatterProton_Rest;	  
     pScatterProton_Vertex.Boost(BoostRest);
-    pprx_Lab = pScatterProton_Vertex.X();
-    ppry_Lab = pScatterProton_Vertex.Y();
-    pprz_Lab = pScatterProton_Vertex.Z();
-    EprE_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab+MProton*MProton);
-    vprx_Lab = 0.0;
-    vpry_Lab = 0.0;
-    vprz_Lab = 0.0;
+    
+    // Back to Lab frame
+    pScatterPion_Vertex = pScatterPion_Rest;
+    pScatterPion_Vertex.Boost(BoostRest);
 
-    ppr_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab);
-	  
-    // For debugging purpose
+    // HERE
+    p2.Pz_p2_3 = pScatterPion_Vertex.Z();
+    p2.Pz_p2_4 = pScatterPion_Vertex.E();
+    
+    P_pi = pScatterPion_V3.Mag();
+
+    // HERE
+    // if ((pScatterProton_Vertex.E()+pScatterPion_Vertex.E()+TDIS_Mx2+kScattered_Vertex.E()) < PBeam+kBeam){
+    if ((pScatterProton_Vertex.E()+pScatterPion_Vertex.E()) < PBeam){
+    // if ((pScatterProton_Vertex.E()+pScatterPion_Vertex.E()) < PBeam && (pScatterPion_Vertex.Theta()) < 85.0){
+    // if ((pScatterProton_Vertex.E()) < PBeam){
+      
+      pprx_Lab = pScatterProton_Vertex.X();
+      ppry_Lab = pScatterProton_Vertex.Y();
+      pprz_Lab = pScatterProton_Vertex.Z();
+      EprE_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab+MProton*MProton);
+      
+      vprx_Lab = 0.0;
+      vpry_Lab = 0.0;
+      vprz_Lab = 0.0;
+
+      ppr_Lab = sqrt(pprx_Lab*pprx_Lab+ppry_Lab*ppry_Lab+pprz_Lab*pprz_Lab);
+      
+      ppix_Lab = pScatterPion_Vertex.X();
+      ppiy_Lab = pScatterPion_Vertex.Y();
+      ppiz_Lab = pScatterPion_Vertex.Z();
+      EpiE_Lab = sqrt(ppix_Lab*ppix_Lab+ppiy_Lab*ppiy_Lab+ppiz_Lab*ppiz_Lab+mPion*mPion);
+
+      vpix_Lab = 0.0;
+      vpiy_Lab = 0.0;
+      vpiz_Lab = 0.0;
+      
+    }
+          // For debugging purpose
     // HERE
     // if (ppr_Lab > (PBeam/ABeam) ) { 
     //   // Unphysical kinematics  // if TDIS spectator momentum larger than 50% ion momentum
     //   printf("impossible of TDIS spectator momentum= %6.2f \n", ppr_Lab);
     //   continue;
-    // }
-  
-    
-    E_pi  = pSpectator_RestNew.E() - pScatterProton_Rest.E();
-    Px_pi = pSpectator_RestNew.X() - pScatterProton_Rest.X(); 
-    Py_pi = pSpectator_RestNew.Y() - pScatterProton_Rest.Y();
-    Pz_pi = pSpectator_RestNew.Z() - pScatterProton_Rest.Z();
-		
-    pScatterPion_Rest.SetXYZM(Px_pi,Py_pi,Pz_pi,mPion);
-    
-    pScatterPion_V3.SetXYZ(Px_pi,Py_pi,Pz_pi);
-		
-    // Back to Lab frame
-    pScatterPion_Vertex = pScatterPion_Rest;
-    pScatterPion_Vertex.Boost(BoostRest);
-    ppix_Lab = pScatterPion_Vertex.X();
-    ppiy_Lab = pScatterPion_Vertex.Y();
-    ppiz_Lab = pScatterPion_Vertex.Z();
-    EpiE_Lab = sqrt(ppix_Lab*ppix_Lab+ppiy_Lab*ppiy_Lab+ppiz_Lab*ppiz_Lab+mPion*mPion);
+    // })
 
     // for debuggin purpose
-    /*
-      cout  << "(7L) pion Vertex, px= " << ppix_Lab << ", py= " << ppiy_Lab <<
-      ", pz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
-    */
-    
-    vpix_Lab = 0.0;
-    vpiy_Lab = 0.0;
-    vpiz_Lab = 0.0;
-		
+      // cout  << "(7L) pion Vertex, px= " << ppix_Lab << ", py= " << ppiy_Lab <<
+      // ", pz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
+	       
     // Definition of pion variable
     //double tpi, ypi, fpi, xpi; 
-    xpi = TDIS_xbj/(1 - p2_z);
+    xpi = TDIS_xbj/(1 - p2.p2_z);
     tpi = (E_pi*E_pi) - (pScatterPion_V3.Mag()*pScatterPion_V3.Mag());
     ypi = pScatterPion_Rest.Dot(qVirtual_Rest)/(pScatterPion_Rest.Dot(kIncident_Rest));
-	  
-    P_pi = pScatterPion_V3.Mag();
-	  
+    
     // *****
     // for debugging purpose
     /*
@@ -954,28 +1056,29 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       */
 	    
       // alpha cut for select event with minimizing coherrent effects
-      if(pow(invts.alphaS-1,2)<0.0001){
-	continue;
-      }
+      // if(pow(invts.alphaS-1,2)<0.0001){
+      // 	continue;
+      // }
 
       // For debugging purpose
-      
-      // cout  << "(6L) proton(TDIS spectator) Vertex, pRx= " << pprx_Lab << ", pPy= " << ppry_Lab <<
-      // 	", pPz= " << pprz_Lab << ", Epr= " << ppr_Lab << endl;
-      // cout  << "(6R) proton(TDIS spectator) Rest, pRx= " << pScatterProton_Rest.X() << ", pPy= " << pScatterProton_Rest.Y() <<
-      // 	", pPz= " << pScatterProton_Rest.Z() << ", Epr= " << pScatterProton_Rest.E() << endl;
-      // cout  << "(6L_S) proton(spectator) Vertex, pRx= " << pSpectator_Vertex.X()  << ", pPy= " << pSpectator_Vertex.Y()  <<
-      // 	", pPz= " << pSpectator_Vertex.Z()  << ", Epr= " << pSpectator_Vertex.E()  << endl;
-      // cout  << "(6R_S) proton(spectator) Rest, pRx= " << pSpectator_Rest.X()  << ", pPy= " << pSpectator_Rest.Y()  <<
-      // 	", pPz= " << pSpectator_Rest.Z()  << ", Epr= " << pSpectator_Rest.E()  << endl;
+      /*
+	cout  << "(6L) proton(TDIS spectator) Vertex, pRx= " << pprx_Lab << ", pPy= " << ppry_Lab <<
+	", pPz= " << pprz_Lab << ", Epr= " << ppr_Lab << endl;
+	cout  << "(6R) proton(TDIS spectator) Rest, pRx= " << pScatterProton_Rest.X() << ", pPy= " << pScatterProton_Rest.Y() <<
+	", pPz= " << pScatterProton_Rest.Z() << ", Epr= " << pScatterProton_Rest.E() << endl;
+	cout  << "(6L_S) proton(spectator) Vertex, pRx= " << pSpectator_Vertex.X()  << ", pPy= " << pSpectator_Vertex.Y()  <<
+	", pPz= " << pSpectator_Vertex.Z()  << ", Epr= " << pSpectator_Vertex.E()  << endl;
+	cout  << "(6R_S) proton(spectator) Rest, pRx= " << pSpectator_Rest.X()  << ", pPy= " << pSpectator_Rest.Y()  <<
+	", pPz= " << pSpectator_Rest.Z()  << ", Epr= " << pSpectator_Rest.E()  << endl;
 		
-      // cout << "Vertex: kScatteredPx=" << kScattered_Vertex.X() << ", kScatteredPy=" << kScattered_Vertex.Y() << ", kScatteredPz=" << kScattered_Vertex.Z() << endl;
-      // cout << "Rest: kScatteredPx=" << kScattered_Rest.X() << ", kScatteredPy=" << kScattered_Rest.Y() << ", kScatteredPz=" << kScattered_Rest.Z() << endl;
+	cout << "Vertex: kScatteredPx=" << kScattered_Vertex.X() << ", kScatteredPy=" << kScattered_Vertex.Y() << ", kScatteredPz=" << kScattered_Vertex.Z() << endl;
+	cout << "Rest: kScatteredPx=" << kScattered_Rest.X() << ", kScatteredPy=" << kScattered_Rest.Y() << ", kScatteredPz=" << kScattered_Rest.Z() << endl;
 	      
-      // cout  << "(6L) pion(TDIS) Vertex, pRix= " << ppix_Lab << ", pPiy= " << ppiy_Lab <<
-      // 	", pPiz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
-      // cout  << "(6R) pion(TDIS) Rest, pPix= " << Px_pi << ", pPiy= " << Py_pi <<
-      // 	", pPiz= " << Pz_pi << ", Epi= " << E_pi << endl;
+	cout  << "(6L) pion(TDIS) Vertex, pRix= " << ppix_Lab << ", pPiy= " << ppiy_Lab <<
+	", pPiz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
+	cout  << "(6R) pion(TDIS) Rest, pPix= " << Px_pi << ", pPiy= " << Py_pi <<
+	", pPiz= " << Pz_pi << ", Epi= " << E_pi << endl;
+      */
 			      		
       invts.tSpectator = MIon*MIon+MSpectator*MSpectator-2.*pSpectator_Vertex.Dot(PIncident_Vertex);
       invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;
@@ -1030,11 +1133,29 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vex_Lab = 0.0;
     vey_Lab = 0.0;
     vez_Lab = 0.0;
+    
+    // cout << "OUTPUT FOR GEMC " <<  Jacob << " \t"  <<  eBeamPol <<  " \t"  <<  DBeamPol << endl;
 
-    // cout << "OUTPUT FOR GEMC " <<  Jacob << " \t"  <<  eBeamPol <<  " \t"  <<  DBeamPol << endl;	       
+    // HERE
+    // if (pprz_Lab <1){
+    // 	pprz_Lab = 0;
+    //   }
+    //   if (EprE_Lab < 1){
+    // 	EprE_Lab = 0;
+    //   }
+    // if (ppiz_Lab <1){
+    // 	cout << "------------->" << ppiz_Lab << endl;
+    // 	ppiz_Lab = 0;
+    //   }
+    //   if (EpiE_Lab < 1){
+    // 	EpiE_Lab = 0;
+    //   }
 
+    // HERE
+    // if (EprE_Lab > 1 || EpiE_Lab > 1){
+      cout << EprE_Lab << ":" << PBeam << "||" << EpiE_Lab <<  ":" << PBeam << endl;
+    // cout << MSpectator << " " << sp_particle_id <<  " " << sp_particle_charge << endl;
     if(ABeam>1.){
-		  
       if( invts.alphaS<2.0 &&  invts.alphaS>0.0){
 	OUT << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xpi << " \t" << ypi << " \t"  << tpi  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
 
@@ -1063,21 +1184,23 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
       // daughter particles
       // the scattered electron
-      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << "1" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific <<pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
+      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << "1" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
       // pion :  DIS: do NOT need to be detected
-      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
+      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
       // the first spectator proton (TDIS)
-      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << pr_particle_charge << " \t " << "1" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific<< pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << MProton << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl; 
+      OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pprx_Lab << " \t " << ppry_Lab << " \t " << pprz_Lab << " \t " << EprE_Lab << " \t " << spmass << " \t " << vprx_Lab  << " \t " << vpry_Lab << " \t " << vprz_Lab << endl;  
 
-    }	
-	  
+    }
+    
+    // }
+    
     MEvts++;
     
     tree->Fill();
+    itree->Fill();
 
   }
   
-  // itree->Fill();
   fRoot.Write();
   fRoot.Close();
   printf("Total of %d events out of %d Trials \n",MEvts,NEvts);

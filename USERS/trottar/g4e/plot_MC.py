@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-04-19 17:54:16 trottar"
+# Time-stamp: "2020-04-20 12:25:18 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -41,7 +41,7 @@ t = -branch.findBranch("invts","tSpectator")
 TDIS_znq = tree.array("TDIS_znq")
 # TDIS_Mx2 = tree.array("TDIS_Mx2")
 xpi = tree.array("xpi")
-EprE_Lab = tree.array("EprE_Lab")
+EnE_Lab = tree.array("EnE_Lab")
 EpiE_Lab = tree.array("EpiE_Lab")
 ppiz_Lab = tree.array("ppiz_Lab")
 scat_p = tree.array("t")
@@ -88,10 +88,10 @@ for entryNum in range(0,mytree.GetEntries()):
         # pion_mom = np.append(pion_mom,pion.E())
         pion_mom = np.append(pion_mom,EpiE_Lab[entryNum])
     
-        # if EprE_Lab[entryNum] == neutron.E():
+        # if EnE_Lab[entryNum] == neutron.E():
         neutron_theta = np.append(neutron_theta,neutron.Theta()*(180/math.pi))
         # neutron_mom = np.append(neutron_mom,neutron.E())
-        neutron_mom = np.append(neutron_mom,EprE_Lab[entryNum])
+        neutron_mom = np.append(neutron_mom,EnE_Lab[entryNum])
     
         scat_electron_theta = np.append(scat_electron_theta,scat_electron.Theta()*(180/math.pi))
         scat_electron_mom = np.append(scat_electron_mom,scat_electron.E())
@@ -214,7 +214,7 @@ def plot_physics():
         pdf.savefig(f)
     pdf.close()
 
-meta  = up.open(rootName)["Init"]
+meta  = up.open(rootName)["Meta"]
 metaBranch = r2p.pyBranch(meta)
 
 p2_pt = metaBranch.findBranch("P2","p2_pt")
