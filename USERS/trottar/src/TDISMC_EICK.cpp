@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-21 14:20:50 trottar"
+ * Time-stamp: "2020-04-23 14:40:45 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -294,7 +294,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output lund file for GEANT4 use
-  ofstream OUT (Form("../OUTPUTS/k_n_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::trunc);
+  ofstream OUT (Form("../OUTPUTS/k_lambda_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::trunc);
 
   // Get LorentzVector for the pScattered Proton for TDIS in rest frame
   TLorentzVector pScatterLambda_Rest;
