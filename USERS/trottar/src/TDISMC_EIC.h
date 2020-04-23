@@ -1,7 +1,7 @@
 /*
  * Description: Defines constants, cross sections, and smearing of fermi motion 
  * ================================================================
- * Time-stamp: "2020-04-20 11:26:16 trottar"
+ * Time-stamp: "2020-04-23 14:35:25 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -72,8 +72,7 @@ const double ZBeam =   1.;
 const double ABeam =   1.;           // 1 for proton beam, 2 for deuteron beam
 //const doubleb CrossingTheta = 0.050; // JLEIC angle
 const double CrossingTheta = 0.025; // eRHIC angle (online says 0.022 mrad)
-/* const double CrossingPhi   = 0.0;  // value set before */
-const double CrossingPhi   = PI/2.0;   // pi/2.0 for eRHIC/ePHENIX
+const double CrossingPhi   = 0.0;
 
 const double eBetaStarX = 0.10; // electron, ion beta at IP (m)
 const double eBetaStarY = 0.02;

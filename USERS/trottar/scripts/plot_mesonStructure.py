@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-04-12 16:33:46 trottar"
+# Time-stamp: "2020-04-22 16:11:31 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -96,8 +96,7 @@ for x in range(0,len(Q2array)) :
     cutDict.update(eval(ttmp))
     cutDict.update(eval(ytmp))
     i+=1
-
-b = r2p.pyBin()
+    
 c = r2p.pyPlot(cutDict)
 
 ycut1 = ["ycut"]
@@ -404,7 +403,7 @@ def Lumi():
     print "\nAverage Luminosity: ", avgLumi
     
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    scat1 = ax.hist(lumi,bins=b.setbin(lumi,20),label='Low',histtype='step', alpha=0.5, stacked=True, fill=True)
+    scat1 = ax.hist(lumi,bins=c.setbin(lumi,20),label='Low',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('Luminosity', fontsize =20)
     plt.xlabel('Luminosity')
 
@@ -507,7 +506,7 @@ def pionPlots(Q2_inp):
     plt.style.use('classic')
 
     ax = f.add_subplot(331)
-    numBin1 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.20,0.30)')
+    numBin1 = ax.hist(c.applyCuts(xpi,apply_cut),bins=c.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.20,0.30)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.20,0.30)
@@ -531,7 +530,7 @@ def pionPlots(Q2_inp):
     plt.title('$x_{\pi}$ plots [$Q^2$ = 10 $GeV^2$]', fontsize =20)
     
     ax = f.add_subplot(332)
-    numBin2 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.30,0.40)')
+    numBin2 = ax.hist(c.applyCuts(xpi,apply_cut),bins=c.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.30,0.40)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.30,0.40)
@@ -553,7 +552,7 @@ def pionPlots(Q2_inp):
     lum100.append((100/(tot_lumi[2-1]))*numEvts2)
     
     ax = f.add_subplot(333)
-    numBin3 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.40,0.50)')
+    numBin3 = ax.hist(c.applyCuts(xpi,apply_cut),bins=c.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.40,0.50)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.40,0.50)
@@ -575,7 +574,7 @@ def pionPlots(Q2_inp):
     lum100.append((100/(tot_lumi[3-1]))*numEvts3)
     
     ax = f.add_subplot(334)
-    numBin4 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.50,0.60)')
+    numBin4 = ax.hist(c.applyCuts(xpi,apply_cut),bins=c.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.50,0.60)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.50,0.60)
@@ -597,7 +596,7 @@ def pionPlots(Q2_inp):
     lum100.append((100/(tot_lumi[4-1]))*numEvts4)
     
     ax = f.add_subplot(335)
-    numBin5 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.60,0.70)')
+    numBin5 = ax.hist(c.applyCuts(xpi,apply_cut),bins=c.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.60,0.70)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.60,0.70)
@@ -619,7 +618,7 @@ def pionPlots(Q2_inp):
     lum100.append((100/(tot_lumi[5-1]))*numEvts5)
     
     ax = f.add_subplot(336)
-    numBin6 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.70,0.80)')
+    numBin6 = ax.hist(c.applyCuts(xpi,apply_cut),bins=c.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.70,0.80)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.70,0.80)
@@ -641,7 +640,7 @@ def pionPlots(Q2_inp):
     lum100.append((100/(tot_lumi[6-1]))*numEvts6)
     
     ax = f.add_subplot(337)
-    numBin7 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.80,0.90)')
+    numBin7 = ax.hist(c.applyCuts(xpi,apply_cut),bins=c.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.80,0.90)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.80,0.90)
@@ -663,7 +662,7 @@ def pionPlots(Q2_inp):
     lum100.append((100/(tot_lumi[7-1]))*numEvts7)
     
     ax = f.add_subplot(338)
-    numBin8 = ax.hist(c.applyCuts(xpi,apply_cut),bins=b.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.90,1.00)')
+    numBin8 = ax.hist(c.applyCuts(xpi,apply_cut),bins=c.setbin(xpi,200,0.,1.),histtype='step', alpha=0.5, stacked=True, fill=True,label='$x_{\pi}$=(0.90,1.00)')
     plt.subplots_adjust(hspace=0.3,wspace=0.3)
     # plt.xscale('log')
     plt.xlim(0.90,1.00)
@@ -1038,13 +1037,13 @@ def pionPlots(Q2_inp):
     
     plt.style.use('default')
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
-    xL_Plot = ax.hist(xL,bins=b.setbin(xL,200,0.,1.),label='all events',histtype='step', alpha=0.5, stacked=True, fill=True)
+    xL_Plot = ax.hist(xL,bins=c.setbin(xL,200,0.,1.),label='all events',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.xlabel('$x_L$')
     plt.ylabel('$F^{2}_{\pi}$')
     plt.title('$F^{2}_{\pi}$ vs $x_L$', fontsize =20)
     plt.close(f)    
     
-    phaseSpace = c.densityPlot(xpi, Q2, '$Q^2$ vs $x_{Bj}$','$x_{Bj}$','$Q^{2}$', 200, 200,  b, 0., 1.0, 0., 100.)
+    phaseSpace = c.densityPlot(xpi, Q2, '$Q^2$ vs $x_{Bj}$','$x_{Bj}$','$Q^{2}$', 200, 200,  c, 0., 1.0, 0., 100.)
     plt.xscale('log')
     plt.yscale('log')
     plt.xlim(0.,1.)

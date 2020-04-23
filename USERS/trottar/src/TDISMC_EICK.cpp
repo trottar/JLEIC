@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-20 12:58:06 trottar"
+ * Time-stamp: "2020-04-21 14:20:50 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -159,7 +159,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   tree->Branch("e_Scat.", &kScattered_Vertex, bufsize, 1);
   tree->Branch("q_Vir.", &qVirtual_Vertex, bufsize, 1);
   tree->Branch("p1_Sp.", &pScatterLambda_Vertex, bufsize, 1);
-  tree->Branch("p2_Sp.", &pSpectator_Vertex, bufsize, 1);
   tree->Branch("k.", &pScatterKaon_Vertex, bufsize, 1);
 
   // Store physics varaibles into ROOTs
