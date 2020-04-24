@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-23 14:40:45 trottar"
+ * Time-stamp: "2020-04-24 10:01:39 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -614,6 +614,26 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       vky_Lab = 0.0;
       vkz_Lab = 0.0;
       
+    }else{
+      plambx_Lab = 0;
+      plamby_Lab = 0;
+      plambz_Lab = 0;
+      ElambE_Lab = 0;
+      
+      vlambx_Lab = 0.0;
+      vlamby_Lab = 0.0;
+      vlambz_Lab = 0.0;
+
+      plamb_Lab = 0;
+      
+      pkx_Lab = 0;
+      pky_Lab = 0;
+      pkz_Lab = 0;
+      EkE_Lab = 0;
+
+      vkx_Lab = 0.0;
+      vky_Lab = 0.0;
+      vkz_Lab = 0.0;
     }
     
     // For debugging purpose

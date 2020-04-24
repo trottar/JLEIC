@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged neutron and pi+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-21 14:21:10 trottar"
+ * Time-stamp: "2020-04-24 10:02:10 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -624,6 +624,26 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       vpiy_Lab = 0.0;
       vpiz_Lab = 0.0;
       
+    }else{
+      pnx_Lab = 0;
+      pny_Lab = 0;
+      pnz_Lab = 0;
+      EnE_Lab = 0;
+      
+      vnx_Lab = 0.0;
+      vny_Lab = 0.0;
+      vnz_Lab = 0.0;
+
+      pn_Lab = 0;
+      
+      ppix_Lab = 0;
+      ppiy_Lab = 0;
+      ppiz_Lab = 0;
+      EpiE_Lab = 0;
+
+      vpix_Lab = 0.0;
+      vpiy_Lab = 0.0;
+      vpiz_Lab = 0.0;      
     }
     // For debugging purpose
     // if (pn_Lab > (PBeam/ABeam) ) { 
