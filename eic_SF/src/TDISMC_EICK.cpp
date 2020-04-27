@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-27 16:36:15 trottar"
+ * Time-stamp: "2020-04-27 16:56:39 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -591,8 +591,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     P_k = pScatterKaon_V3.Mag();
 
-    // if ((pScatterNeutron_Vertex.E()+pScatterPion_Vertex.E()) > PBeam){
-    if ((pScatterNeutron_Vertex.E()) > PBeam){
+    if ((pScatterLambda_Vertex.E()+pScatterKaon_Vertex.E()) > PBeam){
+    // if ((pScatterLambda_Vertex.E()) > PBeam){
       continue;
     }
       
