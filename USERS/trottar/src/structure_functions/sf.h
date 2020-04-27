@@ -1,13 +1,65 @@
 /*
  * Description: Structure function definitions
  * ================================================================
- * Time-stamp: "2020-04-20 11:26:28 trottar"
+ * Time-stamp: "2020-04-27 13:28:33 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
  *
  * Copyright (c) trottar
  */
+
+
+// subroutine to calculate the f2p as a function xbj
+double f2p( double x ){
+  double f2 = 0.0;
+  double p0 = 0.1736;
+  double p1 = 4.537;
+  double p2 = -48.66;
+  double p3 = 236.8;
+  double p4 = -665.8;
+  double p5 = 1094;
+  double p6 = -973.9;
+  double p7 = 363.2;
+
+  f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5) + p6*pow(x,6) + p7*pow(x,7);
+  
+  return f2;
+}
+
+
+double F2N(double x, double Q2, int nucl){
+  // nucl =2; // for neutron;
+
+  // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
+  /* initcteqpdf(); */
+  
+  double qu = cteq_pdf_evolvepdf(__dis_pdf, 1, x, sqrt(Q2) );
+  double qd = cteq_pdf_evolvepdf(__dis_pdf, 2, x, sqrt(Q2) );
+  double qubar = cteq_pdf_evolvepdf(__dis_pdf, -1, x, sqrt(Q2) );
+  double qdbar = cteq_pdf_evolvepdf(__dis_pdf, -2, x, sqrt(Q2) );
+
+  double quv = qu-qubar;
+  double qdv = qd-qdbar;
+
+  double qs = cteq_pdf_evolvepdf(__dis_pdf, 3, x, sqrt(Q2) );
+
+  double F2 = 0.0; 
+  double e_u =  2.0/3.0;
+  double e_d = -1.0/3.0;
+
+  if( nucl == 1 ){
+    F2 += x*( e_u*e_u*quv + e_d*e_d*qdv ); 
+  }
+  if( nucl == 2){
+    F2 += x*( e_u*e_u*qdv + e_d*e_d*quv ); 
+  }
+  // Sea quarks
+  F2  += x*(2.0*e_u*e_u*qubar + 2.0*e_d*e_d*(qdbar + qs));
+  return F2;
+
+}
+
 
 // subroutine to calculate the f2pi as function of recoiled nucleon momentum, xbj, theta
 // This is user parametrization by fit the Wally's codes 3Var_x.f() with integration of finite momentum range
@@ -366,27 +418,10 @@ double f2pi(double p, double x, double th){
   
 }
 
-// subroutine to calculate the f2pi as function of xbj (Timothy J. Hobbs)
-// using the ZEUS parameterization with f2p
-double f2piZEUS(double x){
-  double f2 = 0.0;
-  double p0 = 0.1736;
-  double p1 = 4.537;
-  double p2 = -48.66;
-  double p3 = 236.8;
-  double p4 = -665.8;
-  double p5 = 1094;
-  double p6 = -973.9;
-  double p7 = 363.2;
+// using the ZEUS parameterization with f2
+double f2piZEUS(double x, double Q2, int nucl){
 
-  // EIC collider no limit
-  /* if( x < 0.0 || x > 0.6 )  */
-    /* return 0.0;     */
-  /* else{ */
-  f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5) + p6*pow(x,6) + p7*pow(x,7);
-  double f2temp = 0.361*f2;
-  return f2temp;
-  /* } */
+  return F2N(x,Q2,nucl)*0.361;
 }
 
 
@@ -605,54 +640,3 @@ double f2kptmono(double p, double x, double th){
   
   
  }
-
-
-// subroutine to calculate the f2p as a function xbj
-double f2p( double x ){
-  double f2 = 0.0;
-  double p0 = 0.1736;
-  double p1 = 4.537;
-  double p2 = -48.66;
-  double p3 = 236.8;
-  double p4 = -665.8;
-  double p5 = 1094;
-  double p6 = -973.9;
-  double p7 = 363.2;
-
-  f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5) + p6*pow(x,6) + p7*pow(x,7);
-  
-  return f2;
-}
-
-
-double F2N(double x, double Q2, int nucl){
-  // nucl =2; // for neutron;
-
-  // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
-  /* initcteqpdf(); */
-  
-  double qu = cteq_pdf_evolvepdf(__dis_pdf, 1, x, sqrt(Q2) );
-  double qd = cteq_pdf_evolvepdf(__dis_pdf, 2, x, sqrt(Q2) );
-  double qubar = cteq_pdf_evolvepdf(__dis_pdf, -1, x, sqrt(Q2) );
-  double qdbar = cteq_pdf_evolvepdf(__dis_pdf, -2, x, sqrt(Q2) );
-
-  double quv = qu-qubar;
-  double qdv = qd-qdbar;
-
-  double qs = cteq_pdf_evolvepdf(__dis_pdf, 3, x, sqrt(Q2) );
-
-  double F2 = 0.0; 
-  double e_u =  2.0/3.0;
-  double e_d = -1.0/3.0;
-
-  if( nucl == 1 ){
-    F2 += x*( e_u*e_u*quv + e_d*e_d*qdv ); 
-  }
-  if( nucl == 2){
-    F2 += x*( e_u*e_u*qdv + e_d*e_d*quv ); 
-  }
-  // Sea quarks
-  F2  += x*(2.0*e_u*e_u*qubar + 2.0*e_d*e_d*(qdbar + qs));
-  return F2;
-
-}

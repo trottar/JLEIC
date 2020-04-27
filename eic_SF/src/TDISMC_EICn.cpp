@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged neutron and pi+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-24 10:02:10 trottar"
+ * Time-stamp: "2020-04-27 16:47:46 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -438,14 +438,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
-    // if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
-    //   // Unphysical kinematics
-    //   continue;
-    // }
-    // if (invts.y_D>=1./(1.+invts.x_D*MIon*MIon/invts.TwoPdotk) ) {
-    //   // Unphysical kinematics
-    //   continue;
-    // }
+    if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
+      // Unphysical kinematics
+      continue;
+    }
+    if (invts.y_D>=1./(1.+invts.x_D*MIon*MIon/invts.TwoPdotk) ) {
+      // Unphysical kinematics
+      continue;
+    }
 	  
     Jacob *=invts.xBj;   // Jacobian  dx/dlnx
 
@@ -457,24 +457,24 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
-    // if (EScatRest<mElectron) {
-    //   // should never happen
-    //   printf("illegal Rest frame scattered electron energy =%10.6f \n",EScatRest);
-    //   continue;
-    // }
+    if (EScatRest<mElectron) {
+      // should never happen
+      printf("illegal Rest frame scattered electron energy =%10.6f \n",EScatRest);
+      continue;
+    }
     
     kScatRest = sqrt(EScatRest*EScatRest-mElectron*mElectron);// scattered electron momentum in rest frame
     csTheRest = (2.*EScatRest*kIncident_Rest.E() - invts.Q2 - 2.*mElectron*mElectron) /(2.*kScatRest*kIncident_Rest.P());   // scattered electron \cosine\theta in rest frame	                                                 	  
 
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
-    // if (csTheRest*csTheRest>1.0) {
-    //   // should never happen
-    //   printf("illegal Rest frame cos(the) = %6.2f \n", csTheRest);
-    //   printf(" (k_Rest, k'_Rest, Q2, xBj) = (%8.3f,  %8.4f, %6.2f, %5.3f) \n",kIncident_Rest.E(),kScatRest,invts.Q2,invts.xBj);
-    //   printf(" (2k.P, invts.s_e, y_D, x_D) = (%6.2f, %6.2f,%10.6f, %8.4f) \n",invts.TwoPdotk, invts.s_e, invts.y_D, invts.x_D);
-    //   continue;
-    // }
+    if (csTheRest*csTheRest>1.0) {
+      // should never happen
+      printf("illegal Rest frame cos(the) = %6.2f \n", csTheRest);
+      printf(" (k_Rest, k'_Rest, Q2, xBj) = (%8.3f,  %8.4f, %6.2f, %5.3f) \n",kIncident_Rest.E(),kScatRest,invts.Q2,invts.xBj);
+      printf(" (2k.P, invts.s_e, y_D, x_D) = (%6.2f, %6.2f,%10.6f, %8.4f) \n",invts.TwoPdotk, invts.s_e, invts.y_D, invts.x_D);
+      continue;
+    }
 	  
     // Definition of unit vector in rest frame (norm vector)
     UnitZRest  = -kIncident_Rest.Vect();
@@ -559,8 +559,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     P_p2  = sqrt (Pz_p2*Pz_p2 + p2_pt*p2_pt);
     theta_p2 = acos (Pz_p2/P_p2);
     E_p2 = sqrt ( P_p2*P_p2 + MProton*MProton);
-    
+  
     // Define scattered proton kinematics
+    // Generate pSpectator Spherically Symmetric in rest frame     
     uw       = ran3.Uniform();
     pS_rest   = (pSMax)*pow(uw,1./3.); // uniform in 3p^2 dp = d(p^3), pSMax=0.3
     ux       = ran3.Uniform();
@@ -576,6 +577,19 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     Jacob     *= 1./(2.*pScatterNeutron_Rest.E());
 
     PX_Vertex_Rest = kIncident_Rest+PIncident_Rest-(kScattered_Rest+pScatterNeutron_Rest);
+
+    invts.MX2 = PX_Vertex.M2();
+    invts.alphaS = ABeam*(pS_rest*csThRecoil+pSpectator_Rest.E())/MIon;
+    invts.pPerpS = pS_rest*sqrt(1.-csThRecoil*csThRecoil);
+
+    invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
+    invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;
+
+    // alpha cut for select event with minimizing coherrent effects
+    if(pow(invts.alphaS-1,2)<0.0001){
+      continue;
+    }
+
 	  
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
     if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
@@ -601,50 +615,31 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     P_pi = pScatterPion_V3.Mag();
 
-    // Conservation of energy cut to assure sensible results, hopefully temporary
-    if ((pScatterNeutron_Vertex.E()+pScatterPion_Vertex.E()) < PBeam){
-      
-      pnx_Lab = pScatterNeutron_Vertex.X();
-      pny_Lab = pScatterNeutron_Vertex.Y();
-      pnz_Lab = pScatterNeutron_Vertex.Z();
-      EnE_Lab = sqrt(pnx_Lab*pnx_Lab+pny_Lab*pny_Lab+pnz_Lab*pnz_Lab+MProton*MProton);
-      
-      vnx_Lab = 0.0;
-      vny_Lab = 0.0;
-      vnz_Lab = 0.0;
-
-      pn_Lab = sqrt(pnx_Lab*pnx_Lab+pny_Lab*pny_Lab+pnz_Lab*pnz_Lab);
-      
-      ppix_Lab = pScatterPion_Vertex.X();
-      ppiy_Lab = pScatterPion_Vertex.Y();
-      ppiz_Lab = pScatterPion_Vertex.Z();
-      EpiE_Lab = sqrt(ppix_Lab*ppix_Lab+ppiy_Lab*ppiy_Lab+ppiz_Lab*ppiz_Lab+mPion*mPion);
-
-      vpix_Lab = 0.0;
-      vpiy_Lab = 0.0;
-      vpiz_Lab = 0.0;
-      
-    }else{
-      pnx_Lab = 0;
-      pny_Lab = 0;
-      pnz_Lab = 0;
-      EnE_Lab = 0;
-      
-      vnx_Lab = 0.0;
-      vny_Lab = 0.0;
-      vnz_Lab = 0.0;
-
-      pn_Lab = 0;
-      
-      ppix_Lab = 0;
-      ppiy_Lab = 0;
-      ppiz_Lab = 0;
-      EpiE_Lab = 0;
-
-      vpix_Lab = 0.0;
-      vpiy_Lab = 0.0;
-      vpiz_Lab = 0.0;      
+    if ((pScatterNeutron_Vertex.E()+pScatterPion_Vertex.E()) > PBeam){
+    // if ((pScatterNeutron_Vertex.E()) > PBeam){
+      continue;
     }
+    
+    pnx_Lab = pScatterNeutron_Vertex.X();
+    pny_Lab = pScatterNeutron_Vertex.Y();
+    pnz_Lab = pScatterNeutron_Vertex.Z();
+    EnE_Lab = sqrt(pnx_Lab*pnx_Lab+pny_Lab*pny_Lab+pnz_Lab*pnz_Lab+MProton*MProton);
+      
+    vnx_Lab = 0.0;
+    vny_Lab = 0.0;
+    vnz_Lab = 0.0;
+    
+    pn_Lab = sqrt(pnx_Lab*pnx_Lab+pny_Lab*pny_Lab+pnz_Lab*pnz_Lab);
+      
+    ppix_Lab = pScatterPion_Vertex.X();
+    ppiy_Lab = pScatterPion_Vertex.Y();
+    ppiz_Lab = pScatterPion_Vertex.Z();
+    EpiE_Lab = sqrt(ppix_Lab*ppix_Lab+ppiy_Lab*ppiy_Lab+ppiz_Lab*ppiz_Lab+mPion*mPion);
+    
+    vpix_Lab = 0.0;
+    vpiy_Lab = 0.0;
+    vpiz_Lab = 0.0;
+        
     // For debugging purpose
     // if (pn_Lab > (PBeam/ABeam) ) { 
     //   // Unphysical kinematics  // if TDIS spectator momentum larger than 50% ion momentum
@@ -698,7 +693,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       
       //  typ = 5 ! ZEUS parameterization with F2N (proton SF)      
       if (typ == 5){
-      fpi = fpifac*f2piZEUS(TDIS_xbj);
+	fpi = fpifac*f2piZEUS(TDIS_xbj,invts.Q2,inucl);
       }
 
       /*

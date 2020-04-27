@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-03-20 18:06:48 trottar"
+# Time-stamp: "2020-04-26 15:14:47 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -19,19 +19,20 @@ import matplotlib.backends.backend_pdf
 import sys, math
 
 sys.path.insert(0,'/home/trottar/bin/python/root2py/')
-from root2py import pyPlot, pyBranch, pyBin
+import root2py as r2p
 
 # kinematics = "pi_n_10on100"
 # kinematics = "pi_n_10on275"
 kinematics = "pi_n_18on275"
+# kinematics = "lambda_cone275_output"
 
-pdf = matplotlib.backends.backend_pdf.PdfPages("g4e_%s_PIDcut.pdf" % kinematics) 
+pdf = matplotlib.backends.backend_pdf.PdfPages("g4e_%s.pdf" % kinematics) 
 
 # rootName = "OUTPUTS/g4e_TDISpion_lund_p275_e10_10k.root" # Yulia root file
 rootName = "OUTPUTS/g4e_%s.root" % kinematics
 
 tree = up.open(rootName)["events"]
-branch = pyBranch(tree)
+branch = r2p.pyBranch(tree)
 
 gen_prt_charge = tree.array("gen_prt_charge")
 gen_prt_id = tree.array("gen_prt_id")
@@ -55,8 +56,7 @@ cutDict = {
     "electron" : ((gen_prt_id < 0.5)),
 }
 
-b = pyBin()
-c = pyPlot(cutDict)
+c = r2p.pyPlot(cutDict)
 
 picut = ["pion"]
 ecut = ["electron"]
@@ -66,45 +66,45 @@ f = plt.figure(figsize=(11.69,8.27))
 plt.style.use('default')
 
 ax = f.add_subplot(211)
-hist1 = ax.hist(c.applyCuts(gen_prt_tot_mom,picut),bins=b.setbin(gen_prt_tot_mom,200),label='pi cut',histtype='step', alpha=0.5, stacked=True, fill=True)
-hist1a = ax.hist(c.applyCuts(gen_prt_tot_mom,ecut),bins=b.setbin(gen_prt_tot_mom,200),label='e cut',histtype='step', alpha=0.5, stacked=True, fill=True)
-hist1b = ax.hist(c.applyCuts(gen_prt_tot_mom,ncut),bins=b.setbin(gen_prt_tot_mom,200),label='n cut',histtype='step', alpha=0.5, stacked=True, fill=True)
+hist1 = ax.hist(c.applyCuts(gen_prt_tot_mom,picut),bins=c.setbin(gen_prt_tot_mom,200),label='pi cut',histtype='step', alpha=0.5, stacked=True, fill=True)
+hist1a = ax.hist(c.applyCuts(gen_prt_tot_mom,ecut),bins=c.setbin(gen_prt_tot_mom,200),label='e cut',histtype='step', alpha=0.5, stacked=True, fill=True)
+hist1b = ax.hist(c.applyCuts(gen_prt_tot_mom,ncut),bins=c.setbin(gen_prt_tot_mom,200),label='n cut',histtype='step', alpha=0.5, stacked=True, fill=True)
 ax.legend(loc=1)
 plt.title('gen_prt_tot_mom', fontsize =20)
 
 ax = f.add_subplot(212)
-hist2 = ax.hist(c.applyCuts(gen_prt_dir_z,picut),bins=b.setbin(gen_prt_dir_z,200),label='pi cut',histtype='step', alpha=0.5, stacked=True, fill=True)
-hist2a = ax.hist(c.applyCuts(gen_prt_dir_z,ecut),bins=b.setbin(gen_prt_dir_z,200),label='e cut',histtype='step', alpha=0.5, stacked=True, fill=True)
-hist2b = ax.hist(c.applyCuts(gen_prt_dir_z,ncut),bins=b.setbin(gen_prt_dir_z,200),label='n cut',histtype='step', alpha=0.5, stacked=True, fill=True)
+hist2 = ax.hist(c.applyCuts(gen_prt_dir_z,picut),bins=c.setbin(gen_prt_dir_z,200),label='pi cut',histtype='step', alpha=0.5, stacked=True, fill=True)
+hist2a = ax.hist(c.applyCuts(gen_prt_dir_z,ecut),bins=c.setbin(gen_prt_dir_z,200),label='e cut',histtype='step', alpha=0.5, stacked=True, fill=True)
+hist2b = ax.hist(c.applyCuts(gen_prt_dir_z,ncut),bins=c.setbin(gen_prt_dir_z,200),label='n cut',histtype='step', alpha=0.5, stacked=True, fill=True)
 ax.legend(loc=2)
 plt.title('gen_prt_dir_z', fontsize =20)
 
-phaseSpace = c.densityPlot(c.applyCuts(gen_prt_tot_mom,picut), c.applyCuts(gen_prt_dir_z,picut), 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b)
+phaseSpace = c.densityPlot(c.applyCuts(gen_prt_tot_mom,picut), c.applyCuts(gen_prt_dir_z,picut), 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
 # plt.ylim(0.,60.)
-plt.xlim(0.,600.)
+# plt.xlim(0.,600.)
 plt.xlabel('tot_mom (GeV)', fontsize =20)
 plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('pi cut', fontsize =20)
-phaseSpace = c.densityPlot(c.applyCuts(gen_prt_tot_mom,ecut), c.applyCuts(gen_prt_dir_z,ecut), 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b)
+phaseSpace = c.densityPlot(c.applyCuts(gen_prt_tot_mom,ecut), c.applyCuts(gen_prt_dir_z,ecut), 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
 # plt.ylim(0.,180.)
-plt.xlim(0.,50.)
+# plt.xlim(0.,50.)
 plt.xlabel('tot_mom (GeV)', fontsize =20)
 plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('e cut', fontsize =20)
-phaseSpace = c.densityPlot(c.applyCuts(gen_prt_tot_mom,ncut), c.applyCuts(gen_prt_dir_z,ncut), 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b)
+phaseSpace = c.densityPlot(c.applyCuts(gen_prt_tot_mom,ncut), c.applyCuts(gen_prt_dir_z,ncut), 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
 # plt.ylim(0.,180.)
 # plt.xlim(0.,500.)
 plt.xlabel('tot_mom (GeV)', fontsize =20)
 plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('n cut', fontsize =20)
-phaseSpace = c.densityPlot(gen_prt_tot_mom, gen_prt_dir_z, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  b,0., 50.,-30.,180.)
-plt.ylim(-30.,180.)
-plt.xlim(0.,50.)
+phaseSpace = c.densityPlot(gen_prt_tot_mom, gen_prt_dir_z, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
+# plt.ylim(-30.,180.)
+# plt.xlim(0.,50.)
 plt.xlabel('tot_mom (GeV)', fontsize =20)
 plt.ylabel('Theta (deg)', fontsize =20)
 plt.title('no cut', fontsize =20)
 
-for f in xrange(1, plt.figure().number):
+for f in range(1, plt.figure().number):
     pdf.savefig(f)
 pdf.close()
 

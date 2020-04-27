@@ -1,7 +1,7 @@
 /*
  * Description: Defines constants, cross sections, and smearing of fermi motion 
  * ================================================================
- * Time-stamp: "2020-04-23 14:35:25 trottar"
+ * Time-stamp: "2020-04-27 15:26:18 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -39,8 +39,8 @@ using std::ios;
 
 int NEvts = 0; // Defined in kinematics.input
 
-// spectator proton either proton beam or deuteron beam
-const double pSMax=  0.3;
+// maximum value of spectator particle
+const double pSMax=  0.3; // 300 Mev/c
 
 //  Physical Constants
 const double MProton   = 0.93827203;

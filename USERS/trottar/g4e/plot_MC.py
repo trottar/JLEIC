@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-04-22 16:11:19 trottar"
+# Time-stamp: "2020-04-27 15:08:19 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -22,29 +22,34 @@ sys.path.insert(0,'/home/trottar/bin/python/')
 import root2py as r2p
 
 kinematics = "pi_n_18on275"
-# kinematics = "pi_n_5on100"
-# kinematics = "k_lambda_5on100"
 # kinematics = "k_lambda_18on275"
-# kinematics = "pi_p_18on275"
 
-num = 1
+num = 70
 
 rootName = '../OUTPUTS/%s.root' % kinematics
 tree = up.open(rootName)["Evnts"]
 branch = r2p.pyBranch(tree)
 
 pdf = matplotlib.backends.backend_pdf.PdfPages("MC_%s.pdf" % kinematics)
+# pdf = matplotlib.backends.backend_pdf.PdfPages("MC_%s_Q2_%s.pdf" % (kinematics,num))
 
 Q2 = branch.findBranch("invts","Q2")
+x = branch.findBranch("invts","xBj")
 # t = -branch.findBranch("invts","tPrime")
 t = -branch.findBranch("invts","tSpectator")
 TDIS_znq = tree.array("TDIS_znq")
 # TDIS_Mx2 = tree.array("TDIS_Mx2")
-xpi = tree.array("xpi")
-EnE_Lab = tree.array("EnE_Lab")
-EpiE_Lab = tree.array("EpiE_Lab")
-ppiz_Lab = tree.array("ppiz_Lab")
-scat_p = tree.array("t")
+
+if "pi" in kinematics:
+    xpi = tree.array("xpi")
+    EnE_Lab = tree.array("EnE_Lab")
+    EpiE_Lab = tree.array("EpiE_Lab")
+    ppiz_Lab = tree.array("ppiz_Lab")
+if "k" in kinematics:
+    xpi = tree.array("xk")
+    EnE_Lab = tree.array("ElambE_Lab")
+    EpiE_Lab = tree.array("EkE_Lab")
+    ppiz_Lab = tree.array("pkz_Lab")
 
 c = r2p.pyPlot(None)
 
@@ -63,6 +68,7 @@ neutron_mom = np.array([])
 photon_mom = np.array([])
 
 Q2_cut = np.array([])
+x_cut = np.array([])
 t_cut = np.array([])
 TDIS_znq_cut = np.array([])
 
@@ -73,7 +79,10 @@ for entryNum in range(0,mytree.GetEntries()):
     # virtual = TLorentzVector()
     photon = getattr(mytree ,"q_Vir.")
     scat_electron = getattr(mytree ,"e_Scat.")
-    pion = getattr(mytree ,"pi.")
+    if "pi" in kinematics:
+        pion = getattr(mytree ,"pi.")
+    if "k" in kinematics:
+        pion = getattr(mytree ,"k.")
     neutron = getattr(mytree ,"p1_Sp.")
     
     # if Q2[entryNum] > num:
@@ -96,6 +105,7 @@ for entryNum in range(0,mytree.GetEntries()):
         scat_electron_mom = np.append(scat_electron_mom,scat_electron.E())
         photon_mom = np.append(photon_mom,photon.E())
         Q2_cut = np.append(Q2_cut,Q2[entryNum])
+        x_cut = np.append(x_cut,x[entryNum])
         t_cut = np.append(t_cut,t[entryNum])
         TDIS_znq_cut = np.append(TDIS_znq_cut,TDIS_znq[entryNum])
     
@@ -145,6 +155,15 @@ def plot_physics():
     # plt.ylabel('$Q^2$ ($GeV^2$)', fontsize =20)
     # plt.title('$Q^2$ vs e $\Theta$', fontsize =20)
 
+    xQ2 = c.densityPlot(x_cut,Q2_cut, '$Q^2$ vs $x_{Bj}$','$x_{Bj}$','$Q^2$', 200, 200,  c, 0.001, 1.0, 0., 100.0)
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlim(0.001,1.)
+    plt.ylim(10.,100.)
+    plt.xlabel('$x_{Bj}$', fontsize =20)
+    plt.ylabel('$Q^2$ ($GeV^2$)', fontsize =20)
+    plt.title('$Q^2$ vs $x_{Bj}$', fontsize =20)
+
     pimomt = c.densityPlot(pion_mom,t_cut, 't vs pi tot_mom','tot_mom','t', 200, 200,  c)
     # plt.ylim(-180.,180.)
     # plt.xlim(0.,50.)
@@ -181,7 +200,7 @@ def plot_physics():
     plt.title('e cut', fontsize =20)  
     phaseSpace = c.densityPlot(pion_mom, pion_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
     # plt.ylim(0.0,180.0)
-    # plt.xlim(0.,4.)
+    plt.xlim(0.,15.)
     plt.xlabel('tot_mom (GeV)', fontsize =20)
     plt.ylabel('Theta (deg)', fontsize =20)
     plt.title('pi cut', fontsize =20)

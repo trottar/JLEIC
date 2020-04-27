@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-04-22 16:11:31 trottar"
+# Time-stamp: "2020-04-27 14:22:14 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -25,10 +25,10 @@ import time,math,sys
 sys.path.insert(0,'/home/trottar/bin/python/')
 import root2py as r2p
 
-# rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_p_5on100.root"
+rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_n_18on275.root"
 # rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/pi_n_5on100.root"
 # rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/k_lambda_5on100.root"
-rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/k_lambda_18on275.root"
+# rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/k_lambda_18on275.root"
 tree = up.open(rootName)["Evnts"]
 branch = r2p.pyBranch(tree)
 
@@ -91,7 +91,7 @@ for x in range(0,len(Q2array)) :
     Q2tmp = '{"Q2cut%i" : ((%0.1f < Q2) & (Q2 < %0.1f))}' % (i,Q2array[i]-2.5,Q2array[i]+2.5)
     ytmp = '{"ycut" : ((0.01 < y) & (y < 0.95))}'
     ttmp = '{"tcut" : ((-1.00 < t) & (t < 0.00))}'
-    print '{"Q2cut%i" : ((%0.1f < Q2) & (Q2 < %0.1f))}' % (i,Q2array[i]-2.5,Q2array[i]+2.5)
+    print('{"Q2cut%i" : ((%0.1f < Q2) & (Q2 < %0.1f))}' % (i,Q2array[i]-2.5,Q2array[i]+2.5))
     cutDict.update(eval(Q2tmp))
     cutDict.update(eval(ttmp))
     cutDict.update(eval(ytmp))
@@ -378,29 +378,29 @@ def Lumi():
         
         binx = 0.1 # bin x size
         binQ2 = 10.0 # bin Q2 size
-        print "---------------------------------"
-        print "Events in bin: ",evts
+        print("---------------------------------")
+        print("Events in bin: ",evts)
         # print "\nBin value array: ", binValue
-        print "\nbinx: ", binx, "\nbinQ2: ", binQ2
+        print("\nbinx: ", binx, "\nbinQ2: ", binQ2)
         
         avgSigma = np.average(sigval)
 
-        print "\nAverage Sigma: ", avgSigma
+        print("\nAverage Sigma: ", avgSigma)
         
         lumi = np.append(lumi,(evts/(avgSigma*(binQ2)*(binx))))
         
         # uncern = np.append(uncern,np.sqrt(avgLumi*avgSigma*(binQ2)*(binx))/evts)
         # uncern = np.append(uncern,np.sqrt(avgLumi*avgSigma*(binQ2)*(binx))/evts)
         
-        print "Plot: ", j+1
-        print "Luminosity: ", lumi[j]
+        print("Plot: ", j+1)
+        print("Luminosity: ", lumi[j])
         # print "Uncertainty: ", uncern[j]
-        print "---------------------------------\n"
+        print("---------------------------------\n")
 
     avgLumi = np.average(lumi)
         
-    print "\nLuminosity: ", lumi
-    print "\nAverage Luminosity: ", avgLumi
+    print("\nLuminosity: ", lumi)
+    print("\nAverage Luminosity: ", avgLumi)
     
     f,ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27));
     scat1 = ax.hist(lumi,bins=c.setbin(lumi,20),label='Low',histtype='step', alpha=0.5, stacked=True, fill=True)
@@ -683,8 +683,8 @@ def pionPlots(Q2_inp):
     lum10.append((10/(tot_lumi[8-1]))*numEvts8)
     lum100.append((100/(tot_lumi[8-1]))*numEvts8)
     
-    print "\n\nLumi10: ", lum10
-    print "\n\nLumi100: ", lum100, "\n\n"
+    print("\n\nLumi10: ", lum10)
+    print("\n\nLumi100: ", lum100, "\n\n")
 
     fout = open('/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/LuminosityTable.txt','a') 
     
@@ -746,7 +746,7 @@ def pionPlots(Q2_inp):
         # fpiuncern.append(min(fpi1)*uncern[0])
         fpiuncern.append(uncern[0])
     else:
-        print "Invalid at ", xpi1
+        print("Invalid at ", xpi1)
         
     xpi2 = []
     fpi2 = []
@@ -767,7 +767,7 @@ def pionPlots(Q2_inp):
         # fpiuncern.append(min(fpi2)*uncern[1])
         fpiuncern.append(uncern[1])
     else:
-        print "Invalid at ", xpi2
+        print("Invalid at ", xpi2)
         
     xpi3 = []
     fpi3 = []
@@ -788,7 +788,7 @@ def pionPlots(Q2_inp):
         # fpiuncern.append(uncern[2])
         fpiuncern.append(min(fpi3)*uncern[2])
     else:
-        print "Invalid at ", xpi3
+        print("Invalid at ", xpi3)
         
     xpi4 = []
     fpi4 = []
@@ -809,7 +809,7 @@ def pionPlots(Q2_inp):
         # fpiuncern.append(min(fpi4)*uncern[3])
         fpiuncern.append(uncern[3])
     else:
-        print "Invalid at ", xpi4
+        print("Invalid at ", xpi4)
         
     xpi5 = []
     fpi5 = []
@@ -830,7 +830,7 @@ def pionPlots(Q2_inp):
         # fpiuncern.append(uncern[4])
         fpiuncern.append(min(fpi5)*uncern[4])
     else:
-        print "Invalid at ", xpi5
+        print("Invalid at ", xpi5)
         
     xpi6 = []
     fpi6 = []
@@ -851,7 +851,7 @@ def pionPlots(Q2_inp):
         # fpiuncern.append(min(fpi6)*uncern[5])
         fpiuncern.append(uncern[5])
     else:
-        print "Invalid at ", xpi6
+        print("Invalid at ", xpi6)
         
     xpi7 = []
     fpi7 = []
@@ -872,7 +872,7 @@ def pionPlots(Q2_inp):
         # fpiuncern.append(uncern[6])
         fpiuncern.append(uncern[6])
     else:
-        print "Invalid at ", xpi7
+        print("Invalid at ", xpi7)
         
     xpi8 = []
     fpi8 = []
@@ -893,10 +893,10 @@ def pionPlots(Q2_inp):
         # fpiuncern.append(min(fpi8)*uncern[7])
         fpiuncern.append(uncern[7])
     else:
-        print "Invalid at ", xpi8
+        print("Invalid at ", xpi8)
 
-    print "\n\nfpiuncern",fpiuncern,"\n\n"
-    print "\n\nfpi",fpi_tot,"\n\n"
+    print("\n\nfpiuncern",fpiuncern,"\n\n")
+    print("\n\nfpi",fpi_tot,"\n\n")
         
     x = np.sort(TDIS_xbj)
     # x = np.sort(xpi)

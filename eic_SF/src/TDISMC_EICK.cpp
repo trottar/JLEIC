@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-24 10:01:39 trottar"
+ * Time-stamp: "2020-04-27 16:36:15 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -428,14 +428,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
-    // if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
-    //   // Unphysical kinematics
-    //   continue;
-    // }
-    // if (invts.y_D>=1./(1.+invts.x_D*MIon*MIon/invts.TwoPdotk) ) {
-    //   // Unphysical kinematics
-    //   continue;
-    // }
+    if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
+      // Unphysical kinematics
+      continue;
+    }
+    if (invts.y_D>=1./(1.+invts.x_D*MIon*MIon/invts.TwoPdotk) ) {
+      // Unphysical kinematics
+      continue;
+    }
 	  
     Jacob *=invts.xBj;   // Jacobian  dx/dlnx
 
@@ -447,24 +447,24 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
-    // if (EScatRest<mElectron) {
-    //   // should never happen
-    //   printf("illegal Rest frame scattered electron energy =%10.6f \n",EScatRest);
-    //   continue;
-    // }
+    if (EScatRest<mElectron) {
+      // should never happen
+      printf("illegal Rest frame scattered electron energy =%10.6f \n",EScatRest);
+      continue;
+    }
     
     kScatRest = sqrt(EScatRest*EScatRest-mElectron*mElectron);// scattered electron momentum in rest frame
     csTheRest = (2.*EScatRest*kIncident_Rest.E() - invts.Q2 - 2.*mElectron*mElectron) /(2.*kScatRest*kIncident_Rest.P());   // scattered electron \cosine\theta in rest frame	                                                 	  
 
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
-    // if (csTheRest*csTheRest>1.0) {
-    //   // should never happen
-    //   printf("illegal Rest frame cos(the) = %6.2f \n", csTheRest);
-    //   printf(" (k_Rest, k'_Rest, Q2, xBj) = (%8.3f,  %8.4f, %6.2f, %5.3f) \n",kIncident_Rest.E(),kScatRest,invts.Q2,invts.xBj);
-    //   printf(" (2k.P, invts.s_e, y_D, x_D) = (%6.2f, %6.2f,%10.6f, %8.4f) \n",invts.TwoPdotk, invts.s_e, invts.y_D, invts.x_D);
-    //   continue;
-    // }
+    if (csTheRest*csTheRest>1.0) {
+      // should never happen
+      printf("illegal Rest frame cos(the) = %6.2f \n", csTheRest);
+      printf(" (k_Rest, k'_Rest, Q2, xBj) = (%8.3f,  %8.4f, %6.2f, %5.3f) \n",kIncident_Rest.E(),kScatRest,invts.Q2,invts.xBj);
+      printf(" (2k.P, invts.s_e, y_D, x_D) = (%6.2f, %6.2f,%10.6f, %8.4f) \n",invts.TwoPdotk, invts.s_e, invts.y_D, invts.x_D);
+      continue;
+    }
 	  
     // Definition of unit vector in rest frame (norm vector)
     UnitZRest  = -kIncident_Rest.Vect();
@@ -591,50 +591,30 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     P_k = pScatterKaon_V3.Mag();
 
-    // Conservation of energy cut to assure sensible results, hopefully temporary
-    if ((pScatterLambda_Vertex.E()+pScatterKaon_Vertex.E()) < PBeam){
-      
-      plambx_Lab = pScatterLambda_Vertex.X();
-      plamby_Lab = pScatterLambda_Vertex.Y();
-      plambz_Lab = pScatterLambda_Vertex.Z();
-      ElambE_Lab = sqrt(plambx_Lab*plambx_Lab+plamby_Lab*plamby_Lab+plambz_Lab*plambz_Lab+MProton*MProton);
-      
-      vlambx_Lab = 0.0;
-      vlamby_Lab = 0.0;
-      vlambz_Lab = 0.0;
-
-      plamb_Lab = sqrt(plambx_Lab*plambx_Lab+plamby_Lab*plamby_Lab+plambz_Lab*plambz_Lab);
-      
-      pkx_Lab = pScatterKaon_Vertex.X();
-      pky_Lab = pScatterKaon_Vertex.Y();
-      pkz_Lab = pScatterKaon_Vertex.Z();
-      EkE_Lab = sqrt(pkx_Lab*pkx_Lab+pky_Lab*pky_Lab+pkz_Lab*pkz_Lab+mKaon*mKaon);
-
-      vkx_Lab = 0.0;
-      vky_Lab = 0.0;
-      vkz_Lab = 0.0;
-      
-    }else{
-      plambx_Lab = 0;
-      plamby_Lab = 0;
-      plambz_Lab = 0;
-      ElambE_Lab = 0;
-      
-      vlambx_Lab = 0.0;
-      vlamby_Lab = 0.0;
-      vlambz_Lab = 0.0;
-
-      plamb_Lab = 0;
-      
-      pkx_Lab = 0;
-      pky_Lab = 0;
-      pkz_Lab = 0;
-      EkE_Lab = 0;
-
-      vkx_Lab = 0.0;
-      vky_Lab = 0.0;
-      vkz_Lab = 0.0;
+    // if ((pScatterNeutron_Vertex.E()+pScatterPion_Vertex.E()) > PBeam){
+    if ((pScatterNeutron_Vertex.E()) > PBeam){
+      continue;
     }
+      
+    plambx_Lab = pScatterLambda_Vertex.X();
+    plamby_Lab = pScatterLambda_Vertex.Y();
+    plambz_Lab = pScatterLambda_Vertex.Z();
+    ElambE_Lab = sqrt(plambx_Lab*plambx_Lab+plamby_Lab*plamby_Lab+plambz_Lab*plambz_Lab+MProton*MProton);
+      
+    vlambx_Lab = 0.0;
+    vlamby_Lab = 0.0;
+    vlambz_Lab = 0.0;
+
+    plamb_Lab = sqrt(plambx_Lab*plambx_Lab+plamby_Lab*plamby_Lab+plambz_Lab*plambz_Lab);
+    
+    pkx_Lab = pScatterKaon_Vertex.X();
+    pky_Lab = pScatterKaon_Vertex.Y();
+    pkz_Lab = pScatterKaon_Vertex.Z();
+    EkE_Lab = sqrt(pkx_Lab*pkx_Lab+pky_Lab*pky_Lab+pkz_Lab*pkz_Lab+mKaon*mKaon);
+
+    vkx_Lab = 0.0;
+    vky_Lab = 0.0;
+    vkz_Lab = 0.0;
     
     // For debugging purpose
     // if (plamb_Lab > (PBeam/ABeam) ) { 
