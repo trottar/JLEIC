@@ -37,6 +37,11 @@ elif [[ $INPUT == "pi/n" ]]; then
     echo "Pion with neutron final state selected"
     echo
     SCRIPT="TDISMC_EICn.cpp"
+elif [[ $INPUT == "bare" ]]; then
+    echo
+    echo "Bare run (pion with neutron final state) selected. No physics calculations beyond kinematics."
+    echo
+    SCRIPT="TDISMC_bare.cpp"
 else
     echo "Please select final states (i.e. pi/p, pi/n, k/lambda)"
     exit 2

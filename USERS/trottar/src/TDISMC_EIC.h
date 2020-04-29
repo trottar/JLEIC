@@ -1,7 +1,7 @@
 /*
  * Description: Defines constants, cross sections, and smearing of fermi motion 
  * ================================================================
- * Time-stamp: "2020-04-27 15:26:18 trottar"
+ * Time-stamp: "2020-04-29 14:57:41 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>

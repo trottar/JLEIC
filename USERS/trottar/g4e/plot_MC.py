@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-04-27 15:08:19 trottar"
+# Time-stamp: "2020-04-27 17:14:21 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -24,7 +24,7 @@ import root2py as r2p
 kinematics = "pi_n_18on275"
 # kinematics = "k_lambda_18on275"
 
-num = 70
+num = 0
 
 rootName = '../OUTPUTS/%s.root' % kinematics
 tree = up.open(rootName)["Evnts"]
