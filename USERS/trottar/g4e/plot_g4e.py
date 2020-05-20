@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-04-26 15:14:47 trottar"
+# Time-stamp: "2020-05-03 17:33:10 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -21,15 +21,15 @@ import sys, math
 sys.path.insert(0,'/home/trottar/bin/python/root2py/')
 import root2py as r2p
 
-# kinematics = "pi_n_10on100"
-# kinematics = "pi_n_10on275"
 kinematics = "pi_n_18on275"
+# kinematics = "k_lambda_18on275"
 # kinematics = "lambda_cone275_output"
 
 pdf = matplotlib.backends.backend_pdf.PdfPages("g4e_%s.pdf" % kinematics) 
 
 # rootName = "OUTPUTS/g4e_TDISpion_lund_p275_e10_10k.root" # Yulia root file
-rootName = "OUTPUTS/g4e_%s.root" % kinematics
+# rootName = "OUTPUTS/g4e_%s.root" % kinematics
+rootName = "OUTPUTS/g4e_%s_lund_new_output.root" % kinematics # Yulia root file
 
 tree = up.open(rootName)["events"]
 branch = r2p.pyBranch(tree)

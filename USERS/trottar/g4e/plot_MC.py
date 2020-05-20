@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-04-27 17:14:21 trottar"
+# Time-stamp: "2020-05-19 12:48:30 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -14,14 +14,18 @@ import ROOT, math, sys
 import numpy as np
 import uproot as up
 import matplotlib.pyplot as plt
-import matplotlib.backends.backend_pdf
 from ROOT import Math, TLorentzVector, TFile
 from array import array
 
 sys.path.insert(0,'/home/trottar/bin/python/')
 import root2py as r2p
 
-kinematics = "pi_n_18on275"
+kinematics = sys.argv[1]
+
+# kinematics = "pi_n_18on275"
+# kinematics = "pi_n_10on100"
+# kinematics = "pi_n_5on100"
+# kinematics = "pi_n_5on41"
 # kinematics = "k_lambda_18on275"
 
 num = 0
@@ -30,15 +34,13 @@ rootName = '../OUTPUTS/%s.root' % kinematics
 tree = up.open(rootName)["Evnts"]
 branch = r2p.pyBranch(tree)
 
-pdf = matplotlib.backends.backend_pdf.PdfPages("MC_%s.pdf" % kinematics)
-# pdf = matplotlib.backends.backend_pdf.PdfPages("MC_%s_Q2_%s.pdf" % (kinematics,num))
-
 Q2 = branch.findBranch("invts","Q2")
 x = branch.findBranch("invts","xBj")
 # t = -branch.findBranch("invts","tPrime")
 t = -branch.findBranch("invts","tSpectator")
 TDIS_znq = tree.array("TDIS_znq")
 # TDIS_Mx2 = tree.array("TDIS_Mx2")
+EeE_Lab = tree.array("EeE_Lab")
 
 if "pi" in kinematics:
     xpi = tree.array("xpi")
@@ -102,7 +104,8 @@ for entryNum in range(0,mytree.GetEntries()):
         neutron_mom = np.append(neutron_mom,EnE_Lab[entryNum])
     
         scat_electron_theta = np.append(scat_electron_theta,scat_electron.Theta()*(180/math.pi))
-        scat_electron_mom = np.append(scat_electron_mom,scat_electron.E())
+        # scat_electron_mom = np.append(scat_electron_mom,scat_electron.E())
+        scat_electron_mom = np.append(scat_electron_mom,EeE_Lab[entryNum])
         photon_mom = np.append(photon_mom,photon.E())
         Q2_cut = np.append(Q2_cut,Q2[entryNum])
         x_cut = np.append(x_cut,x[entryNum])
@@ -126,6 +129,8 @@ def plot_physics():
     hist1a = ax.hist(scat_electron_mom,bins=c.setbin(scat_electron_mom,200),label='e cut',histtype='step', alpha=0.5, stacked=True, fill=True)
     hist1b = ax.hist(neutron_mom,bins=c.setbin(neutron_mom,200),label='n cut',histtype='step', alpha=0.5, stacked=True, fill=True)
     plt.title('tot_mom', fontsize =20)
+
+    f.savefig('hist.png')
     
     # mmplot = c.densityPlot(np.sqrt(TDIS_Mx2),Q2, '$Q^2$ vs MM','MM','$Q^2$', 200, 200,  c)
     # # plt.ylim(-180.,180.)
@@ -164,6 +169,8 @@ def plot_physics():
     plt.ylabel('$Q^2$ ($GeV^2$)', fontsize =20)
     plt.title('$Q^2$ vs $x_{Bj}$', fontsize =20)
 
+    xQ2[1].savefig('xQ2.png')
+
     pimomt = c.densityPlot(pion_mom,t_cut, 't vs pi tot_mom','tot_mom','t', 200, 200,  c)
     # plt.ylim(-180.,180.)
     # plt.xlim(0.,50.)
@@ -171,12 +178,16 @@ def plot_physics():
     plt.ylabel('t ($GeV^2$)', fontsize =20)
     plt.title('t vs pi tot_mom', fontsize =20)
 
+    pimomt[1].savefig('pimomt.png')
+    
     pithetat = c.densityPlot(pion_theta,t_cut, 't vs pi $\Theta$','$\Theta$','t', 200, 200,  c)
     # plt.ylim(-180.,180.)
     # plt.xlim(0.,50.)
     plt.xlabel('$\Theta$', fontsize =20)
     plt.ylabel('t ($GeV^2$)', fontsize =20)
     plt.title('t vs pi $\Theta$', fontsize =20)
+
+    pithetat[1].savefig('pithetat.png')
     
     nmomt = c.densityPlot(neutron_mom,t_cut, 't vs n tot_mom','tot_mom','t', 200, 200,  c)
     # plt.ylim(-180.,180.)
@@ -185,6 +196,8 @@ def plot_physics():
     plt.ylabel('t ($GeV^2$)', fontsize =20)
     plt.title('t vs n tot_mom', fontsize =20)
 
+    nmomt[1].savefig('nmomt.png')
+    
     nthetat = c.densityPlot(neutron_theta,t_cut, 't vs n $\Theta$','$\Theta$','t', 200, 200,  c)
     # plt.ylim(-180.,180.)
     # plt.xlim(0.,50.)
@@ -192,18 +205,26 @@ def plot_physics():
     plt.ylabel('t ($GeV^2$)', fontsize =20)
     plt.title('t vs n $\Theta$', fontsize =20)
 
+    nthetat[1].savefig('nthetat.png')
+    
     phaseSpace = c.densityPlot(scat_electron_mom, scat_electron_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
     # plt.ylim(-180.,180.)
     # plt.xlim(0.,50.)
     plt.xlabel('tot_mom (GeV)', fontsize =20)
     plt.ylabel('Theta (deg)', fontsize =20)
-    plt.title('e cut', fontsize =20)  
+    plt.title('e cut', fontsize =20)
+
+    phaseSpace[1].savefig('ephaseSpace.png')
+    
     phaseSpace = c.densityPlot(pion_mom, pion_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
-    # plt.ylim(0.0,180.0)
+    # plt.ylim(0.0,360.0)
     plt.xlim(0.,15.)
     plt.xlabel('tot_mom (GeV)', fontsize =20)
     plt.ylabel('Theta (deg)', fontsize =20)
     plt.title('pi cut', fontsize =20)
+
+    phaseSpace[1].savefig('piphaseSpace.png')
+    
     phaseSpace = c.densityPlot(neutron_mom, neutron_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
     # plt.ylim(0.,180.)
     # plt.xlim(200.,500.)
@@ -212,6 +233,20 @@ def plot_physics():
     # plt.title('$\Lambda$ cut', fontsize =20)
     plt.title('n cut', fontsize =20)
 
+    phaseSpace[1].savefig('nphaseSpace.png')
+    
+    polar = c.polarPlot(pion_theta,pion_mom, 'P vs pi $\Theta$','$\Theta$','P')
+
+    polar.savefig('pipolar.png')
+    
+    polar = c.polarPlot(scat_electron_theta,scat_electron_mom, 'P vs scat e $\Theta$','$\Theta$','P')
+
+    polar.savefig('epolar.png')
+        
+    polar = c.polarPlot(neutron_theta,neutron_mom, 'P vs n $\Theta$','$\Theta$','P',0.0,5.0)
+
+    polar.savefig('npolar.png')
+    
     # phaseSpace = c.densityPlot(pion_mom, neutron_mom, 'n vs pi','pi','n', 200, 200,  b,0,3.,0.,10.)
     # # plt.ylim(-180.,180.)
     # # plt.xlim(200.,500.)
@@ -228,10 +263,6 @@ def plot_physics():
     # # plt.title('$\Lambda$ cut', fontsize =20)
     # plt.title('n $\Theta$ vs pi $\Theta$', fontsize =20)
 
-    for f in range(1, plt.figure().number):
-        pdf.savefig(f)
-    pdf.close()
-
 meta  = up.open(rootName)["Meta"]
 metaBranch = r2p.pyBranch(meta)
 
@@ -244,10 +275,6 @@ P_p2 = metaBranch.findBranch("P2","P_p2")
 E_p2 = metaBranch.findBranch("P2","E_p2")
 Px_p2 = metaBranch.findBranch("P2","Px_p2")
 Py_p2 = metaBranch.findBranch("P2","Py_p2")
-
-# pdf_meta = matplotlib.backends.backend_pdf.PdfPages("meta_%s_kijun.pdf" % (kinematics)) 
-# pdf_meta = matplotlib.backends.backend_pdf.PdfPages("meta_%s_trotta.pdf" % (kinematics))
-pdf_meta = matplotlib.backends.backend_pdf.PdfPages("meta_%s_test.pdf" % (kinematics)) 
 
 def plot_meta():
     f = plt.figure(figsize=(11.69,8.27))
@@ -300,10 +327,6 @@ def plot_meta():
     plt.xlabel('P_p2', fontsize =20)
     plt.ylabel('neutron_mom', fontsize =20)
     plt.title('neutron_mom vs P_p2', fontsize =20)
-
-    for f in range(1, plt.figure().number):
-        pdf_meta.savefig(f)
-    pdf_meta.close()
 
         
 def main() :

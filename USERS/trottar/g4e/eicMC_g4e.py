@@ -3,7 +3,7 @@
 #
 # Description: Source escalate first....source ~/ResearchNP/gemc/escalate/escalate/escalate.csh
 # ================================================================
-# Time-stamp: "2020-04-26 21:28:19 trottar"
+# Time-stamp: "2020-05-06 11:39:53 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -41,14 +41,15 @@ def runG4e(numEvts,g4e_flag=False):
 
     # G4E reader here
     jana.plugin('g4e_reader') \
-        .source('OUTPUTS/g4e_%s.root' % final_state)
+        .source('OUTPUTS/g4e_%s_lund_new_output.root' % final_state) # Yulia root file
+        # .source('OUTPUTS/g4e_%s.root' % final_state)
 
     # Parameters:
     #     verbose   - Plugin output level. 0-almost nothing, 1-some, 2-everything
     #     smearing  - Particle smearing 0-true MC, 1-smearing, 2-reconstruction");
     #     e_beam_energy    -  Energy of colliding electron beam");
     #     ion_beam_energy  -  Energy of colliding ion beam");
-    jana.plugin(mstruct_general, verbose=1)
+    jana.plugin(mstruct_general, verbose=2,smearing=1, e_beam_energy=18, ion_beam_energy=275)    
     jana.run()
 
 def main() :

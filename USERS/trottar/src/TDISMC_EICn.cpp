@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged neutron and pi+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-27 16:47:46 trottar"
+ * Time-stamp: "2020-05-20 15:22:21 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -70,7 +70,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   int e_particle_id = 11, pr_particle_id =  2212, sp_particle_id = 2112, pi_particle_id = 211;
 
   // Number of incident and final state particles of reaction
-  int NumPtls = 5, inucl = 1;
+  int NumPtls = 5;
+
+  // 1 for proton, 2 for neutron incident
+  int inucl = 1;
 
   // Incident proton information
   double pprx_inc,ppry_inc,pprz_inc,EprE_inc ;
@@ -526,13 +529,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // Null for proton beam
     pSpectator_Rest  = PIncident_Rest;
-		
-    if (TMath::Sqrt(pSpectator_Rest.Mag2()) > PBeam/2){
-      cout << "spec rest new: " << pSpectator_Rest.Mag2() << endl;
-    }
-    if (TMath::Sqrt(TMath::Abs(qVirtual_Rest.Mag2())) > PBeam/2){
-      cout << "virt rest: |" << qVirtual_Rest.Mag2() << "|" << endl;
-    }
     
     //  definition are moved at the beginning of code
     //		double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
@@ -592,9 +588,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
 	  
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
-    if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
-      cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
-    }
+    // if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
+    //   cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
+    // }
       
     E_pi  = pSpectator_Rest.E() - pScatterNeutron_Rest.E();
     Px_pi = pSpectator_Rest.X() - pScatterNeutron_Rest.X(); 
