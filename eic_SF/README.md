@@ -70,9 +70,9 @@ How to run:
     (int) 57310
 
 
-Plotting:
+ROOT and LUND outputs:
 ====================================
-The plots spit out as rootfiles. I convert these root files to numpy arrays since I prefer python.
+In the **OUTPUTS** directory are the ROOT and LUND outputs for the simulation for further analysis.
 
 
 Running GEANT4
@@ -81,6 +81,5 @@ Located in **g4e_files/** directory...
 
 **./run_g4e.sh** : Will run the python script for the GEANT4 simulation from the TDIS_lund.dat file <br>
 **eic_g4e.py**   : This python script will run GEANT4 simulation for the lund file specified for detector='jleic' and beamline='erhic'
-
 
 *This code is maintained by Richard Trotta (trotta@cua.edu).*
