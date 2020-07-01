@@ -1,6 +1,6 @@
 What you need:
 ====================================
-ROOT 5.34/35+
+ROOT 5.34/35+ <br>
 gcc compiler (general)
 
 
@@ -24,7 +24,7 @@ Located in **inputs** directory...
 
 All other constants are changed in **src/TDISMC_EIC.h**
 
-\\(\downarrow\\) Below you can see the current kinematics inputs
+&#8595; Below you can see the current kinematics inputs
 
 
 ```python
@@ -44,7 +44,7 @@ How to run:
 ====================================
 **./run_batch.sh <final_state\>** : Final states...(pi/p, pi/n, k/lambda)
 
-\\(\downarrow\\) Below you can see an example for a pion and neutron final state simulation
+&#8595; Below you can see an example for a pion and neutron final state simulation
 
 
 ```python
@@ -84,8 +84,3 @@ Located in **g4e_files/** directory...
 
 
 *This code is maintained by Richard Trotta (trotta@cua.edu).*
-
-
-```python
-
-```
