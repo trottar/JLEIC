@@ -24,7 +24,7 @@ Located in **inputs** directory...
 
 All other constants are changed in **src/TDISMC_EIC.h**
 
-&#8595; Below you can see the current kinematics inputs
+&#8595; Below you can see the current kinematics inputs &#8595;
 
 
 ```python
@@ -44,7 +44,7 @@ How to run:
 ====================================
 **./run_batch.sh <final_state\>** : Final states...(pi/p, pi/n, k/lambda)
 
-&#8595; Below you can see an example for a pion and neutron final state simulation
+&#8595; Below you can see an example for a pion and neutron final state simulation &#8595;
 
 
 ```python
