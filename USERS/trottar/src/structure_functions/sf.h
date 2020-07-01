@@ -1,7 +1,7 @@
 /*
  * Description: Structure function definitions
  * ================================================================
- * Time-stamp: "2020-04-27 13:28:33 trottar"
+ * Time-stamp: "2020-05-28 16:36:26 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -150,7 +150,7 @@ double f2pipaulvillas(double p, double x, double th){
   }
   
   
-}
+ }
 
 // subroutine to calculate the f2pi as function of recoiled nucleon momentum, xbj, theta
 // This is user parametrization by fit the Wally's codes 3Var_x.f() with integration of finite momentum range
@@ -431,7 +431,6 @@ double f2piZEUS(double x, double Q2, int nucl){
 // typ = 2 ! s-exp For factor
 // dis = 0 ! Charge EXCHANGE
 // FLAG = 0  --- THE Kaon CONTRIBUTION      | J = 0 + 1/2
-
 double f2kp(double p, double x, double th){
   
   double p0, p1, p2, p3, p4, p5;
