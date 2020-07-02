@@ -2,7 +2,7 @@
 ===
 
 Generator used: [EIC_mesonMC](https://github.com/JeffersonLab/EIC_mesonMC) <br> 
-Kinematic settings: 5 on 41, 10 on 100, and 10 on 135 with a luminosity of 10 $fb^{-1}$
+Kinematic settings: 5 on 41, 10 on 100, and 10 on 135 with a luminosity of 10 $fb^{-1}$ <br>
 Generator output ROOT and lund files: EIC_mesonMC/eic_SF/OUTPUTS <br> 
 More information on running the generator can be found in the [README](../README.ipynb)
 
