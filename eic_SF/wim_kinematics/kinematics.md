@@ -1,7 +1,8 @@
 **[Meson working group kinematic coverage](http://www.vsl.cua.edu/cua_phy/index.php/EIC_Meson_Structure_Working_Group)**
 ===
 
-Generator used: [EIC_mesonMC](https://github.com/JeffersonLab/EIC_mesonMC) with a luminosity of 10 $fb^{-1}$ <br> 
+Generator used: [EIC_mesonMC](https://github.com/JeffersonLab/EIC_mesonMC) <br> 
+Kinematic settings: 5 on 41, 10 on 100, and 10 on 135 with a luminosity of 10 $fb^{-1}$
 Generator output ROOT and lund files: EIC_mesonMC/eic_SF/OUTPUTS <br> 
 More information on running the generator can be found in the [README](../README.ipynb)
 
