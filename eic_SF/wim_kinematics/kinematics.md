@@ -9,6 +9,7 @@ More information on running the generator can be found in the [README](../README
 
 Scattered electrons can be detected in the central detector <br>
 <img src="./plots/scat_e.png"> 
+[](./plots/scat_e.png)
 
 **Meson Structure Functions – Scattered Meson**
 
