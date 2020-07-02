@@ -8,19 +8,19 @@ More information on running the generator can be found in the [README](../README
 **Meson Structure Functions – Scattered Electron**
 
 Scattered electrons can be detected in the central detector <br>
-<img src="plots/scat_e.png"> 
+<img src="./plots/scat_e.png"> 
 
 **Meson Structure Functions – Scattered Meson**
 
-<img src="plots/scat_m.png"> 
+<img src="./plots/scat_m.png"> 
 
 **Meson Structure Functions – Scattered Baryon**
 
 Baryon (neutron, lambda) at very small forward angles and nearly the beam momentum <br>
-<img src="plots/scat_b.png"> 
+<img src="./plots/scat_b.png"> 
 
 A zoomed version <br>
-<img src="plots/scat_b_zoom.png"> 
+<img src="./plots/scat_b_zoom.png"> 
 
 **Script to generate plots**
 ==
