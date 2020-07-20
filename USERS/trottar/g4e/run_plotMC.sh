@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-05-19 12:48:35 trottar"
+# Time-stamp: "2020-07-17 19:46:35 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -12,8 +12,8 @@
 #
 
 # kinematics="pi_n_18on275"
-# kinematics="pi_n_10on135"
-kinematics="pi_n_10on100"
+kinematics="pi_n_10on135"
+# kinematics="pi_n_10on100"
 # kinematics="pi_n_5on100"
 # kinematics="pi_n_5on41"
 # kinematics="k_lambda_5on100"

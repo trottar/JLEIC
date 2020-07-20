@@ -19,6 +19,7 @@ RANNUM=$( date '+%H%M%S' )
 NEVTS=${tmp[4]}
 PBEAM=${tmp[5]}
 KBEAM=${tmp[6]}
+SMEAR=${tmp[7]}
 
 cd "src/"
 
@@ -49,7 +50,7 @@ fi
 
 root -l<<EOF
 .L $SCRIPT+
-mainx($XMIN,$XMAX,$Q2MIN,$Q2MAX,$RANNUM,$NEVTS,$PBEAM,$KBEAM)
+mainx($XMIN,$XMAX,$Q2MIN,$Q2MAX,$RANNUM,$NEVTS,$PBEAM,$KBEAM,$SMEAR)
 EOF
 
 cd "../"

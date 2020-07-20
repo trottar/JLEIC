@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged neutron and pi+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-05-20 15:22:21 trottar"
+ * Time-stamp: "2020-07-17 20:23:28 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -48,20 +48,25 @@ double GRV_xSpi(double x,double q2);
 // Define function calls for beam smearing
 double sigma_th(double pInc, double mInc, double NormEmit, double betaSt);
 
-int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const int nevts, const double pbeam, const double kbeam){
+int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const int nevts, const double pbeam, const double kbeam, bool smear){
 
   NEvts = nevts;
   PBeam = pbeam;
   kBeam = kbeam;
+
+  Bool_t iran;
+  
+  if(smear){
+    iran=kTRUE;      // TRUE==include incident beam emittance
+  }else{
+    iran=kFALSE;      // NO incident beam emittance
+  }
 
   // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
   initcteqpdf();
   
   TRandom3 ran3;// Random number generator [45ns/call]
   ran3.SetSeed(rnum);// Sets random generator seed which is used initialize the random number generator
-  
-  Bool_t iran=kTRUE;      // TRUE==include incident beam emittance
-  //Bool_t iran=kFALSE;      // Falut NO incident beam emittance
 
   // Define particle properties
   double emass =  mElectron, prmass = MProton, MSpectator = MNeutron,
@@ -585,7 +590,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     if(pow(invts.alphaS-1,2)<0.0001){
       continue;
     }
-
 	  
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
     // if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){

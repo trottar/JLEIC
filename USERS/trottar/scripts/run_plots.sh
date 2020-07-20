@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-05-18 14:01:31 trottar"
+# Time-stamp: "2020-07-19 23:17:31 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -11,19 +11,36 @@
 # Copyright (c) trottar
 #
 
+particle="pion"
+# particle="kaon"
 
-kinematics="pi_n_18on275"
-# kinematics="pi_n_10on135"
-# kinematics="pi_n_10on100"
-# kinematics="pi_n_5on100"
-# kinematics="pi_n_5on41"
-# kinematics="k_lambda_5on100"
-# kinematics="k_lambda_18on275"
+# eonP="18on275"
+eonP="10on135"
+# eonP="10on100"
+# eonP="5on100"
+# eonP="5on41"
 
+if [[ $particle = "pion" ]]; then
+    kinematics="pi_n_$eonP"
+elif [[ $particle = "kaon" ]]; then
+    kinematics="k_lambda_$eonP"
+else
+    echo "Invalid particle $particle"
+    exit 2
+fi
 
-echo "Running plot_mesonStructure.py for $kinematics"
-python3 plot_mesonStructure.py $kinematics
+echo "Running plot_${particle}Structure.py for $kinematics"
+python3 plot_${particle}Structure.py $kinematics
 
 cd OUTPUTS/
-convert phase_space.png fpivxpi.png fpivxpi_nolog.png fpivt.png fpi_$kinematics.pdf
-rm -rf *.png
+
+if [[ $particle = "pion" ]]; then
+    convert phase_space.png fpivxpi.png fpivxpi_nolog.png fpivt.png fpivt_xbin.png fpivtPrime.png fpivtPrime_xbin.png fpi_$kinematics.pdf
+    rm -rf *.png
+elif [[ $particle = "kaon" ]]; then
+    convert phase_space.png fkvxk.png fkvxk_nolog.png fkvt.png fk_$kinematics.pdf
+    rm -rf *.png
+else
+    echo "Invalid particle $particle"
+    exit 2
+fi

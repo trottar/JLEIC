@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-05-19 12:48:30 trottar"
+# Time-stamp: "2020-07-17 19:59:34 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -235,17 +235,17 @@ def plot_physics():
 
     phaseSpace[1].savefig('nphaseSpace.png')
     
-    polar = c.polarPlot(pion_theta,pion_mom, 'P vs pi $\Theta$','$\Theta$','P')
+    # polar = c.polarPlot(pion_theta,pion_mom, 'P vs pi $\Theta$','$\Theta$','P')
 
-    polar.savefig('pipolar.png')
+    # polar.savefig('pipolar.png')
     
-    polar = c.polarPlot(scat_electron_theta,scat_electron_mom, 'P vs scat e $\Theta$','$\Theta$','P')
+    # polar = c.polarPlot(scat_electron_theta,scat_electron_mom, 'P vs scat e $\Theta$','$\Theta$','P')
 
-    polar.savefig('epolar.png')
+    # polar.savefig('epolar.png')
         
-    polar = c.polarPlot(neutron_theta,neutron_mom, 'P vs n $\Theta$','$\Theta$','P',0.0,5.0)
+    # polar = c.polarPlot(neutron_theta,neutron_mom, 'P vs n $\Theta$','$\Theta$','P',0.0,5.0)
 
-    polar.savefig('npolar.png')
+    # polar.savefig('npolar.png')
     
     # phaseSpace = c.densityPlot(pion_mom, neutron_mom, 'n vs pi','pi','n', 200, 200,  b,0,3.,0.,10.)
     # # plt.ylim(-180.,180.)
