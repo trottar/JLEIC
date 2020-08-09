@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-07-19 23:17:31 trottar"
+# Time-stamp: "2020-07-20 14:10:00 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -20,9 +20,9 @@ eonP="10on135"
 # eonP="5on100"
 # eonP="5on41"
 
-if [[ $particle = "pion" ]]; then
+if [ $particle = "pion" ]; then
     kinematics="pi_n_$eonP"
-elif [[ $particle = "kaon" ]]; then
+elif [ $particle = "kaon" ]; then
     kinematics="k_lambda_$eonP"
 else
     echo "Invalid particle $particle"

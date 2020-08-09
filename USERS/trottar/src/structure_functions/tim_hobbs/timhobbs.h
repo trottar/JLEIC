@@ -1,8 +1,8 @@
 /* This is the collection of subroutine from Tim. Hobbs's pion-nucleon
  * fracture fuction to obtain the pion structure function
  * 
- * The original code is writtne by FORTRAN 
- * Cpp conerting by K.Park
+ * The original code is written by FORTRAN 
+ * Cpp conerting by K.Park and Richard Trotta
  * 
  * Motivation:
  * Changing the pion FF with various assumption based on the pion exchange model
@@ -17,18 +17,26 @@
 //   Exactly quoted from Tim's Fortran code.
 //
 //WE SET THE RENORMALIZATION CUT-OFF PARAMETER LAMBDA "L" = ... IN UNITS OF GeV
-//      L = 1.18D0      !COV DIPOLE: HSS NORM
-//      L = 1.71D0      !IMF DIPOLE: HSS NORM
-//      L = 1.63D0       !HSS +
+// From 3Var_th.f
+//const double      L = 1.180      !COV DIPOLE: HSS NORM
+//const double      L = 1.710      !IMF DIPOLE: HSS NORM
+//const double      L = 1.630       !HSS +
 const double      L = 1.560;      //!HSS CENT. VALUE
-//      L = 1.48D0      !HSS -
+//const double      L = 1.48D0      !HSS -
+// From ssbar_conv/CS-gfor.f
+//const double      L = 1.003  //!FOR LAMBDA    (L = [1.003 +/- 0.008] GeV);
+//const double          L = 1.011 !UPPER BOUND --- STAT.  | -- LAMBDA PRODUCTION
+//const double          L = 0.995 !LOWER BOUND --- STAT.  |
+//const double      L = 1.170  !FOR SIGMA+    (L = [1.17 +/- 0.01] GeV)
+//const double      L = 1.240  !FOR SIGMA*+   (L = [1.24 +/- 0.02] GeV)
 //C***********************************************************************
 //!HERE WE PLACE A GLOBAL FLAG FOR THE CHOICE OF THE WAVEFUNCTION SUPPRESSION FACTOR
 //!      typ = 1 !DIPOLE FORM FACTOR
 const int typ = 2; // !EXPONENTIAL FORM FACTOR
 //!      typ = 3 !COV. DIPOLE FORM FACTOR
+//!      typ = 4 !DIPOLE -- s-channel Lambda exchange??
 //C***********************************************************************
-//!THE PARAMETER 'dis' SELECTS THE CHARGE CONFIG. OF THE INTERM. STATE
+//!THE PARAMETER 'dis' SELECTS THE CHARGE CONFIG. OF THE INTERM. STATE (dis-> dissociation)
 //!       dis = 0 !CHARGE EXCHANGE
 const int dis = 1; // !NEUTRAL EXCHANGE
 //C***********************************************************************
@@ -54,7 +62,7 @@ const int FLAG = 0;
 
 double fypiN(double y,double kT,double L,int typ,int dis){
 
-  double  ss,kT2,SpiN;
+  double ss,kT2,SpiN;
   double fypiN,t;
   double pi,mN,mpi=0,mP=0,g_piNN,gg=0,FF=0,sM;
 
@@ -105,16 +113,77 @@ double fypiN(double y,double kT,double L,int typ,int dis){
 }
 
 
+// ******************************************************************************
+/*  Function giving numerical value of f(y) for N-Lambda-K vertex
+ *  y is l.c. momentum fraction on baryon.
+ *  Written: W. Melnitchouk (1999)
+ *  Modified: T. Hobbs (2012)
+ ****************************************************************************
+ */
+double fyLcD(double y,double kT,double L,int typ,int dis){
 
+  double ss,ss0,ikT,kT2,kTmax,kTint,SLcD;
+  double fyLcD,t;
+  double pi,mN,mD0=0,mLc=0,g_DLcN,gg=0,FF=0,sM;
 
+  pi = 4*atan(1.0);
+  mN  = 0.93891897;  //!masses in GeV!!
 
+  if(dis==0){
+    mLc = 1.1157; // Mass of LAMBDA^0
+    mD0 = 0.4937; // Mass of K^+
+    //!!*** WE USE THE COUPLINGS INFERRED FROM MUELLER-GROELING ET AL. ***
+    g_DLcN = sqrt(15.56 * 4*pi);    //! Mueller-Groeling - PS
+    //g_DLcN = sqrt(14.40 * 4*pi)    //! g_{pi NN}
+    //g_DLcN = sqrt(9. * 4*pi)       //! Navarra I
+    //g_DLcN = sqrt(3.61 * 4*pi)     //! Navarra II
+    gg = g_DLcN*g_DLcN / (16. * pi*pi);
+    
+  }else if(dis==1){
+      mLc = 1.1926; // Mass of SIGMA^0
+      mD0 = 0.4937; // Mass of K^+
+      //!!*** WE USE THE COUPLINGS INFERRED FROM M-G ET AL. ***
+      g_DLcN = sqrt(0.576 * 4*pi);    //!  as N-K-Sigma
+      gg = g_DLcN*g_DLcN / (16. * pi*pi);      
+  }
 
+  if(y<=0.0 || y>=0.999){
+    fyLcD = 0.;
+    return fyLcD;
+  }
+  ss0 = 0.;
+  ikT=1;
+  kTmax = 10.;
+  kTint = kTmax/1000.;
 
+  for(kT=kTint;kT<=kTmax;kT++){
+    kT2 = kT*kT;
+    SLcD = (kT2 + mD0*mD0)/(1.-y) + (kT2 + mLc*mLc)/y;
 
+    if(typ==0)       FF = ((L*L + mN*mN) / (L*L + SLcD));             //! monopole
+    else if(typ==1)  FF = pow(((L*L + mN*mN) / (L*L + kT)),2.) ;     //! dipole
+    else if(typ==2)  FF = exp( (mN*mN - kT)/(L*L) );                //! expon
+    else if(typ==3) {
+      t = (- kT2 - mN*mN*y*y) /(1.0-y);
+      FF = pow(((L*L - mD0*mD0) / (L*L - t)),2.);                      //! cov dip
+    }
+    else if(typ==4){                       
+      sM = (kT2 + (1.0+y)*mD0*mD0)/y +
+	(kT2 + y*mLc*mLc)/(1.0-y) + mN*mN;
+      FF = (pow(L,4.) + pow(mLc,4.))/(pow(L,4.) + sM*sM); // ! DIPOLE -- s-channel Lambda exchange
+    }
+    ss = ( kT2 + pow((mLc - y*mN),2.)) / y
+      / pow(( (1.0-y)*(SLcD - mN*mN) ),2.) * FF*FF * (2*kT);
 
+    if(ikT/2*2!=ikT) ss0 = ss0 + 4*ss;
+    else if(ikT/2*2==ikT) ss0 = ss0 + 2*ss;
+    else ikT = ikT +1; 
+  }
 
+  fyLcD =  gg * (1.0-y) / y * (kTint/3) * ss ;
+  return fyLcD;
 
-
+}
 
 
 // ******************************************************************************
@@ -207,15 +276,6 @@ double f_rhoN(double y,double kT,double L,int typ,int dis){
 }
 
 
-
-
-
-
-
-
-
-
-
 // ******************************************************************************
 /*
  *  Function giving numerical value of f(y) for N-Rho-Delta
@@ -294,14 +354,6 @@ double f_RhoDel(double y,double kT,double L,int typ,int dis){
 
 	 return f_RhoDel;
 }
-
-
-
-
-
-
-
-
 
 
 

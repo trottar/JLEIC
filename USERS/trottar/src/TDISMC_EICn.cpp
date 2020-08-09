@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged neutron and pi+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-07-17 20:23:28 trottar"
+ * Time-stamp: "2020-07-31 14:39:14 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -585,7 +585,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
     invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;
-
+    
     // alpha cut for select event with minimizing coherrent effects
     if(pow(invts.alphaS-1,2)<0.0001){
       continue;
