@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-07-24 14:30:17 trottar"
+# Time-stamp: "2020-08-10 10:01:31 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -373,21 +373,18 @@ def sigmavxpi_Plot():
 def fpivxpi_Plot():
     
     f = plt.figure(figsize=(11.69,8.27))
-
-    print(type(lumi))
-    print(type(xpi))
     
     ax = f.add_subplot(421)
     xpiscat1 = ax.errorbar(c.applyCuts(xpi,cut7),c.applyCuts(fpi,cut7),yerr=np.sqrt(c.applyCuts(lumi,cut7))/c.applyCuts(lumi,cut7),fmt='.',label='$Q^2$=7 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.plot([0.001,0.01,0.1],[0.55,0.25,0.20], label="GRV fit",color="y")
     plt.xscale('log')
     plt.xlim(1e-4,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
-    plt.ylabel('$F^{\pi}_{2}$')
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
 
     ax = f.add_subplot(422)
     error1 = np.sqrt(c.applyCuts(lumi,cut15))/c.applyCuts(lumi,cut15)
@@ -395,8 +392,8 @@ def fpivxpi_Plot():
     plt.plot([0.001,0.01,0.1],[0.80,0.30,0.20], label="GRV fit",color="y")
     plt.xscale('log')
     plt.xlim(1e-4,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
@@ -407,8 +404,8 @@ def fpivxpi_Plot():
     plt.plot([0.001,0.01,0.1],[0.85,0.45,0.20], label="GRV fit",color="y")
     plt.xscale('log')
     plt.xlim(1e-4,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
     
@@ -417,8 +414,8 @@ def fpivxpi_Plot():
     plt.plot([0.001,0.01,0.1],[1.2,0.45,0.25], label="GRV fit",color="y")
     plt.xscale('log')
     plt.xlim(1e-4,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     
@@ -427,8 +424,8 @@ def fpivxpi_Plot():
     plt.plot([0.01,0.1,0.3],[0.5,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
     plt.xlim(1e-4,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
 
@@ -437,8 +434,8 @@ def fpivxpi_Plot():
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
     plt.xlim(1e-4,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_formatter(plt.NullFormatter())
 
@@ -447,8 +444,8 @@ def fpivxpi_Plot():
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
     plt.xlim(1e-4,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
     # ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
 
@@ -457,12 +454,12 @@ def fpivxpi_Plot():
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
     plt.xlim(1e-4,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     
-    plt.xlabel('log($x_\pi$)')
+    plt.xlabel('log($x_\pi$)', fontsize=20)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -477,19 +474,19 @@ def fpivxpi_Plot_nolog():
     xpiscat1 = ax.errorbar(c.applyCuts(xpi,cut7),c.applyCuts(fpi,cut7),yerr=np.sqrt(c.applyCuts(lumi,cut7))/c.applyCuts(lumi,cut7),fmt='.',label='$Q^2$=7 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.plot([0.001,0.01,0.1],[0.55,0.25,0.20], label="GRV fit",color="y")
     plt.xlim(0.,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
-    plt.ylabel('$F^{\pi}_{2}$')
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
 
     ax = f.add_subplot(422)
     xpiscat2 = ax.errorbar(c.applyCuts(xpi,cut15),c.applyCuts(fpi,cut15),yerr=np.sqrt(c.applyCuts(lumi,cut15))/c.applyCuts(lumi,cut15),fmt='.',label='$Q^2$=15 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.plot([0.001,0.01,0.1],[0.80,0.30,0.20], label="GRV fit",color="y")
     plt.xlim(0.,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
@@ -499,8 +496,8 @@ def fpivxpi_Plot_nolog():
     xpiscat3 = ax.errorbar(c.applyCuts(xpi,cut30),c.applyCuts(fpi,cut30),yerr=np.sqrt(c.applyCuts(lumi,cut30))/c.applyCuts(lumi,cut30),fmt='.',label='$Q^2$=30 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.plot([0.001,0.01,0.1],[0.85,0.45,0.20], label="GRV fit",color="y")
     plt.xlim(0.,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
     
@@ -508,8 +505,8 @@ def fpivxpi_Plot_nolog():
     xpiscat4 = ax.errorbar(c.applyCuts(xpi,cut60),c.applyCuts(fpi,cut60),yerr=np.sqrt(c.applyCuts(lumi,cut60))/c.applyCuts(lumi,cut60),fmt='.',label='$Q^2$=60 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.plot([0.001,0.01,0.1],[1.2,0.45,0.25], label="GRV fit",color="y")
     plt.xlim(0.,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     
@@ -517,8 +514,8 @@ def fpivxpi_Plot_nolog():
     xpiscat5 = ax.errorbar(c.applyCuts(xpi,cut120),c.applyCuts(fpi,cut120),yerr=np.sqrt(c.applyCuts(lumi,cut120))/c.applyCuts(lumi,cut120),fmt='.',label='$Q^2$=120 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.5,0.25,0.15], label="GRV fit",color="y")
     plt.xlim(0.,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
 
@@ -526,8 +523,8 @@ def fpivxpi_Plot_nolog():
     xpiscat6 = ax.errorbar(c.applyCuts(xpi,cut240),c.applyCuts(fpi,cut240),yerr=np.sqrt(c.applyCuts(lumi,cut240))/c.applyCuts(lumi,cut240),fmt='.',label='$Q^2$=240 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xlim(0.,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
@@ -535,8 +532,8 @@ def fpivxpi_Plot_nolog():
     xpiscat7 = ax.errorbar(c.applyCuts(xpi,cut480),c.applyCuts(fpi,cut480),yerr=np.sqrt(c.applyCuts(lumi,cut480))/c.applyCuts(lumi,cut480),fmt='.',label='$Q^2$=480 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xlim(0.,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower',nbins=5))
 
@@ -544,12 +541,12 @@ def fpivxpi_Plot_nolog():
     xpiscat8 = ax.errorbar(c.applyCuts(xpi,cut1000),c.applyCuts(fpi,cut1000),yerr=np.sqrt(c.applyCuts(lumi,cut1000))/c.applyCuts(lumi,cut1000),fmt='.',label='$Q^2$=1000 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xlim(0.,1.)
-    plt.ylim(0.,0.5)
-    ax.text(0.60, 0.85, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.1,0.5)
+    ax.text(0.60, 0.85, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower',nbins=5))
     
-    plt.xlabel('$x_\pi$')
+    plt.xlabel('$x_\pi$', fontsize=20)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -566,18 +563,18 @@ def fpivt_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.75, 0.65, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
-    plt.ylabel('log($F^{\pi}_{2}$)')
+    plt.ylabel('log($F^{\pi}_{2}$)', fontsize=20)
 
     ax = f.add_subplot(422)
     tscat2 = ax.errorbar(c.applyCuts(t,cut15),c.applyCuts(fpi,cut15),yerr=np.sqrt(c.applyCuts(lumi,cut15))/c.applyCuts(lumi,cut15),fmt='.',label='$Q^2$=15 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.75, 0.65, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_formatter(plt.NullFormatter())
 
@@ -588,7 +585,7 @@ def fpivt_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.75, 0.65, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
     
@@ -597,7 +594,7 @@ def fpivt_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.75, 0.65, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     
@@ -606,7 +603,7 @@ def fpivt_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.75, 0.65, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
@@ -615,7 +612,7 @@ def fpivt_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.75, 0.65, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_formatter(plt.NullFormatter())
 
@@ -624,7 +621,7 @@ def fpivt_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.75, 0.65, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
 
@@ -633,11 +630,11 @@ def fpivt_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.75, 0.65, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     
-    plt.xlabel('-t')
+    plt.xlabel('-t', fontsize=20)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -661,13 +658,13 @@ def fpivt_xbin_Plot():
     tscat9 = ax.errorbar(c.applyCuts(t,cutx9_15),c.applyCuts(fpi,cutx9_15),yerr=np.sqrt(c.applyCuts(lumi,cutx9_15))/c.applyCuts(lumi,cutx9_15),fmt='.',label='$x_{\pi}$=(0.9,1.0)',ecolor='black',capsize=2, capthick=2,color='pink')
     # plt.xscale('log')
     # plt.yscale('log')
-    plt.xlim(-0.4,0.)
-    plt.ylim(0.,0.3)
-    ax.text(0.65, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    plt.xlim(-0.8,-0.4)
+    plt.ylim(-0.1,0.1)
+    ax.text(0.65, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='lower'))
 
-    plt.ylabel('$F^{\pi}_{2}$')
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
     
     ax = f.add_subplot(222)
     tscat0 = ax.errorbar(c.applyCuts(t,cutx0_30),c.applyCuts(fpi,cutx0_30),yerr=np.sqrt(c.applyCuts(lumi,cutx0_30))/c.applyCuts(lumi,cutx0_30),fmt='.',label='$x_{\pi}$=(0.0,0.1)',ecolor='black',capsize=2, capthick=2,color='b')
@@ -682,10 +679,10 @@ def fpivt_xbin_Plot():
     tscat9 = ax.errorbar(c.applyCuts(t,cutx9_30),c.applyCuts(fpi,cutx9_30),yerr=np.sqrt(c.applyCuts(lumi,cutx9_30))/c.applyCuts(lumi,cutx9_30),fmt='.',label='$x_{\pi}$=(0.9,1.0)',ecolor='black',capsize=2, capthick=2,color='pink')
     # plt.xscale('log')
     # plt.yscale('log')
-    plt.xlim(-0.4,0.)
-    plt.ylim(0.,0.3)
+    plt.xlim(-0.8,-0.4)
+    plt.ylim(-0.1,0.1)
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    ax.text(0.65, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     
@@ -704,9 +701,9 @@ def fpivt_xbin_Plot():
     tscat9 = ax.errorbar(c.applyCuts(t,cutx9_60),c.applyCuts(fpi,cutx9_60),yerr=np.sqrt(c.applyCuts(lumi,cutx9_60))/c.applyCuts(lumi,cutx9_60),fmt='.',label='$x_{\pi}$=(0.9,1.0)',ecolor='black',capsize=2, capthick=2,color='pink')
     # plt.xscale('log')
     # plt.yscale('log')
-    plt.xlim(-0.4,0.)
-    plt.ylim(0.,0.3)
-    ax.text(0.65, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    plt.xlim(-0.8,-0.4)
+    plt.ylim(-0.1,0.1)
+    ax.text(0.65, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax.yaxis.set_major_locator(MaxNLocator(prune='lower'))
     
@@ -723,13 +720,13 @@ def fpivt_xbin_Plot():
     tscat9 = ax.errorbar(c.applyCuts(t,cutx9_120),c.applyCuts(fpi,cutx9_120),yerr=np.sqrt(c.applyCuts(lumi,cutx9_120))/c.applyCuts(lumi,cutx9_120),fmt='.',label='$x_{\pi}$=(0.9,1.0)',ecolor='black',capsize=2, capthick=2,color='pink')
     # plt.xscale('log')
     # plt.yscale('log')
-    plt.xlim(-0.4,0.)
-    plt.ylim(0.,0.3)
-    ax.text(0.65, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    plt.xlim(-0.8,-0.4)
+    plt.ylim(-0.1,0.1)
+    ax.text(0.65, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
-    plt.xlabel('-t')
+    plt.xlabel('-t', fontsize=20)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -745,18 +742,18 @@ def fpivtPrime_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.65, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
-    plt.ylabel('log($F^{\pi}_{2}$)')
+    plt.ylabel('log($F^{\pi}_{2}$)', fontsize=20)
 
     ax = f.add_subplot(422)
     tscat2 = ax.errorbar(c.applyCuts(tPrime,cut15),c.applyCuts(fpi,cut15),yerr=np.sqrt(c.applyCuts(lumi,cut15))/c.applyCuts(lumi,cut15),fmt='.',label='$Q^2$=15 $GeV^2$',ecolor='black',capsize=2, capthick=2)
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.65, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_formatter(plt.NullFormatter())
 
@@ -767,7 +764,7 @@ def fpivtPrime_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.65, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
     
@@ -776,7 +773,7 @@ def fpivtPrime_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.65, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     
@@ -785,7 +782,7 @@ def fpivtPrime_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.65, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
@@ -794,7 +791,7 @@ def fpivtPrime_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.65, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_formatter(plt.NullFormatter())
 
@@ -803,7 +800,7 @@ def fpivtPrime_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.65, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
 
@@ -812,11 +809,11 @@ def fpivtPrime_Plot():
     plt.yscale('log')
     plt.xlim(-1.0,0.)
     plt.ylim(1e-8,1.0)
-    ax.text(0.65, 0.65, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.65, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     
-    plt.xlabel('-t\'')
+    plt.xlabel('-t\'', fontsize=20)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -842,11 +839,11 @@ def fpivtPrime_xbin_Plot():
     # plt.yscale('log')
     plt.xlim(-0.4,0.)
     plt.ylim(0.,0.25)
-    ax.text(0.65, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='lower'))
 
-    plt.ylabel('$F^{\pi}_{2}$')
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
     
     ax = f.add_subplot(222)
     tscat0 = ax.errorbar(c.applyCuts(tPrime,cutx0_30),c.applyCuts(fpi,cutx0_30),yerr=np.sqrt(c.applyCuts(lumi,cutx0_30))/c.applyCuts(lumi,cutx0_30),fmt='.',label='$x_{\pi}$=(0.0,0.1)',ecolor='black',capsize=2, capthick=2,color='b')
@@ -864,7 +861,7 @@ def fpivtPrime_xbin_Plot():
     plt.xlim(-0.4,0.)
     plt.ylim(0.,0.25)
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    ax.text(0.65, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     
@@ -885,7 +882,7 @@ def fpivtPrime_xbin_Plot():
     # plt.yscale('log')
     plt.xlim(-0.4,0.)
     plt.ylim(0.,0.25)
-    ax.text(0.65, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax.yaxis.set_major_locator(MaxNLocator(prune='lower'))
     
@@ -904,11 +901,11 @@ def fpivtPrime_xbin_Plot():
     # plt.yscale('log')
     plt.xlim(-0.4,0.)
     plt.ylim(0.,0.25)
-    ax.text(0.65, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='right')
+    ax.text(0.65, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
-    plt.xlabel('-t\'')
+    plt.xlabel('-t\'', fontsize=20)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -937,44 +934,44 @@ def Lumi():
     # ax = f.add_subplot(331)
     # ax.hist(nevt[0],bins=c.setbin(nevt[0],200),label='$Q^2$=7 $GeV^2$',histtype='step', alpha=0.5, stacked=True, fill=True)
     # plt.xscale('log')
-    # ax.text(0.60, 0.85, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    # ax.text(0.60, 0.85, '$Q^2$=7 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
 
     # ax = f.add_subplot(332)
     # ax.hist(nevt[1],bins=c.setbin(nevt[1],200),label='$Q^2$=15 $GeV^2$',histtype='step', alpha=0.5, stacked=True, fill=True)
     # plt.xscale('log')
-    # ax.text(0.60, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    # ax.text(0.60, 0.85, '$Q^2$=15 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     
     # ax = f.add_subplot(333)
     # ax.hist(nevt[2],bins=c.setbin(nevt[2],200),label='$Q^2$=30 $GeV^2$',histtype='step', alpha=0.5, stacked=True, fill=True)
     # plt.xscale('log')
-    # ax.text(0.60, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    # ax.text(0.60, 0.85, '$Q^2$=30 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
 
     # plt.title('Events expected running at 10 $fb^{-1}$', fontsize =20)
     
     # ax = f.add_subplot(334)
     # ax.hist(nevt[3],bins=c.setbin(nevt[3],200),label='$Q^2$=60 $GeV^2$',histtype='step', alpha=0.5, stacked=True, fill=True)
     # plt.xscale('log')
-    # ax.text(0.60, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    # ax.text(0.60, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     
     # ax = f.add_subplot(335)
     # ax.hist(nevt[4],bins=c.setbin(nevt[4],200),label='$Q^2$=120 $GeV^2$',histtype='step', alpha=0.5, stacked=True, fill=True)
     # plt.xscale('log')
-    # ax.text(0.60, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    # ax.text(0.60, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     
     # ax = f.add_subplot(336)
     # ax.hist(nevt[5],bins=c.setbin(nevt[5],200),label='$Q^2$=240 $GeV^2$',histtype='step', alpha=0.5, stacked=True, fill=True)
     # plt.xscale('log')
-    # ax.text(0.60, 0.85, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    # ax.text(0.60, 0.85, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
 
     # ax = f.add_subplot(337)
     # ax.hist(nevt[6],bins=c.setbin(nevt[6],200),label='$Q^2$=480 $GeV^2$',histtype='step', alpha=0.5, stacked=True, fill=True)
     # plt.xscale('log')
-    # ax.text(0.60, 0.85, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    # ax.text(0.60, 0.85, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
 
     # ax = f.add_subplot(338)
     # ax.hist(nevt[7],bins=c.setbin(nevt[7],200),label='$Q^2$=1000 $GeV^2$',histtype='step', alpha=0.5, stacked=True, fill=True)
     # plt.xscale('log')
-    # ax.text(0.60, 0.85, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    # ax.text(0.60, 0.85, '$Q^2$=1000 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
 
     # plt.tight_layout()
 

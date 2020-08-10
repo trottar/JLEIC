@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-07-20 14:10:00 trottar"
+# Time-stamp: "2020-08-10 11:04:28 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -20,8 +20,17 @@ eonP="10on135"
 # eonP="5on100"
 # eonP="5on41"
 
+xq="x0.001-1.000_q1.0-1000.0"
+# xq="x0.100-1.000_q1.0-1000.0"
+# xq="x0.001-1.000_q1.0-80.0"
+# xq="x0.100-1.000_q1.0-200.0" # here
+# xq="x0.010-1.000_q1.0-200.0"
+# xq="x0.001-1.000_q1.0-200.0"
+# xq="x0.001-0.500_q1.0-200.0" # here
+# xq="x0.000-1.000_q1.0-200.0"
+
 if [ $particle = "pion" ]; then
-    kinematics="pi_n_$eonP"
+    kinematics="pi_n_${eonP}_${xq}"
 elif [ $particle = "kaon" ]; then
     kinematics="k_lambda_$eonP"
 else
@@ -30,7 +39,7 @@ else
 fi
 
 echo "Running plot_${particle}Structure.py for $kinematics"
-python3 plot_${particle}Structure.py $kinematics
+python3 plot_${particle}Structure.py "$kinematics"
 
 cd OUTPUTS/
 
