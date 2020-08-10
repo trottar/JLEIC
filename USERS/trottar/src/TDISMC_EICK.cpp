@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-08-10 17:06:58 trottar"
+ * Time-stamp: "2020-08-10 17:10:02 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -49,10 +49,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   PBeam = pbeam;
   kBeam = kbeam;
 
+  Bool_t iran;
+  
   if(smear){
-    Bool_t iran=kTRUE;      // TRUE==include incident beam emittance
+    iran=kTRUE;      // TRUE==include incident beam emittance
   }else{
-    Bool_t iran=kFALSE;      // Falut NO incident beam emittance
+    iran=kFALSE;      // NO incident beam emittance
   }
 
   // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
