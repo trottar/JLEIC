@@ -1,7 +1,7 @@
 /*
  * Description: Structure function definitions
  * ================================================================
- * Time-stamp: "2020-04-27 13:28:33 trottar"
+ * Time-stamp: "2020-07-13 10:00:19 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -26,7 +26,6 @@ double f2p( double x ){
   
   return f2;
 }
-
 
 double F2N(double x, double Q2, int nucl){
   // nucl =2; // for neutron;
@@ -150,7 +149,7 @@ double f2pipaulvillas(double p, double x, double th){
   }
   
   
-}
+ }
 
 // subroutine to calculate the f2pi as function of recoiled nucleon momentum, xbj, theta
 // This is user parametrization by fit the Wally's codes 3Var_x.f() with integration of finite momentum range
@@ -425,17 +424,52 @@ double f2piZEUS(double x, double Q2, int nucl){
 }
 
 
+double F2L(double x, double Q2){
+
+  // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
+  /* initcteqpdf(); */
+  
+  double qu = cteq_pdf_evolvepdf(__dis_pdf, 1, x, sqrt(Q2) );
+  double qd = cteq_pdf_evolvepdf(__dis_pdf, 2, x, sqrt(Q2) );
+  double qs = cteq_pdf_evolvepdf(__dis_pdf, 3, x, sqrt(Q2) );
+  double qubar = cteq_pdf_evolvepdf(__dis_pdf, -1, x, sqrt(Q2) );
+  double qdbar = cteq_pdf_evolvepdf(__dis_pdf, -2, x, sqrt(Q2) );
+  double qsbar = cteq_pdf_evolvepdf(__dis_pdf, -3, x, sqrt(Q2) );
+
+  double quv = qu-qubar;
+  double qdv = qd-qdbar;
+  double qsv = qs-qsbar;
+
+
+  double F2 = 0.0; 
+  double e_u =  2.0/3.0;
+  double e_d = -1.0/3.0;
+  double e_s = -1.0/3.0;
+
+  // Lambda quark composition
+  F2 += x*( e_u*e_u*quv + e_s*e_s*qsv ); 
+  
+  // Sea quarks
+  F2  += x*(2.0*e_u*e_u*qubar + 2.0*e_s*e_s*(qsbar + qd));
+  return F2;
+
+}
+
+// using the "ZEUS" parameterization with f2 of lambda
+double f2kZEUS(double x, double Q2){
+
+  return F2L(x,Q2)*0.361;
+}
+
 // Testing K. Park  Nov. 08 2016
 // subroutine to calculate the f2kp as function of recoiled nucleon momentum, xbj, theta
 // This is user parametrization by fit the Wally's codes 3KVar_x.f() with integration of finite momentum range
 // typ = 2 ! s-exp For factor
 // dis = 0 ! Charge EXCHANGE
 // FLAG = 0  --- THE Kaon CONTRIBUTION      | J = 0 + 1/2
-
 double f2kp(double p, double x, double th){
   
   double p0, p1, p2, p3, p4, p5;
-  int xflag = 0;
   double fk = 0.0;
   double fth = 0.0;
 
@@ -446,9 +480,8 @@ double f2kp(double p, double x, double th){
       p3 = -0.75778E-02;
       p4 = 0.85898E-01;
       p5 = -0.32083;
-      //if (x < 0.0555 || x > 0.083) xflag = 1;
-    fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p;
-    //    cout << "--> momentum region 1: "  << endl;  
+      fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p;
+      // cout << "--> momentum region 1: "  << endl;  
   }
 
   if (p > 0.1 && p <= 0.2){
@@ -458,9 +491,8 @@ double f2kp(double p, double x, double th){
       p3 = 0.23637E-01;
       p4 = 0.87552E-01;
       p5 = -0.39142;
-      //if (x < 0.0555 || x > 0.16) xflag = 1;
-    fk = 0.464 -15.4*p + 126.5*p*p;
-    //    cout << "--> momentum region 2: "  << endl;
+      fk = 0.464 -15.4*p + 126.5*p*p;
+      // cout << "--> momentum region 2: "  << endl;
   }
   
   if (p > 0.2 && p <= 0.3){
@@ -470,9 +502,8 @@ double f2kp(double p, double x, double th){
       p3 = 0.15174;
       p4 = -0.16257;
       p5 = -0.80353E-01;
-      //if (x < 0.0555 || x > 0.226) xflag =1;
-     fk = -1.133 + 8.5354*p;
-     //    cout << "--> momentum region 3: "  << endl;
+      fk = -1.133 + 8.5354*p;
+      // cout << "--> momentum region 3: "  << endl;
   }
 
   if (p > 0.3 && p <= 0.5){
@@ -482,9 +513,8 @@ double f2kp(double p, double x, double th){
     p3 = 0.88713;
     p4 = -1.8633;
     p5 = 1.7046;
-    // if (x < 0.0555 || x > 0.281) xflag = 1;
-     fk = -1.345 + 9.47*p -7.91*p*p;
-     //    cout << "--> momentum region 4: "  << endl;
+    fk = -1.345 + 9.47*p -7.91*p*p;
+    // cout << "--> momentum region 4: "  << endl;
   }
 
 
@@ -496,7 +526,7 @@ double f2kp(double p, double x, double th){
     p4 = -6.1261;
     p5 = 6.3972;
     fk = -1.345 + 9.47*p -7.91*p*p; // same as p=0.3-0.5 GeV/c 
-    //    cout << "--> momentum region 5: "  << endl;
+    // cout << "--> momentum region 5: "  << endl;
   }
 
   
@@ -508,7 +538,7 @@ double f2kp(double p, double x, double th){
     p4 = -2.4529;
     p5 =  2.5330;
     fk = -1.345 + 9.47*p -7.91*p*p; // same as p=0.3-0.5 GeV/c 
-    //    cout << "--> momentum region 6: "  << endl;
+    // cout << "--> momentum region 6: "  << endl;
   }
 
 
@@ -521,11 +551,8 @@ double f2kp(double p, double x, double th){
     p4 = -0.80264E-02;
     p5 =  0.83156E-02;
     fk = -1.345 + 9.47*p -7.91*p*p; // same as p=0.3-0.5 GeV/c 
-    //    cout << "--> momentum region 7: "  << endl;
+    // cout << "--> momentum region 7: "  << endl;
   }
-
-  
-
   
   if (p < 0.05){
     p0 = 0.0;
@@ -534,7 +561,7 @@ double f2kp(double p, double x, double th){
     p3 = 0.0;
     p4 = 0.0;
     p5 = 0.0;
-    //    cout << "--> momentum region 0: "  << endl;
+    // cout << "--> momentum region 0: "  << endl;
   }
   
 
@@ -543,17 +570,12 @@ double f2kp(double p, double x, double th){
   else{
     fth = -0.183 + 0.0976*th -0.0024*th*th + 0.000015*th*th*th; }
   
-  //  if( xflag == 1 || x < 0.0555 || x > 0.3){
-  if( xflag == 1){
-    return 0.0;}
-  else{
-    double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
-    double f2temp = f2*fk*fth;
-    return f2temp;
-  }
+  double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
+  double f2temp = f2*fk*fth;
+  return f2temp;
   
   
- }
+}
 
 
 // typ = 3 ! t-exp For factor
@@ -563,7 +585,6 @@ double f2kp(double p, double x, double th){
 double f2kptmono(double p, double x, double th){
   
   double p0, p1, p2, p3, p4, p5;
-  int xflag = 0;
   double fk = 0.0;
   double fth = 0.0;
 
@@ -574,8 +595,6 @@ double f2kptmono(double p, double x, double th){
     p3 = 0.41698;
     p4 = -2.7294;
     p5 = 6.5210;
-    //if (x < 0.0555 || x > 0.083) xflag = 1;
-    if (x > 0.08) xflag = 1;
     fk = -0.954 + 66.5*p -1632.4*p*p + 14573.*p*p*p; 
   }
 
@@ -586,9 +605,7 @@ double f2kptmono(double p, double x, double th){
       p3 = 1.3096;
       p4 = -5.3818;
       p5 = 8.4883;
-      //if (x < 0.0555 || x > 0.16) xflag = 1;
-      if ( x > 0.2) xflag = 1;
-    fk = 0.464 -15.4*p + 126.5*p*p;
+      fk = 0.464 -15.4*p + 126.5*p*p;
   }
   
   if (p > 0.2 && p <= 0.3){
@@ -598,9 +615,7 @@ double f2kptmono(double p, double x, double th){
       p3 = 1.6955;
       p4 = -5.0825;
       p5 = 5.9353;
-      //if (x < 0.0555 || x > 0.226) xflag =1;
-      if ( x > 0.226) xflag =1;
-     fk = -1.133 + 8.5354*p;
+      fk = -1.133 + 8.5354*p;
   }
 
   if (p > 0.3 && p <= 0.5){
@@ -610,9 +625,7 @@ double f2kptmono(double p, double x, double th){
       p3 = 3.8132;
       p4 = -9.6119;
       p5 = 9.5429;
-      //if (x < 0.0555 || x > 0.281) xflag = 1;
-      if ( x > 0.28) xflag = 1;
-     fk = -1.345 + 9.47*p -7.91*p*p;
+      fk = -1.345 + 9.47*p -7.91*p*p;
   }
 
   if (p < 0.05 || p > 0.5){
@@ -628,15 +641,9 @@ double f2kptmono(double p, double x, double th){
     fth = 0.0;}
   else{
     fth = -0.183 + 0.0976*th -0.0024*th*th + 0.000015*th*th*th; }
-  
-  if( xflag == 1 || x < 0.001 || x > 0.3){
-      //if( xflag == 1 ){ // testing 
-      return 0.0;}
-  else{
-    double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
-    double f2temp = f2*fk*fth;
-    return f2temp;
-  }
-  
+
+  double f2 = p0 + p1*pow(x,1) + p2*pow(x,2) + p3*pow(x,3) + p4*pow(x,4) + p5*pow(x,5);  
+  double f2temp = f2*fk*fth;
+  return f2temp;  
   
  }
