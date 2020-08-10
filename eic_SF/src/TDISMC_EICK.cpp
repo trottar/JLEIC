@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-27 16:56:39 trottar"
+ * Time-stamp: "2020-08-10 17:06:58 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -33,6 +33,8 @@ double f2kptmono(double p, double x, double th);
 
 // Define the cross-section
 double F2N(double x, double q2, int inucl);
+// Define lambda SF
+double F2L(double x, double q2);
 // new definition for collider frame to call CTEQ function
 double cdissigma(double x, double y, double q2, double nu, double ep, int inucl );
 double cdissigma_n(double x, double y_D, double q2, double nu, double eprime);
@@ -41,20 +43,23 @@ double cdissigma_p(double x, double y_D, double q2, double nu, double eprime);
 // Define function calls for beam smearing
 double sigma_th(double pInc, double mInc, double NormEmit, double betaSt);
 
-int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const int nevts, const double pbeam, const double kbeam){
+int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const int nevts, const double pbeam, const double kbeam, bool smear){
 
   NEvts = nevts;
   PBeam = pbeam;
   kBeam = kbeam;
+
+  if(smear){
+    Bool_t iran=kTRUE;      // TRUE==include incident beam emittance
+  }else{
+    Bool_t iran=kFALSE;      // Falut NO incident beam emittance
+  }
 
   // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
   initcteqpdf();
   
   TRandom3 ran3;// Random number generator [45ns/call]
   ran3.SetSeed(rnum);// Sets random generator seed which is used initialize the random number generator
-  
-  Bool_t iran=kTRUE;      // TRUE==include incident beam emittance
-  //Bool_t iran=kFALSE;      // Falut NO incident beam emittance
 
   // Define particle properties
   double emass =  mElectron, prmass = MProton, MSpectator = MLambda,
@@ -113,14 +118,16 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   // Kaon structure function selection
   //  typ = 1 ! s-exp For factor (L=,dis=0, FLAG=0) | J = 0 + 1/2
   //  typ = 2 ! t-exp For factor (L=,dis=0, FLAG=0) | J = 0 + 1/2
-  double typ = 1;
+  //  typ = 3 ! ZEUS parameterization with F2L ("lambda" SF)
+  double typ = 3;
 
   double weight_tdis;
   
-  char tTitle[80], tName[18], rName[32];
+  // char tTitle[80], tName[18], rName[37];
+  char tTitle[80], tName[18], rName[65];
   
   sprintf(tTitle,"p(e,e'K\u039B)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/k_lambda_%.0fon%.0f.root", kBeam, PBeam);
+  sprintf(rName,"../OUTPUTS/k_lambda_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
 
   TFile fRoot(rName,"Recreate", tTitle);
   sprintf(tName,"k_lambda");
@@ -143,7 +150,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double tk, yk, y, fk, xk; 
   double sigma_dis;
   double sigma_tdis;
-  double f2N;   
+  double f2N,f2L;   
   Double_t qMag, pDotq;
 	
   double TDIS_xbj, TDIS_znq, TDIS_Mx2, TDIS_y;
@@ -170,6 +177,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   tree->Branch("fk", &fk, "fk/D");
 	
   tree->Branch("f2N", &f2N, "f2N/D");
+  tree->Branch("f2L", &f2L, "f2L/D");
 	
   tree->Branch("sigma_dis", &sigma_dis, "sigma_dis/D");
   tree->Branch("sigma_tdis", &sigma_tdis, "sigma_tdis/D");
@@ -294,7 +302,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output lund file for GEANT4 use
-  ofstream OUT (Form("../OUTPUTS/k_lambda_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::trunc);
+  ofstream OUT (Form("../OUTPUTS/k_lambda_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
 
   // Get LorentzVector for the pScattered Proton for TDIS in rest frame
   TLorentzVector pScatterLambda_Rest;
@@ -516,13 +524,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // Null for proton beam
     pSpectator_Rest  = PIncident_Rest;
-		
-    if (TMath::Sqrt(pSpectator_Rest.Mag2()) > PBeam/2){
-      cout << "spec rest new: " << pSpectator_Rest.Mag2() << endl;
-    }
-    if (TMath::Sqrt(TMath::Abs(qVirtual_Rest.Mag2())) > PBeam/2){
-      cout << "virt rest: |" << qVirtual_Rest.Mag2() << "|" << endl;
-    }
     
     //  definition are moved at the beginning of code
     //		double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
@@ -537,7 +538,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       cout << "(3) kinematics: TDIS.xBj = " << TDIS_xbj <<  ", invts.xBj= " << invts.xBj <<  ", invts.Q2= " << invts.Q2<< endl; 
     */
     
-    // Not needed! (Its all meta)
+    // Not needed!
     // neutron config = proton + kaon(-):  this proton called additional speactator in TDIS concept
     // randomize in pt and z
     p2_pt = gRandom->Uniform(0.005*PBeam); // .5% of incoming ion beam momentum, this is the limit of the transverse momentum of  recoil particle...
@@ -566,12 +567,24 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     Jacob     *= 1./(2.*pScatterLambda_Rest.E());
 
     PX_Vertex_Rest = kIncident_Rest+PIncident_Rest-(kScattered_Rest+pScatterLambda_Rest);
+
+    invts.MX2 = PX_Vertex.M2();
+    invts.alphaS = ABeam*(pS_rest*csThRecoil+pSpectator_Rest.E())/MIon;
+    invts.pPerpS = pS_rest*sqrt(1.-csThRecoil*csThRecoil);
+
+    invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
+    invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;
+
+    // alpha cut for select event with minimizing coherrent effects
+    if(pow(invts.alphaS-1,2)<0.0001){
+      continue;
+    }
 	  
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
-    if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
-      cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
-    }
-      
+    // if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
+    //   cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
+    // }
+    
     E_k  = pSpectator_Rest.E() - pScatterLambda_Rest.E();
     Px_k = pSpectator_Rest.X() - pScatterLambda_Rest.X(); 
     Py_k = pSpectator_Rest.Y() - pScatterLambda_Rest.Y();
@@ -649,6 +662,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       //  typ = 2 ! t-exp For factor (L=,dis=0, FLAG=0) | J = 0 + 1/2
       if (typ == 2){
 	fk = fkfac*f2kptmono(P_k, TDIS_xbj, theta_p2/D2R);
+      }
+
+      //  typ = 3 ! ZEUS parameterization with F2L ("lambda" SF)      
+      if (typ == 3){
+	fk = fkfac*f2kZEUS(TDIS_xbj,invts.Q2);
       }
       		    
     }

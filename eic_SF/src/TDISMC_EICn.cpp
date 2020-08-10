@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged neutron and pi+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-04-27 16:47:46 trottar"
+ * Time-stamp: "2020-08-09 14:25:28 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -48,20 +48,25 @@ double GRV_xSpi(double x,double q2);
 // Define function calls for beam smearing
 double sigma_th(double pInc, double mInc, double NormEmit, double betaSt);
 
-int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const int nevts, const double pbeam, const double kbeam){
+int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const int nevts, const double pbeam, const double kbeam, bool smear){
 
   NEvts = nevts;
   PBeam = pbeam;
   kBeam = kbeam;
+
+  Bool_t iran;
+  
+  if(smear){
+    iran=kTRUE;      // TRUE==include incident beam emittance
+  }else{
+    iran=kFALSE;      // NO incident beam emittance
+  }
 
   // Define the DIS PDF from CTEQ directory:  cteq-tbls/ctq66m/ctq66.00.pds
   initcteqpdf();
   
   TRandom3 ran3;// Random number generator [45ns/call]
   ran3.SetSeed(rnum);// Sets random generator seed which is used initialize the random number generator
-  
-  Bool_t iran=kTRUE;      // TRUE==include incident beam emittance
-  //Bool_t iran=kFALSE;      // Falut NO incident beam emittance
 
   // Define particle properties
   double emass =  mElectron, prmass = MProton, MSpectator = MNeutron,
@@ -70,7 +75,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   int e_particle_id = 11, pr_particle_id =  2212, sp_particle_id = 2112, pi_particle_id = 211;
 
   // Number of incident and final state particles of reaction
-  int NumPtls = 5, inucl = 1;
+  int NumPtls = 5;
+
+  // 1 for proton, 2 for neutron incident
+  int inucl = 1;
 
   // Incident proton information
   double pprx_inc,ppry_inc,pprz_inc,EprE_inc ;
@@ -127,10 +135,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
   double weight_tdis;
   
-  char tTitle[80], tName[18], rName[32];
+  // char tTitle[80], tName[18], rName[32];
+  char tTitle[80], tName[18], rName[60];
   
   sprintf(tTitle,"p(e,e'\u03C0n)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/pi_n_%.0fon%.0f.root", kBeam, PBeam);
+  sprintf(rName,"../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
 
   TFile fRoot(rName,"Recreate", tTitle);
   sprintf(tName,"pi_n");
@@ -304,7 +313,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output lund file for GEANT4 use
-  ofstream OUT (Form("../OUTPUTS/pi_n_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::trunc);
+  ofstream OUT (Form("../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
 
   // Get LorentzVector for the pScattered Proton for TDIS in rest frame
   TLorentzVector pScatterNeutron_Rest;
@@ -526,13 +535,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // Null for proton beam
     pSpectator_Rest  = PIncident_Rest;
-		
-    if (TMath::Sqrt(pSpectator_Rest.Mag2()) > PBeam/2){
-      cout << "spec rest new: " << pSpectator_Rest.Mag2() << endl;
-    }
-    if (TMath::Sqrt(TMath::Abs(qVirtual_Rest.Mag2())) > PBeam/2){
-      cout << "virt rest: |" << qVirtual_Rest.Mag2() << "|" << endl;
-    }
     
     //  definition are moved at the beginning of code
     //		double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
@@ -584,17 +586,16 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
     invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;
-
+    
     // alpha cut for select event with minimizing coherrent effects
     if(pow(invts.alphaS-1,2)<0.0001){
       continue;
     }
-
 	  
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
-    if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
-      cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
-    }
+    // if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
+    //   cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
+    // }
       
     E_pi  = pSpectator_Rest.E() - pScatterNeutron_Rest.E();
     Px_pi = pSpectator_Rest.X() - pScatterNeutron_Rest.X(); 

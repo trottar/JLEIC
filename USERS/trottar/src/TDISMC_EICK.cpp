@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-07-17 19:34:06 trottar"
+ * Time-stamp: "2020-08-10 17:06:58 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -123,10 +123,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
   double weight_tdis;
   
-  char tTitle[80], tName[18], rName[37];
+  // char tTitle[80], tName[18], rName[37];
+  char tTitle[80], tName[18], rName[65];
   
   sprintf(tTitle,"p(e,e'K\u039B)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/k_lambda_%.0fon%.0f.root", kBeam, PBeam);
+  sprintf(rName,"../OUTPUTS/k_lambda_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
 
   TFile fRoot(rName,"Recreate", tTitle);
   sprintf(tName,"k_lambda");
@@ -301,7 +302,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output lund file for GEANT4 use
-  ofstream OUT (Form("../OUTPUTS/k_lambda_%.0fon%.0f_lund.dat", kBeam, PBeam), ios::trunc);
+  ofstream OUT (Form("../OUTPUTS/k_lambda_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
 
   // Get LorentzVector for the pScattered Proton for TDIS in rest frame
   TLorentzVector pScatterLambda_Rest;
