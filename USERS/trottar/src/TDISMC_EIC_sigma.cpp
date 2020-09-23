@@ -1,8 +1,8 @@
 /*
- * Description: Electron on Proton beam, tagged lambda and K+ final states 
+ * Description: Electron on Proton beam, tagged sigma and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-09-23 12:13:05 trottar"
+ * Time-stamp: "2020-09-23 12:19:43 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -26,7 +26,7 @@ void initcteqpdf();
 
 int getIndexOfLargestElement(Double_t arr[], int FromIndex, int ToIndex);
 
-// k-Lambda splitting function
+// k-Sigma splitting function
 double fykL(double y, double kT, double L, int type);
 
 // Define form factor function
@@ -36,7 +36,7 @@ double f2kptmono(double p, double x, double th);
 
 // Define the cross-section
 double F2N(double x, double q2, int inucl);
-// Define lambda SF
+// Define sigma SF
 double F2L(double x, double q2);
 // new definition for collider frame to call CTEQ function
 double cdissigma(double x, double y, double q2, double nu, double ep, int inucl );
@@ -96,9 +96,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double_t vkx_Lab,vky_Lab,vkz_Lab ;
   double_t vkx_Res,vky_Res,vkz_Res ;
  
-  // TDIS spectator lambda information
-  double plambx_Lab,plamby_Lab,plambz_Lab,ElambE_Lab ;
-  double_t vlambx_Lab,vlamby_Lab,vlambz_Lab ;
+  // TDIS spectator sigma information
+  double psigx_Lab,psigy_Lab,psigz_Lab,EsigE_Lab ;
+  double_t vsigx_Lab,vsigy_Lab,vsigz_Lab ;
 
   // missing particle (X) information
   double pXx_Res,pXy_Res,pXz_Res,EXE_Res ;
@@ -110,7 +110,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
   // Define daughter particle Vertex
   TLorentzVector pSpectator_Vertex,  PX_Vertex, PX_Vertex_Rest;
-  TLorentzVector pScatterLambda_Vertex;
+  TLorentzVector pScatterSigma_Vertex;
   TLorentzVector pScatterKaon_Vertex;
 
   // TDIS-SBS xbj means xbj_D (xbj of nucleon should be xbj/2 ? Asking Dasuni for xbj definition
@@ -123,10 +123,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   // Kaon structure function selection
   //  typ = 1 ! s-exp For factor (L=,dis=0, FLAG=0) | J = 0 + 1/2
   //  typ = 2 ! t-exp For factor (L=,dis=0, FLAG=0) | J = 0 + 1/2
-  //  typ = 3 ! ZEUS parameterization with F2L ("lambda" SF)
+  //  typ = 3 ! ZEUS parameterization with F2L ("sigma" SF)
   double typ = 3;
 
-  //WE SET THE RENORMALIZATION CUT-OFF PARAMETER LAMBDA "L" = ... IN UNITS OF GeV
+  //WE SET THE RENORMALIZATION CUT-OFF PARAMETER SIGMA "L" = ... IN UNITS OF GeV
   // From 3Var_th.f
   //const double      L = 1.180      !COV DIPOLE: HSS NORM
   //const double      L = 1.710      !IMF DIPOLE: HSS NORM
@@ -134,8 +134,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   const double      L = 1.560;      //!HSS CENT. VALUE
   //const double      L = 1.48D0      !HSS -
   // From ssbar_conv/CS-gfor.f
-  //const double      L = 1.003  //!FOR LAMBDA    (L = [1.003 +/- 0.008] GeV);
-  //const double          L = 1.011 !UPPER BOUND --- STAT.  | -- LAMBDA PRODUCTION
+  //const double      L = 1.003  //!FOR SIGMA    (L = [1.003 +/- 0.008] GeV);
+  //const double          L = 1.011 !UPPER BOUND --- STAT.  | -- SIGMA PRODUCTION
   //const double          L = 0.995 !LOWER BOUND --- STAT.  |
   //const double      L = 1.170  !FOR SIGMA+    (L = [1.17 +/- 0.01] GeV)
   //const double      L = 1.240  !FOR SIGMA*+   (L = [1.24 +/- 0.02] GeV)
@@ -152,10 +152,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   char tTitle[80], tName[18], rName[65];
   
   sprintf(tTitle,"p(e,e'K\u039B)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/k_lambda_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
+  sprintf(rName,"../OUTPUTS/k_sigma_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
 
   TFile fRoot(rName,"Recreate", tTitle);
-  sprintf(tName,"k_lambda");
+  sprintf(tName,"k_sigma");
 
   TTree *tree = new TTree("Evnts",tTitle);
 
@@ -190,7 +190,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   // outgoing particles (electron, virtual photon, proton1, proton2, kaon)
   tree->Branch("e_Scat.", &kScattered_Vertex, bufsize, 1);
   tree->Branch("q_Vir.", &qVirtual_Vertex, bufsize, 1);
-  tree->Branch("p1_Sp.", &pScatterLambda_Vertex, bufsize, 1);
+  tree->Branch("p1_Sp.", &pScatterSigma_Vertex, bufsize, 1);
   tree->Branch("k.", &pScatterKaon_Vertex, bufsize, 1);
 
   // Store physics varaibles into ROOTs
@@ -227,10 +227,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   tree->Branch("EkE_Lab", &EkE_Lab, "EkE_Lab/D");
 
   // TDIS spectator neutron information
-  tree->Branch("plambx_Lab", &plambx_Lab, "plambx_Lab/D");
-  tree->Branch("plamby_Lab", &plamby_Lab, "plamby_Lab/D");
-  tree->Branch("plambz_Lab", &plambz_Lab, "plambz_Lab/D");
-  tree->Branch("ElambE_Lab", &ElambE_Lab, "ElambE_Lab/D");
+  tree->Branch("psigx_Lab", &psigx_Lab, "psigx_Lab/D");
+  tree->Branch("psigy_Lab", &psigy_Lab, "psigy_Lab/D");
+  tree->Branch("psigz_Lab", &psigz_Lab, "psigz_Lab/D");
+  tree->Branch("EsigE_Lab", &EsigE_Lab, "EsigE_Lab/D");
 
   // missing particle (X) information
   tree->Branch("pXx_Lab", &pXx_Lab, "pXx_Lab/D");
@@ -328,12 +328,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output lund file for GEANT4 use
-  ofstream OUT (Form("../OUTPUTS/k_lambda_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+  ofstream OUT (Form("../OUTPUTS/k_sigma_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
 
   // Get LorentzVector for the pScattered Proton for TDIS in rest frame
-  TLorentzVector pScatterLambda_Rest;
+  TLorentzVector pScatterSigma_Rest;
 
-  double plamb_Lab;
+  double psig_Lab;
 
   // *****************************************************************************
   // Generate missing Hadron(Kaon) for TDIS in rest frame
@@ -343,7 +343,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
   TLorentzVector pScatterKaon_Rest;
 
-  TVector3 pScatterKaon_V3, pScatterLambda_V3;
+  TVector3 pScatterKaon_V3, pScatterSigma_V3;
 
   double P_k;
 
@@ -585,14 +585,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     uy       = ran3.Uniform();
     phiRecoil  = pi*(2.*uy-1.);
     
-    pScatterLambda_V3  = pS_rest*sin(acos(csThRecoil))*(cos(phiRecoil)*UnitXqCM
+    pScatterSigma_V3  = pS_rest*sin(acos(csThRecoil))*(cos(phiRecoil)*UnitXqCM
 							+ sin(phiRecoil)*UnitYqCM);
-    pScatterLambda_V3 += pS_rest*csThRecoil*UnitZqCM;
+    pScatterSigma_V3 += pS_rest*csThRecoil*UnitZqCM;
     
-    pScatterLambda_Rest.SetVectM(pScatterLambda_V3,MSpectator);
-    Jacob     *= 1./(2.*pScatterLambda_Rest.E());
+    pScatterSigma_Rest.SetVectM(pScatterSigma_V3,MSpectator);
+    Jacob     *= 1./(2.*pScatterSigma_Rest.E());
 
-    PX_Vertex_Rest = kIncident_Rest+PIncident_Rest-(kScattered_Rest+pScatterLambda_Rest);
+    PX_Vertex_Rest = kIncident_Rest+PIncident_Rest-(kScattered_Rest+pScatterSigma_Rest);
 
     invts.MX2 = PX_Vertex.M2();
     invts.alphaS = ABeam*(pS_rest*csThRecoil+pSpectator_Rest.E())/MIon;
@@ -611,40 +611,40 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     //   cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
     // }
     
-    E_k  = pSpectator_Rest.E() - pScatterLambda_Rest.E();
-    Px_k = pSpectator_Rest.X() - pScatterLambda_Rest.X(); 
-    Py_k = pSpectator_Rest.Y() - pScatterLambda_Rest.Y();
-    Pz_k = pSpectator_Rest.Z() - pScatterLambda_Rest.Z();
+    E_k  = pSpectator_Rest.E() - pScatterSigma_Rest.E();
+    Px_k = pSpectator_Rest.X() - pScatterSigma_Rest.X(); 
+    Py_k = pSpectator_Rest.Y() - pScatterSigma_Rest.Y();
+    Pz_k = pSpectator_Rest.Z() - pScatterSigma_Rest.Z();
       
     // pScatterKaon_Rest.SetXYZM(Px_k,Py_k,Pz_k,mKaon);
-    pScatterKaon_Rest = pSpectator_Rest - (pScatterLambda_Rest+PX_Vertex_Rest);
-    // pScatterKaon_Rest = pSpectator_Rest - pScatterLambda_Rest;
+    pScatterKaon_Rest = pSpectator_Rest - (pScatterSigma_Rest+PX_Vertex_Rest);
+    // pScatterKaon_Rest = pSpectator_Rest - pScatterSigma_Rest;
       
     pScatterKaon_V3.SetXYZ(Px_k,Py_k,Pz_k);
 
     // Back to Lab frame
-    pScatterLambda_Vertex = pScatterLambda_Rest;	  
-    pScatterLambda_Vertex.Boost(BoostRest);   
+    pScatterSigma_Vertex = pScatterSigma_Rest;	  
+    pScatterSigma_Vertex.Boost(BoostRest);   
     pScatterKaon_Vertex = pScatterKaon_Rest;
     pScatterKaon_Vertex.Boost(BoostRest);
 
     P_k = pScatterKaon_V3.Mag();
 
-    if ((pScatterLambda_Vertex.E()+pScatterKaon_Vertex.E()) > PBeam){
-    // if ((pScatterLambda_Vertex.E()) > PBeam){
+    if ((pScatterSigma_Vertex.E()+pScatterKaon_Vertex.E()) > PBeam){
+    // if ((pScatterSigma_Vertex.E()) > PBeam){
       continue;
     }
       
-    plambx_Lab = pScatterLambda_Vertex.X();
-    plamby_Lab = pScatterLambda_Vertex.Y();
-    plambz_Lab = pScatterLambda_Vertex.Z();
-    ElambE_Lab = sqrt(plambx_Lab*plambx_Lab+plamby_Lab*plamby_Lab+plambz_Lab*plambz_Lab+MProton*MProton);
+    psigx_Lab = pScatterSigma_Vertex.X();
+    psigy_Lab = pScatterSigma_Vertex.Y();
+    psigz_Lab = pScatterSigma_Vertex.Z();
+    EsigE_Lab = sqrt(psigx_Lab*psigx_Lab+psigy_Lab*psigy_Lab+psigz_Lab*psigz_Lab+MProton*MProton);
       
-    vlambx_Lab = 0.0;
-    vlamby_Lab = 0.0;
-    vlambz_Lab = 0.0;
+    vsigx_Lab = 0.0;
+    vsigy_Lab = 0.0;
+    vsigz_Lab = 0.0;
 
-    plamb_Lab = sqrt(plambx_Lab*plambx_Lab+plamby_Lab*plamby_Lab+plambz_Lab*plambz_Lab);
+    psig_Lab = sqrt(psigx_Lab*psigx_Lab+psigy_Lab*psigy_Lab+psigz_Lab*psigz_Lab);
     
     pkx_Lab = pScatterKaon_Vertex.X();
     pky_Lab = pScatterKaon_Vertex.Y();
@@ -656,7 +656,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vkz_Lab = 0.0;
     
     // For debugging purpose
-    // if (plamb_Lab > (PBeam/ABeam) ) { 
+    // if (psig_Lab > (PBeam/ABeam) ) { 
     //   // Unphysical kinematics  // if TDIS spectator momentum larger than 50% ion momentum
     //   printf("impossible of TDIS spectator momentum= %6.2f \n", ppr_Lab);
     //   continue;
@@ -690,7 +690,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 	fk = fkfac*f2kptmono(P_k, TDIS_xbj, theta_p2/D2R);
       }
 
-      //  typ = 3 ! ZEUS parameterization with F2L ("lambda" SF)      
+      //  typ = 3 ! ZEUS parameterization with F2L ("sigma" SF)      
       if (typ == 3){
 	fk = fkfac*f2kZEUS(TDIS_xbj,invts.Q2);
       }
@@ -780,8 +780,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << "1" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
     // final state kaon
     OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << k_particle_charge << " \t " << "1" << " \t " << k_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pkx_Lab << " \t " << pky_Lab << " \t " << pkz_Lab << " \t " << EkE_Lab << " \t " << mKaon << " \t " << vkx_Lab  << " \t " << vky_Lab << " \t " << vkz_Lab << endl; 
-    // final state lambda (TDIS)
-    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << plambx_Lab << " \t " << plamby_Lab << " \t " << plambz_Lab << " \t " << ElambE_Lab << " \t " << spmass << " \t " << vlambx_Lab  << " \t " << vlamby_Lab << " \t " << vlambz_Lab << endl;  
+    // final state sigma (TDIS)
+    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << psigx_Lab << " \t " << psigy_Lab << " \t " << psigz_Lab << " \t " << EsigE_Lab << " \t " << spmass << " \t " << vsigx_Lab  << " \t " << vsigy_Lab << " \t " << vsigz_Lab << endl;  
     
     MEvts++;
     
