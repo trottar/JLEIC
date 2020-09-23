@@ -1,8 +1,8 @@
 /*
- * Description: Electron on Proton beam, tagged neutron and pi+ final states 
+ * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-09-21 09:50:16 trottar"
+ * Time-stamp: "2020-09-23 12:13:05 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -26,27 +26,22 @@ void initcteqpdf();
 
 int getIndexOfLargestElement(Double_t arr[], int FromIndex, int ToIndex);
 
-// pi-N splitting function
-double fypiN(double y, double kT, double L, int type);
+// k-Lambda splitting function
+double fykL(double y, double kT, double L, int type);
 
-// Define form factor function for proton and pion : f2p and f2pi to get TDIS cross-section
+// Define form factor function
 double f2p(double x);
-double f2pi(double p, double x, double th);
-double f2picov(double p, double x, double th);
-double f2pitexp(double p, double x, double th);
-double f2pipaulvillas(double p, double x, double th);
+double f2kp(double p, double x, double th);
+double f2kptmono(double p, double x, double th);
 
 // Define the cross-section
 double F2N(double x, double q2, int inucl);
+// Define lambda SF
+double F2L(double x, double q2);
 // new definition for collider frame to call CTEQ function
 double cdissigma(double x, double y, double q2, double nu, double ep, int inucl );
 double cdissigma_n(double x, double y_D, double q2, double nu, double eprime);
 double cdissigma_p(double x, double y_D, double q2, double nu, double eprime);
-
-
-// Definition of Tim Hobbs functions
-double GRV_xVpi(double x,double q2);
-double GRV_xSpi(double x,double q2);
 
 // Define function calls for beam smearing
 double sigma_th(double pInc, double mInc, double NormEmit, double betaSt);
@@ -72,16 +67,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   ran3.SetSeed(rnum);// Sets random generator seed which is used initialize the random number generator
 
   // Define particle properties
-  double emass =  mElectron, prmass = MProton, MSpectator = MNeutron,
-    spmass = MSpectator, mPion = mPip, pimass = mPion;
-  int e_particle_charge = -1, pr_particle_charge = 1, sp_particle_charge = 0, pi_particle_charge = 1;
-  int e_particle_id = 11, pr_particle_id =  2212, sp_particle_id = 2112, pi_particle_id = 211;
+  double emass =  mElectron, prmass = MProton, MSpectator = MSigma,
+    spmass = MSpectator, mKaon = mKp, kmass = mKaon;
+  int e_particle_charge = -1, pr_particle_charge = 1, sp_particle_charge = 0, k_particle_charge = 1;
+  int e_particle_id = 11, pr_particle_id =  2212, sp_particle_id = 3212, k_particle_id = 321;
 
   // Number of incident and final state particles of reaction
-  int NumPtls = 5;
-
-  // 1 for proton, 2 for neutron incident
-  int inucl = 1;
+  int NumPtls = 5, inucl = 1;
 
   // Incident proton information
   double pprx_inc,ppry_inc,pprz_inc,EprE_inc ;
@@ -98,15 +90,15 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double_t vex_Lab,vey_Lab,vez_Lab ;
   double_t vex_Res,vey_Res,vez_Res ;
  
-  // TDIS detected pion information
-  double ppix_Res,ppiy_Res,ppiz_Res,EpiE_Res;
-  double ppix_Lab,ppiy_Lab,ppiz_Lab,EpiE_Lab ;
-  double_t vpix_Lab,vpiy_Lab,vpiz_Lab ;
-  double_t vpix_Res,vpiy_Res,vpiz_Res ;
+  // TDIS detected kaon information
+  double pkx_Res,pky_Res,pkz_Res,EkE_Res;
+  double pkx_Lab,pky_Lab,pkz_Lab,EkE_Lab ;
+  double_t vkx_Lab,vky_Lab,vkz_Lab ;
+  double_t vkx_Res,vky_Res,vkz_Res ;
  
-  // TDIS spectator neutron information
-  double pnx_Lab,pny_Lab,pnz_Lab,EnE_Lab ;
-  double_t vnx_Lab,vny_Lab,vnz_Lab ;
+  // TDIS spectator lambda information
+  double plambx_Lab,plamby_Lab,plambz_Lab,ElambE_Lab ;
+  double_t vlambx_Lab,vlamby_Lab,vlambz_Lab ;
 
   // missing particle (X) information
   double pXx_Res,pXy_Res,pXz_Res,EXE_Res ;
@@ -118,30 +110,28 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
   // Define daughter particle Vertex
   TLorentzVector pSpectator_Vertex,  PX_Vertex, PX_Vertex_Rest;
-  TLorentzVector pScatterNeutron_Vertex;
-  TLorentzVector pScatterPion_Vertex;
+  TLorentzVector pScatterLambda_Vertex;
+  TLorentzVector pScatterKaon_Vertex;
 
   // TDIS-SBS xbj means xbj_D (xbj of nucleon should be xbj/2 ? Asking Dasuni for xbj definition
   double Px_p2,Py_p2,Pz_p2,P_p2,theta_p2,phi_p2,E_p2, p2_pt, p2_z;
 
-  double xVpiR, xSpiR;
+  double xVkR, xSkR;
   double yy,rho_PS, W2;
-  double F2pi,kTk,F2piK;
+  double F2k,kTk,F2kK;
   
-  // Pion structure function selection
-  //  typ = 1 ! s-dependent expon FORM FACTOR (L=1.56,dis=1,FLAG=0)
-  //  typ = 2 ! COV DIP FORM FACTOR
-  //  typ = 3 ! t-dependent expon FORM FACTOR (L=0.85,dis=1,FLAG=0)
-  //  typ = 4 ! Paul-Villas FORM FACTOR (L=0.27,dis=1,FLAG=0)
-  //  typ = 5 ! ZEUS parameterization with F2N (proton SF)
-  double typ = 5;
+  // Kaon structure function selection
+  //  typ = 1 ! s-exp For factor (L=,dis=0, FLAG=0) | J = 0 + 1/2
+  //  typ = 2 ! t-exp For factor (L=,dis=0, FLAG=0) | J = 0 + 1/2
+  //  typ = 3 ! ZEUS parameterization with F2L ("lambda" SF)
+  double typ = 3;
 
   //WE SET THE RENORMALIZATION CUT-OFF PARAMETER LAMBDA "L" = ... IN UNITS OF GeV
   // From 3Var_th.f
   //const double      L = 1.180      !COV DIPOLE: HSS NORM
   //const double      L = 1.710      !IMF DIPOLE: HSS NORM
   //const double      L = 1.630       !HSS +
-  double      L = 1.560;      //!HSS CENT. VALUE
+  const double      L = 1.560;      //!HSS CENT. VALUE
   //const double      L = 1.48D0      !HSS -
   // From ssbar_conv/CS-gfor.f
   //const double      L = 1.003  //!FOR LAMBDA    (L = [1.003 +/- 0.008] GeV);
@@ -152,20 +142,20 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   //***********************************************************************
   //HERE WE PLACE A GLOBAL FLAG FOR THE CHOICE OF THE WAVEFUNCTION SUPPRESSION FACTOR
   //      type = 1 // DIPOLE FORM FACTOR
-  int type = 2; // EXPONENTIAL FORM FACTOR
+  const int type = 2; // EXPONENTIAL FORM FACTOR
   //      type = 3 // COV. DIPOLE FORM FACTOR
   //      type = 4 // DIPOLE -- s-channel Lambda exchange??
   
   double weight_tdis;
   
-  // char tTitle[80], tName[18], rName[32];
-  char tTitle[80], tName[18], rName[60];
+  // char tTitle[80], tName[18], rName[37];
+  char tTitle[80], tName[18], rName[65];
   
-  sprintf(tTitle,"p(e,e'\u03C0n)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
+  sprintf(tTitle,"p(e,e'K\u039B)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
+  sprintf(rName,"../OUTPUTS/k_lambda_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
 
   TFile fRoot(rName,"Recreate", tTitle);
-  sprintf(tName,"pi_n");
+  sprintf(tName,"k_lambda");
 
   TTree *tree = new TTree("Evnts",tTitle);
 
@@ -182,10 +172,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   //  ************************************************
   // Store physics variable for TDIS into ROOTs
   //  ************************************************
-  double tpi, ypi, fpi, pi_int, xpi; 
+  double tk, yk, y, fk, k_int, xk; 
   double sigma_dis;
   double sigma_tdis;
-  double f2N;   
+  double f2N,f2L;   
   Double_t qMag, pDotq;
 	
   double TDIS_xbj, TDIS_znq, TDIS_Mx2, TDIS_y;
@@ -197,20 +187,23 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   // incoming particle electron, deuteron(proton)
   tree->Branch("e_Inc.", &kIncident_Vertex,bufsize,1);
   tree->Branch("P_Inc.",  &PIncident_Vertex, bufsize, 1);
-  // outgoing particles (electron, virtual photon, proton1, proton2, pion)
+  // outgoing particles (electron, virtual photon, proton1, proton2, kaon)
   tree->Branch("e_Scat.", &kScattered_Vertex, bufsize, 1);
   tree->Branch("q_Vir.", &qVirtual_Vertex, bufsize, 1);
-  tree->Branch("p1_Sp.", &pScatterNeutron_Vertex, bufsize, 1);
-  tree->Branch("pi.", &pScatterPion_Vertex, bufsize, 1);
+  tree->Branch("p1_Sp.", &pScatterLambda_Vertex, bufsize, 1);
+  tree->Branch("k.", &pScatterKaon_Vertex, bufsize, 1);
 
   // Store physics varaibles into ROOTs
-  tree->Branch("xpi", &xpi, "xpi/D");
-  tree->Branch("ypi", &ypi, "ypi/D");
-  tree->Branch("tpi", &tpi, "tpi/D");
-  tree->Branch("fpi", &fpi, "fpi/D");
-  tree->Branch("pi_int", &pi_int, "pi_int/D");
+  tree->Branch("xk", &xk, "xk/D");
+  tree->Branch("yk", &yk, "yk/D");
+  tree->Branch("y", &y, "y/D");
+  tree->Branch("t", &y, "t/D");
+  tree->Branch("tk", &tk, "tk/D");
+  tree->Branch("fk", &fk, "fk/D");
+  tree->Branch("k_int", &k_int, "k_int/D");
 	
   tree->Branch("f2N", &f2N, "f2N/D");
+  tree->Branch("f2L", &f2L, "f2L/D");
 	
   tree->Branch("sigma_dis", &sigma_dis, "sigma_dis/D");
   tree->Branch("sigma_tdis", &sigma_tdis, "sigma_tdis/D");
@@ -227,17 +220,17 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   tree->Branch("pez_Lab", &pez_Lab, "pez_Lab/D");
   tree->Branch("EeE_Lab", &EeE_Lab, "EeE_Lab/D");
 
-  // TDIS detected pion information
-  tree->Branch("ppix_Lab", &ppix_Lab, "ppix_Lab/D");
-  tree->Branch("ppiy_Lab", &ppiy_Lab, "ppiy_Lab/D");
-  tree->Branch("ppiz_Lab", &ppiz_Lab, "ppiz_Lab/D");
-  tree->Branch("EpiE_Lab", &EpiE_Lab, "EpiE_Lab/D");
+  // TDIS detected kaon information
+  tree->Branch("pkx_Lab", &pkx_Lab, "pkx_Lab/D");
+  tree->Branch("pky_Lab", &pky_Lab, "pky_Lab/D");
+  tree->Branch("pkz_Lab", &pkz_Lab, "pkz_Lab/D");
+  tree->Branch("EkE_Lab", &EkE_Lab, "EkE_Lab/D");
 
   // TDIS spectator neutron information
-  tree->Branch("pnx_Lab", &pnx_Lab, "pnx_Lab/D");
-  tree->Branch("pny_Lab", &pny_Lab, "pny_Lab/D");
-  tree->Branch("pnz_Lab", &pnz_Lab, "pnz_Lab/D");
-  tree->Branch("EnE_Lab", &EnE_Lab, "EnE_Lab/D");
+  tree->Branch("plambx_Lab", &plambx_Lab, "plambx_Lab/D");
+  tree->Branch("plamby_Lab", &plamby_Lab, "plamby_Lab/D");
+  tree->Branch("plambz_Lab", &plambz_Lab, "plambz_Lab/D");
+  tree->Branch("ElambE_Lab", &ElambE_Lab, "ElambE_Lab/D");
 
   // missing particle (X) information
   tree->Branch("pXx_Lab", &pXx_Lab, "pXx_Lab/D");
@@ -335,26 +328,26 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output lund file for GEANT4 use
-  ofstream OUT (Form("../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+  ofstream OUT (Form("../OUTPUTS/k_lambda_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
 
   // Get LorentzVector for the pScattered Proton for TDIS in rest frame
-  TLorentzVector pScatterNeutron_Rest;
+  TLorentzVector pScatterLambda_Rest;
 
-  double pn_Lab;
+  double plamb_Lab;
 
   // *****************************************************************************
-  // Generate missing Hadron(Pion) for TDIS in rest frame
+  // Generate missing Hadron(Kaon) for TDIS in rest frame
   // initial neutron 4momentum(-P1) - TDIS scattered proton 4momentum(P2)
   // *****************************************************************************
-  double E_pi,Px_pi,Py_pi,Pz_pi;
+  double E_k,Px_k,Py_k,Pz_k;
 
-  TLorentzVector pScatterPion_Rest;
+  TLorentzVector pScatterKaon_Rest;
 
-  TVector3 pScatterPion_V3, pScatterNeutron_V3;
+  TVector3 pScatterKaon_V3, pScatterLambda_V3;
 
-  double P_pi;
+  double P_k;
 
-  double fpifac = 1;
+  double fkfac = 1;
 
   double minE = 0.0;
   
@@ -465,6 +458,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     invts.y_D  = invts.Q2/(invts.x_D*invts.TwoPdotk);
     invts.Yplus = 1 + ((1-invts.y_D)*(1-invts.y_D));
 
+    y = invts.y_D;
+
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
     if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
@@ -570,7 +565,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     */
     
     // Not needed!
-    // neutron config = proton + pion(-):  this proton called additional speactator in TDIS concept
+    // neutron config = proton + kaon(-):  this proton called additional speactator in TDIS concept
     // randomize in pt and z
     p2_pt = gRandom->Uniform(0.005*PBeam); // .5% of incoming ion beam momentum, this is the limit of the transverse momentum of  recoil particle...
     p2_z = gRandom->Uniform(1.);
@@ -581,9 +576,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     P_p2  = sqrt (Pz_p2*Pz_p2 + p2_pt*p2_pt);
     theta_p2 = acos (Pz_p2/P_p2);
     E_p2 = sqrt ( P_p2*P_p2 + MProton*MProton);
-  
+    
     // Define scattered proton kinematics
-    // Generate pSpectator Spherically Symmetric in rest frame     
     uw       = ran3.Uniform();
     pS_rest   = (pSMax)*pow(uw,1./3.); // uniform in 3p^2 dp = d(p^3), pSMax=0.3
     ux       = ran3.Uniform();
@@ -591,14 +585,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     uy       = ran3.Uniform();
     phiRecoil  = pi*(2.*uy-1.);
     
-    pScatterNeutron_V3  = pS_rest*sin(acos(csThRecoil))*(cos(phiRecoil)*UnitXqCM
+    pScatterLambda_V3  = pS_rest*sin(acos(csThRecoil))*(cos(phiRecoil)*UnitXqCM
 							+ sin(phiRecoil)*UnitYqCM);
-    pScatterNeutron_V3 += pS_rest*csThRecoil*UnitZqCM;
+    pScatterLambda_V3 += pS_rest*csThRecoil*UnitZqCM;
     
-    pScatterNeutron_Rest.SetVectM(pScatterNeutron_V3,MSpectator);
-    Jacob     *= 1./(2.*pScatterNeutron_Rest.E());
+    pScatterLambda_Rest.SetVectM(pScatterLambda_V3,MSpectator);
+    Jacob     *= 1./(2.*pScatterLambda_Rest.E());
 
-    PX_Vertex_Rest = kIncident_Rest+PIncident_Rest-(kScattered_Rest+pScatterNeutron_Rest);
+    PX_Vertex_Rest = kIncident_Rest+PIncident_Rest-(kScattered_Rest+pScatterLambda_Rest);
 
     invts.MX2 = PX_Vertex.M2();
     invts.alphaS = ABeam*(pS_rest*csThRecoil+pSpectator_Rest.E())/MIon;
@@ -606,7 +600,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
     invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;
-    
+
     // alpha cut for select event with minimizing coherrent effects
     if(pow(invts.alphaS-1,2)<0.0001){
       continue;
@@ -616,150 +610,102 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
     //   cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
     // }
+    
+    E_k  = pSpectator_Rest.E() - pScatterLambda_Rest.E();
+    Px_k = pSpectator_Rest.X() - pScatterLambda_Rest.X(); 
+    Py_k = pSpectator_Rest.Y() - pScatterLambda_Rest.Y();
+    Pz_k = pSpectator_Rest.Z() - pScatterLambda_Rest.Z();
       
-    E_pi  = pSpectator_Rest.E() - pScatterNeutron_Rest.E();
-    Px_pi = pSpectator_Rest.X() - pScatterNeutron_Rest.X(); 
-    Py_pi = pSpectator_Rest.Y() - pScatterNeutron_Rest.Y();
-    Pz_pi = pSpectator_Rest.Z() - pScatterNeutron_Rest.Z();
+    // pScatterKaon_Rest.SetXYZM(Px_k,Py_k,Pz_k,mKaon);
+    pScatterKaon_Rest = pSpectator_Rest - (pScatterLambda_Rest+PX_Vertex_Rest);
+    // pScatterKaon_Rest = pSpectator_Rest - pScatterLambda_Rest;
       
-    // pScatterPion_Rest.SetXYZM(Px_pi,Py_pi,Pz_pi,mPion);
-    pScatterPion_Rest = pSpectator_Rest - (pScatterNeutron_Rest+PX_Vertex_Rest);
-    // pScatterPion_Rest = pSpectator_Rest - pScatterNeutron_Rest;
-      
-    pScatterPion_V3.SetXYZ(Px_pi,Py_pi,Pz_pi);
+    pScatterKaon_V3.SetXYZ(Px_k,Py_k,Pz_k);
 
     // Back to Lab frame
-    pScatterNeutron_Vertex = pScatterNeutron_Rest;	  
-    pScatterNeutron_Vertex.Boost(BoostRest);   
-    pScatterPion_Vertex = pScatterPion_Rest;
-    pScatterPion_Vertex.Boost(BoostRest);
+    pScatterLambda_Vertex = pScatterLambda_Rest;	  
+    pScatterLambda_Vertex.Boost(BoostRest);   
+    pScatterKaon_Vertex = pScatterKaon_Rest;
+    pScatterKaon_Vertex.Boost(BoostRest);
 
-    P_pi = pScatterPion_V3.Mag();
+    P_k = pScatterKaon_V3.Mag();
 
-    if ((pScatterNeutron_Vertex.E()+pScatterPion_Vertex.E()) > PBeam){
-    // if ((pScatterNeutron_Vertex.E()) > PBeam){
+    if ((pScatterLambda_Vertex.E()+pScatterKaon_Vertex.E()) > PBeam){
+    // if ((pScatterLambda_Vertex.E()) > PBeam){
       continue;
     }
-    
-    pnx_Lab = pScatterNeutron_Vertex.X();
-    pny_Lab = pScatterNeutron_Vertex.Y();
-    pnz_Lab = pScatterNeutron_Vertex.Z();
-    EnE_Lab = sqrt(pnx_Lab*pnx_Lab+pny_Lab*pny_Lab+pnz_Lab*pnz_Lab+MProton*MProton);
       
-    vnx_Lab = 0.0;
-    vny_Lab = 0.0;
-    vnz_Lab = 0.0;
-    
-    pn_Lab = sqrt(pnx_Lab*pnx_Lab+pny_Lab*pny_Lab+pnz_Lab*pnz_Lab);
+    plambx_Lab = pScatterLambda_Vertex.X();
+    plamby_Lab = pScatterLambda_Vertex.Y();
+    plambz_Lab = pScatterLambda_Vertex.Z();
+    ElambE_Lab = sqrt(plambx_Lab*plambx_Lab+plamby_Lab*plamby_Lab+plambz_Lab*plambz_Lab+MProton*MProton);
       
-    ppix_Lab = pScatterPion_Vertex.X();
-    ppiy_Lab = pScatterPion_Vertex.Y();
-    ppiz_Lab = pScatterPion_Vertex.Z();
-    EpiE_Lab = sqrt(ppix_Lab*ppix_Lab+ppiy_Lab*ppiy_Lab+ppiz_Lab*ppiz_Lab+mPion*mPion);
+    vlambx_Lab = 0.0;
+    vlamby_Lab = 0.0;
+    vlambz_Lab = 0.0;
+
+    plamb_Lab = sqrt(plambx_Lab*plambx_Lab+plamby_Lab*plamby_Lab+plambz_Lab*plambz_Lab);
     
-    vpix_Lab = 0.0;
-    vpiy_Lab = 0.0;
-    vpiz_Lab = 0.0;
-        
+    pkx_Lab = pScatterKaon_Vertex.X();
+    pky_Lab = pScatterKaon_Vertex.Y();
+    pkz_Lab = pScatterKaon_Vertex.Z();
+    EkE_Lab = sqrt(pkx_Lab*pkx_Lab+pky_Lab*pky_Lab+pkz_Lab*pkz_Lab+mKaon*mKaon);
+
+    vkx_Lab = 0.0;
+    vky_Lab = 0.0;
+    vkz_Lab = 0.0;
+    
     // For debugging purpose
-    // if (pn_Lab > (PBeam/ABeam) ) { 
+    // if (plamb_Lab > (PBeam/ABeam) ) { 
     //   // Unphysical kinematics  // if TDIS spectator momentum larger than 50% ion momentum
     //   printf("impossible of TDIS spectator momentum= %6.2f \n", ppr_Lab);
     //   continue;
     // })
 
     // for debuggin purpose
-    // cout  << "(7L) pion Vertex, px= " << ppix_Lab << ", py= " << ppiy_Lab <<
-    // ", pz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
+    // cout  << "(7L) kaon Vertex, px= " << pkx_Lab << ", py= " << pky_Lab <<
+    // ", pz= " << pkz_Lab << ", Ek= " << EkE_Lab << endl;
 	       
-    // Definition of pion variable
-    xpi = TDIS_xbj/(1 - p2.p2_z);
-    tpi = (E_pi*E_pi) - (pScatterPion_V3.Mag()*pScatterPion_V3.Mag());
-    ypi = pScatterPion_Rest.Dot(qVirtual_Rest)/(pScatterPion_Rest.Dot(kIncident_Rest));
+    // Definition of kaon variable
+    xk = TDIS_xbj/(1 - p2.p2_z);
+    tk = (E_k*E_k) - (pScatterKaon_V3.Mag()*pScatterKaon_V3.Mag());
+    yk = pScatterKaon_Rest.Dot(qVirtual_Rest)/(pScatterKaon_Rest.Dot(kIncident_Rest));
     
     // *****
     // for debugging purpose
     /*
-      cout  << "(7R) pion REST, px= " << pScatterPion_Rest.X() << ", py= " << pScatterPion_Rest.Y()<<
-      ", pz= " << pScatterPion_Rest.Z() << ", E= " << pScatterPion_Rest.E() << ", M= " << pScatterPion_Rest.M() << endl;
+      cout  << "(7R) kaon REST, px= " << pScatterKaon_Rest.X() << ", py= " << pScatterKaon_Rest.Y()<<
+      ", pz= " << pScatterKaon_Rest.Z() << ", E= " << pScatterKaon_Rest.E() << ", M= " << pScatterKaon_Rest.M() << endl;
     */
 	  
-    // if (TDIS_xbj > 0.001 && TDIS_xbj < 1.0){
-    if (xpi > 0.001 && xpi < 1.0){ // xpi for ZEUS parameterization
-      
-      /*
-	L = renormalization cut-off parameter... ex) typ = 1 ! 1.56GeV
-	dis = charge state configuration (0=charge exchange, 1=neutral exchange)
-	FLAG = combination of splitting function/PDF (0:\pi, 1:\rho, 2:\pi\Delta)
-      */
-      //  typ = 1 ! s-dependent expon FORM FACTOR (L=1.56,dis=1,FLAG=0)      
+    if (TDIS_xbj > 0.001 && TDIS_xbj < 1.0){
+
+      //  typ = 1 ! s-exp For factor (L=,dis=0, FLAG=0) | J = 0 + 1/2
       if (typ == 1){
-      fpi = fpifac*f2pi(P_pi, TDIS_xbj, theta_p2/D2R);
+	fk = fkfac*f2kp(P_k, TDIS_xbj, theta_p2/D2R);
       }
-      
-      //  typ = 2 ! COV DIP FORM FACTOR      
+
+      //  typ = 2 ! t-exp For factor (L=,dis=0, FLAG=0) | J = 0 + 1/2
       if (typ == 2){
-      fpi = fpifac*f2picov(P_pi, TDIS_xbj, theta_p2/D2R);
+	fk = fkfac*f2kptmono(P_k, TDIS_xbj, theta_p2/D2R);
       }
-      
-      //  typ = 3 ! t-dependent expon FORM FACTOR (L=0.85,dis=1,FLAG=0)      
+
+      //  typ = 3 ! ZEUS parameterization with F2L ("lambda" SF)      
       if (typ == 3){
-      fpi = fpifac*f2pitexp(P_pi, TDIS_xbj,theta_p2/D2R);
+	fk = fkfac*f2kZEUS(TDIS_xbj,invts.Q2);
       }
-      
-      //  typ = 4 ! Paul-Villas FORM FACTOR (L=0.27,dis=1,FLAG=0)      
-      if (typ == 4){
-      fpi = fpifac*f2pipaulvillas(P_pi, TDIS_xbj, theta_p2/D2R);
-      }
-      
-      //  typ = 5 ! ZEUS parameterization with F2N (proton SF)      
-      if (typ == 5){
-	fpi = fpifac*f2piZEUS(TDIS_xbj,invts.Q2,inucl);
-      }
-
-      yy = (P_pi/MSpectator)*cos(theta_p2)+(1/MSpectator)*(MSpectator-sqrt(MSpectator*MSpectator+P_pi*P_pi));
-      kTk = P_pi * sin(theta_p2);
-      pi_int = fypiN(yy, kTk, L, type);
-      
-      /*
-      // ***************************************************************************************
-      // ************************ TESTing with FF of pion exchange model ***********************
-      // ***************************************************************************************
-	    
-      // Testing of "y" variable: assumption: same kinematic variables:  x=TDIS_xbj, k=P_pi, th=theta_p2
-      yy = (P_pi/MProton)*cos(theta_p2)+(1/MProton)*(MProton-sqrt(MProton*MProton+P_pi*P_pi));
-      // phase space factor (Jacobian)  !
-      rho_PS = (2./MProton)*P_pi*P_pi*sin(theta_p2)*(1.0-sin(phi_p2)*cos(theta_p2)); 		  
-	    
-      // TESTing pion PDF from GRV (inputs: x, Q2) (outputs: xVpi,  xSpi)  *********************
-      // by definition (theory paper) x/y = xpi
-      xVpiR = GRV_xVpi(xpi,invts.Q2);
-      xSpiR = GRV_xSpi(xpi,invts.Q2);
-	    		  
-      F2pi = (5./9.) *(xVpiR + 2.0* xSpiR);
-      kTk = P_pi * sin(theta_p2);
-      pi_int = fypiN(yy,kTk,L,typ,dis)*F2pi;
-
-      // |k| integral loop 
-      F2piK = (2./3.)*(2./3.)*pi_int;
-      if(fpi>0){
-      cout << "***************       ******************      *********************" << endl;
-      //cout << "test outout GRV xVpi = " << xVpiR << " , at xbj= "<< TDIS_xbj <<", Q2= " << invts.Q2 << endl;
-      //cout << "test outout GRV xSpi = " << xSpiR << " , at xbj= "<< TDIS_xbj <<", Q2= " << invts.Q2 << endl;
-	    
-      }
-      // ***************************************************************************************
-      // ************************ TESTing with FF of pion exchange model ***********************
-      // ***************************************************************************************
-      */
-		    
+      		    
     }
-	  
+
+    yy = (P_k/MSpectator)*cos(theta_p2)+(1/MSpectator)*(MSpectator-sqrt(MSpectator*MSpectator+P_k*P_k));
+    kTk = P_k * sin(theta_p2);
+    k_int = fykL(yy, kTk, L, type);
+    
     // ***
     // For debugging purpose
     /*
-      cout << "(8) " <<"fpi= " << fpi <<  ", 2nd proton Pz=" << p2_pt  << ", " << Pz_p2  << ", P_pi= "
-      << P_pi << ", xbj= "<< TDIS_xbj << ", theta_p2(deg)= "<< theta_p2 << endl; 
+      cout << "(8) " <<"fk= " << fk <<  ", 2nd proton Pz=" << p2_pt  << ", " << Pz_p2  << ", P_k= "
+      << P_k << ", xbj= "<< TDIS_xbj << ", theta_p2(deg)= "<< theta_p2 << endl; 
     */
 
     invts.nu = invts.Q2 / (2 * MIon * invts.xBj) ;
@@ -778,14 +724,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       f2N   = F2N(invts.xBj, invts.Q2, inucl);  // F2N is define at G4SBSDIS.h
       sigma_dis    = cdissigma_p(TDIS_xbj,invts.y_D,invts.Q2,invts.nu,kScattered_Rest.E());
       // sigma_dis    = cdissigma_p(TDIS_xbj,TDIS_y,invts.Q2,invts.nu,kScattered_Rest.E());
-      sigma_tdis   = sigma_dis * (fpi/f2N); 
+      sigma_tdis   = sigma_dis * (fk/f2N); 
     }
 
     // ***
     // For debugging purpose
     /*
-      if(fpi>0.){
-      cout << " what is f2N= "  << f2N  << ", fpi=" << fpi << ", momentum = " << P_pi << ", theta = " << theta_p2/D2R << endl;
+      if(fk>0.){
+      cout << " what is f2N= "  << f2N  << ", fk=" << fk << ", momentum = " << P_k << ", theta = " << theta_p2/D2R << endl;
       }
       cout << "(10) " <<"sigma_dis=  " << sigma_dis  <<  ", sigma_tdis= " << sigma_tdis
       << ",  f2N= " <<  f2N << endl;
@@ -822,7 +768,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vey_Lab = 0.0;
     vez_Lab = 0.0;
 
-    OUT << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xpi << " \t" << ypi << " \t"  << tpi  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
+    OUT << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xk << " \t" << yk << " \t"  << tk  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
       
     // incoming particles
     OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "1" << " \t " << e_particle_charge << " \t " << "0" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << kBeamMCx << " \t " << kBeamMCy << " \t " << kBeamMCz << " \t " << kBeamMC << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
@@ -832,10 +778,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // daughter particles
     // the scattered electron
     OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << "1" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
-    // final state pion
-    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
-    // final state neutron (TDIS)
-    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pnx_Lab << " \t " << pny_Lab << " \t " << pnz_Lab << " \t " << EnE_Lab << " \t " << spmass << " \t " << vnx_Lab  << " \t " << vny_Lab << " \t " << vnz_Lab << endl;  
+    // final state kaon
+    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << k_particle_charge << " \t " << "1" << " \t " << k_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pkx_Lab << " \t " << pky_Lab << " \t " << pkz_Lab << " \t " << EkE_Lab << " \t " << mKaon << " \t " << vkx_Lab  << " \t " << vky_Lab << " \t " << vkz_Lab << endl; 
+    // final state lambda (TDIS)
+    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << plambx_Lab << " \t " << plamby_Lab << " \t " << plambz_Lab << " \t " << ElambE_Lab << " \t " << spmass << " \t " << vlambx_Lab  << " \t " << vlamby_Lab << " \t " << vlambz_Lab << endl;  
     
     MEvts++;
     

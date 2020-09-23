@@ -1,7 +1,7 @@
 /*
  * Description: Defines constants, cross sections, and smearing of fermi motion 
  * ================================================================
- * Time-stamp: "2020-04-29 14:57:41 trottar"
+ * Time-stamp: "2020-09-23 11:59:19 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -51,6 +51,7 @@ const double mPip     = 0.13957018;
 const double mPi0     = 0.1349766;
 const double mKp      = 0.493667;
 const double MLambda  = 1.1156;
+const double MSigma   = 1.1925;
 const double MDeut     = MProton+MNeutron-0.0022;
 const double MBindA    = -0.008; // Average Binding Energy
 const double MPSq      = MProton*MProton;

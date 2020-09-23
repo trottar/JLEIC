@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-07-17 19:59:34 trottar"
+# Time-stamp: "2020-09-14 11:03:13 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -67,7 +67,6 @@ neutron_theta = np.array([])
 scat_electron_mom = np.array([])
 pion_mom = np.array([])
 neutron_mom = np.array([])
-photon_mom = np.array([])
 
 Q2_cut = np.array([])
 x_cut = np.array([])
@@ -79,7 +78,6 @@ for entryNum in range(0,mytree.GetEntries()):
     # lepton0 = TLorentzVector()
     # lepton1 = TLorentzVector()
     # virtual = TLorentzVector()
-    photon = getattr(mytree ,"q_Vir.")
     scat_electron = getattr(mytree ,"e_Scat.")
     if "pi" in kinematics:
         pion = getattr(mytree ,"pi.")
@@ -106,7 +104,7 @@ for entryNum in range(0,mytree.GetEntries()):
         scat_electron_theta = np.append(scat_electron_theta,scat_electron.Theta()*(180/math.pi))
         # scat_electron_mom = np.append(scat_electron_mom,scat_electron.E())
         scat_electron_mom = np.append(scat_electron_mom,EeE_Lab[entryNum])
-        photon_mom = np.append(photon_mom,photon.E())
+        
         Q2_cut = np.append(Q2_cut,Q2[entryNum])
         x_cut = np.append(x_cut,x[entryNum])
         t_cut = np.append(t_cut,t[entryNum])
@@ -116,7 +114,8 @@ def plot_physics():
     
     f = plt.figure(figsize=(11.69,8.27))
     plt.style.use('default')
-
+    plt.rcParams.update({'font.size': 15})
+    
     ax = f.add_subplot(211)
     hist1 = ax.hist(pion_theta,bins=c.setbin(pion_theta,200),label='pi cut',histtype='step', alpha=0.5, stacked=True, fill=True)
     hist1a = ax.hist(scat_electron_theta,bins=c.setbin(scat_electron_theta,200),label='e cut',histtype='step', alpha=0.5, stacked=True, fill=True)
@@ -132,34 +131,6 @@ def plot_physics():
 
     f.savefig('hist.png')
     
-    # mmplot = c.densityPlot(np.sqrt(TDIS_Mx2),Q2, '$Q^2$ vs MM','MM','$Q^2$', 200, 200,  c)
-    # # plt.ylim(-180.,180.)
-    # # plt.xlim(0.,50.)
-    # plt.xlabel('MM', fontsize =20)
-    # plt.ylabel('$Q^2$', fontsize =20)
-    # plt.title('$Q^2$ vs MM', fontsize =20)
-
-    # gamma = c.densityPlot(photon_mom,TDIS_znq_cut, 'TDIS_znq vs $\gamma$ tot_mom','tot_mom','TDIS_znq', 200, 200,  c)
-    # # plt.ylim(-180.,180.)
-    # # plt.xlim(0.,50.)
-    # plt.xlabel('tot_mom (GeV)', fontsize =20)
-    # plt.ylabel('TDIS_znq', fontsize =20)
-    # plt.title('TDIS_znq vs $\gamma$ tot_mom', fontsize =20)
-    
-    # emomQ2 = c.densityPlot(scat_electron_mom,Q2_cut, '$Q^2$ vs e tot_mom','tot_mom','$Q^2$', 200, 200,  c)
-    # # plt.ylim(-180.,180.)
-    # # plt.xlim(0.,50.)
-    # plt.xlabel('tot_mom (GeV)', fontsize =20)
-    # plt.ylabel('$Q^2$ ($GeV^2$)', fontsize =20)
-    # plt.title('$Q^2$ vs e tot_mom', fontsize =20)
-
-    # ethetaQ2 = c.densityPlot(scat_electron_theta,Q2_cut, '$Q^2$ vs e $\Theta$','$\Theta$','$Q^2$', 200, 200,  c)
-    # # plt.ylim(-180.,180.)
-    # # plt.xlim(0.,50.)
-    # plt.xlabel('$\Theta$', fontsize =20)
-    # plt.ylabel('$Q^2$ ($GeV^2$)', fontsize =20)
-    # plt.title('$Q^2$ vs e $\Theta$', fontsize =20)
-
     xQ2 = c.densityPlot(x_cut,Q2_cut, '$Q^2$ vs $x_{Bj}$','$x_{Bj}$','$Q^2$', 200, 200,  c, 0.001, 1.0, 0., 100.0)
     plt.xscale('log')
     plt.yscale('log')
@@ -239,13 +210,13 @@ def plot_physics():
 
     # polar.savefig('pipolar.png')
     
-    # polar = c.polarPlot(scat_electron_theta,scat_electron_mom, 'P vs scat e $\Theta$','$\Theta$','P')
+    polar = c.polarPlot(scat_electron_theta,scat_electron_mom, 'P vs scat e $\Theta$','$\Theta$','P [GeV]',0.,180.,9)
 
-    # polar.savefig('epolar.png')
+    polar.savefig('epolar.png')
         
-    # polar = c.polarPlot(neutron_theta,neutron_mom, 'P vs n $\Theta$','$\Theta$','P',0.0,5.0)
+    polar = c.polarPlot(neutron_theta,neutron_mom, 'P vs n $\Theta$','$\Theta$','P [GeV]',0.0,5.0,4)
 
-    # polar.savefig('npolar.png')
+    polar.savefig('npolar.png')
     
     # phaseSpace = c.densityPlot(pion_mom, neutron_mom, 'n vs pi','pi','n', 200, 200,  b,0,3.,0.,10.)
     # # plt.ylim(-180.,180.)

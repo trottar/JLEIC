@@ -15,7 +15,7 @@ XMIN=${tmp[0]}
 XMAX=${tmp[1]}
 Q2MIN=${tmp[2]}
 Q2MAX=${tmp[3]}
-RANNUM=$( date '+%H%M%S' )
+RANNUM=$( date '+%M%S' )
 NEVTS=${tmp[4]}
 PBEAM=${tmp[5]}
 KBEAM=${tmp[6]}
@@ -27,7 +27,12 @@ if [[ $INPUT == "k/lambda" ]]; then
     echo
     echo "Kaon with lambda final state selected"
     echo
-    SCRIPT="TDISMC_EICK.cpp"
+    SCRIPT="TDISMC_EIC_lambda.cpp"
+elif [[ $INPUT == "k/sigma" ]]; then
+    echo
+    echo "Kaon with sigma final state selected"
+    echo
+    SCRIPT="TDISMC_EIC_sigma.cpp"
 elif [[ $INPUT == "pi/p" ]]; then
     echo
     echo "Pion with proton final state selected"
