@@ -1,7 +1,7 @@
 /*
  * Description: Structure function definitions
  * ================================================================
- * Time-stamp: "2020-09-21 09:40:59 trottar"
+ * Time-stamp: "2020-09-23 14:36:05 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -696,9 +696,9 @@ double fypiN(double y,double kT,double L,int typ){
       (kT2 + y*mP*mP)/(1.0-y) + mN*mN;
     FF = (pow(L,4.) + pow(mP,4.))/(pow(L,4.) + sM*sM); // ! DIPOLE -- s-channel Lambda exchange
   }
-  
-  ss = ( kT2 + pow((mP - (1.0-y) * mN),2.)) / (1.0-y)
-    / pow(( (1.0-y)*(SpiN - mN*mN) ),2.) * FF*FF;
+
+  // integrand
+  ss = ( kT2 + pow((mP - (1.0-y) * mN),2.)) / (1.0-y) / pow(( (1.0-y)*(SpiN - mN*mN) ),2.) * FF*FF;
 
   fypiN =  gg * (1.0-y) / y * ss ;
   return fypiN;
@@ -753,8 +753,7 @@ double fykL(double y,double kT,double L,int typ){
 	(kT2 + y*mL*mL)/(1.0-y) + mN*mN;
       FF = (pow(L,4.) + pow(mL,4.))/(pow(L,4.) + sM*sM); // ! DIPOLE -- s-channel Lambda exchange
     }
-    ss = ( kT2 + pow((mL - y*mN),2.)) / y
-      / pow(( (1.0-y)*(SkL - mN*mN) ),2.) * FF*FF * (2*kT);
+    ss = ( kT2 + pow((mL - y*mN),2.)) / y / pow(( (1.0-y)*(SkL - mN*mN) ),2.) * FF*FF * (2*kT);
 
     if(ikT/2*2!=ikT) ss0 = ss0 + 4*ss;
     else if(ikT/2*2==ikT) ss0 = ss0 + 2*ss;

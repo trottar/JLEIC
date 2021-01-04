@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged neutron and pi+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-09-21 09:50:16 trottar"
+ * Time-stamp: "2020-11-09 20:25:43 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -138,23 +138,25 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
   //WE SET THE RENORMALIZATION CUT-OFF PARAMETER LAMBDA "L" = ... IN UNITS OF GeV
   // From 3Var_th.f
-  //const double      L = 1.180      !COV DIPOLE: HSS NORM
-  //const double      L = 1.710      !IMF DIPOLE: HSS NORM
-  //const double      L = 1.630       !HSS +
-  double      L = 1.560;      //!HSS CENT. VALUE
-  //const double      L = 1.48D0      !HSS -
+  // double      L = 1.180;    //!COV DIPOLE: HSS NORM
+  // double      L = 1.710;    //!IMF DIPOLE: HSS NORM
+  double      L = 1.630;       //!HSS +
+  // double      L = 1.560;    //!HSS CENT. VALUE
+  // double      L = 1.480;    //!HSS -
+  
+  // Kaon
   // From ssbar_conv/CS-gfor.f
-  //const double      L = 1.003  //!FOR LAMBDA    (L = [1.003 +/- 0.008] GeV);
-  //const double          L = 1.011 !UPPER BOUND --- STAT.  | -- LAMBDA PRODUCTION
-  //const double          L = 0.995 !LOWER BOUND --- STAT.  |
-  //const double      L = 1.170  !FOR SIGMA+    (L = [1.17 +/- 0.01] GeV)
-  //const double      L = 1.240  !FOR SIGMA*+   (L = [1.24 +/- 0.02] GeV)
+  // double      L = 1.003  //!FOR LAMBDA    (L = [1.003 +/- 0.008] GeV);
+  // double          L = 1.011 !UPPER BOUND --- STAT.  | -- LAMBDA PRODUCTION
+  // double          L = 0.995 !LOWER BOUND --- STAT.  |
+  // double      L = 1.170  !FOR SIGMA+    (L = [1.17 +/- 0.01] GeV)
+  // double      L = 1.240  !FOR SIGMA*+   (L = [1.24 +/- 0.02] GeV)
   //***********************************************************************
   //HERE WE PLACE A GLOBAL FLAG FOR THE CHOICE OF THE WAVEFUNCTION SUPPRESSION FACTOR
-  //      type = 1 // DIPOLE FORM FACTOR
-  int type = 2; // EXPONENTIAL FORM FACTOR
-  //      type = 3 // COV. DIPOLE FORM FACTOR
-  //      type = 4 // DIPOLE -- s-channel Lambda exchange??
+  int type = 1; // DIPOLE FORM FACTOR
+  // int type = 2; // EXPONENTIAL FORM FACTOR
+  // int type = 3; // COV. DIPOLE FORM FACTOR
+  // int type = 4; // DIPOLE -- s-channel Lambda exchange??
   
   double weight_tdis;
   
@@ -573,7 +575,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // neutron config = proton + pion(-):  this proton called additional speactator in TDIS concept
     // randomize in pt and z
     p2_pt = gRandom->Uniform(0.005*PBeam); // .5% of incoming ion beam momentum, this is the limit of the transverse momentum of  recoil particle...
-    p2_z = gRandom->Uniform(1.);
+    p2.p2_z = gRandom->Uniform(1.);
     phi_p2 = gRandom->Uniform(360.0*D2R);
     Px_p2 = p2_pt*cos(phi_p2);
     Py_p2 = p2_pt*sin(phi_p2);

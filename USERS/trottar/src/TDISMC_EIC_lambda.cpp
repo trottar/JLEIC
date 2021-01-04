@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-09-21 09:50:25 trottar"
+ * Time-stamp: "2020-09-23 14:43:39 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -131,20 +131,22 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   //const double      L = 1.180      !COV DIPOLE: HSS NORM
   //const double      L = 1.710      !IMF DIPOLE: HSS NORM
   //const double      L = 1.630       !HSS +
-  const double      L = 1.560;      //!HSS CENT. VALUE
+  // const double      L = 1.560;      //!HSS CENT. VALUE
   //const double      L = 1.48D0      !HSS -
+
+  // Kaon
   // From ssbar_conv/CS-gfor.f
-  //const double      L = 1.003  //!FOR LAMBDA    (L = [1.003 +/- 0.008] GeV);
+  double      L = 1.003;  //!FOR LAMBDA    (L = [1.003 +/- 0.008] GeV);
   //const double          L = 1.011 !UPPER BOUND --- STAT.  | -- LAMBDA PRODUCTION
   //const double          L = 0.995 !LOWER BOUND --- STAT.  |
   //const double      L = 1.170  !FOR SIGMA+    (L = [1.17 +/- 0.01] GeV)
   //const double      L = 1.240  !FOR SIGMA*+   (L = [1.24 +/- 0.02] GeV)
   //***********************************************************************
   //HERE WE PLACE A GLOBAL FLAG FOR THE CHOICE OF THE WAVEFUNCTION SUPPRESSION FACTOR
-  //      type = 1 // DIPOLE FORM FACTOR
-  const int type = 2; // EXPONENTIAL FORM FACTOR
-  //      type = 3 // COV. DIPOLE FORM FACTOR
-  //      type = 4 // DIPOLE -- s-channel Lambda exchange??
+  int type = 1; // DIPOLE FORM FACTOR
+  // int type = 2; // EXPONENTIAL FORM FACTOR
+  // int type = 3; // COV. DIPOLE FORM FACTOR
+  // int type = 4; // DIPOLE -- s-channel Lambda exchange??
   
   double weight_tdis;
   

@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-09-14 11:03:13 trottar"
+# Time-stamp: "2021-01-03 19:38:54 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -178,16 +178,16 @@ def plot_physics():
 
     nthetat[1].savefig('nthetat.png')
     
-    phaseSpace = c.densityPlot(scat_electron_mom, scat_electron_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
+    phaseSpace = c.densityPlot(scat_electron_theta, scat_electron_mom, '$\Theta vs P_{scat,e}','$\Theta','P_{scat,e}', 200, 200,  c)
     # plt.ylim(-180.,180.)
     # plt.xlim(0.,50.)
-    plt.xlabel('tot_mom (GeV)', fontsize =20)
-    plt.ylabel('Theta (deg)', fontsize =20)
-    plt.title('e cut', fontsize =20)
+    plt.xlabel('$\Theta$', fontsize =20)
+    plt.ylabel('$P_{scat,e}$ (GeV)', fontsize =20)
+    plt.title('TDIS Scattered Electron', fontsize =20)
 
     phaseSpace[1].savefig('ephaseSpace.png')
     
-    phaseSpace = c.densityPlot(pion_mom, pion_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
+    phaseSpace = c.densityPlot(pion_theta, pion_mom, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
     # plt.ylim(0.0,360.0)
     plt.xlim(0.,15.)
     plt.xlabel('tot_mom (GeV)', fontsize =20)
@@ -196,13 +196,12 @@ def plot_physics():
 
     phaseSpace[1].savefig('piphaseSpace.png')
     
-    phaseSpace = c.densityPlot(neutron_mom, neutron_theta, 'dir_z vs tot_mom','tot_mom','dir_z', 200, 200,  c)
+    phaseSpace = c.densityPlot(neutron_theta, neutron_mom, '$Theta vs P_{scat,n}','$\Theta','P_{scat,n}', 200, 200,  c)
     # plt.ylim(0.,180.)
     # plt.xlim(200.,500.)
-    plt.xlabel('tot_mom (GeV)', fontsize =20)
-    plt.ylabel('Theta (deg)', fontsize =20)
-    # plt.title('$\Lambda$ cut', fontsize =20)
-    plt.title('n cut', fontsize =20)
+    plt.xlabel('$\Theta$', fontsize =20)
+    plt.ylabel('$P_{n}$ (GeV)', fontsize =20)
+    plt.title('TDIS Leading Neutron', fontsize =20)
 
     phaseSpace[1].savefig('nphaseSpace.png')
     
@@ -210,13 +209,13 @@ def plot_physics():
 
     # polar.savefig('pipolar.png')
     
-    polar = c.polarPlot(scat_electron_theta,scat_electron_mom, 'P vs scat e $\Theta$','$\Theta$','P [GeV]',0.,180.,9)
+    # polar = c.polarPlot(scat_electron_theta,scat_electron_mom, 'P vs scat e $\Theta$','$\Theta$','P [GeV]',0.,180.,9)
 
-    polar.savefig('epolar.png')
+    # polar.savefig('epolar.png')
         
-    polar = c.polarPlot(neutron_theta,neutron_mom, 'P vs n $\Theta$','$\Theta$','P [GeV]',0.0,5.0,4)
+    # polar = c.polarPlot(neutron_theta,neutron_mom, 'P vs n $\Theta$','$\Theta$','P [GeV]',0.0,5.0,4)
 
-    polar.savefig('npolar.png')
+    # polar.savefig('npolar.png')
     
     # phaseSpace = c.densityPlot(pion_mom, neutron_mom, 'n vs pi','pi','n', 200, 200,  b,0,3.,0.,10.)
     # # plt.ylim(-180.,180.)

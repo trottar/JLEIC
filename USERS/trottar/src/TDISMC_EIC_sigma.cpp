@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged sigma and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-09-23 12:19:43 trottar"
+ * Time-stamp: "2020-09-23 14:40:12 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
