@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-01-03 19:38:54 trottar"
+# Time-stamp: "2021-01-03 19:44:05 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -182,7 +182,7 @@ def plot_physics():
     # plt.ylim(-180.,180.)
     # plt.xlim(0.,50.)
     plt.xlabel('$\Theta$', fontsize =20)
-    plt.ylabel('$P_{scat,e}$ (GeV)', fontsize =20)
+    plt.ylabel('$P_{scat,e}$ (GeV/c)', fontsize =20)
     plt.title('TDIS Scattered Electron', fontsize =20)
 
     phaseSpace[1].savefig('ephaseSpace.png')
@@ -200,7 +200,7 @@ def plot_physics():
     # plt.ylim(0.,180.)
     # plt.xlim(200.,500.)
     plt.xlabel('$\Theta$', fontsize =20)
-    plt.ylabel('$P_{n}$ (GeV)', fontsize =20)
+    plt.ylabel('$P_{n}$ (GeV/c)', fontsize =20)
     plt.title('TDIS Leading Neutron', fontsize =20)
 
     phaseSpace[1].savefig('nphaseSpace.png')
