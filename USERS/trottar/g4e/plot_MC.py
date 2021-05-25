@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-01-03 19:44:05 trottar"
+# Time-stamp: "2021-01-11 15:04:41 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -181,9 +181,9 @@ def plot_physics():
     phaseSpace = c.densityPlot(scat_electron_theta, scat_electron_mom, '$\Theta vs P_{scat,e}','$\Theta','P_{scat,e}', 200, 200,  c)
     # plt.ylim(-180.,180.)
     # plt.xlim(0.,50.)
-    plt.xlabel('$\Theta$', fontsize =20)
-    plt.ylabel('$P_{scat,e}$ (GeV/c)', fontsize =20)
-    plt.title('TDIS Scattered Electron', fontsize =20)
+    plt.xlabel('$\Theta$ [rad]', fontsize =30)
+    plt.ylabel('$P_{scat,e}$ (GeV/c)', fontsize =30)
+    plt.title('TDIS Scattered Electron', fontsize =30)
 
     phaseSpace[1].savefig('ephaseSpace.png')
     
@@ -199,9 +199,9 @@ def plot_physics():
     phaseSpace = c.densityPlot(neutron_theta, neutron_mom, '$Theta vs P_{scat,n}','$\Theta','P_{scat,n}', 200, 200,  c)
     # plt.ylim(0.,180.)
     # plt.xlim(200.,500.)
-    plt.xlabel('$\Theta$', fontsize =20)
-    plt.ylabel('$P_{n}$ (GeV/c)', fontsize =20)
-    plt.title('TDIS Leading Neutron', fontsize =20)
+    plt.xlabel('$\Theta$ [rad]', fontsize =30)
+    plt.ylabel('$P_{n}$ (GeV/c)', fontsize =30)
+    plt.title('TDIS Leading Neutron', fontsize =30)
 
     phaseSpace[1].savefig('nphaseSpace.png')
     

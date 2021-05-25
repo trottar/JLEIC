@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-12-07 10:42:03 trottar"
+# Time-stamp: "2021-05-10 13:40:41 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from matplotlib import ticker
 from collections import namedtuple
+from scipy.interpolate import griddata
 from sys import path
 import time,math,sys,itertools
 
@@ -39,6 +40,24 @@ rootName="/home/trottar/ResearchNP/JLEIC/USERS/trottar/OUTPUTS/%s.root" % kinema
 
 tree = up.open(rootName)["Evnts"]
 branch = r2p.pyBranch(tree)
+
+def F2pi(xpi, Q2):
+    points,values=np.load('xpiQ2.npy'),np.load('F2pi.npy')
+    F2pi=lambda xpi,Q2: griddata(points,values,(np.log10(xpi),np.log10(Q2)))
+    return F2pi(xpi,Q2)
+
+# Calculate cross-section using Patrick's interpolate grid
+def ds_dxdQ2dxLdt(x, xL,t):
+    points60,values60=np.load('xsec/pointsxsec60.npy'),np.load('xsec/valuesxsec60.npy')
+    points120,values120=np.load('xsec/pointsxsec120.npy'),np.load('xsec/valuesxsec120.npy')
+    points240,values240=np.load('xsec/pointsxsec240.npy'),np.load('xsec/valuesxsec240.npy')
+    points480,values480=np.load('xsec/pointsxsec480.npy'),np.load('xsec/valuesxsec480.npy')
+    sigma60=lambda x,xL,t: griddata(points60,values60,(x,xL,t))
+    sigma120=lambda x,xL,t: griddata(points120,values120,(x,xL,t))
+    sigma240=lambda x,xL,t: griddata(points240,values240,(x,xL,t))
+    sigma480=lambda x,xL,t: griddata(points480,values480,(x,xL,t))
+
+    return [sigma60(x,xL,t),sigma120(x,xL,t),sigma240(x,xL,t),sigma480(x,xL,t)]
 
 # Define phyisics data
 s_e = branch.findBranch("invts","s_e")
@@ -78,8 +97,9 @@ escat = tree.array("EScatRest")
 pprz_inc = tree.array("pprz_inc")
 ppiz_Lab = tree.array("ppiz_Lab")
 
-# binx  = 0.001
-binx  = 0.01
+binx  = 0.001
+# binx  = 0.01
+# binx  = 0.1
 binQ2 = 10.0
 
 print("\nx binning:",binx)
@@ -91,9 +111,8 @@ cutDict = {}
 # More coarse, set bin size
 xpiarray = np.arange(binx/2,1.0,binx).tolist()
 
-# Less coarse
 for i,x in enumerate(xpiarray):
-    xpitmp = '{"xpicut%i" : ((%0.5f <= xpi) & (xpi <= %0.5f))}' % (i,xpiarray[i]-binx/2,xpiarray[i]+binx/2) # for proper binning
+    xpitmp = '{"xpicut%i" : ((%0.5f <= xpi) & (xpi <= %0.5f))}' % (i,xpiarray[i]-binx/2,xpiarray[i]+binx/2) 
     # (i,xpiarray[i]-binx/2,xpiarray[i]+binx/2) # no binning
     # (i,xpiarray[i]-binx/20,xpiarray[i]+binx/20) # for proper binning
     print('{"xpicut%i" : ((%0.5f <= xpi) & (xpi <= %0.5f))}' % (i,xpiarray[i]-binx/2,xpiarray[i]+binx/2))
@@ -138,11 +157,11 @@ escat = c.applyCuts(escat,xpicut,either=True)
 
 xpi = c.applyCuts(xpi,xpicut,either=True)
 
-Q2array = np.arange(binQ2/2,1000.0,binQ2).tolist()
+Q2array = np.arange(binQ2/2,500.0,binQ2).tolist()
 for i,x in enumerate(Q2array) :
     Q2tmp = '{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,Q2array[i]-binQ2/2,Q2array[i]+binQ2/2)
     # (i,Q2array[i]-binQ2/20,Q2array[i]+binQ2/20) # for proper binning
-    print('{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,Q2array[i]-binQ2/20,Q2array[i]+binQ2/20))
+    print('{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,Q2array[i]-binQ2/2,Q2array[i]+binQ2/2))
     cutDict.update(eval(Q2tmp))
 c = r2p.pyPlot(cutDict)
 
@@ -184,8 +203,8 @@ Q2 = c.applyCuts(Q2,Q2cut,either=True)
 
 sigma_tdis = sigma_dis*(fpi/f2N)
 pNz_Lab = pprz_inc-ppiz_Lab # Long neutron momentum
-xL = EnE_Lab/EprE_inc # Frac of proton momentum
-# xL = 1-(xBj/xpi) # Frac of proton momentum
+# xL = EnE_Lab/EprE_inc # Frac of proton momentum
+xL = 1-(xBj/xpi) # Frac of proton momentum
 Q2_new = xBj/TwoPdotk
 piQ2 = s_q/(xpi*ypi)
 pNz_Lab = pprz_inc-ppiz_Lab # Long neutron momentum
@@ -202,12 +221,12 @@ tot_sigma = (sigma_tdis)*((TDIS_xbj*(Q2*Q2)*(137)*(137))/(2*math.pi*yplus))
 
 Q2binarray = [7,15,30,60,120,240,480,1000]
 for i,x in enumerate(Q2binarray) :
-    Q2tmp = '{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,Q2binarray[i]-binQ2/20,Q2binarray[i]+binQ2/20)
-    print('{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,Q2binarray[i]-binQ2/20,Q2binarray[i]+binQ2/20))
+    Q2tmp = '{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,Q2binarray[i]-binQ2/2,Q2binarray[i]+binQ2/2)
+    print('{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,Q2binarray[i]-binQ2/2,Q2binarray[i]+binQ2/2))
     cutDict.update(eval(Q2tmp))
 
-# xarray = np.arange(0.05,1.0,0.1).tolist() # table, large x (usual)
-xarray = np.arange(0.005,1.0,0.001).tolist() # table, small x 
+xarray = np.arange(0.05,1.0,0.1).tolist() # table, large x (usual)
+# xarray = np.arange(0.005,1.0,0.001).tolist() # table, small x 
 for i,x in enumerate(xarray):
     xtmp = '{"xcut%i" : ((%0.4f <= xpi) & (xpi <= %0.4f))}' % (i,xarray[i]-0.005,xarray[i]+0.005)
     print('{"xcut%i" : ((%0.4f <= xpi) & (xpi <= %0.4f))}' % (i,xarray[i]-0.005,xarray[i]+0.005))
@@ -222,8 +241,10 @@ for i,evt in enumerate(xarray):
     
 ytmp = '{"ycut" : ((0.01 <= y) & (y <= 0.95))}'
 ttmp = '{"tcut" : ((-1.00 <= t) & (t <= 0.00))}'
+xtmp = '{"xBjcut" : ((0.01 <= xBj) & (xBj <= 0.1))}'
 cutDict.update(eval(ttmp))
 cutDict.update(eval(ytmp))
+cutDict.update(eval(xtmp))
 c = r2p.pyPlot(cutDict)
 
 ycut1 = ["ycut"]
@@ -293,7 +314,7 @@ cutxpi01_60 = ["Q2cut3","tcut","ycut","xcut10"]
 
 ## For table, large x
 
-cutxpi1_15 = ["Q2cut1","tcut","ycut","xcut0"]
+cutxpi1_15 = ["Q2cut1","tcut","ycut","xBjcut"]
 cutxpi2_15 = ["Q2cut1","tcut","ycut","xcut1"]
 cutxpi3_15 = ["Q2cut1","tcut","ycut","xcut2"]
 cutxpi4_15 = ["Q2cut1","tcut","ycut","xcut3"]
@@ -301,7 +322,7 @@ cutxpi5_15 = ["Q2cut1","tcut","ycut","xcut4"]
 cutxpi6_15 = ["Q2cut1","tcut","ycut","xcut5"]
 cutxpi7_15 = ["Q2cut1","tcut","ycut","xcut6"]
 
-cutxpi1_30 = ["Q2cut2","tcut","ycut","xcut0"]
+cutxpi1_30 = ["Q2cut2","tcut","ycut","xBjcut"]
 cutxpi2_30 = ["Q2cut2","tcut","ycut","xcut1"]
 cutxpi3_30 = ["Q2cut2","tcut","ycut","xcut2"]
 cutxpi4_30 = ["Q2cut2","tcut","ycut","xcut3"]
@@ -309,7 +330,7 @@ cutxpi5_30 = ["Q2cut2","tcut","ycut","xcut4"]
 cutxpi6_30 = ["Q2cut2","tcut","ycut","xcut5"]
 cutxpi7_30 = ["Q2cut2","tcut","ycut","xcut6"]
 
-cutxpi1_60 = ["Q2cut3","tcut","ycut","xcut0"]
+cutxpi1_60 = ["Q2cut3","tcut","ycut","xBjcut"]
 cutxpi2_60 = ["Q2cut3","tcut","ycut","xcut1"]
 cutxpi3_60 = ["Q2cut3","tcut","ycut","xcut2"]
 cutxpi4_60 = ["Q2cut3","tcut","ycut","xcut3"]
@@ -317,7 +338,7 @@ cutxpi5_60 = ["Q2cut3","tcut","ycut","xcut4"]
 cutxpi6_60 = ["Q2cut3","tcut","ycut","xcut5"]
 cutxpi7_60 = ["Q2cut3","tcut","ycut","xcut6"]
 
-cutxpi1_120 = ["Q2cut4","tcut","ycut","xcut0"]
+cutxpi1_120 = ["Q2cut4","tcut","ycut","xBjcut"]
 cutxpi2_120 = ["Q2cut4","tcut","ycut","xcut1"]
 cutxpi3_120 = ["Q2cut4","tcut","ycut","xcut2"]
 cutxpi4_120 = ["Q2cut4","tcut","ycut","xcut3"]
@@ -325,7 +346,7 @@ cutxpi5_120 = ["Q2cut4","tcut","ycut","xcut4"]
 cutxpi6_120 = ["Q2cut4","tcut","ycut","xcut5"]
 cutxpi7_120 = ["Q2cut4","tcut","ycut","xcut6"]
 
-cutxpi1_240 = ["Q2cut5","tcut","ycut","xcut0"]
+cutxpi1_240 = ["Q2cut5","tcut","ycut","xBjcut"]
 cutxpi2_240 = ["Q2cut5","tcut","ycut","xcut1"]
 cutxpi3_240 = ["Q2cut5","tcut","ycut","xcut2"]
 cutxpi4_240 = ["Q2cut5","tcut","ycut","xcut3"]
@@ -333,7 +354,7 @@ cutxpi5_240 = ["Q2cut5","tcut","ycut","xcut4"]
 cutxpi6_240 = ["Q2cut5","tcut","ycut","xcut5"]
 cutxpi7_240 = ["Q2cut5","tcut","ycut","xcut6"]
 
-cutxpi1_480 = ["Q2cut6","tcut","ycut","xcut0"]
+cutxpi1_480 = ["Q2cut6","tcut","ycut","xBjcut"]
 cutxpi2_480 = ["Q2cut6","tcut","ycut","xcut1"]
 cutxpi3_480 = ["Q2cut6","tcut","ycut","xcut2"]
 cutxpi4_480 = ["Q2cut6","tcut","ycut","xcut3"]
@@ -341,6 +362,15 @@ cutxpi5_480 = ["Q2cut6","tcut","ycut","xcut4"]
 cutxpi6_480 = ["Q2cut6","tcut","ycut","xcut5"]
 cutxpi7_480 = ["Q2cut6","tcut","ycut","xcut6"]
 
+print(min(c.applyCuts(xBj,cut60)))
+print(min(c.applyCuts(xBj,cut120)))
+print(min(c.applyCuts(xBj,cut240)))
+print(min(c.applyCuts(xBj,cut480)))
+print("")
+print(max(c.applyCuts(xBj,cut60)))
+print(max(c.applyCuts(xBj,cut120)))
+print(max(c.applyCuts(xBj,cut240)))
+print(max(c.applyCuts(xBj,cut480)))
 
 def phase_space():
 
@@ -352,6 +382,13 @@ def phase_space():
 
     phaseSpace[1].savefig('OUTPUTS/phase_space.png')
 
+def x_xl():
+
+    c.densityPlot(xBj, xL, '$x_L$ vs $x$','$x$','$x_L$', 200, 200,  c, 0., 1., 0., 1.)
+    c.densityPlot(xBj, -t, '-t vs $x$','$x$','-t', 200, 200,  c, 0., 1., 0., 1.)
+    c.densityPlot(xL, -t, '-t vs $x_L$','$x_L$','-t', 200, 200,  c, 0., 1., 0., 1.)
+
+    
 def sigmavxpi_Plot():
     
     f = plt.figure(figsize=(11.69,8.27))
@@ -446,62 +483,71 @@ def sigmavxpi_Plot():
 
     plt.style.use('default')
 
-
 def fpivxpi_Plot():
     
     f = plt.figure(figsize=(11.69,8.27))
     plt.rcParams.update({'font.size': 15})
     plt.style.use('classic')
-    
+
+    print("====",F2pi(c.applyCuts(xpi,cut60),c.applyCuts(Q2,cut60)))
+
     ax = f.add_subplot(221)
-    xpiscat4 = ax.errorbar(c.applyCuts(xpi,cut60),c.applyCuts(fpi,cut60),yerr=np.sqrt(c.applyCuts(lumi,cut60))/c.applyCuts(lumi,cut60),fmt='.',label='$Q^2$=60 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
-    plt.plot([0.001,0.01,0.1],[1.2,0.45,0.25], label="GRV fit",color="y")
+    xpiscat4 = ax.errorbar(c.applyCuts(xpi,cut60),F2pi(c.applyCuts(xpi,cut60),c.applyCuts(Q2,cut60)),yerr=np.sqrt(c.applyCuts(lumi,cut60))/c.applyCuts(lumi,cut60),fmt='.',label='$Q^2$=60 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
+    # plt.plot([0.001,0.01,0.1],[1.2,0.45,0.25], label="GRV fit",color="y")
     plt.xscale('log')
-    plt.ylim(-0.1,0.3)
-    plt.xlim(1e-3,1.)
-    ax.text(0.25, 0.65, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.3,0.8)
+    plt.xlim(1e-2,1.)
+    ax.text(0.1, 0.1, '$Q^2$=60 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
+    ax.set_yticks([-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7])
     ax.set_xticks([1e-2,1e-1])
+    plt.xticks(fontsize= 15)
+    plt.yticks(fontsize= 15)
     
-    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=30)
     
     ax = f.add_subplot(222)
-    xpiscat5 = ax.errorbar(c.applyCuts(xpi,cut120),c.applyCuts(fpi,cut120),yerr=np.sqrt(c.applyCuts(lumi,cut120))/c.applyCuts(lumi,cut120),fmt='.',label='$Q^2$=120 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
-    plt.plot([0.01,0.1,0.3],[0.5,0.25,0.15], label="GRV fit",color="y")
+    xpiscat5 = ax.errorbar(c.applyCuts(xpi,cut120),F2pi(c.applyCuts(xpi,cut120),c.applyCuts(Q2,cut120)),yerr=np.sqrt(c.applyCuts(lumi,cut120))/c.applyCuts(lumi,cut120),fmt='.',label='$Q^2$=120 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
+    # plt.plot([0.01,0.1,0.3],[0.5,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
-    plt.ylim(-0.1,0.3)
-    plt.xlim(1e-3,1.)
-    ax.text(0.25, 0.65, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.3,0.8)
+    plt.xlim(1e-2,1.)
+    ax.text(0.1, 0.1, '$Q^2$=120 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
+    ax.set_yticks([-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7])
     ax.set_xticks([1e-2,1e-1])
+    plt.xticks(fontsize= 15)
+    plt.yticks(fontsize= 15)
     
     ax = f.add_subplot(223)
-    xpiscat6 = ax.errorbar(c.applyCuts(xpi,cut240),c.applyCuts(fpi,cut240),yerr=np.sqrt(c.applyCuts(lumi,cut240))/c.applyCuts(lumi,cut240),fmt='.',label='$Q^2$=240 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
-    plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
+    xpiscat6 = ax.errorbar(c.applyCuts(xpi,cut240),F2pi(c.applyCuts(xpi,cut240),c.applyCuts(Q2,cut240)),yerr=np.sqrt(c.applyCuts(lumi,cut240))/c.applyCuts(lumi,cut240),fmt='.',label='$Q^2$=240 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
+    # plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
-    plt.ylim(-0.1,0.3)
-    plt.xlim(1e-3,1.)
-    ax.text(0.25, 0.65, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.3,0.8)
+    plt.xlim(1e-2,1.)
+    ax.text(0.1, 0.1, '$Q^2$=240 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-    ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
+    ax.set_yticks([-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7])
     ax.set_xticks([1e-2,1e-1])
-
+    plt.xticks(fontsize= 15)
+    plt.yticks(fontsize= 15)
+    
     ax = f.add_subplot(224)
-    xpiscat7 = ax.errorbar(c.applyCuts(xpi,cut480),c.applyCuts(fpi,cut480),yerr=np.sqrt(c.applyCuts(lumi,cut480))/c.applyCuts(lumi,cut480),fmt='.',label='$Q^2$=480 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
-    plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
+    xpiscat7 = ax.errorbar(c.applyCuts(xpi,cut480),F2pi(c.applyCuts(xpi,cut480),c.applyCuts(Q2,cut480)),yerr=np.sqrt(c.applyCuts(lumi,cut480))/c.applyCuts(lumi,cut480),fmt='.',label='$Q^2$=480 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
+    # plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
-    plt.ylim(-0.1,0.3)
-    plt.xlim(1e-3,1.)
-    ax.text(0.25, 0.65, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    plt.ylim(-0.3,0.8)
+    plt.xlim(1e-2,1.)
+    ax.text(0.1, 0.1, '$Q^2$=480 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
+    ax.set_yticks([-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7])
     ax.set_xticks([1e-2,1e-1])
-
-    plt.xlabel('$x_\pi$', fontsize=20)    
+    plt.xticks(fontsize= 15)
+    plt.yticks(fontsize= 15)
+    
+    plt.xlabel('$x_{\pi}$', fontsize=30)    
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
 
@@ -509,112 +555,127 @@ def fpivxpi_Plot():
 
     f.savefig('OUTPUTS/fpivxpi.png')
 
+    
 def fpivxpi_Plot_nolog():
     
     f = plt.figure(figsize=(11.69,8.27))
     
     ax = f.add_subplot(221)
-    xpiscat4 = ax.errorbar(c.applyCuts(xpi,cut60),c.applyCuts(fpi,cut60),yerr=np.sqrt(c.applyCuts(lumi,cut60))/c.applyCuts(lumi,cut60),fmt='.',label='$Q^2$=60 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
+    xpiscat4 = ax.errorbar(c.applyCuts(xpi,cut60),c.applyCuts(fpi,cut60),yerr=np.sqrt(c.applyCuts(lumi,cut60))/c.applyCuts(lumi,cut60),fmt='.',label='$Q^2$=60 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
     plt.plot([0.001,0.01,0.1],[1.2,0.45,0.25], label="GRV fit",color="y")
     plt.xlim(0.,1.)
     plt.ylim(-0.1,0.3)
-    ax.text(0.60, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    ax.text(0.60, 0.85, '$Q^2$=60 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
-    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=25)
 
     ax = f.add_subplot(222)
-    xpiscat5 = ax.errorbar(c.applyCuts(xpi,cut120),c.applyCuts(fpi,cut120),yerr=np.sqrt(c.applyCuts(lumi,cut120))/c.applyCuts(lumi,cut120),fmt='.',label='$Q^2$=120 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
+    xpiscat5 = ax.errorbar(c.applyCuts(xpi,cut120),c.applyCuts(fpi,cut120),yerr=np.sqrt(c.applyCuts(lumi,cut120))/c.applyCuts(lumi,cut120),fmt='.',label='$Q^2$=120 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.5,0.25,0.15], label="GRV fit",color="y")
     plt.xlim(0.,1.)
     plt.ylim(-0.1,0.3)
-    ax.text(0.60, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    ax.text(0.60, 0.85, '$Q^2$=120 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
     plt.title('$F^{\pi}_{2}$ vs $x_\pi$', fontsize =20)
     
     ax = f.add_subplot(223)
-    xpiscat6 = ax.errorbar(c.applyCuts(xpi,cut240),c.applyCuts(fpi,cut240),yerr=np.sqrt(c.applyCuts(lumi,cut240))/c.applyCuts(lumi,cut240),fmt='.',label='$Q^2$=240 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
+    xpiscat6 = ax.errorbar(c.applyCuts(xpi,cut240),c.applyCuts(fpi,cut240),yerr=np.sqrt(c.applyCuts(lumi,cut240))/c.applyCuts(lumi,cut240),fmt='.',label='$Q^2$=240 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xlim(0.,1.)
     plt.ylim(-0.1,0.3)
-    ax.text(0.60, 0.85, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    ax.text(0.60, 0.85, '$Q^2$=240 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
     # ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
 
     ax = f.add_subplot(224)
-    xpiscat7 = ax.errorbar(c.applyCuts(xpi,cut480),c.applyCuts(fpi,cut480),yerr=np.sqrt(c.applyCuts(lumi,cut480))/c.applyCuts(lumi,cut480),fmt='.',label='$Q^2$=480 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
+    xpiscat7 = ax.errorbar(c.applyCuts(xpi,cut480),c.applyCuts(fpi,cut480),yerr=np.sqrt(c.applyCuts(lumi,cut480))/c.applyCuts(lumi,cut480),fmt='.',label='$Q^2$=480 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xlim(1e-4,1.)
     plt.ylim(-0.1,0.3)
-    ax.text(0.60, 0.85, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    ax.text(0.60, 0.85, '$Q^2$=480 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     
-    plt.xlabel('$x_\pi$', fontsize=20)
+    plt.xlabel('$x_\pi$', fontsize=25)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
 
     f.savefig('OUTPUTS/fpivxpi_nolog.png')
-
+    
     
 def fpivt_Plot():
 
     f = plt.figure(figsize=(11.69,8.27))
     plt.style.use('classic')
+
+    print("~~~~",ds_dxdQ2dxLdt(c.applyCuts(xBj,cutxpi1_60),c.applyCuts(xL,cutxpi1_60),c.applyCuts(t,cutxpi1_60))[0])
     
     ax = f.add_subplot(221)
-    tscat4 = ax.errorbar(c.applyCuts(-t,cut60),c.applyCuts(fpi,cut60),yerr=np.sqrt(c.applyCuts(lumi,cut60))/c.applyCuts(lumi,cut60),fmt='.',label='$Q^2$=60 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
+    tscat4 = ax.errorbar(c.applyCuts(-t,cutxpi1_60),ds_dxdQ2dxLdt(c.applyCuts(xBj,cutxpi1_60),c.applyCuts(xL,cutxpi1_60),c.applyCuts(t,cutxpi1_60))[0],yerr=np.sqrt(c.applyCuts(lumi,cutxpi1_60))/c.applyCuts(lumi,cutxpi1_60),fmt='.',label='$Q^2$=60 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
     # plt.xscale('log')
     # plt.yscale('log')
-    plt.ylim(-0.1,0.3)
-    plt.xlim(0.0,1.0)
-    ax.text(0.65, 0.85, '$Q^2$=60 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
+    # plt.ylim(-0.1,0.8)
+    # plt.xlim(0.0,1.0)
+    ax.text(0.1, 0.1, '$Q^2$=60 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
     ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
-    ax.set_xticks([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9])
-
-    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
+    # ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8])
+    # ax.set_xticks([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9])
+    ax.set_xticks([0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1])
+    plt.xticks(fontsize= 15)
+    plt.yticks(fontsize= 15)
+    
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=25)
     
     ax = f.add_subplot(222)
-    tscat5 = ax.errorbar(c.applyCuts(-t,cut120),c.applyCuts(fpi,cut120),yerr=np.sqrt(c.applyCuts(lumi,cut120))/c.applyCuts(lumi,cut120),fmt='.',label='$Q^2$=120 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
+    tscat5 = ax.errorbar(c.applyCuts(-t,cutxpi1_120),ds_dxdQ2dxLdt(c.applyCuts(xBj,cutxpi1_120),c.applyCuts(xL,cutxpi1_120),c.applyCuts(t,cutxpi1_120))[1],yerr=np.sqrt(c.applyCuts(lumi,cutxpi1_120))/c.applyCuts(lumi,cutxpi1_120),fmt='.',label='$Q^2$=120 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
     # plt.xscale('log')
     # plt.yscale('log')
-    plt.ylim(-0.1,0.3)
-    plt.xlim(0.0,1.0)
-    ax.text(0.65, 0.85, '$Q^2$=120 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
+    # plt.ylim(-0.1,0.8)
+    # plt.xlim(0.0,1.0)
+    ax.text(0.1, 0.1, '$Q^2$=120 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_major_formatter(plt.NullFormatter())
-    ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
-    ax.set_xticks([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9])
-
-    ax = f.add_subplot(223)
-    tscat6 = ax.errorbar(c.applyCuts(-t,cut240),c.applyCuts(fpi,cut240),yerr=np.sqrt(c.applyCuts(lumi,cut240))/c.applyCuts(lumi,cut240),fmt='.',label='$Q^2$=240 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
-    # plt.xscale('log')
-    # plt.yscale('log')
-    plt.ylim(-0.1,0.3)
-    plt.xlim(0.0,1.0)
-    ax.text(0.65, 0.85, '$Q^2$=240 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
-    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
-    ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
-    ax.set_xticks([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9])
-
-    ax = f.add_subplot(224)
-    tscat7 = ax.errorbar(c.applyCuts(-t,cut480),c.applyCuts(fpi,cut480),yerr=np.sqrt(c.applyCuts(lumi,cut480))/c.applyCuts(lumi,cut480),fmt='.',label='$Q^2$=480 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
-    # plt.xscale('log')
-    # plt.yscale('log')
-    plt.ylim(-0.1,0.3)
-    plt.xlim(0.0,1.0)
-    ax.text(0.65, 0.85, '$Q^2$=480 $GeV^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='right')
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
-    ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
-    ax.set_xticks([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9])
+    # ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8])
+    # ax.set_xticks([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9])
+    ax.set_xticks([0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1])
+    plt.xticks(fontsize= 15)
+    plt.yticks(fontsize= 15)
     
-    plt.xlabel('-t', fontsize=20)
+    ax = f.add_subplot(223)
+    tscat6 = ax.errorbar(c.applyCuts(-t,cutxpi1_240),ds_dxdQ2dxLdt(c.applyCuts(xBj,cutxpi1_240),c.applyCuts(xL,cutxpi1_240),c.applyCuts(t,cutxpi1_240))[2],yerr=np.sqrt(c.applyCuts(lumi,cutxpi1_240))/c.applyCuts(lumi,cutxpi1_240),fmt='.',label='$Q^2$=240 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
+    # plt.xscale('log')
+    # plt.yscale('log')
+    # plt.ylim(-0.1,0.8)
+    # plt.xlim(0.0,1.0)
+    ax.text(0.1, 0.1, '$Q^2$=240 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    ax.yaxis.set_major_locator(MaxNLocator(prune='both'))
+    # ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8])
+    # ax.set_xticks([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9])
+    ax.set_xticks([0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1])
+    plt.xticks(fontsize= 15)
+    plt.yticks(fontsize= 15)
+    
+    ax = f.add_subplot(224)
+    tscat7 = ax.errorbar(c.applyCuts(-t,cutxpi1_480),ds_dxdQ2dxLdt(c.applyCuts(xBj,cutxpi1_480),c.applyCuts(xL,cutxpi1_480),c.applyCuts(t,cutxpi1_480))[3],yerr=np.sqrt(c.applyCuts(lumi,cutxpi1_480))/c.applyCuts(lumi,cutxpi1_480),fmt='.',label='$Q^2$=480 $\mathrm{GeV}^2$',ecolor='green',capsize=2, capthick=2)
+    # plt.xscale('log')
+    # plt.yscale('log')
+    # plt.ylim(-0.1,0.8)
+    # plt.xlim(0.0,1.0)
+    ax.text(0.1, 0.1, '$Q^2$=480 $\mathrm{GeV}^2$', transform=ax.transAxes, fontsize=15, verticalalignment='top', horizontalalignment='left')
+    ax.yaxis.set_major_formatter(plt.NullFormatter())
+    # ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8])
+    # ax.set_xticks([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9])
+    ax.set_xticks([0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1])
+    plt.xticks(fontsize= 15)
+    plt.yticks(fontsize= 15)
+    
+    plt.xlabel('-t', fontsize=25)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
 
@@ -643,7 +704,7 @@ def fpivt_xbin_Plot():
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='lower'))
 
-    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=25)
     
     ax = f.add_subplot(222)
     tscat0 = ax.errorbar(c.applyCuts(t,cutx0_30),c.applyCuts(fpi,cutx0_30),yerr=np.sqrt(c.applyCuts(lumi,cutx0_30))/c.applyCuts(lumi,cutx0_30),fmt='.',label='$x_{\pi}$=(0.0,0.1)',ecolor='cyan',capsize=2, capthick=2,color='b')
@@ -705,7 +766,7 @@ def fpivt_xbin_Plot():
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
-    plt.xlabel('-t', fontsize=20)
+    plt.xlabel('-t', fontsize=25)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -725,7 +786,7 @@ def fpivtPrime_Plot():
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     # ax.yaxis.set_major_locator(MaxNLocator(prune='both'))    
 
-    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=25)
 
     ax = f.add_subplot(422)
     tscat2 = ax.errorbar(c.applyCuts(tPrime,cut15),c.applyCuts(fpi,cut15),yerr=np.sqrt(c.applyCuts(lumi,cut15))/c.applyCuts(lumi,cut15),fmt='.',label='$Q^2$=15 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
@@ -792,7 +853,7 @@ def fpivtPrime_Plot():
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     
-    plt.xlabel('-t\'', fontsize=20)
+    plt.xlabel('-t\'', fontsize=25)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -822,7 +883,7 @@ def fpivtPrime_xbin_Plot():
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(MaxNLocator(prune='lower'))
 
-    plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
+    plt.ylabel('$F^{\pi}_{2}$', fontsize=25)
     
     ax = f.add_subplot(222)
     tscat0 = ax.errorbar(c.applyCuts(tPrime,cutx0_30),c.applyCuts(fpi,cutx0_30),yerr=np.sqrt(c.applyCuts(lumi,cutx0_30))/c.applyCuts(lumi,cutx0_30),fmt='.',label='$x_{\pi}$=(0.0,0.1)',ecolor='cyan',capsize=2, capthick=2,color='b')
@@ -884,7 +945,7 @@ def fpivtPrime_xbin_Plot():
     ax.xaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax.yaxis.set_major_formatter(plt.NullFormatter())
 
-    plt.xlabel('-t\'', fontsize=20)
+    plt.xlabel('-t\'', fontsize=25)
     plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -972,1268 +1033,1485 @@ lumi = Lumi()
 def theory_table():
 
     #################################
-    ymin_cutxpi001_15 = min(c.applyCuts(y,cutxpi001_15))
-    ymin_cutxpi01_15 = min(c.applyCuts(y,cutxpi01_15))
+    # ymin_cutxpi001_15 = min(c.applyCuts(y,cutxpi001_15))
+    # ymin_cutxpi01_15 = min(c.applyCuts(y,cutxpi01_15))
     
-    ymax_cutxpi001_15 = max(c.applyCuts(y,cutxpi001_15))
-    ymax_cutxpi01_15 = max(c.applyCuts(y,cutxpi01_15))
+    # ymax_cutxpi001_15 = max(c.applyCuts(y,cutxpi001_15))
+    # ymax_cutxpi01_15 = max(c.applyCuts(y,cutxpi01_15))
 
-    yieldmin_cutxpi001_15 = float(c.applyCuts(lumi,cutxpi001_15)[
-        np.where(c.applyCuts(y,cutxpi001_15)==(ymin_cutxpi001_15))])
-    yieldmin_cutxpi01_15 = float(c.applyCuts(lumi,cutxpi01_15)[
-        np.where(c.applyCuts(y,cutxpi01_15)==(ymin_cutxpi01_15))])
+    # yieldmin_cutxpi001_15 = float(c.applyCuts(lumi,cutxpi001_15)[
+    #     np.where(c.applyCuts(y,cutxpi001_15)==(ymin_cutxpi001_15))])
+    # yieldmin_cutxpi01_15 = float(c.applyCuts(lumi,cutxpi01_15)[
+    #     np.where(c.applyCuts(y,cutxpi01_15)==(ymin_cutxpi01_15))])
 
-    yieldmax_cutxpi001_15 = float(c.applyCuts(lumi,cutxpi001_15)[
-        np.where(c.applyCuts(y,cutxpi001_15)==(ymax_cutxpi001_15))])
-    yieldmax_cutxpi01_15 = float(c.applyCuts(lumi,cutxpi01_15)[
-        np.where(c.applyCuts(y,cutxpi01_15)==(ymax_cutxpi01_15))])
+    # yieldmax_cutxpi001_15 = float(c.applyCuts(lumi,cutxpi001_15)[
+    #     np.where(c.applyCuts(y,cutxpi001_15)==(ymax_cutxpi001_15))])
+    # yieldmax_cutxpi01_15 = float(c.applyCuts(lumi,cutxpi01_15)[
+    #     np.where(c.applyCuts(y,cutxpi01_15)==(ymax_cutxpi01_15))])
 
-    xLmin_cutxpi001_15 = float(c.applyCuts(xL,cutxpi001_15)[
-        np.where(c.applyCuts(y,cutxpi001_15)==(ymin_cutxpi001_15))])
-    xLmin_cutxpi01_15 = float(c.applyCuts(xL,cutxpi01_15)[
-        np.where(c.applyCuts(y,cutxpi01_15)==(ymin_cutxpi01_15))])
+    # xLmin_cutxpi001_15 = float(c.applyCuts(xL,cutxpi001_15)[
+    #     np.where(c.applyCuts(y,cutxpi001_15)==(ymin_cutxpi001_15))])
+    # xLmin_cutxpi01_15 = float(c.applyCuts(xL,cutxpi01_15)[
+    #     np.where(c.applyCuts(y,cutxpi01_15)==(ymin_cutxpi01_15))])
     
-    xLmax_cutxpi001_15 = float(c.applyCuts(xL,cutxpi001_15)[
-        np.where(c.applyCuts(y,cutxpi001_15)==(ymax_cutxpi001_15))])
-    xLmax_cutxpi01_15 = float(c.applyCuts(xL,cutxpi01_15)[
-        np.where(c.applyCuts(y,cutxpi01_15)==(ymax_cutxpi01_15))])
+    # xLmax_cutxpi001_15 = float(c.applyCuts(xL,cutxpi001_15)[
+    #     np.where(c.applyCuts(y,cutxpi001_15)==(ymax_cutxpi001_15))])
+    # xLmax_cutxpi01_15 = float(c.applyCuts(xL,cutxpi01_15)[
+    #     np.where(c.applyCuts(y,cutxpi01_15)==(ymax_cutxpi01_15))])
 
-    xpimin_cutxpi001_15 = float(c.applyCuts(xpi,cutxpi001_15)[
-        np.where(c.applyCuts(y,cutxpi001_15)==(ymin_cutxpi001_15))])
-    xpimin_cutxpi01_15 = float(c.applyCuts(xpi,cutxpi01_15)[
-        np.where(c.applyCuts(y,cutxpi01_15)==(ymin_cutxpi01_15))])
+    # xpimin_cutxpi001_15 = float(c.applyCuts(xpi,cutxpi001_15)[
+    #     np.where(c.applyCuts(y,cutxpi001_15)==(ymin_cutxpi001_15))])
+    # xpimin_cutxpi01_15 = float(c.applyCuts(xpi,cutxpi01_15)[
+    #     np.where(c.applyCuts(y,cutxpi01_15)==(ymin_cutxpi01_15))])
     
-    xpimax_cutxpi001_15 = float(c.applyCuts(xpi,cutxpi001_15)[
-        np.where(c.applyCuts(y,cutxpi001_15)==(ymax_cutxpi001_15))])
-    xpimax_cutxpi01_15 = float(c.applyCuts(xpi,cutxpi01_15)[
-        np.where(c.applyCuts(y,cutxpi01_15)==(ymax_cutxpi01_15))])
+    # xpimax_cutxpi001_15 = float(c.applyCuts(xpi,cutxpi001_15)[
+    #     np.where(c.applyCuts(y,cutxpi001_15)==(ymax_cutxpi001_15))])
+    # xpimax_cutxpi01_15 = float(c.applyCuts(xpi,cutxpi01_15)[
+    #     np.where(c.applyCuts(y,cutxpi01_15)==(ymax_cutxpi01_15))])
 
-    Q2min_cutxpi001_15 = float(c.applyCuts(Q2,cutxpi001_15)[
-        np.where(c.applyCuts(y,cutxpi001_15)==(ymin_cutxpi001_15))])
-    Q2min_cutxpi01_15 = float(c.applyCuts(Q2,cutxpi01_15)[
-        np.where(c.applyCuts(y,cutxpi01_15)==(ymin_cutxpi01_15))])
+    # Q2min_cutxpi001_15 = float(c.applyCuts(Q2,cutxpi001_15)[
+    #     np.where(c.applyCuts(y,cutxpi001_15)==(ymin_cutxpi001_15))])
+    # Q2min_cutxpi01_15 = float(c.applyCuts(Q2,cutxpi01_15)[
+    #     np.where(c.applyCuts(y,cutxpi01_15)==(ymin_cutxpi01_15))])
     
-    Q2max_cutxpi001_15 = float(c.applyCuts(Q2,cutxpi001_15)[
-        np.where(c.applyCuts(y,cutxpi001_15)==(ymax_cutxpi001_15))])
-    Q2max_cutxpi01_15 = float(c.applyCuts(Q2,cutxpi01_15)[
-        np.where(c.applyCuts(y,cutxpi01_15)==(ymax_cutxpi01_15))])
-    #################################    
-    
-    #################################
-    ymin_cutxpi01_30 = min(c.applyCuts(y,cutxpi01_30))
-    
-    ymax_cutxpi01_30 = max(c.applyCuts(y,cutxpi01_30))
-    
-    yieldmin_cutxpi01_30 = float(c.applyCuts(lumi,cutxpi01_30)[
-        np.where(c.applyCuts(y,cutxpi01_30)==(ymin_cutxpi01_30))])
-
-    yieldmax_cutxpi01_30 = float(c.applyCuts(lumi,cutxpi01_30)[
-        np.where(c.applyCuts(y,cutxpi01_30)==(ymax_cutxpi01_30))])
-
-    xLmin_cutxpi01_30 = float(c.applyCuts(xL,cutxpi01_30)[
-        np.where(c.applyCuts(y,cutxpi01_30)==(ymin_cutxpi01_30))])
-
-    xLmax_cutxpi01_30 = float(c.applyCuts(xL,cutxpi01_30)[
-        np.where(c.applyCuts(y,cutxpi01_30)==(ymax_cutxpi01_30))])
-
-    xpimin_cutxpi01_30 = float(c.applyCuts(xpi,cutxpi01_30)[
-        np.where(c.applyCuts(y,cutxpi01_30)==(ymin_cutxpi01_30))])
-
-    xpimax_cutxpi01_30 = float(c.applyCuts(xpi,cutxpi01_30)[
-        np.where(c.applyCuts(y,cutxpi01_30)==(ymax_cutxpi01_30))])
-
-    Q2min_cutxpi01_30 = float(c.applyCuts(Q2,cutxpi01_30)[
-        np.where(c.applyCuts(y,cutxpi01_30)==(ymin_cutxpi01_30))])
-
-    Q2max_cutxpi01_30 = float(c.applyCuts(Q2,cutxpi01_30)[
-        np.where(c.applyCuts(y,cutxpi01_30)==(ymax_cutxpi01_30))])
-
-    #################################
-    
-    #################################
-    ymin_cutxpi01_60 = min(c.applyCuts(y,cutxpi01_60))
-    
-    ymax_cutxpi01_60 = max(c.applyCuts(y,cutxpi01_60))
-
-    yieldmin_cutxpi01_60 = float(c.applyCuts(lumi,cutxpi01_60)[
-        np.where(c.applyCuts(y,cutxpi01_60)==(ymin_cutxpi01_60))])
-
-    yieldmax_cutxpi01_60 = float(c.applyCuts(lumi,cutxpi01_60)[
-        np.where(c.applyCuts(y,cutxpi01_60)==(ymax_cutxpi01_60))])
-
-    xLmin_cutxpi01_60 = float(c.applyCuts(xL,cutxpi01_60)[
-        np.where(c.applyCuts(y,cutxpi01_60)==(ymin_cutxpi01_60))])
-    
-    xLmax_cutxpi01_60 = float(c.applyCuts(xL,cutxpi01_60)[
-        np.where(c.applyCuts(y,cutxpi01_60)==(ymax_cutxpi01_60))])
-
-    xpimin_cutxpi01_60 = float(c.applyCuts(xpi,cutxpi01_60)[
-        np.where(c.applyCuts(y,cutxpi01_60)==(ymin_cutxpi01_60))])
-    
-    xpimax_cutxpi01_60 = float(c.applyCuts(xpi,cutxpi01_60)[
-        np.where(c.applyCuts(y,cutxpi01_60)==(ymax_cutxpi01_60))])
-
-    Q2min_cutxpi01_60 = float(c.applyCuts(Q2,cutxpi01_60)[
-        np.where(c.applyCuts(y,cutxpi01_60)==(ymin_cutxpi01_60))])
-    
-    Q2max_cutxpi01_60 = float(c.applyCuts(Q2,cutxpi01_60)[
-        np.where(c.applyCuts(y,cutxpi01_60)==(ymax_cutxpi01_60))])
-    #################################
-    
-    table_dict = {
-    
-            "15" : 
-             {"0.001" :{
-                 "Q2" : [Q2min_cutxpi001_15,Q2max_cutxpi001_15],
-                 "y bin" : [ymin_cutxpi001_15,ymax_cutxpi001_15],
-                 "Yield (100 fb^-1)" : [yieldmin_cutxpi001_15,yieldmax_cutxpi001_15],
-                 "xL" : [xLmin_cutxpi001_15,xLmax_cutxpi001_15],
-                 "xpi": [xpimin_cutxpi001_15,xpimax_cutxpi001_15]
-             },
-              "0.01":{
-                  "Q2" : [Q2min_cutxpi01_15,Q2max_cutxpi01_15],
-                  "y bin" : [ymin_cutxpi01_15,ymax_cutxpi01_15],
-                  "Yield (100 fb^-1)" : [yieldmin_cutxpi01_15,yieldmax_cutxpi01_15],
-                  "xL" : [xLmin_cutxpi01_15,xLmax_cutxpi01_15],
-                  "xpi": [xpimin_cutxpi01_15,xpimax_cutxpi01_15]
-             }
-            },
-            "30" : 
-             {"0.01":{
-                 "Q2" : [Q2min_cutxpi01_30,Q2max_cutxpi01_30],
-                 "y bin" : [ymin_cutxpi01_30,ymax_cutxpi01_30],
-                 "Yield (100 fb^-1)" : [yieldmin_cutxpi01_30,yieldmax_cutxpi01_30],
-                 "xL" : [xLmin_cutxpi01_30,xLmax_cutxpi01_30],
-                 "xpi": [xpimin_cutxpi01_30,xpimax_cutxpi01_30]
-             }
-            },
-            "60" :
-             {"0.01":{
-                 "Q2" : [Q2min_cutxpi01_60,Q2max_cutxpi01_60],
-                 "y bin" : [ymin_cutxpi01_60,ymax_cutxpi01_60],
-                 "Yield (100 fb^-1)" : [yieldmin_cutxpi01_60,yieldmax_cutxpi01_60],
-                 "xL" : [xLmin_cutxpi01_60,xLmax_cutxpi01_60],
-                 "xpi": [xpimin_cutxpi01_60,xpimax_cutxpi01_60]
-             }
-            }
-    }
-
-    #################################
-        
-    
-    # ymin_cutxpi1_15 = min(c.applyCuts(y,cutxpi1_15))
-    # ymin_cutxpi2_15 = min(c.applyCuts(y,cutxpi2_15))
-    # ymin_cutxpi3_15 = min(c.applyCuts(y,cutxpi3_15))
-    # # ymin_cutxpi4_15 = min(c.applyCuts(y,cutxpi4_15))
-    # # ymin_cutxpi5_15 = min(c.applyCuts(y,cutxpi5_15))
-    # # ymin_cutxpi6_15 = min(c.applyCuts(y,cutxpi6_15))
-    # # ymin_cutxpi7_15 = min(c.applyCuts(y,cutxpi7_15))
-    
-    # ymax_cutxpi1_15 = max(c.applyCuts(y,cutxpi1_15))
-    # ymax_cutxpi2_15 = max(c.applyCuts(y,cutxpi2_15))
-    # ymax_cutxpi3_15 = max(c.applyCuts(y,cutxpi3_15))
-    # # ymax_cutxpi4_15 = max(c.applyCuts(y,cutxpi4_15))
-    # # ymax_cutxpi5_15 = max(c.applyCuts(y,cutxpi5_15))
-    # # ymax_cutxpi6_15 = max(c.applyCuts(y,cutxpi6_15))
-    # # ymax_cutxpi7_15 = max(c.applyCuts(y,cutxpi7_15))
-
-    # yieldmin_cutxpi1_15 = float(c.applyCuts(lumi,cutxpi1_15)[
-    #     np.where(c.applyCuts(y,cutxpi1_15)==(ymin_cutxpi1_15))])
-    # yieldmin_cutxpi2_15 = float(c.applyCuts(lumi,cutxpi2_15)[
-    #     np.where(c.applyCuts(y,cutxpi2_15)==(ymin_cutxpi2_15))])
-    # yieldmin_cutxpi3_15 = float(c.applyCuts(lumi,cutxpi3_15)[
-    #     np.where(c.applyCuts(y,cutxpi3_15)==(ymin_cutxpi3_15))])
-    # # yieldmin_cutxpi4_15 = float(c.applyCuts(lumi,cutxpi4_15)[
-    # #     np.where(c.applyCuts(y,cutxpi4_15)==(ymin_cutxpi4_15))])
-    # # yieldmin_cutxpi5_15 = float(c.applyCuts(lumi,cutxpi5_15)[
-    # #     np.where(c.applyCuts(y,cutxpi5_15)==(ymin_cutxpi5_15))])
-    # # yieldmin_cutxpi6_15 = float(c.applyCuts(lumi,cutxpi6_15)[
-    # #     np.where(c.applyCuts(y,cutxpi6_15)==(ymin_cutxpi6_15))])
-    # # yieldmin_cutxpi7_15 = float(c.applyCuts(lumi,cutxpi7_15)[
-    # #     np.where(c.applyCuts(y,cutxpi7_15)==(ymin_cutxpi7_15))])
-    
-    # yieldmax_cutxpi1_15 = float(c.applyCuts(lumi,cutxpi1_15)[
-    #     np.where(c.applyCuts(y,cutxpi1_15)==(ymax_cutxpi1_15))])
-    # yieldmax_cutxpi2_15 = float(c.applyCuts(lumi,cutxpi2_15)[
-    #     np.where(c.applyCuts(y,cutxpi2_15)==(ymax_cutxpi2_15))])
-    # yieldmax_cutxpi3_15 = float(c.applyCuts(lumi,cutxpi3_15)[
-    #     np.where(c.applyCuts(y,cutxpi3_15)==(ymax_cutxpi3_15))])
-    # # yieldmax_cutxpi4_15 = float(c.applyCuts(lumi,cutxpi4_15)[
-    # #     np.where(c.applyCuts(y,cutxpi4_15)==(ymax_cutxpi4_15))])
-    # # yieldmax_cutxpi5_15 = float(c.applyCuts(lumi,cutxpi5_15)[
-    # #     np.where(c.applyCuts(y,cutxpi5_15)==(ymax_cutxpi5_15))])
-    # # yieldmax_cutxpi6_15 = float(c.applyCuts(lumi,cutxpi6_15)[
-    # #     np.where(c.applyCuts(y,cutxpi6_15)==(ymax_cutxpi6_15))])
-    # # yieldmax_cutxpi7_15 = float(c.applyCuts(lumi,cutxpi7_15)[
-    # #     np.where(c.applyCuts(y,cutxpi7_15)==(ymax_cutxpi7_15))])
-
-    # xLmin_cutxpi1_15 = float(c.applyCuts(xL,cutxpi1_15)[
-    #     np.where(c.applyCuts(y,cutxpi1_15)==(ymin_cutxpi1_15))])
-    # xLmin_cutxpi2_15 = float(c.applyCuts(xL,cutxpi2_15)[
-    #     np.where(c.applyCuts(y,cutxpi2_15)==(ymin_cutxpi2_15))])
-    # xLmin_cutxpi3_15 = float(c.applyCuts(xL,cutxpi3_15)[
-    #     np.where(c.applyCuts(y,cutxpi3_15)==(ymin_cutxpi3_15))])
-    # # xLmin_cutxpi4_15 = float(c.applyCuts(xL,cutxpi4_15)[
-    # #     np.where(c.applyCuts(y,cutxpi4_15)==(ymin_cutxpi4_15))])
-    # # xLmin_cutxpi5_15 = float(c.applyCuts(xL,cutxpi5_15)[
-    # #     np.where(c.applyCuts(y,cutxpi5_15)==(ymin_cutxpi5_15))])
-    # # xLmin_cutxpi6_15 = float(c.applyCuts(xL,cutxpi6_15)[
-    # #     np.where(c.applyCuts(y,cutxpi6_15)==(ymin_cutxpi6_15))])
-    # # xLmin_cutxpi7_15 = float(c.applyCuts(xL,cutxpi7_15)[
-    # #     np.where(c.applyCuts(y,cutxpi7_15)==(ymin_cutxpi7_15))])
-
-    # xLmax_cutxpi1_15 = float(c.applyCuts(xL,cutxpi1_15)[
-    #     np.where(c.applyCuts(y,cutxpi1_15)==(ymax_cutxpi1_15))])
-    # xLmax_cutxpi2_15 = float(c.applyCuts(xL,cutxpi2_15)[
-    #     np.where(c.applyCuts(y,cutxpi2_15)==(ymax_cutxpi2_15))])
-    # xLmax_cutxpi3_15 = float(c.applyCuts(xL,cutxpi3_15)[
-    #     np.where(c.applyCuts(y,cutxpi3_15)==(ymax_cutxpi3_15))])
-    # # xLmax_cutxpi4_15 = float(c.applyCuts(xL,cutxpi4_15)[
-    # #     np.where(c.applyCuts(y,cutxpi4_15)==(ymax_cutxpi4_15))])
-    # # xLmax_cutxpi5_15 = float(c.applyCuts(xL,cutxpi5_15)[
-    # #     np.where(c.applyCuts(y,cutxpi5_15)==(ymax_cutxpi5_15))])
-    # # xLmax_cutxpi6_15 = float(c.applyCuts(xL,cutxpi6_15)[
-    # #     np.where(c.applyCuts(y,cutxpi6_15)==(ymax_cutxpi6_15))])
-    # # xLmax_cutxpi7_15 = float(c.applyCuts(xL,cutxpi7_15)[
-    # #     np.where(c.applyCuts(y,cutxpi7_15)==(ymax_cutxpi7_15))])
-
-    # xpimin_cutxpi1_15 = float(c.applyCuts(xpi,cutxpi1_15)[
-    #     np.where(c.applyCuts(y,cutxpi1_15)==(ymin_cutxpi1_15))])
-    # xpimin_cutxpi2_15 = float(c.applyCuts(xpi,cutxpi2_15)[
-    #     np.where(c.applyCuts(y,cutxpi2_15)==(ymin_cutxpi2_15))])
-    # xpimin_cutxpi3_15 = float(c.applyCuts(xpi,cutxpi3_15)[
-    #     np.where(c.applyCuts(y,cutxpi3_15)==(ymin_cutxpi3_15))])
-    # # xpimin_cutxpi4_15 = float(c.applyCuts(xpi,cutxpi4_15)[
-    # #     np.where(c.applyCuts(y,cutxpi4_15)==(ymin_cutxpi4_15))])
-    # # xpimin_cutxpi5_15 = float(c.applyCuts(xpi,cutxpi5_15)[
-    # #     np.where(c.applyCuts(y,cutxpi5_15)==(ymin_cutxpi5_15))])
-    # # xpimin_cutxpi6_15 = float(c.applyCuts(xpi,cutxpi6_15)[
-    # #     np.where(c.applyCuts(y,cutxpi6_15)==(ymin_cutxpi6_15))])
-    # # xpimin_cutxpi7_15 = float(c.applyCuts(xpi,cutxpi7_15)[
-    # #     np.where(c.applyCuts(y,cutxpi7_15)==(ymin_cutxpi7_15))])
-
-    # xpimax_cutxpi1_15 = float(c.applyCuts(xpi,cutxpi1_15)[
-    #     np.where(c.applyCuts(y,cutxpi1_15)==(ymax_cutxpi1_15))])
-    # xpimax_cutxpi2_15 = float(c.applyCuts(xpi,cutxpi2_15)[
-    #     np.where(c.applyCuts(y,cutxpi2_15)==(ymax_cutxpi2_15))])
-    # xpimax_cutxpi3_15 = float(c.applyCuts(xpi,cutxpi3_15)[
-    #     np.where(c.applyCuts(y,cutxpi3_15)==(ymax_cutxpi3_15))])
-    # # xpimax_cutxpi4_15 = float(c.applyCuts(xpi,cutxpi4_15)[
-    # #     np.where(c.applyCuts(y,cutxpi4_15)==(ymax_cutxpi4_15))])
-    # # xpimax_cutxpi5_15 = float(c.applyCuts(xpi,cutxpi5_15)[
-    # #     np.where(c.applyCuts(y,cutxpi5_15)==(ymax_cutxpi5_15))])
-    # # xpimax_cutxpi6_15 = float(c.applyCuts(xpi,cutxpi6_15)[
-    # #     np.where(c.applyCuts(y,cutxpi6_15)==(ymax_cutxpi6_15))])
-    # # xpimax_cutxpi7_15 = float(c.applyCuts(xpi,cutxpi7_15)[
-    # #     np.where(c.applyCuts(y,cutxpi7_15)==(ymax_cutxpi7_15))])
-
-    # Q2min_cutxpi1_15 = float(c.applyCuts(Q2,cutxpi1_15)[
-    #     np.where(c.applyCuts(y,cutxpi1_15)==(ymin_cutxpi1_15))])
-    # Q2min_cutxpi2_15 = float(c.applyCuts(Q2,cutxpi2_15)[
-    #     np.where(c.applyCuts(y,cutxpi2_15)==(ymin_cutxpi2_15))])
-    # Q2min_cutxpi3_15 = float(c.applyCuts(Q2,cutxpi3_15)[
-    #     np.where(c.applyCuts(y,cutxpi3_15)==(ymin_cutxpi3_15))])
-    # # Q2min_cutxpi4_15 = float(c.applyCuts(Q2,cutxpi4_15)[
-    # #     np.where(c.applyCuts(y,cutxpi4_15)==(ymin_cutxpi4_15))])
-    # # Q2min_cutxpi5_15 = float(c.applyCuts(Q2,cutxpi5_15)[
-    # #     np.where(c.applyCuts(y,cutxpi5_15)==(ymin_cutxpi5_15))])
-    # # Q2min_cutxpi6_15 = float(c.applyCuts(Q2,cutxpi6_15)[
-    # #     np.where(c.applyCuts(y,cutxpi6_15)==(ymin_cutxpi6_15))])
-    # # Q2min_cutxpi7_15 = float(c.applyCuts(Q2,cutxpi7_15)[
-    # #     np.where(c.applyCuts(y,cutxpi7_15)==(ymin_cutxpi7_15))])
-
-    # Q2max_cutxpi1_15 = float(c.applyCuts(Q2,cutxpi1_15)[
-    #     np.where(c.applyCuts(y,cutxpi1_15)==(ymax_cutxpi1_15))])
-    # Q2max_cutxpi2_15 = float(c.applyCuts(Q2,cutxpi2_15)[
-    #     np.where(c.applyCuts(y,cutxpi2_15)==(ymax_cutxpi2_15))])
-    # Q2max_cutxpi3_15 = float(c.applyCuts(Q2,cutxpi3_15)[
-    #     np.where(c.applyCuts(y,cutxpi3_15)==(ymax_cutxpi3_15))])
-    # # Q2max_cutxpi4_15 = float(c.applyCuts(Q2,cutxpi4_15)[
-    # #     np.where(c.applyCuts(y,cutxpi4_15)==(ymax_cutxpi4_15))])
-    # # Q2max_cutxpi5_15 = float(c.applyCuts(Q2,cutxpi5_15)[
-    # #     np.where(c.applyCuts(y,cutxpi5_15)==(ymax_cutxpi5_15))])
-    # # Q2max_cutxpi6_15 = float(c.applyCuts(Q2,cutxpi6_15)[
-    # #     np.where(c.applyCuts(y,cutxpi6_15)==(ymax_cutxpi6_15))])
-    # # Q2max_cutxpi7_15 = float(c.applyCuts(Q2,cutxpi7_15)[
-    # #     np.where(c.applyCuts(y,cutxpi7_15)==(ymax_cutxpi7_15))])
+    # Q2max_cutxpi001_15 = float(c.applyCuts(Q2,cutxpi001_15)[
+    #     np.where(c.applyCuts(y,cutxpi001_15)==(ymax_cutxpi001_15))])
+    # Q2max_cutxpi01_15 = float(c.applyCuts(Q2,cutxpi01_15)[
+    #     np.where(c.applyCuts(y,cutxpi01_15)==(ymax_cutxpi01_15))])
+    # #################################    
     
     # #################################
+    # ymin_cutxpi01_30 = min(c.applyCuts(y,cutxpi01_30))
+    
+    # ymax_cutxpi01_30 = max(c.applyCuts(y,cutxpi01_30))
+    
+    # yieldmin_cutxpi01_30 = float(c.applyCuts(lumi,cutxpi01_30)[
+    #     np.where(c.applyCuts(y,cutxpi01_30)==(ymin_cutxpi01_30))])
+
+    # yieldmax_cutxpi01_30 = float(c.applyCuts(lumi,cutxpi01_30)[
+    #     np.where(c.applyCuts(y,cutxpi01_30)==(ymax_cutxpi01_30))])
+
+    # xLmin_cutxpi01_30 = float(c.applyCuts(xL,cutxpi01_30)[
+    #     np.where(c.applyCuts(y,cutxpi01_30)==(ymin_cutxpi01_30))])
+
+    # xLmax_cutxpi01_30 = float(c.applyCuts(xL,cutxpi01_30)[
+    #     np.where(c.applyCuts(y,cutxpi01_30)==(ymax_cutxpi01_30))])
+
+    # xpimin_cutxpi01_30 = float(c.applyCuts(xpi,cutxpi01_30)[
+    #     np.where(c.applyCuts(y,cutxpi01_30)==(ymin_cutxpi01_30))])
+
+    # xpimax_cutxpi01_30 = float(c.applyCuts(xpi,cutxpi01_30)[
+    #     np.where(c.applyCuts(y,cutxpi01_30)==(ymax_cutxpi01_30))])
+
+    # Q2min_cutxpi01_30 = float(c.applyCuts(Q2,cutxpi01_30)[
+    #     np.where(c.applyCuts(y,cutxpi01_30)==(ymin_cutxpi01_30))])
+
+    # Q2max_cutxpi01_30 = float(c.applyCuts(Q2,cutxpi01_30)[
+    #     np.where(c.applyCuts(y,cutxpi01_30)==(ymax_cutxpi01_30))])
 
     # #################################
-        
-    
-    # ymin_cutxpi1_30 = min(c.applyCuts(y,cutxpi1_30))
-    # ymin_cutxpi2_30 = min(c.applyCuts(y,cutxpi2_30))
-    # ymin_cutxpi3_30 = min(c.applyCuts(y,cutxpi3_30))
-    # ymin_cutxpi4_30 = min(c.applyCuts(y,cutxpi4_30))
-    # ymin_cutxpi5_30 = min(c.applyCuts(y,cutxpi5_30))
-    # ymin_cutxpi6_30 = min(c.applyCuts(y,cutxpi6_30))
-    # # ymin_cutxpi7_30 = min(c.applyCuts(y,cutxpi7_30))
-    
-    # ymax_cutxpi1_30 = max(c.applyCuts(y,cutxpi1_30))
-    # ymax_cutxpi2_30 = max(c.applyCuts(y,cutxpi2_30))
-    # ymax_cutxpi3_30 = max(c.applyCuts(y,cutxpi3_30))
-    # ymax_cutxpi4_30 = max(c.applyCuts(y,cutxpi4_30))
-    # ymax_cutxpi5_30 = max(c.applyCuts(y,cutxpi5_30))
-    # ymax_cutxpi6_30 = max(c.applyCuts(y,cutxpi6_30))
-    # # ymax_cutxpi7_30 = max(c.applyCuts(y,cutxpi7_30))
-
-    # yieldmin_cutxpi1_30 = float(c.applyCuts(lumi,cutxpi1_30)[
-    #     np.where(c.applyCuts(y,cutxpi1_30)==(ymin_cutxpi1_30))])
-    # yieldmin_cutxpi2_30 = float(c.applyCuts(lumi,cutxpi2_30)[
-    #     np.where(c.applyCuts(y,cutxpi2_30)==(ymin_cutxpi2_30))])
-    # yieldmin_cutxpi3_30 = float(c.applyCuts(lumi,cutxpi3_30)[
-    #     np.where(c.applyCuts(y,cutxpi3_30)==(ymin_cutxpi3_30))])
-    # yieldmin_cutxpi4_30 = float(c.applyCuts(lumi,cutxpi4_30)[
-    #     np.where(c.applyCuts(y,cutxpi4_30)==(ymin_cutxpi4_30))])
-    # yieldmin_cutxpi5_30 = float(c.applyCuts(lumi,cutxpi5_30)[
-    #     np.where(c.applyCuts(y,cutxpi5_30)==(ymin_cutxpi5_30))])
-    # yieldmin_cutxpi6_30 = float(c.applyCuts(lumi,cutxpi6_30)[
-    #     np.where(c.applyCuts(y,cutxpi6_30)==(ymin_cutxpi6_30))])
-    # # yieldmin_cutxpi7_30 = float(c.applyCuts(lumi,cutxpi7_30)[
-    # #     np.where(c.applyCuts(y,cutxpi7_30)==(ymin_cutxpi7_30))])
-    
-    # yieldmax_cutxpi1_30 = float(c.applyCuts(lumi,cutxpi1_30)[
-    #     np.where(c.applyCuts(y,cutxpi1_30)==(ymax_cutxpi1_30))])
-    # yieldmax_cutxpi2_30 = float(c.applyCuts(lumi,cutxpi2_30)[
-    #     np.where(c.applyCuts(y,cutxpi2_30)==(ymax_cutxpi2_30))])
-    # yieldmax_cutxpi3_30 = float(c.applyCuts(lumi,cutxpi3_30)[
-    #     np.where(c.applyCuts(y,cutxpi3_30)==(ymax_cutxpi3_30))])
-    # yieldmax_cutxpi4_30 = float(c.applyCuts(lumi,cutxpi4_30)[
-    #     np.where(c.applyCuts(y,cutxpi4_30)==(ymax_cutxpi4_30))])
-    # yieldmax_cutxpi5_30 = float(c.applyCuts(lumi,cutxpi5_30)[
-    #     np.where(c.applyCuts(y,cutxpi5_30)==(ymax_cutxpi5_30))])
-    # yieldmax_cutxpi6_30 = float(c.applyCuts(lumi,cutxpi6_30)[
-    #     np.where(c.applyCuts(y,cutxpi6_30)==(ymax_cutxpi6_30))])
-    # # yieldmax_cutxpi7_30 = float(c.applyCuts(lumi,cutxpi7_30)[
-    # #     np.where(c.applyCuts(y,cutxpi7_30)==(ymax_cutxpi7_30))])
-
-    # xLmin_cutxpi1_30 = float(c.applyCuts(xL,cutxpi1_30)[
-    #     np.where(c.applyCuts(y,cutxpi1_30)==(ymin_cutxpi1_30))])
-    # xLmin_cutxpi2_30 = float(c.applyCuts(xL,cutxpi2_30)[
-    #     np.where(c.applyCuts(y,cutxpi2_30)==(ymin_cutxpi2_30))])
-    # xLmin_cutxpi3_30 = float(c.applyCuts(xL,cutxpi3_30)[
-    #     np.where(c.applyCuts(y,cutxpi3_30)==(ymin_cutxpi3_30))])
-    # xLmin_cutxpi4_30 = float(c.applyCuts(xL,cutxpi4_30)[
-    #     np.where(c.applyCuts(y,cutxpi4_30)==(ymin_cutxpi4_30))])
-    # xLmin_cutxpi5_30 = float(c.applyCuts(xL,cutxpi5_30)[
-    #     np.where(c.applyCuts(y,cutxpi5_30)==(ymin_cutxpi5_30))])
-    # xLmin_cutxpi6_30 = float(c.applyCuts(xL,cutxpi6_30)[
-    #     np.where(c.applyCuts(y,cutxpi6_30)==(ymin_cutxpi6_30))])
-    # # xLmin_cutxpi7_30 = float(c.applyCuts(xL,cutxpi7_30)[
-    # #     np.where(c.applyCuts(y,cutxpi7_30)==(ymin_cutxpi7_30))])
-
-    # xLmax_cutxpi1_30 = float(c.applyCuts(xL,cutxpi1_30)[
-    #     np.where(c.applyCuts(y,cutxpi1_30)==(ymax_cutxpi1_30))])
-    # xLmax_cutxpi2_30 = float(c.applyCuts(xL,cutxpi2_30)[
-    #     np.where(c.applyCuts(y,cutxpi2_30)==(ymax_cutxpi2_30))])
-    # xLmax_cutxpi3_30 = float(c.applyCuts(xL,cutxpi3_30)[
-    #     np.where(c.applyCuts(y,cutxpi3_30)==(ymax_cutxpi3_30))])
-    # xLmax_cutxpi4_30 = float(c.applyCuts(xL,cutxpi4_30)[
-    #     np.where(c.applyCuts(y,cutxpi4_30)==(ymax_cutxpi4_30))])
-    # xLmax_cutxpi5_30 = float(c.applyCuts(xL,cutxpi5_30)[
-    #     np.where(c.applyCuts(y,cutxpi5_30)==(ymax_cutxpi5_30))])
-    # xLmax_cutxpi6_30 = float(c.applyCuts(xL,cutxpi6_30)[
-    #     np.where(c.applyCuts(y,cutxpi6_30)==(ymax_cutxpi6_30))])
-    # # xLmax_cutxpi7_30 = float(c.applyCuts(xL,cutxpi7_30)[
-    # #     np.where(c.applyCuts(y,cutxpi7_30)==(ymax_cutxpi7_30))])
-
-    # xpimin_cutxpi1_30 = float(c.applyCuts(xpi,cutxpi1_30)[
-    #     np.where(c.applyCuts(y,cutxpi1_30)==(ymin_cutxpi1_30))])
-    # xpimin_cutxpi2_30 = float(c.applyCuts(xpi,cutxpi2_30)[
-    #     np.where(c.applyCuts(y,cutxpi2_30)==(ymin_cutxpi2_30))])
-    # xpimin_cutxpi3_30 = float(c.applyCuts(xpi,cutxpi3_30)[
-    #     np.where(c.applyCuts(y,cutxpi3_30)==(ymin_cutxpi3_30))])
-    # xpimin_cutxpi4_30 = float(c.applyCuts(xpi,cutxpi4_30)[
-    #     np.where(c.applyCuts(y,cutxpi4_30)==(ymin_cutxpi4_30))])
-    # xpimin_cutxpi5_30 = float(c.applyCuts(xpi,cutxpi5_30)[
-    #     np.where(c.applyCuts(y,cutxpi5_30)==(ymin_cutxpi5_30))])
-    # xpimin_cutxpi6_30 = float(c.applyCuts(xpi,cutxpi6_30)[
-    #     np.where(c.applyCuts(y,cutxpi6_30)==(ymin_cutxpi6_30))])
-    # # xpimin_cutxpi7_30 = float(c.applyCuts(xpi,cutxpi7_30)[
-    # #     np.where(c.applyCuts(y,cutxpi7_30)==(ymin_cutxpi7_30))])
-
-    # xpimax_cutxpi1_30 = float(c.applyCuts(xpi,cutxpi1_30)[
-    #     np.where(c.applyCuts(y,cutxpi1_30)==(ymax_cutxpi1_30))])
-    # xpimax_cutxpi2_30 = float(c.applyCuts(xpi,cutxpi2_30)[
-    #     np.where(c.applyCuts(y,cutxpi2_30)==(ymax_cutxpi2_30))])
-    # xpimax_cutxpi3_30 = float(c.applyCuts(xpi,cutxpi3_30)[
-    #     np.where(c.applyCuts(y,cutxpi3_30)==(ymax_cutxpi3_30))])
-    # xpimax_cutxpi4_30 = float(c.applyCuts(xpi,cutxpi4_30)[
-    #     np.where(c.applyCuts(y,cutxpi4_30)==(ymax_cutxpi4_30))])
-    # xpimax_cutxpi5_30 = float(c.applyCuts(xpi,cutxpi5_30)[
-    #     np.where(c.applyCuts(y,cutxpi5_30)==(ymax_cutxpi5_30))])
-    # xpimax_cutxpi6_30 = float(c.applyCuts(xpi,cutxpi6_30)[
-    #     np.where(c.applyCuts(y,cutxpi6_30)==(ymax_cutxpi6_30))])
-    # # xpimax_cutxpi7_30 = float(c.applyCuts(xpi,cutxpi7_30)[
-    # #     np.where(c.applyCuts(y,cutxpi7_30)==(ymax_cutxpi7_30))])
-
-    # Q2min_cutxpi1_30 = float(c.applyCuts(Q2,cutxpi1_30)[
-    #     np.where(c.applyCuts(y,cutxpi1_30)==(ymin_cutxpi1_30))])
-    # Q2min_cutxpi2_30 = float(c.applyCuts(Q2,cutxpi2_30)[
-    #     np.where(c.applyCuts(y,cutxpi2_30)==(ymin_cutxpi2_30))])
-    # Q2min_cutxpi3_30 = float(c.applyCuts(Q2,cutxpi3_30)[
-    #     np.where(c.applyCuts(y,cutxpi3_30)==(ymin_cutxpi3_30))])
-    # Q2min_cutxpi4_30 = float(c.applyCuts(Q2,cutxpi4_30)[
-    #     np.where(c.applyCuts(y,cutxpi4_30)==(ymin_cutxpi4_30))])
-    # Q2min_cutxpi5_30 = float(c.applyCuts(Q2,cutxpi5_30)[
-    #     np.where(c.applyCuts(y,cutxpi5_30)==(ymin_cutxpi5_30))])
-    # Q2min_cutxpi6_30 = float(c.applyCuts(Q2,cutxpi6_30)[
-    #     np.where(c.applyCuts(y,cutxpi6_30)==(ymin_cutxpi6_30))])
-    # # Q2min_cutxpi7_30 = float(c.applyCuts(Q2,cutxpi7_30)[
-    # #     np.where(c.applyCuts(y,cutxpi7_30)==(ymin_cutxpi7_30))])
-
-    # Q2max_cutxpi1_30 = float(c.applyCuts(Q2,cutxpi1_30)[
-    #     np.where(c.applyCuts(y,cutxpi1_30)==(ymax_cutxpi1_30))])
-    # Q2max_cutxpi2_30 = float(c.applyCuts(Q2,cutxpi2_30)[
-    #     np.where(c.applyCuts(y,cutxpi2_30)==(ymax_cutxpi2_30))])
-    # Q2max_cutxpi3_30 = float(c.applyCuts(Q2,cutxpi3_30)[
-    #     np.where(c.applyCuts(y,cutxpi3_30)==(ymax_cutxpi3_30))])
-    # Q2max_cutxpi4_30 = float(c.applyCuts(Q2,cutxpi4_30)[
-    #     np.where(c.applyCuts(y,cutxpi4_30)==(ymax_cutxpi4_30))])
-    # Q2max_cutxpi5_30 = float(c.applyCuts(Q2,cutxpi5_30)[
-    #     np.where(c.applyCuts(y,cutxpi5_30)==(ymax_cutxpi5_30))])
-    # Q2max_cutxpi6_30 = float(c.applyCuts(Q2,cutxpi6_30)[
-    #     np.where(c.applyCuts(y,cutxpi6_30)==(ymax_cutxpi6_30))])
-    # # Q2max_cutxpi7_30 = float(c.applyCuts(Q2,cutxpi7_30)[
-    # #     np.where(c.applyCuts(y,cutxpi7_30)==(ymax_cutxpi7_30))])
     
     # #################################
+    # ymin_cutxpi01_60 = min(c.applyCuts(y,cutxpi01_60))
+    
+    # ymax_cutxpi01_60 = max(c.applyCuts(y,cutxpi01_60))
 
+    # yieldmin_cutxpi01_60 = float(c.applyCuts(lumi,cutxpi01_60)[
+    #     np.where(c.applyCuts(y,cutxpi01_60)==(ymin_cutxpi01_60))])
+
+    # yieldmax_cutxpi01_60 = float(c.applyCuts(lumi,cutxpi01_60)[
+    #     np.where(c.applyCuts(y,cutxpi01_60)==(ymax_cutxpi01_60))])
+
+    # xLmin_cutxpi01_60 = float(c.applyCuts(xL,cutxpi01_60)[
+    #     np.where(c.applyCuts(y,cutxpi01_60)==(ymin_cutxpi01_60))])
+    
+    # xLmax_cutxpi01_60 = float(c.applyCuts(xL,cutxpi01_60)[
+    #     np.where(c.applyCuts(y,cutxpi01_60)==(ymax_cutxpi01_60))])
+
+    # xpimin_cutxpi01_60 = float(c.applyCuts(xpi,cutxpi01_60)[
+    #     np.where(c.applyCuts(y,cutxpi01_60)==(ymin_cutxpi01_60))])
+    
+    # xpimax_cutxpi01_60 = float(c.applyCuts(xpi,cutxpi01_60)[
+    #     np.where(c.applyCuts(y,cutxpi01_60)==(ymax_cutxpi01_60))])
+
+    # Q2min_cutxpi01_60 = float(c.applyCuts(Q2,cutxpi01_60)[
+    #     np.where(c.applyCuts(y,cutxpi01_60)==(ymin_cutxpi01_60))])
+    
+    # Q2max_cutxpi01_60 = float(c.applyCuts(Q2,cutxpi01_60)[
+    #     np.where(c.applyCuts(y,cutxpi01_60)==(ymax_cutxpi01_60))])
     # #################################
-        
-    
-    # ymin_cutxpi1_60 = min(c.applyCuts(y,cutxpi1_60))
-    # ymin_cutxpi2_60 = min(c.applyCuts(y,cutxpi2_60))
-    # ymin_cutxpi3_60 = min(c.applyCuts(y,cutxpi3_60))
-    # ymin_cutxpi4_60 = min(c.applyCuts(y,cutxpi4_60))
-    # ymin_cutxpi5_60 = min(c.applyCuts(y,cutxpi5_60))
-    # ymin_cutxpi6_60 = min(c.applyCuts(y,cutxpi6_60))
-    # ymin_cutxpi7_60 = min(c.applyCuts(y,cutxpi7_60))
-    
-    # ymax_cutxpi1_60 = max(c.applyCuts(y,cutxpi1_60))
-    # ymax_cutxpi2_60 = max(c.applyCuts(y,cutxpi2_60))
-    # ymax_cutxpi3_60 = max(c.applyCuts(y,cutxpi3_60))
-    # ymax_cutxpi4_60 = max(c.applyCuts(y,cutxpi4_60))
-    # ymax_cutxpi5_60 = max(c.applyCuts(y,cutxpi5_60))
-    # ymax_cutxpi6_60 = max(c.applyCuts(y,cutxpi6_60))
-    # ymax_cutxpi7_60 = max(c.applyCuts(y,cutxpi7_60))
-
-    # yieldmin_cutxpi1_60 = float(c.applyCuts(lumi,cutxpi1_60)[
-    #     np.where(c.applyCuts(y,cutxpi1_60)==(ymin_cutxpi1_60))])
-    # yieldmin_cutxpi2_60 = float(c.applyCuts(lumi,cutxpi2_60)[
-    #     np.where(c.applyCuts(y,cutxpi2_60)==(ymin_cutxpi2_60))])
-    # yieldmin_cutxpi3_60 = float(c.applyCuts(lumi,cutxpi3_60)[
-    #     np.where(c.applyCuts(y,cutxpi3_60)==(ymin_cutxpi3_60))])
-    # yieldmin_cutxpi4_60 = float(c.applyCuts(lumi,cutxpi4_60)[
-    #     np.where(c.applyCuts(y,cutxpi4_60)==(ymin_cutxpi4_60))])
-    # yieldmin_cutxpi5_60 = float(c.applyCuts(lumi,cutxpi5_60)[
-    #     np.where(c.applyCuts(y,cutxpi5_60)==(ymin_cutxpi5_60))])
-    # yieldmin_cutxpi6_60 = float(c.applyCuts(lumi,cutxpi6_60)[
-    #     np.where(c.applyCuts(y,cutxpi6_60)==(ymin_cutxpi6_60))])
-    # yieldmin_cutxpi7_60 = float(c.applyCuts(lumi,cutxpi7_60)[
-    #     np.where(c.applyCuts(y,cutxpi7_60)==(ymin_cutxpi7_60))])
-    
-    # yieldmax_cutxpi1_60 = float(c.applyCuts(lumi,cutxpi1_60)[
-    #     np.where(c.applyCuts(y,cutxpi1_60)==(ymax_cutxpi1_60))])
-    # yieldmax_cutxpi2_60 = float(c.applyCuts(lumi,cutxpi2_60)[
-    #     np.where(c.applyCuts(y,cutxpi2_60)==(ymax_cutxpi2_60))])
-    # yieldmax_cutxpi3_60 = float(c.applyCuts(lumi,cutxpi3_60)[
-    #     np.where(c.applyCuts(y,cutxpi3_60)==(ymax_cutxpi3_60))])
-    # yieldmax_cutxpi4_60 = float(c.applyCuts(lumi,cutxpi4_60)[
-    #     np.where(c.applyCuts(y,cutxpi4_60)==(ymax_cutxpi4_60))])
-    # yieldmax_cutxpi5_60 = float(c.applyCuts(lumi,cutxpi5_60)[
-    #     np.where(c.applyCuts(y,cutxpi5_60)==(ymax_cutxpi5_60))])
-    # yieldmax_cutxpi6_60 = float(c.applyCuts(lumi,cutxpi6_60)[
-    #     np.where(c.applyCuts(y,cutxpi6_60)==(ymax_cutxpi6_60))])
-    # yieldmax_cutxpi7_60 = float(c.applyCuts(lumi,cutxpi7_60)[
-    #     np.where(c.applyCuts(y,cutxpi7_60)==(ymax_cutxpi7_60))])
-
-    # xLmin_cutxpi1_60 = float(c.applyCuts(xL,cutxpi1_60)[
-    #     np.where(c.applyCuts(y,cutxpi1_60)==(ymin_cutxpi1_60))])
-    # xLmin_cutxpi2_60 = float(c.applyCuts(xL,cutxpi2_60)[
-    #     np.where(c.applyCuts(y,cutxpi2_60)==(ymin_cutxpi2_60))])
-    # xLmin_cutxpi3_60 = float(c.applyCuts(xL,cutxpi3_60)[
-    #     np.where(c.applyCuts(y,cutxpi3_60)==(ymin_cutxpi3_60))])
-    # xLmin_cutxpi4_60 = float(c.applyCuts(xL,cutxpi4_60)[
-    #     np.where(c.applyCuts(y,cutxpi4_60)==(ymin_cutxpi4_60))])
-    # xLmin_cutxpi5_60 = float(c.applyCuts(xL,cutxpi5_60)[
-    #     np.where(c.applyCuts(y,cutxpi5_60)==(ymin_cutxpi5_60))])
-    # xLmin_cutxpi6_60 = float(c.applyCuts(xL,cutxpi6_60)[
-    #     np.where(c.applyCuts(y,cutxpi6_60)==(ymin_cutxpi6_60))])
-    # xLmin_cutxpi7_60 = float(c.applyCuts(xL,cutxpi7_60)[
-    #     np.where(c.applyCuts(y,cutxpi7_60)==(ymin_cutxpi7_60))])
-
-    # xLmax_cutxpi1_60 = float(c.applyCuts(xL,cutxpi1_60)[
-    #     np.where(c.applyCuts(y,cutxpi1_60)==(ymax_cutxpi1_60))])
-    # xLmax_cutxpi2_60 = float(c.applyCuts(xL,cutxpi2_60)[
-    #     np.where(c.applyCuts(y,cutxpi2_60)==(ymax_cutxpi2_60))])
-    # xLmax_cutxpi3_60 = float(c.applyCuts(xL,cutxpi3_60)[
-    #     np.where(c.applyCuts(y,cutxpi3_60)==(ymax_cutxpi3_60))])
-    # xLmax_cutxpi4_60 = float(c.applyCuts(xL,cutxpi4_60)[
-    #     np.where(c.applyCuts(y,cutxpi4_60)==(ymax_cutxpi4_60))])
-    # xLmax_cutxpi5_60 = float(c.applyCuts(xL,cutxpi5_60)[
-    #     np.where(c.applyCuts(y,cutxpi5_60)==(ymax_cutxpi5_60))])
-    # xLmax_cutxpi6_60 = float(c.applyCuts(xL,cutxpi6_60)[
-    #     np.where(c.applyCuts(y,cutxpi6_60)==(ymax_cutxpi6_60))])
-    # xLmax_cutxpi7_60 = float(c.applyCuts(xL,cutxpi7_60)[
-    #     np.where(c.applyCuts(y,cutxpi7_60)==(ymax_cutxpi7_60))])
-
-    # xpimin_cutxpi1_60 = float(c.applyCuts(xpi,cutxpi1_60)[
-    #     np.where(c.applyCuts(y,cutxpi1_60)==(ymin_cutxpi1_60))])
-    # xpimin_cutxpi2_60 = float(c.applyCuts(xpi,cutxpi2_60)[
-    #     np.where(c.applyCuts(y,cutxpi2_60)==(ymin_cutxpi2_60))])
-    # xpimin_cutxpi3_60 = float(c.applyCuts(xpi,cutxpi3_60)[
-    #     np.where(c.applyCuts(y,cutxpi3_60)==(ymin_cutxpi3_60))])
-    # xpimin_cutxpi4_60 = float(c.applyCuts(xpi,cutxpi4_60)[
-    #     np.where(c.applyCuts(y,cutxpi4_60)==(ymin_cutxpi4_60))])
-    # xpimin_cutxpi5_60 = float(c.applyCuts(xpi,cutxpi5_60)[
-    #     np.where(c.applyCuts(y,cutxpi5_60)==(ymin_cutxpi5_60))])
-    # xpimin_cutxpi6_60 = float(c.applyCuts(xpi,cutxpi6_60)[
-    #     np.where(c.applyCuts(y,cutxpi6_60)==(ymin_cutxpi6_60))])
-    # xpimin_cutxpi7_60 = float(c.applyCuts(xpi,cutxpi7_60)[
-    #     np.where(c.applyCuts(y,cutxpi7_60)==(ymin_cutxpi7_60))])
-
-    # xpimax_cutxpi1_60 = float(c.applyCuts(xpi,cutxpi1_60)[
-    #     np.where(c.applyCuts(y,cutxpi1_60)==(ymax_cutxpi1_60))])
-    # xpimax_cutxpi2_60 = float(c.applyCuts(xpi,cutxpi2_60)[
-    #     np.where(c.applyCuts(y,cutxpi2_60)==(ymax_cutxpi2_60))])
-    # xpimax_cutxpi3_60 = float(c.applyCuts(xpi,cutxpi3_60)[
-    #     np.where(c.applyCuts(y,cutxpi3_60)==(ymax_cutxpi3_60))])
-    # xpimax_cutxpi4_60 = float(c.applyCuts(xpi,cutxpi4_60)[
-    #     np.where(c.applyCuts(y,cutxpi4_60)==(ymax_cutxpi4_60))])
-    # xpimax_cutxpi5_60 = float(c.applyCuts(xpi,cutxpi5_60)[
-    #     np.where(c.applyCuts(y,cutxpi5_60)==(ymax_cutxpi5_60))])
-    # xpimax_cutxpi6_60 = float(c.applyCuts(xpi,cutxpi6_60)[
-    #     np.where(c.applyCuts(y,cutxpi6_60)==(ymax_cutxpi6_60))])
-    # xpimax_cutxpi7_60 = float(c.applyCuts(xpi,cutxpi7_60)[
-    #     np.where(c.applyCuts(y,cutxpi7_60)==(ymax_cutxpi7_60))])
-
-    # Q2min_cutxpi1_60 = float(c.applyCuts(Q2,cutxpi1_60)[
-    #     np.where(c.applyCuts(y,cutxpi1_60)==(ymin_cutxpi1_60))])
-    # Q2min_cutxpi2_60 = float(c.applyCuts(Q2,cutxpi2_60)[
-    #     np.where(c.applyCuts(y,cutxpi2_60)==(ymin_cutxpi2_60))])
-    # Q2min_cutxpi3_60 = float(c.applyCuts(Q2,cutxpi3_60)[
-    #     np.where(c.applyCuts(y,cutxpi3_60)==(ymin_cutxpi3_60))])
-    # Q2min_cutxpi4_60 = float(c.applyCuts(Q2,cutxpi4_60)[
-    #     np.where(c.applyCuts(y,cutxpi4_60)==(ymin_cutxpi4_60))])
-    # Q2min_cutxpi5_60 = float(c.applyCuts(Q2,cutxpi5_60)[
-    #     np.where(c.applyCuts(y,cutxpi5_60)==(ymin_cutxpi5_60))])
-    # Q2min_cutxpi6_60 = float(c.applyCuts(Q2,cutxpi6_60)[
-    #     np.where(c.applyCuts(y,cutxpi6_60)==(ymin_cutxpi6_60))])
-    # Q2min_cutxpi7_60 = float(c.applyCuts(Q2,cutxpi7_60)[
-    #     np.where(c.applyCuts(y,cutxpi7_60)==(ymin_cutxpi7_60))])
-
-    # Q2max_cutxpi1_60 = float(c.applyCuts(Q2,cutxpi1_60)[
-    #     np.where(c.applyCuts(y,cutxpi1_60)==(ymax_cutxpi1_60))])
-    # Q2max_cutxpi2_60 = float(c.applyCuts(Q2,cutxpi2_60)[
-    #     np.where(c.applyCuts(y,cutxpi2_60)==(ymax_cutxpi2_60))])
-    # Q2max_cutxpi3_60 = float(c.applyCuts(Q2,cutxpi3_60)[
-    #     np.where(c.applyCuts(y,cutxpi3_60)==(ymax_cutxpi3_60))])
-    # Q2max_cutxpi4_60 = float(c.applyCuts(Q2,cutxpi4_60)[
-    #     np.where(c.applyCuts(y,cutxpi4_60)==(ymax_cutxpi4_60))])
-    # Q2max_cutxpi5_60 = float(c.applyCuts(Q2,cutxpi5_60)[
-    #     np.where(c.applyCuts(y,cutxpi5_60)==(ymax_cutxpi5_60))])
-    # Q2max_cutxpi6_60 = float(c.applyCuts(Q2,cutxpi6_60)[
-    #     np.where(c.applyCuts(y,cutxpi6_60)==(ymax_cutxpi6_60))])
-    # Q2max_cutxpi7_60 = float(c.applyCuts(Q2,cutxpi7_60)[
-    #     np.where(c.applyCuts(y,cutxpi7_60)==(ymax_cutxpi7_60))])
-    
-    # #################################
-
-    # #################################
-        
-    
-    # ymin_cutxpi1_120 = min(c.applyCuts(y,cutxpi1_120))
-    # ymin_cutxpi2_120 = min(c.applyCuts(y,cutxpi2_120))
-    # ymin_cutxpi3_120 = min(c.applyCuts(y,cutxpi3_120))
-    # ymin_cutxpi4_120 = min(c.applyCuts(y,cutxpi4_120))
-    # ymin_cutxpi5_120 = min(c.applyCuts(y,cutxpi5_120))
-    # ymin_cutxpi6_120 = min(c.applyCuts(y,cutxpi6_120))
-    # ymin_cutxpi7_120 = min(c.applyCuts(y,cutxpi7_120))
-    
-    # ymax_cutxpi1_120 = max(c.applyCuts(y,cutxpi1_120))
-    # ymax_cutxpi2_120 = max(c.applyCuts(y,cutxpi2_120))
-    # ymax_cutxpi3_120 = max(c.applyCuts(y,cutxpi3_120))
-    # ymax_cutxpi4_120 = max(c.applyCuts(y,cutxpi4_120))
-    # ymax_cutxpi5_120 = max(c.applyCuts(y,cutxpi5_120))
-    # ymax_cutxpi6_120 = max(c.applyCuts(y,cutxpi6_120))
-    # ymax_cutxpi7_120 = max(c.applyCuts(y,cutxpi7_120))
-
-    # yieldmin_cutxpi1_120 = float(c.applyCuts(lumi,cutxpi1_120)[
-    #     np.where(c.applyCuts(y,cutxpi1_120)==(ymin_cutxpi1_120))])
-    # yieldmin_cutxpi2_120 = float(c.applyCuts(lumi,cutxpi2_120)[
-    #     np.where(c.applyCuts(y,cutxpi2_120)==(ymin_cutxpi2_120))])
-    # yieldmin_cutxpi3_120 = float(c.applyCuts(lumi,cutxpi3_120)[
-    #     np.where(c.applyCuts(y,cutxpi3_120)==(ymin_cutxpi3_120))])
-    # yieldmin_cutxpi4_120 = float(c.applyCuts(lumi,cutxpi4_120)[
-    #     np.where(c.applyCuts(y,cutxpi4_120)==(ymin_cutxpi4_120))])
-    # yieldmin_cutxpi5_120 = float(c.applyCuts(lumi,cutxpi5_120)[
-    #     np.where(c.applyCuts(y,cutxpi5_120)==(ymin_cutxpi5_120))])
-    # yieldmin_cutxpi6_120 = float(c.applyCuts(lumi,cutxpi6_120)[
-    #     np.where(c.applyCuts(y,cutxpi6_120)==(ymin_cutxpi6_120))])
-    # yieldmin_cutxpi7_120 = float(c.applyCuts(lumi,cutxpi7_120)[
-    #     np.where(c.applyCuts(y,cutxpi7_120)==(ymin_cutxpi7_120))])
-    
-    # yieldmax_cutxpi1_120 = float(c.applyCuts(lumi,cutxpi1_120)[
-    #     np.where(c.applyCuts(y,cutxpi1_120)==(ymax_cutxpi1_120))])
-    # yieldmax_cutxpi2_120 = float(c.applyCuts(lumi,cutxpi2_120)[
-    #     np.where(c.applyCuts(y,cutxpi2_120)==(ymax_cutxpi2_120))])
-    # yieldmax_cutxpi3_120 = float(c.applyCuts(lumi,cutxpi3_120)[
-    #     np.where(c.applyCuts(y,cutxpi3_120)==(ymax_cutxpi3_120))])
-    # yieldmax_cutxpi4_120 = float(c.applyCuts(lumi,cutxpi4_120)[
-    #     np.where(c.applyCuts(y,cutxpi4_120)==(ymax_cutxpi4_120))])
-    # yieldmax_cutxpi5_120 = float(c.applyCuts(lumi,cutxpi5_120)[
-    #     np.where(c.applyCuts(y,cutxpi5_120)==(ymax_cutxpi5_120))])
-    # yieldmax_cutxpi6_120 = float(c.applyCuts(lumi,cutxpi6_120)[
-    #     np.where(c.applyCuts(y,cutxpi6_120)==(ymax_cutxpi6_120))])
-    # yieldmax_cutxpi7_120 = float(c.applyCuts(lumi,cutxpi7_120)[
-    #     np.where(c.applyCuts(y,cutxpi7_120)==(ymax_cutxpi7_120))])
-
-    # xLmin_cutxpi1_120 = float(c.applyCuts(xL,cutxpi1_120)[
-    #     np.where(c.applyCuts(y,cutxpi1_120)==(ymin_cutxpi1_120))])
-    # xLmin_cutxpi2_120 = float(c.applyCuts(xL,cutxpi2_120)[
-    #     np.where(c.applyCuts(y,cutxpi2_120)==(ymin_cutxpi2_120))])
-    # xLmin_cutxpi3_120 = float(c.applyCuts(xL,cutxpi3_120)[
-    #     np.where(c.applyCuts(y,cutxpi3_120)==(ymin_cutxpi3_120))])
-    # xLmin_cutxpi4_120 = float(c.applyCuts(xL,cutxpi4_120)[
-    #     np.where(c.applyCuts(y,cutxpi4_120)==(ymin_cutxpi4_120))])
-    # xLmin_cutxpi5_120 = float(c.applyCuts(xL,cutxpi5_120)[
-    #     np.where(c.applyCuts(y,cutxpi5_120)==(ymin_cutxpi5_120))])
-    # xLmin_cutxpi6_120 = float(c.applyCuts(xL,cutxpi6_120)[
-    #     np.where(c.applyCuts(y,cutxpi6_120)==(ymin_cutxpi6_120))])
-    # xLmin_cutxpi7_120 = float(c.applyCuts(xL,cutxpi7_120)[
-    #     np.where(c.applyCuts(y,cutxpi7_120)==(ymin_cutxpi7_120))])
-
-    # xLmax_cutxpi1_120 = float(c.applyCuts(xL,cutxpi1_120)[
-    #     np.where(c.applyCuts(y,cutxpi1_120)==(ymax_cutxpi1_120))])
-    # xLmax_cutxpi2_120 = float(c.applyCuts(xL,cutxpi2_120)[
-    #     np.where(c.applyCuts(y,cutxpi2_120)==(ymax_cutxpi2_120))])
-    # xLmax_cutxpi3_120 = float(c.applyCuts(xL,cutxpi3_120)[
-    #     np.where(c.applyCuts(y,cutxpi3_120)==(ymax_cutxpi3_120))])
-    # xLmax_cutxpi4_120 = float(c.applyCuts(xL,cutxpi4_120)[
-    #     np.where(c.applyCuts(y,cutxpi4_120)==(ymax_cutxpi4_120))])
-    # xLmax_cutxpi5_120 = float(c.applyCuts(xL,cutxpi5_120)[
-    #     np.where(c.applyCuts(y,cutxpi5_120)==(ymax_cutxpi5_120))])
-    # xLmax_cutxpi6_120 = float(c.applyCuts(xL,cutxpi6_120)[
-    #     np.where(c.applyCuts(y,cutxpi6_120)==(ymax_cutxpi6_120))])
-    # xLmax_cutxpi7_120 = float(c.applyCuts(xL,cutxpi7_120)[
-    #     np.where(c.applyCuts(y,cutxpi7_120)==(ymax_cutxpi7_120))])
-
-    # xpimin_cutxpi1_120 = float(c.applyCuts(xpi,cutxpi1_120)[
-    #     np.where(c.applyCuts(y,cutxpi1_120)==(ymin_cutxpi1_120))])
-    # xpimin_cutxpi2_120 = float(c.applyCuts(xpi,cutxpi2_120)[
-    #     np.where(c.applyCuts(y,cutxpi2_120)==(ymin_cutxpi2_120))])
-    # xpimin_cutxpi3_120 = float(c.applyCuts(xpi,cutxpi3_120)[
-    #     np.where(c.applyCuts(y,cutxpi3_120)==(ymin_cutxpi3_120))])
-    # xpimin_cutxpi4_120 = float(c.applyCuts(xpi,cutxpi4_120)[
-    #     np.where(c.applyCuts(y,cutxpi4_120)==(ymin_cutxpi4_120))])
-    # xpimin_cutxpi5_120 = float(c.applyCuts(xpi,cutxpi5_120)[
-    #     np.where(c.applyCuts(y,cutxpi5_120)==(ymin_cutxpi5_120))])
-    # xpimin_cutxpi6_120 = float(c.applyCuts(xpi,cutxpi6_120)[
-    #     np.where(c.applyCuts(y,cutxpi6_120)==(ymin_cutxpi6_120))])
-    # xpimin_cutxpi7_120 = float(c.applyCuts(xpi,cutxpi7_120)[
-    #     np.where(c.applyCuts(y,cutxpi7_120)==(ymin_cutxpi7_120))])
-
-    # xpimax_cutxpi1_120 = float(c.applyCuts(xpi,cutxpi1_120)[
-    #     np.where(c.applyCuts(y,cutxpi1_120)==(ymax_cutxpi1_120))])
-    # xpimax_cutxpi2_120 = float(c.applyCuts(xpi,cutxpi2_120)[
-    #     np.where(c.applyCuts(y,cutxpi2_120)==(ymax_cutxpi2_120))])
-    # xpimax_cutxpi3_120 = float(c.applyCuts(xpi,cutxpi3_120)[
-    #     np.where(c.applyCuts(y,cutxpi3_120)==(ymax_cutxpi3_120))])
-    # xpimax_cutxpi4_120 = float(c.applyCuts(xpi,cutxpi4_120)[
-    #     np.where(c.applyCuts(y,cutxpi4_120)==(ymax_cutxpi4_120))])
-    # xpimax_cutxpi5_120 = float(c.applyCuts(xpi,cutxpi5_120)[
-    #     np.where(c.applyCuts(y,cutxpi5_120)==(ymax_cutxpi5_120))])
-    # xpimax_cutxpi6_120 = float(c.applyCuts(xpi,cutxpi6_120)[
-    #     np.where(c.applyCuts(y,cutxpi6_120)==(ymax_cutxpi6_120))])
-    # xpimax_cutxpi7_120 = float(c.applyCuts(xpi,cutxpi7_120)[
-    #     np.where(c.applyCuts(y,cutxpi7_120)==(ymax_cutxpi7_120))])
-
-    # Q2min_cutxpi1_120 = float(c.applyCuts(Q2,cutxpi1_120)[
-    #     np.where(c.applyCuts(y,cutxpi1_120)==(ymin_cutxpi1_120))])
-    # Q2min_cutxpi2_120 = float(c.applyCuts(Q2,cutxpi2_120)[
-    #     np.where(c.applyCuts(y,cutxpi2_120)==(ymin_cutxpi2_120))])
-    # Q2min_cutxpi3_120 = float(c.applyCuts(Q2,cutxpi3_120)[
-    #     np.where(c.applyCuts(y,cutxpi3_120)==(ymin_cutxpi3_120))])
-    # Q2min_cutxpi4_120 = float(c.applyCuts(Q2,cutxpi4_120)[
-    #     np.where(c.applyCuts(y,cutxpi4_120)==(ymin_cutxpi4_120))])
-    # Q2min_cutxpi5_120 = float(c.applyCuts(Q2,cutxpi5_120)[
-    #     np.where(c.applyCuts(y,cutxpi5_120)==(ymin_cutxpi5_120))])
-    # Q2min_cutxpi6_120 = float(c.applyCuts(Q2,cutxpi6_120)[
-    #     np.where(c.applyCuts(y,cutxpi6_120)==(ymin_cutxpi6_120))])
-    # Q2min_cutxpi7_120 = float(c.applyCuts(Q2,cutxpi7_120)[
-    #     np.where(c.applyCuts(y,cutxpi7_120)==(ymin_cutxpi7_120))])
-
-    # Q2max_cutxpi1_120 = float(c.applyCuts(Q2,cutxpi1_120)[
-    #     np.where(c.applyCuts(y,cutxpi1_120)==(ymax_cutxpi1_120))])
-    # Q2max_cutxpi2_120 = float(c.applyCuts(Q2,cutxpi2_120)[
-    #     np.where(c.applyCuts(y,cutxpi2_120)==(ymax_cutxpi2_120))])
-    # Q2max_cutxpi3_120 = float(c.applyCuts(Q2,cutxpi3_120)[
-    #     np.where(c.applyCuts(y,cutxpi3_120)==(ymax_cutxpi3_120))])
-    # Q2max_cutxpi4_120 = float(c.applyCuts(Q2,cutxpi4_120)[
-    #     np.where(c.applyCuts(y,cutxpi4_120)==(ymax_cutxpi4_120))])
-    # Q2max_cutxpi5_120 = float(c.applyCuts(Q2,cutxpi5_120)[
-    #     np.where(c.applyCuts(y,cutxpi5_120)==(ymax_cutxpi5_120))])
-    # Q2max_cutxpi6_120 = float(c.applyCuts(Q2,cutxpi6_120)[
-    #     np.where(c.applyCuts(y,cutxpi6_120)==(ymax_cutxpi6_120))])
-    # Q2max_cutxpi7_120 = float(c.applyCuts(Q2,cutxpi7_120)[
-    #     np.where(c.applyCuts(y,cutxpi7_120)==(ymax_cutxpi7_120))])
-    
-    # #################################
-
-    # #################################
-        
-    
-    # ymin_cutxpi1_240 = min(c.applyCuts(y,cutxpi1_240))
-    # ymin_cutxpi2_240 = min(c.applyCuts(y,cutxpi2_240))
-    # ymin_cutxpi3_240 = min(c.applyCuts(y,cutxpi3_240))
-    # ymin_cutxpi4_240 = min(c.applyCuts(y,cutxpi4_240))
-    # ymin_cutxpi5_240 = min(c.applyCuts(y,cutxpi5_240))
-    # ymin_cutxpi6_240 = min(c.applyCuts(y,cutxpi6_240))
-    # ymin_cutxpi7_240 = min(c.applyCuts(y,cutxpi7_240))
-    
-    # ymax_cutxpi1_240 = max(c.applyCuts(y,cutxpi1_240))
-    # ymax_cutxpi2_240 = max(c.applyCuts(y,cutxpi2_240))
-    # ymax_cutxpi3_240 = max(c.applyCuts(y,cutxpi3_240))
-    # ymax_cutxpi4_240 = max(c.applyCuts(y,cutxpi4_240))
-    # ymax_cutxpi5_240 = max(c.applyCuts(y,cutxpi5_240))
-    # ymax_cutxpi6_240 = max(c.applyCuts(y,cutxpi6_240))
-    # ymax_cutxpi7_240 = max(c.applyCuts(y,cutxpi7_240))
-
-    # yieldmin_cutxpi1_240 = float(c.applyCuts(lumi,cutxpi1_240)[
-    #     np.where(c.applyCuts(y,cutxpi1_240)==(ymin_cutxpi1_240))])
-    # yieldmin_cutxpi2_240 = float(c.applyCuts(lumi,cutxpi2_240)[
-    #     np.where(c.applyCuts(y,cutxpi2_240)==(ymin_cutxpi2_240))])
-    # yieldmin_cutxpi3_240 = float(c.applyCuts(lumi,cutxpi3_240)[
-    #     np.where(c.applyCuts(y,cutxpi3_240)==(ymin_cutxpi3_240))])
-    # yieldmin_cutxpi4_240 = float(c.applyCuts(lumi,cutxpi4_240)[
-    #     np.where(c.applyCuts(y,cutxpi4_240)==(ymin_cutxpi4_240))])
-    # yieldmin_cutxpi5_240 = float(c.applyCuts(lumi,cutxpi5_240)[
-    #     np.where(c.applyCuts(y,cutxpi5_240)==(ymin_cutxpi5_240))])
-    # yieldmin_cutxpi6_240 = float(c.applyCuts(lumi,cutxpi6_240)[
-    #     np.where(c.applyCuts(y,cutxpi6_240)==(ymin_cutxpi6_240))])
-    # yieldmin_cutxpi7_240 = float(c.applyCuts(lumi,cutxpi7_240)[
-    #     np.where(c.applyCuts(y,cutxpi7_240)==(ymin_cutxpi7_240))])
-    
-    # yieldmax_cutxpi1_240 = float(c.applyCuts(lumi,cutxpi1_240)[
-    #     np.where(c.applyCuts(y,cutxpi1_240)==(ymax_cutxpi1_240))])
-    # yieldmax_cutxpi2_240 = float(c.applyCuts(lumi,cutxpi2_240)[
-    #     np.where(c.applyCuts(y,cutxpi2_240)==(ymax_cutxpi2_240))])
-    # yieldmax_cutxpi3_240 = float(c.applyCuts(lumi,cutxpi3_240)[
-    #     np.where(c.applyCuts(y,cutxpi3_240)==(ymax_cutxpi3_240))])
-    # yieldmax_cutxpi4_240 = float(c.applyCuts(lumi,cutxpi4_240)[
-    #     np.where(c.applyCuts(y,cutxpi4_240)==(ymax_cutxpi4_240))])
-    # yieldmax_cutxpi5_240 = float(c.applyCuts(lumi,cutxpi5_240)[
-    #     np.where(c.applyCuts(y,cutxpi5_240)==(ymax_cutxpi5_240))])
-    # yieldmax_cutxpi6_240 = float(c.applyCuts(lumi,cutxpi6_240)[
-    #     np.where(c.applyCuts(y,cutxpi6_240)==(ymax_cutxpi6_240))])
-    # yieldmax_cutxpi7_240 = float(c.applyCuts(lumi,cutxpi7_240)[
-    #     np.where(c.applyCuts(y,cutxpi7_240)==(ymax_cutxpi7_240))])
-
-    # xLmin_cutxpi1_240 = float(c.applyCuts(xL,cutxpi1_240)[
-    #     np.where(c.applyCuts(y,cutxpi1_240)==(ymin_cutxpi1_240))])
-    # xLmin_cutxpi2_240 = float(c.applyCuts(xL,cutxpi2_240)[
-    #     np.where(c.applyCuts(y,cutxpi2_240)==(ymin_cutxpi2_240))])
-    # xLmin_cutxpi3_240 = float(c.applyCuts(xL,cutxpi3_240)[
-    #     np.where(c.applyCuts(y,cutxpi3_240)==(ymin_cutxpi3_240))])
-    # xLmin_cutxpi4_240 = float(c.applyCuts(xL,cutxpi4_240)[
-    #     np.where(c.applyCuts(y,cutxpi4_240)==(ymin_cutxpi4_240))])
-    # xLmin_cutxpi5_240 = float(c.applyCuts(xL,cutxpi5_240)[
-    #     np.where(c.applyCuts(y,cutxpi5_240)==(ymin_cutxpi5_240))])
-    # xLmin_cutxpi6_240 = float(c.applyCuts(xL,cutxpi6_240)[
-    #     np.where(c.applyCuts(y,cutxpi6_240)==(ymin_cutxpi6_240))])
-    # xLmin_cutxpi7_240 = float(c.applyCuts(xL,cutxpi7_240)[
-    #     np.where(c.applyCuts(y,cutxpi7_240)==(ymin_cutxpi7_240))])
-
-    # xLmax_cutxpi1_240 = float(c.applyCuts(xL,cutxpi1_240)[
-    #     np.where(c.applyCuts(y,cutxpi1_240)==(ymax_cutxpi1_240))])
-    # xLmax_cutxpi2_240 = float(c.applyCuts(xL,cutxpi2_240)[
-    #     np.where(c.applyCuts(y,cutxpi2_240)==(ymax_cutxpi2_240))])
-    # xLmax_cutxpi3_240 = float(c.applyCuts(xL,cutxpi3_240)[
-    #     np.where(c.applyCuts(y,cutxpi3_240)==(ymax_cutxpi3_240))])
-    # xLmax_cutxpi4_240 = float(c.applyCuts(xL,cutxpi4_240)[
-    #     np.where(c.applyCuts(y,cutxpi4_240)==(ymax_cutxpi4_240))])
-    # xLmax_cutxpi5_240 = float(c.applyCuts(xL,cutxpi5_240)[
-    #     np.where(c.applyCuts(y,cutxpi5_240)==(ymax_cutxpi5_240))])
-    # xLmax_cutxpi6_240 = float(c.applyCuts(xL,cutxpi6_240)[
-    #     np.where(c.applyCuts(y,cutxpi6_240)==(ymax_cutxpi6_240))])
-    # xLmax_cutxpi7_240 = float(c.applyCuts(xL,cutxpi7_240)[
-    #     np.where(c.applyCuts(y,cutxpi7_240)==(ymax_cutxpi7_240))])
-
-    # xpimin_cutxpi1_240 = float(c.applyCuts(xpi,cutxpi1_240)[
-    #     np.where(c.applyCuts(y,cutxpi1_240)==(ymin_cutxpi1_240))])
-    # xpimin_cutxpi2_240 = float(c.applyCuts(xpi,cutxpi2_240)[
-    #     np.where(c.applyCuts(y,cutxpi2_240)==(ymin_cutxpi2_240))])
-    # xpimin_cutxpi3_240 = float(c.applyCuts(xpi,cutxpi3_240)[
-    #     np.where(c.applyCuts(y,cutxpi3_240)==(ymin_cutxpi3_240))])
-    # xpimin_cutxpi4_240 = float(c.applyCuts(xpi,cutxpi4_240)[
-    #     np.where(c.applyCuts(y,cutxpi4_240)==(ymin_cutxpi4_240))])
-    # xpimin_cutxpi5_240 = float(c.applyCuts(xpi,cutxpi5_240)[
-    #     np.where(c.applyCuts(y,cutxpi5_240)==(ymin_cutxpi5_240))])
-    # xpimin_cutxpi6_240 = float(c.applyCuts(xpi,cutxpi6_240)[
-    #     np.where(c.applyCuts(y,cutxpi6_240)==(ymin_cutxpi6_240))])
-    # xpimin_cutxpi7_240 = float(c.applyCuts(xpi,cutxpi7_240)[
-    #     np.where(c.applyCuts(y,cutxpi7_240)==(ymin_cutxpi7_240))])
-
-    # xpimax_cutxpi1_240 = float(c.applyCuts(xpi,cutxpi1_240)[
-    #     np.where(c.applyCuts(y,cutxpi1_240)==(ymax_cutxpi1_240))])
-    # xpimax_cutxpi2_240 = float(c.applyCuts(xpi,cutxpi2_240)[
-    #     np.where(c.applyCuts(y,cutxpi2_240)==(ymax_cutxpi2_240))])
-    # xpimax_cutxpi3_240 = float(c.applyCuts(xpi,cutxpi3_240)[
-    #     np.where(c.applyCuts(y,cutxpi3_240)==(ymax_cutxpi3_240))])
-    # xpimax_cutxpi4_240 = float(c.applyCuts(xpi,cutxpi4_240)[
-    #     np.where(c.applyCuts(y,cutxpi4_240)==(ymax_cutxpi4_240))])
-    # xpimax_cutxpi5_240 = float(c.applyCuts(xpi,cutxpi5_240)[
-    #     np.where(c.applyCuts(y,cutxpi5_240)==(ymax_cutxpi5_240))])
-    # xpimax_cutxpi6_240 = float(c.applyCuts(xpi,cutxpi6_240)[
-    #     np.where(c.applyCuts(y,cutxpi6_240)==(ymax_cutxpi6_240))])
-    # xpimax_cutxpi7_240 = float(c.applyCuts(xpi,cutxpi7_240)[
-    #     np.where(c.applyCuts(y,cutxpi7_240)==(ymax_cutxpi7_240))])
-
-    # Q2min_cutxpi1_240 = float(c.applyCuts(Q2,cutxpi1_240)[
-    #     np.where(c.applyCuts(y,cutxpi1_240)==(ymin_cutxpi1_240))])
-    # Q2min_cutxpi2_240 = float(c.applyCuts(Q2,cutxpi2_240)[
-    #     np.where(c.applyCuts(y,cutxpi2_240)==(ymin_cutxpi2_240))])
-    # Q2min_cutxpi3_240 = float(c.applyCuts(Q2,cutxpi3_240)[
-    #     np.where(c.applyCuts(y,cutxpi3_240)==(ymin_cutxpi3_240))])
-    # Q2min_cutxpi4_240 = float(c.applyCuts(Q2,cutxpi4_240)[
-    #     np.where(c.applyCuts(y,cutxpi4_240)==(ymin_cutxpi4_240))])
-    # Q2min_cutxpi5_240 = float(c.applyCuts(Q2,cutxpi5_240)[
-    #     np.where(c.applyCuts(y,cutxpi5_240)==(ymin_cutxpi5_240))])
-    # Q2min_cutxpi6_240 = float(c.applyCuts(Q2,cutxpi6_240)[
-    #     np.where(c.applyCuts(y,cutxpi6_240)==(ymin_cutxpi6_240))])
-    # Q2min_cutxpi7_240 = float(c.applyCuts(Q2,cutxpi7_240)[
-    #     np.where(c.applyCuts(y,cutxpi7_240)==(ymin_cutxpi7_240))])
-
-    # Q2max_cutxpi1_240 = float(c.applyCuts(Q2,cutxpi1_240)[
-    #     np.where(c.applyCuts(y,cutxpi1_240)==(ymax_cutxpi1_240))])
-    # Q2max_cutxpi2_240 = float(c.applyCuts(Q2,cutxpi2_240)[
-    #     np.where(c.applyCuts(y,cutxpi2_240)==(ymax_cutxpi2_240))])
-    # Q2max_cutxpi3_240 = float(c.applyCuts(Q2,cutxpi3_240)[
-    #     np.where(c.applyCuts(y,cutxpi3_240)==(ymax_cutxpi3_240))])
-    # Q2max_cutxpi4_240 = float(c.applyCuts(Q2,cutxpi4_240)[
-    #     np.where(c.applyCuts(y,cutxpi4_240)==(ymax_cutxpi4_240))])
-    # Q2max_cutxpi5_240 = float(c.applyCuts(Q2,cutxpi5_240)[
-    #     np.where(c.applyCuts(y,cutxpi5_240)==(ymax_cutxpi5_240))])
-    # Q2max_cutxpi6_240 = float(c.applyCuts(Q2,cutxpi6_240)[
-    #     np.where(c.applyCuts(y,cutxpi6_240)==(ymax_cutxpi6_240))])
-    # Q2max_cutxpi7_240 = float(c.applyCuts(Q2,cutxpi7_240)[
-    #     np.where(c.applyCuts(y,cutxpi7_240)==(ymax_cutxpi7_240))])
-    
-    # #################################
-
-    # #################################
-        
-    
-    # # ymin_cutxpi1_480 = min(c.applyCuts(y,cutxpi1_480))
-    # ymin_cutxpi2_480 = min(c.applyCuts(y,cutxpi2_480))
-    # ymin_cutxpi3_480 = min(c.applyCuts(y,cutxpi3_480))
-    # ymin_cutxpi4_480 = min(c.applyCuts(y,cutxpi4_480))
-    # ymin_cutxpi5_480 = min(c.applyCuts(y,cutxpi5_480))
-    # ymin_cutxpi6_480 = min(c.applyCuts(y,cutxpi6_480))
-    # ymin_cutxpi7_480 = min(c.applyCuts(y,cutxpi7_480))
-    
-    # # ymax_cutxpi1_480 = max(c.applyCuts(y,cutxpi1_480))
-    # ymax_cutxpi2_480 = max(c.applyCuts(y,cutxpi2_480))
-    # ymax_cutxpi3_480 = max(c.applyCuts(y,cutxpi3_480))
-    # ymax_cutxpi4_480 = max(c.applyCuts(y,cutxpi4_480))
-    # ymax_cutxpi5_480 = max(c.applyCuts(y,cutxpi5_480))
-    # ymax_cutxpi6_480 = max(c.applyCuts(y,cutxpi6_480))
-    # ymax_cutxpi7_480 = max(c.applyCuts(y,cutxpi7_480))
-
-    # # yieldmin_cutxpi1_480 = float(c.applyCuts(lumi,cutxpi1_480)[
-    # #     np.where(c.applyCuts(y,cutxpi1_480)==(ymin_cutxpi1_480))])
-    # yieldmin_cutxpi2_480 = float(c.applyCuts(lumi,cutxpi2_480)[
-    #     np.where(c.applyCuts(y,cutxpi2_480)==(ymin_cutxpi2_480))])
-    # yieldmin_cutxpi3_480 = float(c.applyCuts(lumi,cutxpi3_480)[
-    #     np.where(c.applyCuts(y,cutxpi3_480)==(ymin_cutxpi3_480))])
-    # yieldmin_cutxpi4_480 = float(c.applyCuts(lumi,cutxpi4_480)[
-    #     np.where(c.applyCuts(y,cutxpi4_480)==(ymin_cutxpi4_480))])
-    # yieldmin_cutxpi5_480 = float(c.applyCuts(lumi,cutxpi5_480)[
-    #     np.where(c.applyCuts(y,cutxpi5_480)==(ymin_cutxpi5_480))])
-    # yieldmin_cutxpi6_480 = float(c.applyCuts(lumi,cutxpi6_480)[
-    #     np.where(c.applyCuts(y,cutxpi6_480)==(ymin_cutxpi6_480))])
-    # yieldmin_cutxpi7_480 = float(c.applyCuts(lumi,cutxpi7_480)[
-    #     np.where(c.applyCuts(y,cutxpi7_480)==(ymin_cutxpi7_480))])
-    
-    # # yieldmax_cutxpi1_480 = float(c.applyCuts(lumi,cutxpi1_480)[
-    # #     np.where(c.applyCuts(y,cutxpi1_480)==(ymax_cutxpi1_480))])
-    # yieldmax_cutxpi2_480 = float(c.applyCuts(lumi,cutxpi2_480)[
-    #     np.where(c.applyCuts(y,cutxpi2_480)==(ymax_cutxpi2_480))])
-    # yieldmax_cutxpi3_480 = float(c.applyCuts(lumi,cutxpi3_480)[
-    #     np.where(c.applyCuts(y,cutxpi3_480)==(ymax_cutxpi3_480))])
-    # yieldmax_cutxpi4_480 = float(c.applyCuts(lumi,cutxpi4_480)[
-    #     np.where(c.applyCuts(y,cutxpi4_480)==(ymax_cutxpi4_480))])
-    # yieldmax_cutxpi5_480 = float(c.applyCuts(lumi,cutxpi5_480)[
-    #     np.where(c.applyCuts(y,cutxpi5_480)==(ymax_cutxpi5_480))])
-    # yieldmax_cutxpi6_480 = float(c.applyCuts(lumi,cutxpi6_480)[
-    #     np.where(c.applyCuts(y,cutxpi6_480)==(ymax_cutxpi6_480))])
-    # yieldmax_cutxpi7_480 = float(c.applyCuts(lumi,cutxpi7_480)[
-    #     np.where(c.applyCuts(y,cutxpi7_480)==(ymax_cutxpi7_480))])
-
-    # # xLmin_cutxpi1_480 = float(c.applyCuts(xL,cutxpi1_480)[
-    # #     np.where(c.applyCuts(y,cutxpi1_480)==(ymin_cutxpi1_480))])
-    # xLmin_cutxpi2_480 = float(c.applyCuts(xL,cutxpi2_480)[
-    #     np.where(c.applyCuts(y,cutxpi2_480)==(ymin_cutxpi2_480))])
-    # xLmin_cutxpi3_480 = float(c.applyCuts(xL,cutxpi3_480)[
-    #     np.where(c.applyCuts(y,cutxpi3_480)==(ymin_cutxpi3_480))])
-    # xLmin_cutxpi4_480 = float(c.applyCuts(xL,cutxpi4_480)[
-    #     np.where(c.applyCuts(y,cutxpi4_480)==(ymin_cutxpi4_480))])
-    # xLmin_cutxpi5_480 = float(c.applyCuts(xL,cutxpi5_480)[
-    #     np.where(c.applyCuts(y,cutxpi5_480)==(ymin_cutxpi5_480))])
-    # xLmin_cutxpi6_480 = float(c.applyCuts(xL,cutxpi6_480)[
-    #     np.where(c.applyCuts(y,cutxpi6_480)==(ymin_cutxpi6_480))])
-    # xLmin_cutxpi7_480 = float(c.applyCuts(xL,cutxpi7_480)[
-    #     np.where(c.applyCuts(y,cutxpi7_480)==(ymin_cutxpi7_480))])
-
-    # # xLmax_cutxpi1_480 = float(c.applyCuts(xL,cutxpi1_480)[
-    # #     np.where(c.applyCuts(y,cutxpi1_480)==(ymax_cutxpi1_480))])
-    # xLmax_cutxpi2_480 = float(c.applyCuts(xL,cutxpi2_480)[
-    #     np.where(c.applyCuts(y,cutxpi2_480)==(ymax_cutxpi2_480))])
-    # xLmax_cutxpi3_480 = float(c.applyCuts(xL,cutxpi3_480)[
-    #     np.where(c.applyCuts(y,cutxpi3_480)==(ymax_cutxpi3_480))])
-    # xLmax_cutxpi4_480 = float(c.applyCuts(xL,cutxpi4_480)[
-    #     np.where(c.applyCuts(y,cutxpi4_480)==(ymax_cutxpi4_480))])
-    # xLmax_cutxpi5_480 = float(c.applyCuts(xL,cutxpi5_480)[
-    #     np.where(c.applyCuts(y,cutxpi5_480)==(ymax_cutxpi5_480))])
-    # xLmax_cutxpi6_480 = float(c.applyCuts(xL,cutxpi6_480)[
-    #     np.where(c.applyCuts(y,cutxpi6_480)==(ymax_cutxpi6_480))])
-    # xLmax_cutxpi7_480 = float(c.applyCuts(xL,cutxpi7_480)[
-    #     np.where(c.applyCuts(y,cutxpi7_480)==(ymax_cutxpi7_480))])
-
-    # # xpimin_cutxpi1_480 = float(c.applyCuts(xpi,cutxpi1_480)[
-    # #     np.where(c.applyCuts(y,cutxpi1_480)==(ymin_cutxpi1_480))])
-    # xpimin_cutxpi2_480 = float(c.applyCuts(xpi,cutxpi2_480)[
-    #     np.where(c.applyCuts(y,cutxpi2_480)==(ymin_cutxpi2_480))])
-    # xpimin_cutxpi3_480 = float(c.applyCuts(xpi,cutxpi3_480)[
-    #     np.where(c.applyCuts(y,cutxpi3_480)==(ymin_cutxpi3_480))])
-    # xpimin_cutxpi4_480 = float(c.applyCuts(xpi,cutxpi4_480)[
-    #     np.where(c.applyCuts(y,cutxpi4_480)==(ymin_cutxpi4_480))])
-    # xpimin_cutxpi5_480 = float(c.applyCuts(xpi,cutxpi5_480)[
-    #     np.where(c.applyCuts(y,cutxpi5_480)==(ymin_cutxpi5_480))])
-    # xpimin_cutxpi6_480 = float(c.applyCuts(xpi,cutxpi6_480)[
-    #     np.where(c.applyCuts(y,cutxpi6_480)==(ymin_cutxpi6_480))])
-    # xpimin_cutxpi7_480 = float(c.applyCuts(xpi,cutxpi7_480)[
-    #     np.where(c.applyCuts(y,cutxpi7_480)==(ymin_cutxpi7_480))])
-
-    # # xpimax_cutxpi1_480 = float(c.applyCuts(xpi,cutxpi1_480)[
-    # #     np.where(c.applyCuts(y,cutxpi1_480)==(ymax_cutxpi1_480))])
-    # xpimax_cutxpi2_480 = float(c.applyCuts(xpi,cutxpi2_480)[
-    #     np.where(c.applyCuts(y,cutxpi2_480)==(ymax_cutxpi2_480))])
-    # xpimax_cutxpi3_480 = float(c.applyCuts(xpi,cutxpi3_480)[
-    #     np.where(c.applyCuts(y,cutxpi3_480)==(ymax_cutxpi3_480))])
-    # xpimax_cutxpi4_480 = float(c.applyCuts(xpi,cutxpi4_480)[
-    #     np.where(c.applyCuts(y,cutxpi4_480)==(ymax_cutxpi4_480))])
-    # xpimax_cutxpi5_480 = float(c.applyCuts(xpi,cutxpi5_480)[
-    #     np.where(c.applyCuts(y,cutxpi5_480)==(ymax_cutxpi5_480))])
-    # xpimax_cutxpi6_480 = float(c.applyCuts(xpi,cutxpi6_480)[
-    #     np.where(c.applyCuts(y,cutxpi6_480)==(ymax_cutxpi6_480))])
-    # xpimax_cutxpi7_480 = float(c.applyCuts(xpi,cutxpi7_480)[
-    #     np.where(c.applyCuts(y,cutxpi7_480)==(ymax_cutxpi7_480))])
-
-    # # Q2min_cutxpi1_480 = float(c.applyCuts(Q2,cutxpi1_480)[
-    # #     np.where(c.applyCuts(y,cutxpi1_480)==(ymin_cutxpi1_480))])
-    # Q2min_cutxpi2_480 = float(c.applyCuts(Q2,cutxpi2_480)[
-    #     np.where(c.applyCuts(y,cutxpi2_480)==(ymin_cutxpi2_480))])
-    # Q2min_cutxpi3_480 = float(c.applyCuts(Q2,cutxpi3_480)[
-    #     np.where(c.applyCuts(y,cutxpi3_480)==(ymin_cutxpi3_480))])
-    # Q2min_cutxpi4_480 = float(c.applyCuts(Q2,cutxpi4_480)[
-    #     np.where(c.applyCuts(y,cutxpi4_480)==(ymin_cutxpi4_480))])
-    # Q2min_cutxpi5_480 = float(c.applyCuts(Q2,cutxpi5_480)[
-    #     np.where(c.applyCuts(y,cutxpi5_480)==(ymin_cutxpi5_480))])
-    # Q2min_cutxpi6_480 = float(c.applyCuts(Q2,cutxpi6_480)[
-    #     np.where(c.applyCuts(y,cutxpi6_480)==(ymin_cutxpi6_480))])
-    # Q2min_cutxpi7_480 = float(c.applyCuts(Q2,cutxpi7_480)[
-    #     np.where(c.applyCuts(y,cutxpi7_480)==(ymin_cutxpi7_480))])
-
-    # # Q2max_cutxpi1_480 = float(c.applyCuts(Q2,cutxpi1_480)[
-    # #     np.where(c.applyCuts(y,cutxpi1_480)==(ymax_cutxpi1_480))])
-    # Q2max_cutxpi2_480 = float(c.applyCuts(Q2,cutxpi2_480)[
-    #     np.where(c.applyCuts(y,cutxpi2_480)==(ymax_cutxpi2_480))])
-    # Q2max_cutxpi3_480 = float(c.applyCuts(Q2,cutxpi3_480)[
-    #     np.where(c.applyCuts(y,cutxpi3_480)==(ymax_cutxpi3_480))])
-    # Q2max_cutxpi4_480 = float(c.applyCuts(Q2,cutxpi4_480)[
-    #     np.where(c.applyCuts(y,cutxpi4_480)==(ymax_cutxpi4_480))])
-    # Q2max_cutxpi5_480 = float(c.applyCuts(Q2,cutxpi5_480)[
-    #     np.where(c.applyCuts(y,cutxpi5_480)==(ymax_cutxpi5_480))])
-    # Q2max_cutxpi6_480 = float(c.applyCuts(Q2,cutxpi6_480)[
-    #     np.where(c.applyCuts(y,cutxpi6_480)==(ymax_cutxpi6_480))])
-    # Q2max_cutxpi7_480 = float(c.applyCuts(Q2,cutxpi7_480)[
-    #     np.where(c.applyCuts(y,cutxpi7_480)==(ymax_cutxpi7_480))])
-    
-    # #################################
-
-    
-    
     
     # table_dict = {
     
     #         "15" : 
-    #          {"0.1" :{
-    #              "Q2" : [Q2min_cutxpi1_15,Q2max_cutxpi1_15],
-    #              "y bin" : [ymin_cutxpi1_15,ymax_cutxpi1_15],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi1_15,yieldmax_cutxpi1_15],
-    #              "xL" : [xLmin_cutxpi1_15,xLmax_cutxpi1_15],
-    #              "xpi": [xpimin_cutxpi1_15,xpimax_cutxpi1_15]
+    #          {"0.001" :{
+    #              "Q2" : [Q2min_cutxpi001_15,Q2max_cutxpi001_15],
+    #              "y bin" : [ymin_cutxpi001_15,ymax_cutxpi001_15],
+    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi001_15,yieldmax_cutxpi001_15],
+    #              "xL" : [xLmin_cutxpi001_15,xLmax_cutxpi001_15],
+    #              "xpi": [xpimin_cutxpi001_15,xpimax_cutxpi001_15]
     #          },
-    #          "0.2" :{
-    #              "Q2" : [Q2min_cutxpi2_15,Q2max_cutxpi2_15],
-    #              "y bin" : [ymin_cutxpi2_15,ymax_cutxpi2_15],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi2_15,yieldmax_cutxpi2_15],
-    #              "xL" : [xLmin_cutxpi2_15,xLmax_cutxpi2_15],
-    #              "xpi": [xpimin_cutxpi2_15,xpimax_cutxpi2_15]
-    #          },
-    #          "0.3" :{
-    #              "Q2" : [Q2min_cutxpi3_15,Q2max_cutxpi3_15],
-    #              "y bin" : [ymin_cutxpi3_15,ymax_cutxpi3_15],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi3_15,yieldmax_cutxpi3_15],
-    #              "xL" : [xLmin_cutxpi3_15,xLmax_cutxpi3_15],
-    #              "xpi": [xpimin_cutxpi3_15,xpimax_cutxpi3_15]
+    #           "0.01":{
+    #               "Q2" : [Q2min_cutxpi01_15,Q2max_cutxpi01_15],
+    #               "y bin" : [ymin_cutxpi01_15,ymax_cutxpi01_15],
+    #               "Yield (100 fb^-1)" : [yieldmin_cutxpi01_15,yieldmax_cutxpi01_15],
+    #               "xL" : [xLmin_cutxpi01_15,xLmax_cutxpi01_15],
+    #               "xpi": [xpimin_cutxpi01_15,xpimax_cutxpi01_15]
     #          }
     #         },
     #         "30" : 
-    #          {"0.1" :{
-    #              "Q2" : [Q2min_cutxpi1_30,Q2max_cutxpi1_30],
-    #              "y bin" : [ymin_cutxpi1_30,ymax_cutxpi1_30],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi1_30,yieldmax_cutxpi1_30],
-    #              "xL" : [xLmin_cutxpi1_30,xLmax_cutxpi1_30],
-    #              "xpi": [xpimin_cutxpi1_30,xpimax_cutxpi1_30]
-    #          },
-    #          "0.2" :{
-    #              "Q2" : [Q2min_cutxpi2_30,Q2max_cutxpi2_30],
-    #              "y bin" : [ymin_cutxpi2_30,ymax_cutxpi2_30],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi2_30,yieldmax_cutxpi2_30],
-    #              "xL" : [xLmin_cutxpi2_30,xLmax_cutxpi2_30],
-    #              "xpi": [xpimin_cutxpi2_30,xpimax_cutxpi2_30]
-    #          },
-    #          "0.3" :{
-    #              "Q2" : [Q2min_cutxpi3_30,Q2max_cutxpi3_30],
-    #              "y bin" : [ymin_cutxpi3_30,ymax_cutxpi3_30],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi3_30,yieldmax_cutxpi3_30],
-    #              "xL" : [xLmin_cutxpi3_30,xLmax_cutxpi3_30],
-    #              "xpi": [xpimin_cutxpi3_30,xpimax_cutxpi3_30]
-    #          },
-    #          "0.4" :{
-    #              "Q2" : [Q2min_cutxpi4_30,Q2max_cutxpi4_30],
-    #              "y bin" : [ymin_cutxpi4_30,ymax_cutxpi4_30],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi4_30,yieldmax_cutxpi4_30],
-    #              "xL" : [xLmin_cutxpi4_30,xLmax_cutxpi4_30],
-    #              "xpi": [xpimin_cutxpi4_30,xpimax_cutxpi4_30]
-    #          },
-    #          "0.5" :{
-    #              "Q2" : [Q2min_cutxpi5_30,Q2max_cutxpi5_30],
-    #              "y bin" : [ymin_cutxpi5_30,ymax_cutxpi5_30],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi5_30,yieldmax_cutxpi5_30],
-    #              "xL" : [xLmin_cutxpi5_30,xLmax_cutxpi5_30],
-    #              "xpi": [xpimin_cutxpi5_30,xpimax_cutxpi5_30]
-    #          },
-    #          "0.6" :{
-    #              "Q2" : [Q2min_cutxpi6_30,Q2max_cutxpi6_30],
-    #              "y bin" : [ymin_cutxpi6_30,ymax_cutxpi6_30],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi6_30,yieldmax_cutxpi6_30],
-    #              "xL" : [xLmin_cutxpi6_30,xLmax_cutxpi6_30],
-    #              "xpi": [xpimin_cutxpi6_30,xpimax_cutxpi6_30]
+    #          {"0.01":{
+    #              "Q2" : [Q2min_cutxpi01_30,Q2max_cutxpi01_30],
+    #              "y bin" : [ymin_cutxpi01_30,ymax_cutxpi01_30],
+    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi01_30,yieldmax_cutxpi01_30],
+    #              "xL" : [xLmin_cutxpi01_30,xLmax_cutxpi01_30],
+    #              "xpi": [xpimin_cutxpi01_30,xpimax_cutxpi01_30]
     #          }
     #         },
-    #         "60" : 
-    #          {"0.1" :{
-    #              "Q2" : [Q2min_cutxpi1_60,Q2max_cutxpi1_60],
-    #              "y bin" : [ymin_cutxpi1_60,ymax_cutxpi1_60],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi1_60,yieldmax_cutxpi1_60],
-    #              "xL" : [xLmin_cutxpi1_60,xLmax_cutxpi1_60],
-    #              "xpi": [xpimin_cutxpi1_60,xpimax_cutxpi1_60]
-    #          },
-    #          "0.2" :{
-    #              "Q2" : [Q2min_cutxpi2_60,Q2max_cutxpi2_60],
-    #              "y bin" : [ymin_cutxpi2_60,ymax_cutxpi2_60],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi2_60,yieldmax_cutxpi2_60],
-    #              "xL" : [xLmin_cutxpi2_60,xLmax_cutxpi2_60],
-    #              "xpi": [xpimin_cutxpi2_60,xpimax_cutxpi2_60]
-    #          },
-    #          "0.3" :{
-    #              "Q2" : [Q2min_cutxpi3_60,Q2max_cutxpi3_60],
-    #              "y bin" : [ymin_cutxpi3_60,ymax_cutxpi3_60],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi3_60,yieldmax_cutxpi3_60],
-    #              "xL" : [xLmin_cutxpi3_60,xLmax_cutxpi3_60],
-    #              "xpi": [xpimin_cutxpi3_60,xpimax_cutxpi3_60]
-    #          },
-    #          "0.4" :{
-    #              "Q2" : [Q2min_cutxpi4_60,Q2max_cutxpi4_60],
-    #              "y bin" : [ymin_cutxpi4_60,ymax_cutxpi4_60],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi4_60,yieldmax_cutxpi4_60],
-    #              "xL" : [xLmin_cutxpi4_60,xLmax_cutxpi4_60],
-    #              "xpi": [xpimin_cutxpi4_60,xpimax_cutxpi4_60]
-    #          },
-    #          "0.5" :{
-    #              "Q2" : [Q2min_cutxpi5_60,Q2max_cutxpi5_60],
-    #              "y bin" : [ymin_cutxpi5_60,ymax_cutxpi5_60],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi5_60,yieldmax_cutxpi5_60],
-    #              "xL" : [xLmin_cutxpi5_60,xLmax_cutxpi5_60],
-    #              "xpi": [xpimin_cutxpi5_60,xpimax_cutxpi5_60]
-    #          },
-    #          "0.6" :{
-    #              "Q2" : [Q2min_cutxpi6_60,Q2max_cutxpi6_60],
-    #              "y bin" : [ymin_cutxpi6_60,ymax_cutxpi6_60],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi6_60,yieldmax_cutxpi6_60],
-    #              "xL" : [xLmin_cutxpi6_60,xLmax_cutxpi6_60],
-    #              "xpi": [xpimin_cutxpi6_60,xpimax_cutxpi6_60]
-    #          },
-    #          "0.7" :{
-    #              "Q2" : [Q2min_cutxpi7_60,Q2max_cutxpi7_60],
-    #              "y bin" : [ymin_cutxpi7_60,ymax_cutxpi7_60],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi7_60,yieldmax_cutxpi7_60],
-    #              "xL" : [xLmin_cutxpi7_60,xLmax_cutxpi7_60],
-    #              "xpi": [xpimin_cutxpi7_60,xpimax_cutxpi7_60]
+    #         "60" :
+    #          {"0.01":{
+    #              "Q2" : [Q2min_cutxpi01_60,Q2max_cutxpi01_60],
+    #              "y bin" : [ymin_cutxpi01_60,ymax_cutxpi01_60],
+    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi01_60,yieldmax_cutxpi01_60],
+    #              "xL" : [xLmin_cutxpi01_60,xLmax_cutxpi01_60],
+    #              "xpi": [xpimin_cutxpi01_60,xpimax_cutxpi01_60]
     #          }
-    #         },
-    #         "120" : 
-    #          {"0.1" :{
-    #              "Q2" : [Q2min_cutxpi1_120,Q2max_cutxpi1_120],
-    #              "y bin" : [ymin_cutxpi1_120,ymax_cutxpi1_120],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi1_120,yieldmax_cutxpi1_120],
-    #              "xL" : [xLmin_cutxpi1_120,xLmax_cutxpi1_120],
-    #              "xpi": [xpimin_cutxpi1_120,xpimax_cutxpi1_120]
-    #          },
-    #          "0.2" :{
-    #              "Q2" : [Q2min_cutxpi2_120,Q2max_cutxpi2_120],
-    #              "y bin" : [ymin_cutxpi2_120,ymax_cutxpi2_120],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi2_120,yieldmax_cutxpi2_120],
-    #              "xL" : [xLmin_cutxpi2_120,xLmax_cutxpi2_120],
-    #              "xpi": [xpimin_cutxpi2_120,xpimax_cutxpi2_120]
-    #          },
-    #          "0.3" :{
-    #              "Q2" : [Q2min_cutxpi3_120,Q2max_cutxpi3_120],
-    #              "y bin" : [ymin_cutxpi3_120,ymax_cutxpi3_120],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi3_120,yieldmax_cutxpi3_120],
-    #              "xL" : [xLmin_cutxpi3_120,xLmax_cutxpi3_120],
-    #              "xpi": [xpimin_cutxpi3_120,xpimax_cutxpi3_120]
-    #          },
-    #          "0.4" :{
-    #              "Q2" : [Q2min_cutxpi4_120,Q2max_cutxpi4_120],
-    #              "y bin" : [ymin_cutxpi4_120,ymax_cutxpi4_120],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi4_120,yieldmax_cutxpi4_120],
-    #              "xL" : [xLmin_cutxpi4_120,xLmax_cutxpi4_120],
-    #              "xpi": [xpimin_cutxpi4_120,xpimax_cutxpi4_120]
-    #          },
-    #          "0.5" :{
-    #              "Q2" : [Q2min_cutxpi5_120,Q2max_cutxpi5_120],
-    #              "y bin" : [ymin_cutxpi5_120,ymax_cutxpi5_120],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi5_120,yieldmax_cutxpi5_120],
-    #              "xL" : [xLmin_cutxpi5_120,xLmax_cutxpi5_120],
-    #              "xpi": [xpimin_cutxpi5_120,xpimax_cutxpi5_120]
-    #          },
-    #          "0.6" :{
-    #              "Q2" : [Q2min_cutxpi6_120,Q2max_cutxpi6_120],
-    #              "y bin" : [ymin_cutxpi6_120,ymax_cutxpi6_120],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi6_120,yieldmax_cutxpi6_120],
-    #              "xL" : [xLmin_cutxpi6_120,xLmax_cutxpi6_120],
-    #              "xpi": [xpimin_cutxpi6_120,xpimax_cutxpi6_120]
-    #          },
-    #          "0.7" :{
-    #              "Q2" : [Q2min_cutxpi7_120,Q2max_cutxpi7_120],
-    #              "y bin" : [ymin_cutxpi7_120,ymax_cutxpi7_120],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi7_120,yieldmax_cutxpi7_120],
-    #              "xL" : [xLmin_cutxpi7_120,xLmax_cutxpi7_120],
-    #              "xpi": [xpimin_cutxpi7_120,xpimax_cutxpi7_120]
-    #          }
-    #         },
-    #         "240" : 
-    #          {"0.1" :{
-    #              "Q2" : [Q2min_cutxpi1_240,Q2max_cutxpi1_240],
-    #              "y bin" : [ymin_cutxpi1_240,ymax_cutxpi1_240],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi1_240,yieldmax_cutxpi1_240],
-    #              "xL" : [xLmin_cutxpi1_240,xLmax_cutxpi1_240],
-    #              "xpi": [xpimin_cutxpi1_240,xpimax_cutxpi1_240]
-    #          },
-    #          "0.2" :{
-    #              "Q2" : [Q2min_cutxpi2_240,Q2max_cutxpi2_240],
-    #              "y bin" : [ymin_cutxpi2_240,ymax_cutxpi2_240],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi2_240,yieldmax_cutxpi2_240],
-    #              "xL" : [xLmin_cutxpi2_240,xLmax_cutxpi2_240],
-    #              "xpi": [xpimin_cutxpi2_240,xpimax_cutxpi2_240]
-    #          },
-    #          "0.3" :{
-    #              "Q2" : [Q2min_cutxpi3_240,Q2max_cutxpi3_240],
-    #              "y bin" : [ymin_cutxpi3_240,ymax_cutxpi3_240],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi3_240,yieldmax_cutxpi3_240],
-    #              "xL" : [xLmin_cutxpi3_240,xLmax_cutxpi3_240],
-    #              "xpi": [xpimin_cutxpi3_240,xpimax_cutxpi3_240]
-    #          },
-    #          "0.4" :{
-    #              "Q2" : [Q2min_cutxpi4_240,Q2max_cutxpi4_240],
-    #              "y bin" : [ymin_cutxpi4_240,ymax_cutxpi4_240],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi4_240,yieldmax_cutxpi4_240],
-    #              "xL" : [xLmin_cutxpi4_240,xLmax_cutxpi4_240],
-    #              "xpi": [xpimin_cutxpi4_240,xpimax_cutxpi4_240]
-    #          },
-    #          "0.5" :{
-    #              "Q2" : [Q2min_cutxpi5_240,Q2max_cutxpi5_240],
-    #              "y bin" : [ymin_cutxpi5_240,ymax_cutxpi5_240],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi5_240,yieldmax_cutxpi5_240],
-    #              "xL" : [xLmin_cutxpi5_240,xLmax_cutxpi5_240],
-    #              "xpi": [xpimin_cutxpi5_240,xpimax_cutxpi5_240]
-    #          },
-    #          "0.6" :{
-    #              "Q2" : [Q2min_cutxpi6_240,Q2max_cutxpi6_240],
-    #              "y bin" : [ymin_cutxpi6_240,ymax_cutxpi6_240],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi6_240,yieldmax_cutxpi6_240],
-    #              "xL" : [xLmin_cutxpi6_240,xLmax_cutxpi6_240],
-    #              "xpi": [xpimin_cutxpi6_240,xpimax_cutxpi6_240]
-    #          },
-    #          "0.7" :{
-    #              "Q2" : [Q2min_cutxpi7_240,Q2max_cutxpi7_240],
-    #              "y bin" : [ymin_cutxpi7_240,ymax_cutxpi7_240],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi7_240,yieldmax_cutxpi7_240],
-    #              "xL" : [xLmin_cutxpi7_240,xLmax_cutxpi7_240],
-    #              "xpi": [xpimin_cutxpi7_240,xpimax_cutxpi7_240]
-    #          }
-    #         },
-    #         "480" : 
-    #          {"0.2" :{
-    #              "Q2" : [Q2min_cutxpi2_480,Q2max_cutxpi2_480],
-    #              "y bin" : [ymin_cutxpi2_480,ymax_cutxpi2_480],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi2_480,yieldmax_cutxpi2_480],
-    #              "xL" : [xLmin_cutxpi2_480,xLmax_cutxpi2_480],
-    #              "xpi": [xpimin_cutxpi2_480,xpimax_cutxpi2_480]
-    #          },
-    #          "0.3" :{
-    #              "Q2" : [Q2min_cutxpi3_480,Q2max_cutxpi3_480],
-    #              "y bin" : [ymin_cutxpi3_480,ymax_cutxpi3_480],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi3_480,yieldmax_cutxpi3_480],
-    #              "xL" : [xLmin_cutxpi3_480,xLmax_cutxpi3_480],
-    #              "xpi": [xpimin_cutxpi3_480,xpimax_cutxpi3_480]
-    #          },
-    #          "0.4" :{
-    #              "Q2" : [Q2min_cutxpi4_480,Q2max_cutxpi4_480],
-    #              "y bin" : [ymin_cutxpi4_480,ymax_cutxpi4_480],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi4_480,yieldmax_cutxpi4_480],
-    #              "xL" : [xLmin_cutxpi4_480,xLmax_cutxpi4_480],
-    #              "xpi": [xpimin_cutxpi4_480,xpimax_cutxpi4_480]
-    #          },
-    #          "0.5" :{
-    #              "Q2" : [Q2min_cutxpi5_480,Q2max_cutxpi5_480],
-    #              "y bin" : [ymin_cutxpi5_480,ymax_cutxpi5_480],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi5_480,yieldmax_cutxpi5_480],
-    #              "xL" : [xLmin_cutxpi5_480,xLmax_cutxpi5_480],
-    #              "xpi": [xpimin_cutxpi5_480,xpimax_cutxpi5_480]
-    #          },
-    #          "0.6" :{
-    #              "Q2" : [Q2min_cutxpi6_480,Q2max_cutxpi6_480],
-    #              "y bin" : [ymin_cutxpi6_480,ymax_cutxpi6_480],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi6_480,yieldmax_cutxpi6_480],
-    #              "xL" : [xLmin_cutxpi6_480,xLmax_cutxpi6_480],
-    #              "xpi": [xpimin_cutxpi6_480,xpimax_cutxpi6_480]
-    #          },
-    #          "0.7" :{
-    #              "Q2" : [Q2min_cutxpi7_480,Q2max_cutxpi7_480],
-    #              "y bin" : [ymin_cutxpi7_480,ymax_cutxpi7_480],
-    #              "Yield (100 fb^-1)" : [yieldmin_cutxpi7_480,yieldmax_cutxpi7_480],
-    #              "xL" : [xLmin_cutxpi7_480,xLmax_cutxpi7_480],
-    #              "xpi": [xpimin_cutxpi7_480,xpimax_cutxpi7_480]
-    #          }
-    #     }
+    #         }
     # }
+
+    #################################
+        
+    
+    ymin_cutxpi1_15 = min(c.applyCuts(y,cutxpi1_15))
+    ymin_cutxpi2_15 = min(c.applyCuts(y,cutxpi2_15))
+    ymin_cutxpi3_15 = min(c.applyCuts(y,cutxpi3_15))
+    # ymin_cutxpi4_15 = min(c.applyCuts(y,cutxpi4_15))
+    # ymin_cutxpi5_15 = min(c.applyCuts(y,cutxpi5_15))
+    # ymin_cutxpi6_15 = min(c.applyCuts(y,cutxpi6_15))
+    # ymin_cutxpi7_15 = min(c.applyCuts(y,cutxpi7_15))
+    
+    ymax_cutxpi1_15 = max(c.applyCuts(y,cutxpi1_15))
+    ymax_cutxpi2_15 = max(c.applyCuts(y,cutxpi2_15))
+    ymax_cutxpi3_15 = max(c.applyCuts(y,cutxpi3_15))
+    # ymax_cutxpi4_15 = max(c.applyCuts(y,cutxpi4_15))
+    # ymax_cutxpi5_15 = max(c.applyCuts(y,cutxpi5_15))
+    # ymax_cutxpi6_15 = max(c.applyCuts(y,cutxpi6_15))
+    # ymax_cutxpi7_15 = max(c.applyCuts(y,cutxpi7_15))
+
+    yieldmin_cutxpi1_15 = float(c.applyCuts(lumi,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymin_cutxpi1_15))])
+    yieldmin_cutxpi2_15 = float(c.applyCuts(lumi,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymin_cutxpi2_15))])
+    yieldmin_cutxpi3_15 = float(c.applyCuts(lumi,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymin_cutxpi3_15))])
+    # yieldmin_cutxpi4_15 = float(c.applyCuts(lumi,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymin_cutxpi4_15))])
+    # yieldmin_cutxpi5_15 = float(c.applyCuts(lumi,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymin_cutxpi5_15))])
+    # yieldmin_cutxpi6_15 = float(c.applyCuts(lumi,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymin_cutxpi6_15))])
+    # yieldmin_cutxpi7_15 = float(c.applyCuts(lumi,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymin_cutxpi7_15))])
+    
+    yieldmax_cutxpi1_15 = float(c.applyCuts(lumi,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymax_cutxpi1_15))])
+    yieldmax_cutxpi2_15 = float(c.applyCuts(lumi,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymax_cutxpi2_15))])
+    yieldmax_cutxpi3_15 = float(c.applyCuts(lumi,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymax_cutxpi3_15))])
+    # yieldmax_cutxpi4_15 = float(c.applyCuts(lumi,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymax_cutxpi4_15))])
+    # yieldmax_cutxpi5_15 = float(c.applyCuts(lumi,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymax_cutxpi5_15))])
+    # yieldmax_cutxpi6_15 = float(c.applyCuts(lumi,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymax_cutxpi6_15))])
+    # yieldmax_cutxpi7_15 = float(c.applyCuts(lumi,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymax_cutxpi7_15))])
+
+    xLmin_cutxpi1_15 = float(c.applyCuts(xL,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymin_cutxpi1_15))])
+    xLmin_cutxpi2_15 = float(c.applyCuts(xL,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymin_cutxpi2_15))])
+    xLmin_cutxpi3_15 = float(c.applyCuts(xL,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymin_cutxpi3_15))])
+    # xLmin_cutxpi4_15 = float(c.applyCuts(xL,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymin_cutxpi4_15))])
+    # xLmin_cutxpi5_15 = float(c.applyCuts(xL,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymin_cutxpi5_15))])
+    # xLmin_cutxpi6_15 = float(c.applyCuts(xL,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymin_cutxpi6_15))])
+    # xLmin_cutxpi7_15 = float(c.applyCuts(xL,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymin_cutxpi7_15))])
+
+    xLmax_cutxpi1_15 = float(c.applyCuts(xL,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymax_cutxpi1_15))])
+    xLmax_cutxpi2_15 = float(c.applyCuts(xL,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymax_cutxpi2_15))])
+    xLmax_cutxpi3_15 = float(c.applyCuts(xL,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymax_cutxpi3_15))])
+    # xLmax_cutxpi4_15 = float(c.applyCuts(xL,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymax_cutxpi4_15))])
+    # xLmax_cutxpi5_15 = float(c.applyCuts(xL,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymax_cutxpi5_15))])
+    # xLmax_cutxpi6_15 = float(c.applyCuts(xL,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymax_cutxpi6_15))])
+    # xLmax_cutxpi7_15 = float(c.applyCuts(xL,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymax_cutxpi7_15))])
+
+    xpimin_cutxpi1_15 = float(c.applyCuts(xpi,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymin_cutxpi1_15))])
+    xpimin_cutxpi2_15 = float(c.applyCuts(xpi,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymin_cutxpi2_15))])
+    xpimin_cutxpi3_15 = float(c.applyCuts(xpi,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymin_cutxpi3_15))])
+    # xpimin_cutxpi4_15 = float(c.applyCuts(xpi,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymin_cutxpi4_15))])
+    # xpimin_cutxpi5_15 = float(c.applyCuts(xpi,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymin_cutxpi5_15))])
+    # xpimin_cutxpi6_15 = float(c.applyCuts(xpi,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymin_cutxpi6_15))])
+    # xpimin_cutxpi7_15 = float(c.applyCuts(xpi,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymin_cutxpi7_15))])
+
+    xpimax_cutxpi1_15 = float(c.applyCuts(xpi,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymax_cutxpi1_15))])
+    xpimax_cutxpi2_15 = float(c.applyCuts(xpi,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymax_cutxpi2_15))])
+    xpimax_cutxpi3_15 = float(c.applyCuts(xpi,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymax_cutxpi3_15))])
+    # xpimax_cutxpi4_15 = float(c.applyCuts(xpi,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymax_cutxpi4_15))])
+    # xpimax_cutxpi5_15 = float(c.applyCuts(xpi,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymax_cutxpi5_15))])
+    # xpimax_cutxpi6_15 = float(c.applyCuts(xpi,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymax_cutxpi6_15))])
+    # xpimax_cutxpi7_15 = float(c.applyCuts(xpi,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymax_cutxpi7_15))])
+
+    xBjmin_cutxpi1_15 = float(c.applyCuts(xBj,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymin_cutxpi1_15))])
+    xBjmin_cutxpi2_15 = float(c.applyCuts(xBj,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymin_cutxpi2_15))])
+    xBjmin_cutxpi3_15 = float(c.applyCuts(xBj,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymin_cutxpi3_15))])
+    # xBjmin_cutxpi4_15 = float(c.applyCuts(xBj,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymin_cutxpi4_15))])
+    # xBjmin_cutxpi5_15 = float(c.applyCuts(xBj,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymin_cutxpi5_15))])
+    # xBjmin_cutxpi6_15 = float(c.applyCuts(xBj,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymin_cutxpi6_15))])
+    # xBjmin_cutxpi7_15 = float(c.applyCuts(xBj,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymin_cutxpi7_15))])
+
+    xBjmax_cutxpi1_15 = float(c.applyCuts(xBj,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymax_cutxpi1_15))])
+    xBjmax_cutxpi2_15 = float(c.applyCuts(xBj,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymax_cutxpi2_15))])
+    xBjmax_cutxpi3_15 = float(c.applyCuts(xBj,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymax_cutxpi3_15))])
+    # xBjmax_cutxpi4_15 = float(c.applyCuts(xBj,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymax_cutxpi4_15))])
+    # xBjmax_cutxpi5_15 = float(c.applyCuts(xBj,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymax_cutxpi5_15))])
+    # xBjmax_cutxpi6_15 = float(c.applyCuts(xBj,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymax_cutxpi6_15))])
+    # xBjmax_cutxpi7_15 = float(c.applyCuts(xBj,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymax_cutxpi7_15))])
+    
+    Q2min_cutxpi1_15 = float(c.applyCuts(Q2,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymin_cutxpi1_15))])
+    Q2min_cutxpi2_15 = float(c.applyCuts(Q2,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymin_cutxpi2_15))])
+    Q2min_cutxpi3_15 = float(c.applyCuts(Q2,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymin_cutxpi3_15))])
+    # Q2min_cutxpi4_15 = float(c.applyCuts(Q2,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymin_cutxpi4_15))])
+    # Q2min_cutxpi5_15 = float(c.applyCuts(Q2,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymin_cutxpi5_15))])
+    # Q2min_cutxpi6_15 = float(c.applyCuts(Q2,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymin_cutxpi6_15))])
+    # Q2min_cutxpi7_15 = float(c.applyCuts(Q2,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymin_cutxpi7_15))])
+
+    Q2max_cutxpi1_15 = float(c.applyCuts(Q2,cutxpi1_15)[
+        np.where(c.applyCuts(y,cutxpi1_15)==(ymax_cutxpi1_15))])
+    Q2max_cutxpi2_15 = float(c.applyCuts(Q2,cutxpi2_15)[
+        np.where(c.applyCuts(y,cutxpi2_15)==(ymax_cutxpi2_15))])
+    Q2max_cutxpi3_15 = float(c.applyCuts(Q2,cutxpi3_15)[
+        np.where(c.applyCuts(y,cutxpi3_15)==(ymax_cutxpi3_15))])
+    # Q2max_cutxpi4_15 = float(c.applyCuts(Q2,cutxpi4_15)[
+    #     np.where(c.applyCuts(y,cutxpi4_15)==(ymax_cutxpi4_15))])
+    # Q2max_cutxpi5_15 = float(c.applyCuts(Q2,cutxpi5_15)[
+    #     np.where(c.applyCuts(y,cutxpi5_15)==(ymax_cutxpi5_15))])
+    # Q2max_cutxpi6_15 = float(c.applyCuts(Q2,cutxpi6_15)[
+    #     np.where(c.applyCuts(y,cutxpi6_15)==(ymax_cutxpi6_15))])
+    # Q2max_cutxpi7_15 = float(c.applyCuts(Q2,cutxpi7_15)[
+    #     np.where(c.applyCuts(y,cutxpi7_15)==(ymax_cutxpi7_15))])
+    
+    #################################
+
+    #################################
+        
+    
+    ymin_cutxpi1_30 = min(c.applyCuts(y,cutxpi1_30))
+    ymin_cutxpi2_30 = min(c.applyCuts(y,cutxpi2_30))
+    ymin_cutxpi3_30 = min(c.applyCuts(y,cutxpi3_30))
+    ymin_cutxpi4_30 = min(c.applyCuts(y,cutxpi4_30))
+    ymin_cutxpi5_30 = min(c.applyCuts(y,cutxpi5_30))
+    ymin_cutxpi6_30 = min(c.applyCuts(y,cutxpi6_30))
+    # ymin_cutxpi7_30 = min(c.applyCuts(y,cutxpi7_30))
+    
+    ymax_cutxpi1_30 = max(c.applyCuts(y,cutxpi1_30))
+    ymax_cutxpi2_30 = max(c.applyCuts(y,cutxpi2_30))
+    ymax_cutxpi3_30 = max(c.applyCuts(y,cutxpi3_30))
+    ymax_cutxpi4_30 = max(c.applyCuts(y,cutxpi4_30))
+    ymax_cutxpi5_30 = max(c.applyCuts(y,cutxpi5_30))
+    ymax_cutxpi6_30 = max(c.applyCuts(y,cutxpi6_30))
+    # ymax_cutxpi7_30 = max(c.applyCuts(y,cutxpi7_30))
+
+    yieldmin_cutxpi1_30 = float(c.applyCuts(lumi,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymin_cutxpi1_30))])
+    yieldmin_cutxpi2_30 = float(c.applyCuts(lumi,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymin_cutxpi2_30))])
+    yieldmin_cutxpi3_30 = float(c.applyCuts(lumi,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymin_cutxpi3_30))])
+    yieldmin_cutxpi4_30 = float(c.applyCuts(lumi,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymin_cutxpi4_30))])
+    yieldmin_cutxpi5_30 = float(c.applyCuts(lumi,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymin_cutxpi5_30))])
+    yieldmin_cutxpi6_30 = float(c.applyCuts(lumi,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymin_cutxpi6_30))])
+    # yieldmin_cutxpi7_30 = float(c.applyCuts(lumi,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymin_cutxpi7_30))])
+    
+    yieldmax_cutxpi1_30 = float(c.applyCuts(lumi,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymax_cutxpi1_30))])
+    yieldmax_cutxpi2_30 = float(c.applyCuts(lumi,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymax_cutxpi2_30))])
+    yieldmax_cutxpi3_30 = float(c.applyCuts(lumi,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymax_cutxpi3_30))])
+    yieldmax_cutxpi4_30 = float(c.applyCuts(lumi,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymax_cutxpi4_30))])
+    yieldmax_cutxpi5_30 = float(c.applyCuts(lumi,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymax_cutxpi5_30))])
+    yieldmax_cutxpi6_30 = float(c.applyCuts(lumi,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymax_cutxpi6_30))])
+    # yieldmax_cutxpi7_30 = float(c.applyCuts(lumi,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymax_cutxpi7_30))])
+
+    xLmin_cutxpi1_30 = float(c.applyCuts(xL,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymin_cutxpi1_30))])
+    xLmin_cutxpi2_30 = float(c.applyCuts(xL,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymin_cutxpi2_30))])
+    xLmin_cutxpi3_30 = float(c.applyCuts(xL,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymin_cutxpi3_30))])
+    xLmin_cutxpi4_30 = float(c.applyCuts(xL,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymin_cutxpi4_30))])
+    xLmin_cutxpi5_30 = float(c.applyCuts(xL,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymin_cutxpi5_30))])
+    xLmin_cutxpi6_30 = float(c.applyCuts(xL,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymin_cutxpi6_30))])
+    # xLmin_cutxpi7_30 = float(c.applyCuts(xL,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymin_cutxpi7_30))])
+
+    xLmax_cutxpi1_30 = float(c.applyCuts(xL,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymax_cutxpi1_30))])
+    xLmax_cutxpi2_30 = float(c.applyCuts(xL,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymax_cutxpi2_30))])
+    xLmax_cutxpi3_30 = float(c.applyCuts(xL,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymax_cutxpi3_30))])
+    xLmax_cutxpi4_30 = float(c.applyCuts(xL,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymax_cutxpi4_30))])
+    xLmax_cutxpi5_30 = float(c.applyCuts(xL,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymax_cutxpi5_30))])
+    xLmax_cutxpi6_30 = float(c.applyCuts(xL,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymax_cutxpi6_30))])
+    # xLmax_cutxpi7_30 = float(c.applyCuts(xL,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymax_cutxpi7_30))])
+
+    xpimin_cutxpi1_30 = float(c.applyCuts(xpi,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymin_cutxpi1_30))])
+    xpimin_cutxpi2_30 = float(c.applyCuts(xpi,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymin_cutxpi2_30))])
+    xpimin_cutxpi3_30 = float(c.applyCuts(xpi,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymin_cutxpi3_30))])
+    xpimin_cutxpi4_30 = float(c.applyCuts(xpi,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymin_cutxpi4_30))])
+    xpimin_cutxpi5_30 = float(c.applyCuts(xpi,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymin_cutxpi5_30))])
+    xpimin_cutxpi6_30 = float(c.applyCuts(xpi,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymin_cutxpi6_30))])
+    # xpimin_cutxpi7_30 = float(c.applyCuts(xpi,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymin_cutxpi7_30))])
+
+    xpimax_cutxpi1_30 = float(c.applyCuts(xpi,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymax_cutxpi1_30))])
+    xpimax_cutxpi2_30 = float(c.applyCuts(xpi,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymax_cutxpi2_30))])
+    xpimax_cutxpi3_30 = float(c.applyCuts(xpi,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymax_cutxpi3_30))])
+    xpimax_cutxpi4_30 = float(c.applyCuts(xpi,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymax_cutxpi4_30))])
+    xpimax_cutxpi5_30 = float(c.applyCuts(xpi,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymax_cutxpi5_30))])
+    xpimax_cutxpi6_30 = float(c.applyCuts(xpi,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymax_cutxpi6_30))])
+    # xpimax_cutxpi7_30 = float(c.applyCuts(xpi,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymax_cutxpi7_30))])
+
+    xBjmin_cutxpi1_30 = float(c.applyCuts(xBj,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymin_cutxpi1_30))])
+    xBjmin_cutxpi2_30 = float(c.applyCuts(xBj,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymin_cutxpi2_30))])
+    xBjmin_cutxpi3_30 = float(c.applyCuts(xBj,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymin_cutxpi3_30))])
+    xBjmin_cutxpi4_30 = float(c.applyCuts(xBj,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymin_cutxpi4_30))])
+    xBjmin_cutxpi5_30 = float(c.applyCuts(xBj,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymin_cutxpi5_30))])
+    xBjmin_cutxpi6_30 = float(c.applyCuts(xBj,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymin_cutxpi6_30))])
+    # xBjmin_cutxpi7_30 = float(c.applyCuts(xBj,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymin_cutxpi7_30))])
+
+    xBjmax_cutxpi1_30 = float(c.applyCuts(xBj,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymax_cutxpi1_30))])
+    xBjmax_cutxpi2_30 = float(c.applyCuts(xBj,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymax_cutxpi2_30))])
+    xBjmax_cutxpi3_30 = float(c.applyCuts(xBj,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymax_cutxpi3_30))])
+    xBjmax_cutxpi4_30 = float(c.applyCuts(xBj,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymax_cutxpi4_30))])
+    xBjmax_cutxpi5_30 = float(c.applyCuts(xBj,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymax_cutxpi5_30))])
+    xBjmax_cutxpi6_30 = float(c.applyCuts(xBj,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymax_cutxpi6_30))])
+    # xBjmax_cutxpi7_30 = float(c.applyCuts(xBj,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymax_cutxpi7_30))])
+    
+    
+    Q2min_cutxpi1_30 = float(c.applyCuts(Q2,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymin_cutxpi1_30))])
+    Q2min_cutxpi2_30 = float(c.applyCuts(Q2,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymin_cutxpi2_30))])
+    Q2min_cutxpi3_30 = float(c.applyCuts(Q2,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymin_cutxpi3_30))])
+    Q2min_cutxpi4_30 = float(c.applyCuts(Q2,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymin_cutxpi4_30))])
+    Q2min_cutxpi5_30 = float(c.applyCuts(Q2,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymin_cutxpi5_30))])
+    Q2min_cutxpi6_30 = float(c.applyCuts(Q2,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymin_cutxpi6_30))])
+    # Q2min_cutxpi7_30 = float(c.applyCuts(Q2,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymin_cutxpi7_30))])
+
+    Q2max_cutxpi1_30 = float(c.applyCuts(Q2,cutxpi1_30)[
+        np.where(c.applyCuts(y,cutxpi1_30)==(ymax_cutxpi1_30))])
+    Q2max_cutxpi2_30 = float(c.applyCuts(Q2,cutxpi2_30)[
+        np.where(c.applyCuts(y,cutxpi2_30)==(ymax_cutxpi2_30))])
+    Q2max_cutxpi3_30 = float(c.applyCuts(Q2,cutxpi3_30)[
+        np.where(c.applyCuts(y,cutxpi3_30)==(ymax_cutxpi3_30))])
+    Q2max_cutxpi4_30 = float(c.applyCuts(Q2,cutxpi4_30)[
+        np.where(c.applyCuts(y,cutxpi4_30)==(ymax_cutxpi4_30))])
+    Q2max_cutxpi5_30 = float(c.applyCuts(Q2,cutxpi5_30)[
+        np.where(c.applyCuts(y,cutxpi5_30)==(ymax_cutxpi5_30))])
+    Q2max_cutxpi6_30 = float(c.applyCuts(Q2,cutxpi6_30)[
+        np.where(c.applyCuts(y,cutxpi6_30)==(ymax_cutxpi6_30))])
+    # Q2max_cutxpi7_30 = float(c.applyCuts(Q2,cutxpi7_30)[
+    #     np.where(c.applyCuts(y,cutxpi7_30)==(ymax_cutxpi7_30))])
+    
+    #################################
+
+    #################################
+        
+    
+    ymin_cutxpi1_60 = min(c.applyCuts(y,cutxpi1_60))
+    ymin_cutxpi2_60 = min(c.applyCuts(y,cutxpi2_60))
+    ymin_cutxpi3_60 = min(c.applyCuts(y,cutxpi3_60))
+    ymin_cutxpi4_60 = min(c.applyCuts(y,cutxpi4_60))
+    ymin_cutxpi5_60 = min(c.applyCuts(y,cutxpi5_60))
+    ymin_cutxpi6_60 = min(c.applyCuts(y,cutxpi6_60))
+    ymin_cutxpi7_60 = min(c.applyCuts(y,cutxpi7_60))
+    
+    ymax_cutxpi1_60 = max(c.applyCuts(y,cutxpi1_60))
+    ymax_cutxpi2_60 = max(c.applyCuts(y,cutxpi2_60))
+    ymax_cutxpi3_60 = max(c.applyCuts(y,cutxpi3_60))
+    ymax_cutxpi4_60 = max(c.applyCuts(y,cutxpi4_60))
+    ymax_cutxpi5_60 = max(c.applyCuts(y,cutxpi5_60))
+    ymax_cutxpi6_60 = max(c.applyCuts(y,cutxpi6_60))
+    ymax_cutxpi7_60 = max(c.applyCuts(y,cutxpi7_60))
+
+    yieldmin_cutxpi1_60 = float(c.applyCuts(lumi,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymin_cutxpi1_60))])
+    yieldmin_cutxpi2_60 = float(c.applyCuts(lumi,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymin_cutxpi2_60))])
+    yieldmin_cutxpi3_60 = float(c.applyCuts(lumi,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymin_cutxpi3_60))])
+    yieldmin_cutxpi4_60 = float(c.applyCuts(lumi,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymin_cutxpi4_60))])
+    yieldmin_cutxpi5_60 = float(c.applyCuts(lumi,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymin_cutxpi5_60))])
+    yieldmin_cutxpi6_60 = float(c.applyCuts(lumi,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymin_cutxpi6_60))])
+    yieldmin_cutxpi7_60 = float(c.applyCuts(lumi,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymin_cutxpi7_60))])
+    
+    yieldmax_cutxpi1_60 = float(c.applyCuts(lumi,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymax_cutxpi1_60))])
+    yieldmax_cutxpi2_60 = float(c.applyCuts(lumi,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymax_cutxpi2_60))])
+    yieldmax_cutxpi3_60 = float(c.applyCuts(lumi,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymax_cutxpi3_60))])
+    yieldmax_cutxpi4_60 = float(c.applyCuts(lumi,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymax_cutxpi4_60))])
+    yieldmax_cutxpi5_60 = float(c.applyCuts(lumi,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymax_cutxpi5_60))])
+    yieldmax_cutxpi6_60 = float(c.applyCuts(lumi,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymax_cutxpi6_60))])
+    yieldmax_cutxpi7_60 = float(c.applyCuts(lumi,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymax_cutxpi7_60))])
+
+    xLmin_cutxpi1_60 = float(c.applyCuts(xL,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymin_cutxpi1_60))])
+    xLmin_cutxpi2_60 = float(c.applyCuts(xL,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymin_cutxpi2_60))])
+    xLmin_cutxpi3_60 = float(c.applyCuts(xL,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymin_cutxpi3_60))])
+    xLmin_cutxpi4_60 = float(c.applyCuts(xL,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymin_cutxpi4_60))])
+    xLmin_cutxpi5_60 = float(c.applyCuts(xL,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymin_cutxpi5_60))])
+    xLmin_cutxpi6_60 = float(c.applyCuts(xL,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymin_cutxpi6_60))])
+    xLmin_cutxpi7_60 = float(c.applyCuts(xL,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymin_cutxpi7_60))])
+
+    xLmax_cutxpi1_60 = float(c.applyCuts(xL,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymax_cutxpi1_60))])
+    xLmax_cutxpi2_60 = float(c.applyCuts(xL,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymax_cutxpi2_60))])
+    xLmax_cutxpi3_60 = float(c.applyCuts(xL,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymax_cutxpi3_60))])
+    xLmax_cutxpi4_60 = float(c.applyCuts(xL,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymax_cutxpi4_60))])
+    xLmax_cutxpi5_60 = float(c.applyCuts(xL,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymax_cutxpi5_60))])
+    xLmax_cutxpi6_60 = float(c.applyCuts(xL,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymax_cutxpi6_60))])
+    xLmax_cutxpi7_60 = float(c.applyCuts(xL,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymax_cutxpi7_60))])
+
+    xpimin_cutxpi1_60 = float(c.applyCuts(xpi,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymin_cutxpi1_60))])
+    xpimin_cutxpi2_60 = float(c.applyCuts(xpi,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymin_cutxpi2_60))])
+    xpimin_cutxpi3_60 = float(c.applyCuts(xpi,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymin_cutxpi3_60))])
+    xpimin_cutxpi4_60 = float(c.applyCuts(xpi,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymin_cutxpi4_60))])
+    xpimin_cutxpi5_60 = float(c.applyCuts(xpi,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymin_cutxpi5_60))])
+    xpimin_cutxpi6_60 = float(c.applyCuts(xpi,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymin_cutxpi6_60))])
+    xpimin_cutxpi7_60 = float(c.applyCuts(xpi,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymin_cutxpi7_60))])
+
+    xpimax_cutxpi1_60 = float(c.applyCuts(xpi,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymax_cutxpi1_60))])
+    xpimax_cutxpi2_60 = float(c.applyCuts(xpi,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymax_cutxpi2_60))])
+    xpimax_cutxpi3_60 = float(c.applyCuts(xpi,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymax_cutxpi3_60))])
+    xpimax_cutxpi4_60 = float(c.applyCuts(xpi,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymax_cutxpi4_60))])
+    xpimax_cutxpi5_60 = float(c.applyCuts(xpi,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymax_cutxpi5_60))])
+    xpimax_cutxpi6_60 = float(c.applyCuts(xpi,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymax_cutxpi6_60))])
+    xpimax_cutxpi7_60 = float(c.applyCuts(xpi,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymax_cutxpi7_60))])
+
+    xBjmin_cutxpi1_60 = float(c.applyCuts(xBj,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymin_cutxpi1_60))])
+    xBjmin_cutxpi2_60 = float(c.applyCuts(xBj,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymin_cutxpi2_60))])
+    xBjmin_cutxpi3_60 = float(c.applyCuts(xBj,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymin_cutxpi3_60))])
+    xBjmin_cutxpi4_60 = float(c.applyCuts(xBj,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymin_cutxpi4_60))])
+    xBjmin_cutxpi5_60 = float(c.applyCuts(xBj,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymin_cutxpi5_60))])
+    xBjmin_cutxpi6_60 = float(c.applyCuts(xBj,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymin_cutxpi6_60))])
+    xBjmin_cutxpi7_60 = float(c.applyCuts(xBj,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymin_cutxpi7_60))])
+
+    xBjmax_cutxpi1_60 = float(c.applyCuts(xBj,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymax_cutxpi1_60))])
+    xBjmax_cutxpi2_60 = float(c.applyCuts(xBj,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymax_cutxpi2_60))])
+    xBjmax_cutxpi3_60 = float(c.applyCuts(xBj,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymax_cutxpi3_60))])
+    xBjmax_cutxpi4_60 = float(c.applyCuts(xBj,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymax_cutxpi4_60))])
+    xBjmax_cutxpi5_60 = float(c.applyCuts(xBj,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymax_cutxpi5_60))])
+    xBjmax_cutxpi6_60 = float(c.applyCuts(xBj,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymax_cutxpi6_60))])
+    xBjmax_cutxpi7_60 = float(c.applyCuts(xBj,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymax_cutxpi7_60))])    
+    
+    Q2min_cutxpi1_60 = float(c.applyCuts(Q2,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymin_cutxpi1_60))])
+    Q2min_cutxpi2_60 = float(c.applyCuts(Q2,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymin_cutxpi2_60))])
+    Q2min_cutxpi3_60 = float(c.applyCuts(Q2,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymin_cutxpi3_60))])
+    Q2min_cutxpi4_60 = float(c.applyCuts(Q2,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymin_cutxpi4_60))])
+    Q2min_cutxpi5_60 = float(c.applyCuts(Q2,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymin_cutxpi5_60))])
+    Q2min_cutxpi6_60 = float(c.applyCuts(Q2,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymin_cutxpi6_60))])
+    Q2min_cutxpi7_60 = float(c.applyCuts(Q2,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymin_cutxpi7_60))])
+
+    Q2max_cutxpi1_60 = float(c.applyCuts(Q2,cutxpi1_60)[
+        np.where(c.applyCuts(y,cutxpi1_60)==(ymax_cutxpi1_60))])
+    Q2max_cutxpi2_60 = float(c.applyCuts(Q2,cutxpi2_60)[
+        np.where(c.applyCuts(y,cutxpi2_60)==(ymax_cutxpi2_60))])
+    Q2max_cutxpi3_60 = float(c.applyCuts(Q2,cutxpi3_60)[
+        np.where(c.applyCuts(y,cutxpi3_60)==(ymax_cutxpi3_60))])
+    Q2max_cutxpi4_60 = float(c.applyCuts(Q2,cutxpi4_60)[
+        np.where(c.applyCuts(y,cutxpi4_60)==(ymax_cutxpi4_60))])
+    Q2max_cutxpi5_60 = float(c.applyCuts(Q2,cutxpi5_60)[
+        np.where(c.applyCuts(y,cutxpi5_60)==(ymax_cutxpi5_60))])
+    Q2max_cutxpi6_60 = float(c.applyCuts(Q2,cutxpi6_60)[
+        np.where(c.applyCuts(y,cutxpi6_60)==(ymax_cutxpi6_60))])
+    Q2max_cutxpi7_60 = float(c.applyCuts(Q2,cutxpi7_60)[
+        np.where(c.applyCuts(y,cutxpi7_60)==(ymax_cutxpi7_60))])
+    
+    #################################
+
+    #################################
+        
+    
+    ymin_cutxpi1_120 = min(c.applyCuts(y,cutxpi1_120))
+    ymin_cutxpi2_120 = min(c.applyCuts(y,cutxpi2_120))
+    ymin_cutxpi3_120 = min(c.applyCuts(y,cutxpi3_120))
+    ymin_cutxpi4_120 = min(c.applyCuts(y,cutxpi4_120))
+    ymin_cutxpi5_120 = min(c.applyCuts(y,cutxpi5_120))
+    ymin_cutxpi6_120 = min(c.applyCuts(y,cutxpi6_120))
+    ymin_cutxpi7_120 = min(c.applyCuts(y,cutxpi7_120))
+    
+    ymax_cutxpi1_120 = max(c.applyCuts(y,cutxpi1_120))
+    ymax_cutxpi2_120 = max(c.applyCuts(y,cutxpi2_120))
+    ymax_cutxpi3_120 = max(c.applyCuts(y,cutxpi3_120))
+    ymax_cutxpi4_120 = max(c.applyCuts(y,cutxpi4_120))
+    ymax_cutxpi5_120 = max(c.applyCuts(y,cutxpi5_120))
+    ymax_cutxpi6_120 = max(c.applyCuts(y,cutxpi6_120))
+    ymax_cutxpi7_120 = max(c.applyCuts(y,cutxpi7_120))
+
+    yieldmin_cutxpi1_120 = float(c.applyCuts(lumi,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymin_cutxpi1_120))])
+    yieldmin_cutxpi2_120 = float(c.applyCuts(lumi,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymin_cutxpi2_120))])
+    yieldmin_cutxpi3_120 = float(c.applyCuts(lumi,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymin_cutxpi3_120))])
+    yieldmin_cutxpi4_120 = float(c.applyCuts(lumi,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymin_cutxpi4_120))])
+    yieldmin_cutxpi5_120 = float(c.applyCuts(lumi,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymin_cutxpi5_120))])
+    yieldmin_cutxpi6_120 = float(c.applyCuts(lumi,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymin_cutxpi6_120))])
+    yieldmin_cutxpi7_120 = float(c.applyCuts(lumi,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymin_cutxpi7_120))])
+    
+    yieldmax_cutxpi1_120 = float(c.applyCuts(lumi,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymax_cutxpi1_120))])
+    yieldmax_cutxpi2_120 = float(c.applyCuts(lumi,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymax_cutxpi2_120))])
+    yieldmax_cutxpi3_120 = float(c.applyCuts(lumi,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymax_cutxpi3_120))])
+    yieldmax_cutxpi4_120 = float(c.applyCuts(lumi,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymax_cutxpi4_120))])
+    yieldmax_cutxpi5_120 = float(c.applyCuts(lumi,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymax_cutxpi5_120))])
+    yieldmax_cutxpi6_120 = float(c.applyCuts(lumi,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymax_cutxpi6_120))])
+    yieldmax_cutxpi7_120 = float(c.applyCuts(lumi,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymax_cutxpi7_120))])
+
+    xLmin_cutxpi1_120 = float(c.applyCuts(xL,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymin_cutxpi1_120))])
+    xLmin_cutxpi2_120 = float(c.applyCuts(xL,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymin_cutxpi2_120))])
+    xLmin_cutxpi3_120 = float(c.applyCuts(xL,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymin_cutxpi3_120))])
+    xLmin_cutxpi4_120 = float(c.applyCuts(xL,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymin_cutxpi4_120))])
+    xLmin_cutxpi5_120 = float(c.applyCuts(xL,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymin_cutxpi5_120))])
+    xLmin_cutxpi6_120 = float(c.applyCuts(xL,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymin_cutxpi6_120))])
+    xLmin_cutxpi7_120 = float(c.applyCuts(xL,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymin_cutxpi7_120))])
+
+    xLmax_cutxpi1_120 = float(c.applyCuts(xL,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymax_cutxpi1_120))])
+    xLmax_cutxpi2_120 = float(c.applyCuts(xL,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymax_cutxpi2_120))])
+    xLmax_cutxpi3_120 = float(c.applyCuts(xL,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymax_cutxpi3_120))])
+    xLmax_cutxpi4_120 = float(c.applyCuts(xL,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymax_cutxpi4_120))])
+    xLmax_cutxpi5_120 = float(c.applyCuts(xL,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymax_cutxpi5_120))])
+    xLmax_cutxpi6_120 = float(c.applyCuts(xL,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymax_cutxpi6_120))])
+    xLmax_cutxpi7_120 = float(c.applyCuts(xL,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymax_cutxpi7_120))])
+
+    xpimin_cutxpi1_120 = float(c.applyCuts(xpi,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymin_cutxpi1_120))])
+    xpimin_cutxpi2_120 = float(c.applyCuts(xpi,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymin_cutxpi2_120))])
+    xpimin_cutxpi3_120 = float(c.applyCuts(xpi,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymin_cutxpi3_120))])
+    xpimin_cutxpi4_120 = float(c.applyCuts(xpi,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymin_cutxpi4_120))])
+    xpimin_cutxpi5_120 = float(c.applyCuts(xpi,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymin_cutxpi5_120))])
+    xpimin_cutxpi6_120 = float(c.applyCuts(xpi,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymin_cutxpi6_120))])
+    xpimin_cutxpi7_120 = float(c.applyCuts(xpi,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymin_cutxpi7_120))])
+
+    xpimax_cutxpi1_120 = float(c.applyCuts(xpi,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymax_cutxpi1_120))])
+    xpimax_cutxpi2_120 = float(c.applyCuts(xpi,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymax_cutxpi2_120))])
+    xpimax_cutxpi3_120 = float(c.applyCuts(xpi,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymax_cutxpi3_120))])
+    xpimax_cutxpi4_120 = float(c.applyCuts(xpi,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymax_cutxpi4_120))])
+    xpimax_cutxpi5_120 = float(c.applyCuts(xpi,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymax_cutxpi5_120))])
+    xpimax_cutxpi6_120 = float(c.applyCuts(xpi,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymax_cutxpi6_120))])
+    xpimax_cutxpi7_120 = float(c.applyCuts(xpi,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymax_cutxpi7_120))])
+
+    xBjmin_cutxpi1_120 = float(c.applyCuts(xBj,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymin_cutxpi1_120))])
+    xBjmin_cutxpi2_120 = float(c.applyCuts(xBj,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymin_cutxpi2_120))])
+    xBjmin_cutxpi3_120 = float(c.applyCuts(xBj,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymin_cutxpi3_120))])
+    xBjmin_cutxpi4_120 = float(c.applyCuts(xBj,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymin_cutxpi4_120))])
+    xBjmin_cutxpi5_120 = float(c.applyCuts(xBj,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymin_cutxpi5_120))])
+    xBjmin_cutxpi6_120 = float(c.applyCuts(xBj,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymin_cutxpi6_120))])
+    xBjmin_cutxpi7_120 = float(c.applyCuts(xBj,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymin_cutxpi7_120))])
+
+    xBjmax_cutxpi1_120 = float(c.applyCuts(xBj,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymax_cutxpi1_120))])
+    xBjmax_cutxpi2_120 = float(c.applyCuts(xBj,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymax_cutxpi2_120))])
+    xBjmax_cutxpi3_120 = float(c.applyCuts(xBj,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymax_cutxpi3_120))])
+    xBjmax_cutxpi4_120 = float(c.applyCuts(xBj,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymax_cutxpi4_120))])
+    xBjmax_cutxpi5_120 = float(c.applyCuts(xBj,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymax_cutxpi5_120))])
+    xBjmax_cutxpi6_120 = float(c.applyCuts(xBj,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymax_cutxpi6_120))])
+    xBjmax_cutxpi7_120 = float(c.applyCuts(xBj,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymax_cutxpi7_120))])
+    
+    Q2min_cutxpi1_120 = float(c.applyCuts(Q2,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymin_cutxpi1_120))])
+    Q2min_cutxpi2_120 = float(c.applyCuts(Q2,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymin_cutxpi2_120))])
+    Q2min_cutxpi3_120 = float(c.applyCuts(Q2,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymin_cutxpi3_120))])
+    Q2min_cutxpi4_120 = float(c.applyCuts(Q2,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymin_cutxpi4_120))])
+    Q2min_cutxpi5_120 = float(c.applyCuts(Q2,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymin_cutxpi5_120))])
+    Q2min_cutxpi6_120 = float(c.applyCuts(Q2,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymin_cutxpi6_120))])
+    Q2min_cutxpi7_120 = float(c.applyCuts(Q2,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymin_cutxpi7_120))])
+
+    Q2max_cutxpi1_120 = float(c.applyCuts(Q2,cutxpi1_120)[
+        np.where(c.applyCuts(y,cutxpi1_120)==(ymax_cutxpi1_120))])
+    Q2max_cutxpi2_120 = float(c.applyCuts(Q2,cutxpi2_120)[
+        np.where(c.applyCuts(y,cutxpi2_120)==(ymax_cutxpi2_120))])
+    Q2max_cutxpi3_120 = float(c.applyCuts(Q2,cutxpi3_120)[
+        np.where(c.applyCuts(y,cutxpi3_120)==(ymax_cutxpi3_120))])
+    Q2max_cutxpi4_120 = float(c.applyCuts(Q2,cutxpi4_120)[
+        np.where(c.applyCuts(y,cutxpi4_120)==(ymax_cutxpi4_120))])
+    Q2max_cutxpi5_120 = float(c.applyCuts(Q2,cutxpi5_120)[
+        np.where(c.applyCuts(y,cutxpi5_120)==(ymax_cutxpi5_120))])
+    Q2max_cutxpi6_120 = float(c.applyCuts(Q2,cutxpi6_120)[
+        np.where(c.applyCuts(y,cutxpi6_120)==(ymax_cutxpi6_120))])
+    Q2max_cutxpi7_120 = float(c.applyCuts(Q2,cutxpi7_120)[
+        np.where(c.applyCuts(y,cutxpi7_120)==(ymax_cutxpi7_120))])
+    
+    #################################
+
+    #################################
+        
+    
+    ymin_cutxpi1_240 = min(c.applyCuts(y,cutxpi1_240))
+    ymin_cutxpi2_240 = min(c.applyCuts(y,cutxpi2_240))
+    ymin_cutxpi3_240 = min(c.applyCuts(y,cutxpi3_240))
+    ymin_cutxpi4_240 = min(c.applyCuts(y,cutxpi4_240))
+    ymin_cutxpi5_240 = min(c.applyCuts(y,cutxpi5_240))
+    ymin_cutxpi6_240 = min(c.applyCuts(y,cutxpi6_240))
+    ymin_cutxpi7_240 = min(c.applyCuts(y,cutxpi7_240))
+    
+    ymax_cutxpi1_240 = max(c.applyCuts(y,cutxpi1_240))
+    ymax_cutxpi2_240 = max(c.applyCuts(y,cutxpi2_240))
+    ymax_cutxpi3_240 = max(c.applyCuts(y,cutxpi3_240))
+    ymax_cutxpi4_240 = max(c.applyCuts(y,cutxpi4_240))
+    ymax_cutxpi5_240 = max(c.applyCuts(y,cutxpi5_240))
+    ymax_cutxpi6_240 = max(c.applyCuts(y,cutxpi6_240))
+    ymax_cutxpi7_240 = max(c.applyCuts(y,cutxpi7_240))
+
+    yieldmin_cutxpi1_240 = float(c.applyCuts(lumi,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymin_cutxpi1_240))])
+    yieldmin_cutxpi2_240 = float(c.applyCuts(lumi,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymin_cutxpi2_240))])
+    yieldmin_cutxpi3_240 = float(c.applyCuts(lumi,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymin_cutxpi3_240))])
+    yieldmin_cutxpi4_240 = float(c.applyCuts(lumi,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymin_cutxpi4_240))])
+    yieldmin_cutxpi5_240 = float(c.applyCuts(lumi,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymin_cutxpi5_240))])
+    yieldmin_cutxpi6_240 = float(c.applyCuts(lumi,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymin_cutxpi6_240))])
+    yieldmin_cutxpi7_240 = float(c.applyCuts(lumi,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymin_cutxpi7_240))])
+    
+    yieldmax_cutxpi1_240 = float(c.applyCuts(lumi,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymax_cutxpi1_240))])
+    yieldmax_cutxpi2_240 = float(c.applyCuts(lumi,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymax_cutxpi2_240))])
+    yieldmax_cutxpi3_240 = float(c.applyCuts(lumi,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymax_cutxpi3_240))])
+    yieldmax_cutxpi4_240 = float(c.applyCuts(lumi,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymax_cutxpi4_240))])
+    yieldmax_cutxpi5_240 = float(c.applyCuts(lumi,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymax_cutxpi5_240))])
+    yieldmax_cutxpi6_240 = float(c.applyCuts(lumi,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymax_cutxpi6_240))])
+    yieldmax_cutxpi7_240 = float(c.applyCuts(lumi,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymax_cutxpi7_240))])
+
+    xLmin_cutxpi1_240 = float(c.applyCuts(xL,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymin_cutxpi1_240))])
+    xLmin_cutxpi2_240 = float(c.applyCuts(xL,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymin_cutxpi2_240))])
+    xLmin_cutxpi3_240 = float(c.applyCuts(xL,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymin_cutxpi3_240))])
+    xLmin_cutxpi4_240 = float(c.applyCuts(xL,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymin_cutxpi4_240))])
+    xLmin_cutxpi5_240 = float(c.applyCuts(xL,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymin_cutxpi5_240))])
+    xLmin_cutxpi6_240 = float(c.applyCuts(xL,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymin_cutxpi6_240))])
+    xLmin_cutxpi7_240 = float(c.applyCuts(xL,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymin_cutxpi7_240))])
+
+    xLmax_cutxpi1_240 = float(c.applyCuts(xL,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymax_cutxpi1_240))])
+    xLmax_cutxpi2_240 = float(c.applyCuts(xL,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymax_cutxpi2_240))])
+    xLmax_cutxpi3_240 = float(c.applyCuts(xL,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymax_cutxpi3_240))])
+    xLmax_cutxpi4_240 = float(c.applyCuts(xL,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymax_cutxpi4_240))])
+    xLmax_cutxpi5_240 = float(c.applyCuts(xL,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymax_cutxpi5_240))])
+    xLmax_cutxpi6_240 = float(c.applyCuts(xL,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymax_cutxpi6_240))])
+    xLmax_cutxpi7_240 = float(c.applyCuts(xL,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymax_cutxpi7_240))])
+
+    xpimin_cutxpi1_240 = float(c.applyCuts(xpi,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymin_cutxpi1_240))])
+    xpimin_cutxpi2_240 = float(c.applyCuts(xpi,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymin_cutxpi2_240))])
+    xpimin_cutxpi3_240 = float(c.applyCuts(xpi,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymin_cutxpi3_240))])
+    xpimin_cutxpi4_240 = float(c.applyCuts(xpi,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymin_cutxpi4_240))])
+    xpimin_cutxpi5_240 = float(c.applyCuts(xpi,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymin_cutxpi5_240))])
+    xpimin_cutxpi6_240 = float(c.applyCuts(xpi,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymin_cutxpi6_240))])
+    xpimin_cutxpi7_240 = float(c.applyCuts(xpi,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymin_cutxpi7_240))])
+
+    xpimax_cutxpi1_240 = float(c.applyCuts(xpi,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymax_cutxpi1_240))])
+    xpimax_cutxpi2_240 = float(c.applyCuts(xpi,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymax_cutxpi2_240))])
+    xpimax_cutxpi3_240 = float(c.applyCuts(xpi,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymax_cutxpi3_240))])
+    xpimax_cutxpi4_240 = float(c.applyCuts(xpi,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymax_cutxpi4_240))])
+    xpimax_cutxpi5_240 = float(c.applyCuts(xpi,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymax_cutxpi5_240))])
+    xpimax_cutxpi6_240 = float(c.applyCuts(xpi,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymax_cutxpi6_240))])
+    xpimax_cutxpi7_240 = float(c.applyCuts(xpi,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymax_cutxpi7_240))])
+
+    xBjmin_cutxpi1_240 = float(c.applyCuts(xBj,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymin_cutxpi1_240))])
+    xBjmin_cutxpi2_240 = float(c.applyCuts(xBj,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymin_cutxpi2_240))])
+    xBjmin_cutxpi3_240 = float(c.applyCuts(xBj,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymin_cutxpi3_240))])
+    xBjmin_cutxpi4_240 = float(c.applyCuts(xBj,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymin_cutxpi4_240))])
+    xBjmin_cutxpi5_240 = float(c.applyCuts(xBj,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymin_cutxpi5_240))])
+    xBjmin_cutxpi6_240 = float(c.applyCuts(xBj,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymin_cutxpi6_240))])
+    xBjmin_cutxpi7_240 = float(c.applyCuts(xBj,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymin_cutxpi7_240))])
+
+    xBjmax_cutxpi1_240 = float(c.applyCuts(xBj,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymax_cutxpi1_240))])
+    xBjmax_cutxpi2_240 = float(c.applyCuts(xBj,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymax_cutxpi2_240))])
+    xBjmax_cutxpi3_240 = float(c.applyCuts(xBj,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymax_cutxpi3_240))])
+    xBjmax_cutxpi4_240 = float(c.applyCuts(xBj,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymax_cutxpi4_240))])
+    xBjmax_cutxpi5_240 = float(c.applyCuts(xBj,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymax_cutxpi5_240))])
+    xBjmax_cutxpi6_240 = float(c.applyCuts(xBj,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymax_cutxpi6_240))])
+    xBjmax_cutxpi7_240 = float(c.applyCuts(xBj,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymax_cutxpi7_240))])
+    
+    Q2min_cutxpi1_240 = float(c.applyCuts(Q2,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymin_cutxpi1_240))])
+    Q2min_cutxpi2_240 = float(c.applyCuts(Q2,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymin_cutxpi2_240))])
+    Q2min_cutxpi3_240 = float(c.applyCuts(Q2,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymin_cutxpi3_240))])
+    Q2min_cutxpi4_240 = float(c.applyCuts(Q2,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymin_cutxpi4_240))])
+    Q2min_cutxpi5_240 = float(c.applyCuts(Q2,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymin_cutxpi5_240))])
+    Q2min_cutxpi6_240 = float(c.applyCuts(Q2,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymin_cutxpi6_240))])
+    Q2min_cutxpi7_240 = float(c.applyCuts(Q2,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymin_cutxpi7_240))])
+
+    Q2max_cutxpi1_240 = float(c.applyCuts(Q2,cutxpi1_240)[
+        np.where(c.applyCuts(y,cutxpi1_240)==(ymax_cutxpi1_240))])
+    Q2max_cutxpi2_240 = float(c.applyCuts(Q2,cutxpi2_240)[
+        np.where(c.applyCuts(y,cutxpi2_240)==(ymax_cutxpi2_240))])
+    Q2max_cutxpi3_240 = float(c.applyCuts(Q2,cutxpi3_240)[
+        np.where(c.applyCuts(y,cutxpi3_240)==(ymax_cutxpi3_240))])
+    Q2max_cutxpi4_240 = float(c.applyCuts(Q2,cutxpi4_240)[
+        np.where(c.applyCuts(y,cutxpi4_240)==(ymax_cutxpi4_240))])
+    Q2max_cutxpi5_240 = float(c.applyCuts(Q2,cutxpi5_240)[
+        np.where(c.applyCuts(y,cutxpi5_240)==(ymax_cutxpi5_240))])
+    Q2max_cutxpi6_240 = float(c.applyCuts(Q2,cutxpi6_240)[
+        np.where(c.applyCuts(y,cutxpi6_240)==(ymax_cutxpi6_240))])
+    Q2max_cutxpi7_240 = float(c.applyCuts(Q2,cutxpi7_240)[
+        np.where(c.applyCuts(y,cutxpi7_240)==(ymax_cutxpi7_240))])
+    
+    #################################
+
+    #################################
+        
+    
+    # ymin_cutxpi1_480 = min(c.applyCuts(y,cutxpi1_480))
+    ymin_cutxpi2_480 = min(c.applyCuts(y,cutxpi2_480))
+    ymin_cutxpi3_480 = min(c.applyCuts(y,cutxpi3_480))
+    ymin_cutxpi4_480 = min(c.applyCuts(y,cutxpi4_480))
+    ymin_cutxpi5_480 = min(c.applyCuts(y,cutxpi5_480))
+    ymin_cutxpi6_480 = min(c.applyCuts(y,cutxpi6_480))
+    ymin_cutxpi7_480 = min(c.applyCuts(y,cutxpi7_480))
+    
+    # ymax_cutxpi1_480 = max(c.applyCuts(y,cutxpi1_480))
+    ymax_cutxpi2_480 = max(c.applyCuts(y,cutxpi2_480))
+    ymax_cutxpi3_480 = max(c.applyCuts(y,cutxpi3_480))
+    ymax_cutxpi4_480 = max(c.applyCuts(y,cutxpi4_480))
+    ymax_cutxpi5_480 = max(c.applyCuts(y,cutxpi5_480))
+    ymax_cutxpi6_480 = max(c.applyCuts(y,cutxpi6_480))
+    ymax_cutxpi7_480 = max(c.applyCuts(y,cutxpi7_480))
+
+    # yieldmin_cutxpi1_480 = float(c.applyCuts(lumi,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymin_cutxpi1_480))])
+    yieldmin_cutxpi2_480 = float(c.applyCuts(lumi,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymin_cutxpi2_480))])
+    yieldmin_cutxpi3_480 = float(c.applyCuts(lumi,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymin_cutxpi3_480))])
+    yieldmin_cutxpi4_480 = float(c.applyCuts(lumi,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymin_cutxpi4_480))])
+    yieldmin_cutxpi5_480 = float(c.applyCuts(lumi,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymin_cutxpi5_480))])
+    yieldmin_cutxpi6_480 = float(c.applyCuts(lumi,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymin_cutxpi6_480))])
+    yieldmin_cutxpi7_480 = float(c.applyCuts(lumi,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymin_cutxpi7_480))])
+    
+    # yieldmax_cutxpi1_480 = float(c.applyCuts(lumi,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymax_cutxpi1_480))])
+    yieldmax_cutxpi2_480 = float(c.applyCuts(lumi,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymax_cutxpi2_480))])
+    yieldmax_cutxpi3_480 = float(c.applyCuts(lumi,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymax_cutxpi3_480))])
+    yieldmax_cutxpi4_480 = float(c.applyCuts(lumi,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymax_cutxpi4_480))])
+    yieldmax_cutxpi5_480 = float(c.applyCuts(lumi,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymax_cutxpi5_480))])
+    yieldmax_cutxpi6_480 = float(c.applyCuts(lumi,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymax_cutxpi6_480))])
+    yieldmax_cutxpi7_480 = float(c.applyCuts(lumi,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymax_cutxpi7_480))])
+
+    # xLmin_cutxpi1_480 = float(c.applyCuts(xL,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymin_cutxpi1_480))])
+    xLmin_cutxpi2_480 = float(c.applyCuts(xL,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymin_cutxpi2_480))])
+    xLmin_cutxpi3_480 = float(c.applyCuts(xL,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymin_cutxpi3_480))])
+    xLmin_cutxpi4_480 = float(c.applyCuts(xL,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymin_cutxpi4_480))])
+    xLmin_cutxpi5_480 = float(c.applyCuts(xL,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymin_cutxpi5_480))])
+    xLmin_cutxpi6_480 = float(c.applyCuts(xL,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymin_cutxpi6_480))])
+    xLmin_cutxpi7_480 = float(c.applyCuts(xL,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymin_cutxpi7_480))])
+
+    # xLmax_cutxpi1_480 = float(c.applyCuts(xL,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymax_cutxpi1_480))])
+    xLmax_cutxpi2_480 = float(c.applyCuts(xL,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymax_cutxpi2_480))])
+    xLmax_cutxpi3_480 = float(c.applyCuts(xL,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymax_cutxpi3_480))])
+    xLmax_cutxpi4_480 = float(c.applyCuts(xL,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymax_cutxpi4_480))])
+    xLmax_cutxpi5_480 = float(c.applyCuts(xL,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymax_cutxpi5_480))])
+    xLmax_cutxpi6_480 = float(c.applyCuts(xL,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymax_cutxpi6_480))])
+    xLmax_cutxpi7_480 = float(c.applyCuts(xL,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymax_cutxpi7_480))])
+
+    # xpimin_cutxpi1_480 = float(c.applyCuts(xpi,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymin_cutxpi1_480))])
+    xpimin_cutxpi2_480 = float(c.applyCuts(xpi,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymin_cutxpi2_480))])
+    xpimin_cutxpi3_480 = float(c.applyCuts(xpi,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymin_cutxpi3_480))])
+    xpimin_cutxpi4_480 = float(c.applyCuts(xpi,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymin_cutxpi4_480))])
+    xpimin_cutxpi5_480 = float(c.applyCuts(xpi,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymin_cutxpi5_480))])
+    xpimin_cutxpi6_480 = float(c.applyCuts(xpi,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymin_cutxpi6_480))])
+    xpimin_cutxpi7_480 = float(c.applyCuts(xpi,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymin_cutxpi7_480))])
+
+    # xpimax_cutxpi1_480 = float(c.applyCuts(xpi,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymax_cutxpi1_480))])
+    xpimax_cutxpi2_480 = float(c.applyCuts(xpi,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymax_cutxpi2_480))])
+    xpimax_cutxpi3_480 = float(c.applyCuts(xpi,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymax_cutxpi3_480))])
+    xpimax_cutxpi4_480 = float(c.applyCuts(xpi,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymax_cutxpi4_480))])
+    xpimax_cutxpi5_480 = float(c.applyCuts(xpi,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymax_cutxpi5_480))])
+    xpimax_cutxpi6_480 = float(c.applyCuts(xpi,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymax_cutxpi6_480))])
+    xpimax_cutxpi7_480 = float(c.applyCuts(xpi,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymax_cutxpi7_480))])
+
+    # xBjmin_cutxpi1_480 = float(c.applyCuts(xBj,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymin_cutxpi1_480))])
+    xBjmin_cutxpi2_480 = float(c.applyCuts(xBj,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymin_cutxpi2_480))])
+    xBjmin_cutxpi3_480 = float(c.applyCuts(xBj,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymin_cutxpi3_480))])
+    xBjmin_cutxpi4_480 = float(c.applyCuts(xBj,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymin_cutxpi4_480))])
+    xBjmin_cutxpi5_480 = float(c.applyCuts(xBj,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymin_cutxpi5_480))])
+    xBjmin_cutxpi6_480 = float(c.applyCuts(xBj,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymin_cutxpi6_480))])
+    xBjmin_cutxpi7_480 = float(c.applyCuts(xBj,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymin_cutxpi7_480))])
+
+    # xBjmax_cutxpi1_480 = float(c.applyCuts(xBj,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymax_cutxpi1_480))])
+    xBjmax_cutxpi2_480 = float(c.applyCuts(xBj,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymax_cutxpi2_480))])
+    xBjmax_cutxpi3_480 = float(c.applyCuts(xBj,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymax_cutxpi3_480))])
+    xBjmax_cutxpi4_480 = float(c.applyCuts(xBj,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymax_cutxpi4_480))])
+    xBjmax_cutxpi5_480 = float(c.applyCuts(xBj,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymax_cutxpi5_480))])
+    xBjmax_cutxpi6_480 = float(c.applyCuts(xBj,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymax_cutxpi6_480))])
+    xBjmax_cutxpi7_480 = float(c.applyCuts(xBj,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymax_cutxpi7_480))])
+    
+    # Q2min_cutxpi1_480 = float(c.applyCuts(Q2,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymin_cutxpi1_480))])
+    Q2min_cutxpi2_480 = float(c.applyCuts(Q2,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymin_cutxpi2_480))])
+    Q2min_cutxpi3_480 = float(c.applyCuts(Q2,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymin_cutxpi3_480))])
+    Q2min_cutxpi4_480 = float(c.applyCuts(Q2,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymin_cutxpi4_480))])
+    Q2min_cutxpi5_480 = float(c.applyCuts(Q2,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymin_cutxpi5_480))])
+    Q2min_cutxpi6_480 = float(c.applyCuts(Q2,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymin_cutxpi6_480))])
+    Q2min_cutxpi7_480 = float(c.applyCuts(Q2,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymin_cutxpi7_480))])
+
+    # Q2max_cutxpi1_480 = float(c.applyCuts(Q2,cutxpi1_480)[
+    #     np.where(c.applyCuts(y,cutxpi1_480)==(ymax_cutxpi1_480))])
+    Q2max_cutxpi2_480 = float(c.applyCuts(Q2,cutxpi2_480)[
+        np.where(c.applyCuts(y,cutxpi2_480)==(ymax_cutxpi2_480))])
+    Q2max_cutxpi3_480 = float(c.applyCuts(Q2,cutxpi3_480)[
+        np.where(c.applyCuts(y,cutxpi3_480)==(ymax_cutxpi3_480))])
+    Q2max_cutxpi4_480 = float(c.applyCuts(Q2,cutxpi4_480)[
+        np.where(c.applyCuts(y,cutxpi4_480)==(ymax_cutxpi4_480))])
+    Q2max_cutxpi5_480 = float(c.applyCuts(Q2,cutxpi5_480)[
+        np.where(c.applyCuts(y,cutxpi5_480)==(ymax_cutxpi5_480))])
+    Q2max_cutxpi6_480 = float(c.applyCuts(Q2,cutxpi6_480)[
+        np.where(c.applyCuts(y,cutxpi6_480)==(ymax_cutxpi6_480))])
+    Q2max_cutxpi7_480 = float(c.applyCuts(Q2,cutxpi7_480)[
+        np.where(c.applyCuts(y,cutxpi7_480)==(ymax_cutxpi7_480))])
+    
+    #################################
+
+    
+    
+    
+    table_dict = {
+    
+            "15" : 
+             {"0.1" :{
+                 "Q2" : [Q2min_cutxpi1_15,Q2max_cutxpi1_15],
+                 "y bin" : [ymin_cutxpi1_15,ymax_cutxpi1_15],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi1_15,yieldmax_cutxpi1_15],
+                 "xL" : [xLmin_cutxpi1_15,xLmax_cutxpi1_15],
+                 "xpi": [xpimin_cutxpi1_15,xpimax_cutxpi1_15],
+                 "xBj": [xBjmin_cutxpi1_15,xBjmax_cutxpi1_15]
+             },
+             "0.2" :{
+                 "Q2" : [Q2min_cutxpi2_15,Q2max_cutxpi2_15],
+                 "y bin" : [ymin_cutxpi2_15,ymax_cutxpi2_15],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi2_15,yieldmax_cutxpi2_15],
+                 "xL" : [xLmin_cutxpi2_15,xLmax_cutxpi2_15],
+                 "xpi": [xpimin_cutxpi2_15,xpimax_cutxpi2_15],
+                 "xBj": [xBjmin_cutxpi2_15,xBjmax_cutxpi2_15]
+             },
+             "0.3" :{
+                 "Q2" : [Q2min_cutxpi3_15,Q2max_cutxpi3_15],
+                 "y bin" : [ymin_cutxpi3_15,ymax_cutxpi3_15],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi3_15,yieldmax_cutxpi3_15],
+                 "xL" : [xLmin_cutxpi3_15,xLmax_cutxpi3_15],
+                 "xpi": [xpimin_cutxpi3_15,xpimax_cutxpi3_15],
+                 "xBj": [xBjmin_cutxpi3_15,xBjmax_cutxpi3_15]
+             }
+            },
+            "30" : 
+             {"0.1" :{
+                 "Q2" : [Q2min_cutxpi1_30,Q2max_cutxpi1_30],
+                 "y bin" : [ymin_cutxpi1_30,ymax_cutxpi1_30],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi1_30,yieldmax_cutxpi1_30],
+                 "xL" : [xLmin_cutxpi1_30,xLmax_cutxpi1_30],
+                 "xpi": [xpimin_cutxpi1_30,xpimax_cutxpi1_30],
+                 "xBj": [xBjmin_cutxpi1_30,xBjmax_cutxpi1_30]
+             },
+             "0.2" :{
+                 "Q2" : [Q2min_cutxpi2_30,Q2max_cutxpi2_30],
+                 "y bin" : [ymin_cutxpi2_30,ymax_cutxpi2_30],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi2_30,yieldmax_cutxpi2_30],
+                 "xL" : [xLmin_cutxpi2_30,xLmax_cutxpi2_30],
+                 "xpi": [xpimin_cutxpi2_30,xpimax_cutxpi2_30],
+                 "xBj": [xBjmin_cutxpi2_30,xBjmax_cutxpi2_30]
+             },
+             "0.3" :{
+                 "Q2" : [Q2min_cutxpi3_30,Q2max_cutxpi3_30],
+                 "y bin" : [ymin_cutxpi3_30,ymax_cutxpi3_30],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi3_30,yieldmax_cutxpi3_30],
+                 "xL" : [xLmin_cutxpi3_30,xLmax_cutxpi3_30],
+                 "xpi": [xpimin_cutxpi3_30,xpimax_cutxpi3_30],
+                 "xBj": [xBjmin_cutxpi3_30,xBjmax_cutxpi3_30]
+             },
+             "0.4" :{
+                 "Q2" : [Q2min_cutxpi4_30,Q2max_cutxpi4_30],
+                 "y bin" : [ymin_cutxpi4_30,ymax_cutxpi4_30],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi4_30,yieldmax_cutxpi4_30],
+                 "xL" : [xLmin_cutxpi4_30,xLmax_cutxpi4_30],
+                 "xpi": [xpimin_cutxpi4_30,xpimax_cutxpi4_30],
+                 "xBj": [xBjmin_cutxpi4_30,xBjmax_cutxpi4_30]
+             },
+             "0.5" :{
+                 "Q2" : [Q2min_cutxpi5_30,Q2max_cutxpi5_30],
+                 "y bin" : [ymin_cutxpi5_30,ymax_cutxpi5_30],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi5_30,yieldmax_cutxpi5_30],
+                 "xL" : [xLmin_cutxpi5_30,xLmax_cutxpi5_30],
+                 "xpi": [xpimin_cutxpi5_30,xpimax_cutxpi5_30],
+                 "xBj": [xBjmin_cutxpi5_30,xBjmax_cutxpi5_30]
+             },
+             "0.6" :{
+                 "Q2" : [Q2min_cutxpi6_30,Q2max_cutxpi6_30],
+                 "y bin" : [ymin_cutxpi6_30,ymax_cutxpi6_30],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi6_30,yieldmax_cutxpi6_30],
+                 "xL" : [xLmin_cutxpi6_30,xLmax_cutxpi6_30],
+                 "xpi": [xpimin_cutxpi6_30,xpimax_cutxpi6_30],
+                 "xBj": [xBjmin_cutxpi6_30,xBjmax_cutxpi6_30]
+             }
+            },
+            "60" : 
+             {"0.1" :{
+                 "Q2" : [Q2min_cutxpi1_60,Q2max_cutxpi1_60],
+                 "y bin" : [ymin_cutxpi1_60,ymax_cutxpi1_60],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi1_60,yieldmax_cutxpi1_60],
+                 "xL" : [xLmin_cutxpi1_60,xLmax_cutxpi1_60],
+                 "xpi": [xpimin_cutxpi1_60,xpimax_cutxpi1_60],
+                 "xBj": [xBjmin_cutxpi1_60,xBjmax_cutxpi1_60]
+             },
+             "0.2" :{
+                 "Q2" : [Q2min_cutxpi2_60,Q2max_cutxpi2_60],
+                 "y bin" : [ymin_cutxpi2_60,ymax_cutxpi2_60],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi2_60,yieldmax_cutxpi2_60],
+                 "xL" : [xLmin_cutxpi2_60,xLmax_cutxpi2_60],
+                 "xpi": [xpimin_cutxpi2_60,xpimax_cutxpi2_60],
+                 "xBj": [xBjmin_cutxpi2_60,xBjmax_cutxpi2_60]
+             },
+             "0.3" :{
+                 "Q2" : [Q2min_cutxpi3_60,Q2max_cutxpi3_60],
+                 "y bin" : [ymin_cutxpi3_60,ymax_cutxpi3_60],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi3_60,yieldmax_cutxpi3_60],
+                 "xL" : [xLmin_cutxpi3_60,xLmax_cutxpi3_60],
+                 "xpi": [xpimin_cutxpi3_60,xpimax_cutxpi3_60],
+                 "xBj": [xBjmin_cutxpi3_60,xBjmax_cutxpi3_60]
+             },
+             "0.4" :{
+                 "Q2" : [Q2min_cutxpi4_60,Q2max_cutxpi4_60],
+                 "y bin" : [ymin_cutxpi4_60,ymax_cutxpi4_60],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi4_60,yieldmax_cutxpi4_60],
+                 "xL" : [xLmin_cutxpi4_60,xLmax_cutxpi4_60],
+                 "xpi": [xpimin_cutxpi4_60,xpimax_cutxpi4_60],
+                 "xBj": [xBjmin_cutxpi4_60,xBjmax_cutxpi4_60]
+             },
+             "0.5" :{
+                 "Q2" : [Q2min_cutxpi5_60,Q2max_cutxpi5_60],
+                 "y bin" : [ymin_cutxpi5_60,ymax_cutxpi5_60],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi5_60,yieldmax_cutxpi5_60],
+                 "xL" : [xLmin_cutxpi5_60,xLmax_cutxpi5_60],
+                 "xpi": [xpimin_cutxpi5_60,xpimax_cutxpi5_60],
+                 "xBj": [xBjmin_cutxpi5_60,xBjmax_cutxpi5_60]
+             },
+             "0.6" :{
+                 "Q2" : [Q2min_cutxpi6_60,Q2max_cutxpi6_60],
+                 "y bin" : [ymin_cutxpi6_60,ymax_cutxpi6_60],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi6_60,yieldmax_cutxpi6_60],
+                 "xL" : [xLmin_cutxpi6_60,xLmax_cutxpi6_60],
+                 "xpi": [xpimin_cutxpi6_60,xpimax_cutxpi6_60],
+                 "xBj": [xBjmin_cutxpi6_60,xBjmax_cutxpi6_60]
+             },
+             "0.7" :{
+                 "Q2" : [Q2min_cutxpi7_60,Q2max_cutxpi7_60],
+                 "y bin" : [ymin_cutxpi7_60,ymax_cutxpi7_60],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi7_60,yieldmax_cutxpi7_60],
+                 "xL" : [xLmin_cutxpi7_60,xLmax_cutxpi7_60],
+                 "xpi": [xpimin_cutxpi7_60,xpimax_cutxpi7_60],
+                 "xBj": [xBjmin_cutxpi7_60,xBjmax_cutxpi7_60]
+             }
+            },
+            "120" : 
+             {"0.1" :{
+                 "Q2" : [Q2min_cutxpi1_120,Q2max_cutxpi1_120],
+                 "y bin" : [ymin_cutxpi1_120,ymax_cutxpi1_120],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi1_120,yieldmax_cutxpi1_120],
+                 "xL" : [xLmin_cutxpi1_120,xLmax_cutxpi1_120],
+                 "xpi": [xpimin_cutxpi1_120,xpimax_cutxpi1_120],
+                 "xBj": [xBjmin_cutxpi1_120,xBjmax_cutxpi1_120]
+             },
+             "0.2" :{
+                 "Q2" : [Q2min_cutxpi2_120,Q2max_cutxpi2_120],
+                 "y bin" : [ymin_cutxpi2_120,ymax_cutxpi2_120],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi2_120,yieldmax_cutxpi2_120],
+                 "xL" : [xLmin_cutxpi2_120,xLmax_cutxpi2_120],
+                 "xpi": [xpimin_cutxpi2_120,xpimax_cutxpi2_120],
+                 "xBj": [xBjmin_cutxpi2_120,xBjmax_cutxpi2_120]
+             },
+             "0.3" :{
+                 "Q2" : [Q2min_cutxpi3_120,Q2max_cutxpi3_120],
+                 "y bin" : [ymin_cutxpi3_120,ymax_cutxpi3_120],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi3_120,yieldmax_cutxpi3_120],
+                 "xL" : [xLmin_cutxpi3_120,xLmax_cutxpi3_120],
+                 "xpi": [xpimin_cutxpi3_120,xpimax_cutxpi3_120],
+                 "xBj": [xBjmin_cutxpi3_120,xBjmax_cutxpi3_120]
+             },
+             "0.4" :{
+                 "Q2" : [Q2min_cutxpi4_120,Q2max_cutxpi4_120],
+                 "y bin" : [ymin_cutxpi4_120,ymax_cutxpi4_120],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi4_120,yieldmax_cutxpi4_120],
+                 "xL" : [xLmin_cutxpi4_120,xLmax_cutxpi4_120],
+                 "xpi": [xpimin_cutxpi4_120,xpimax_cutxpi4_120],
+                 "xBj": [xBjmin_cutxpi4_120,xBjmax_cutxpi4_120]
+             },
+             "0.5" :{
+                 "Q2" : [Q2min_cutxpi5_120,Q2max_cutxpi5_120],
+                 "y bin" : [ymin_cutxpi5_120,ymax_cutxpi5_120],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi5_120,yieldmax_cutxpi5_120],
+                 "xL" : [xLmin_cutxpi5_120,xLmax_cutxpi5_120],
+                 "xpi": [xpimin_cutxpi5_120,xpimax_cutxpi5_120],
+                 "xBj": [xBjmin_cutxpi5_120,xBjmax_cutxpi5_120]
+             },
+             "0.6" :{
+                 "Q2" : [Q2min_cutxpi6_120,Q2max_cutxpi6_120],
+                 "y bin" : [ymin_cutxpi6_120,ymax_cutxpi6_120],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi6_120,yieldmax_cutxpi6_120],
+                 "xL" : [xLmin_cutxpi6_120,xLmax_cutxpi6_120],
+                 "xpi": [xpimin_cutxpi6_120,xpimax_cutxpi6_120],
+                 "xBj": [xBjmin_cutxpi6_120,xBjmax_cutxpi6_120]
+             },
+             "0.7" :{
+                 "Q2" : [Q2min_cutxpi7_120,Q2max_cutxpi7_120],
+                 "y bin" : [ymin_cutxpi7_120,ymax_cutxpi7_120],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi7_120,yieldmax_cutxpi7_120],
+                 "xL" : [xLmin_cutxpi7_120,xLmax_cutxpi7_120],
+                 "xpi": [xpimin_cutxpi7_120,xpimax_cutxpi7_120],
+                 "xBj": [xBjmin_cutxpi7_120,xBjmax_cutxpi7_120]
+             }
+            },
+            "240" : 
+             {"0.1" :{
+                 "Q2" : [Q2min_cutxpi1_240,Q2max_cutxpi1_240],
+                 "y bin" : [ymin_cutxpi1_240,ymax_cutxpi1_240],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi1_240,yieldmax_cutxpi1_240],
+                 "xL" : [xLmin_cutxpi1_240,xLmax_cutxpi1_240],
+                 "xpi": [xpimin_cutxpi1_240,xpimax_cutxpi1_240],
+                 "xBj": [xBjmin_cutxpi1_240,xBjmax_cutxpi1_240]
+             },
+             "0.2" :{
+                 "Q2" : [Q2min_cutxpi2_240,Q2max_cutxpi2_240],
+                 "y bin" : [ymin_cutxpi2_240,ymax_cutxpi2_240],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi2_240,yieldmax_cutxpi2_240],
+                 "xL" : [xLmin_cutxpi2_240,xLmax_cutxpi2_240],
+                 "xpi": [xpimin_cutxpi2_240,xpimax_cutxpi2_240],
+                 "xBj": [xBjmin_cutxpi2_240,xBjmax_cutxpi2_240]
+             },
+             "0.3" :{
+                 "Q2" : [Q2min_cutxpi3_240,Q2max_cutxpi3_240],
+                 "y bin" : [ymin_cutxpi3_240,ymax_cutxpi3_240],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi3_240,yieldmax_cutxpi3_240],
+                 "xL" : [xLmin_cutxpi3_240,xLmax_cutxpi3_240],
+                 "xpi": [xpimin_cutxpi3_240,xpimax_cutxpi3_240],
+                 "xBj": [xBjmin_cutxpi3_240,xBjmax_cutxpi3_240]
+             },
+             "0.4" :{
+                 "Q2" : [Q2min_cutxpi4_240,Q2max_cutxpi4_240],
+                 "y bin" : [ymin_cutxpi4_240,ymax_cutxpi4_240],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi4_240,yieldmax_cutxpi4_240],
+                 "xL" : [xLmin_cutxpi4_240,xLmax_cutxpi4_240],
+                 "xpi": [xpimin_cutxpi4_240,xpimax_cutxpi4_240],
+                 "xBj": [xBjmin_cutxpi4_240,xBjmax_cutxpi4_240]
+             },
+             "0.5" :{
+                 "Q2" : [Q2min_cutxpi5_240,Q2max_cutxpi5_240],
+                 "y bin" : [ymin_cutxpi5_240,ymax_cutxpi5_240],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi5_240,yieldmax_cutxpi5_240],
+                 "xL" : [xLmin_cutxpi5_240,xLmax_cutxpi5_240],
+                 "xpi": [xpimin_cutxpi5_240,xpimax_cutxpi5_240],
+                 "xBj": [xBjmin_cutxpi5_240,xBjmax_cutxpi5_240]
+             },
+             "0.6" :{
+                 "Q2" : [Q2min_cutxpi6_240,Q2max_cutxpi6_240],
+                 "y bin" : [ymin_cutxpi6_240,ymax_cutxpi6_240],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi6_240,yieldmax_cutxpi6_240],
+                 "xL" : [xLmin_cutxpi6_240,xLmax_cutxpi6_240],
+                 "xpi": [xpimin_cutxpi6_240,xpimax_cutxpi6_240],
+                 "xBj": [xBjmin_cutxpi6_240,xBjmax_cutxpi6_240]
+             },
+             "0.7" :{
+                 "Q2" : [Q2min_cutxpi7_240,Q2max_cutxpi7_240],
+                 "y bin" : [ymin_cutxpi7_240,ymax_cutxpi7_240],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi7_240,yieldmax_cutxpi7_240],
+                 "xL" : [xLmin_cutxpi7_240,xLmax_cutxpi7_240],
+                 "xpi": [xpimin_cutxpi7_240,xpimax_cutxpi7_240],
+                 "xBj": [xBjmin_cutxpi7_240,xBjmax_cutxpi7_240]
+             }
+            },
+            "480" : 
+             {"0.2" :{
+                 "Q2" : [Q2min_cutxpi2_480,Q2max_cutxpi2_480],
+                 "y bin" : [ymin_cutxpi2_480,ymax_cutxpi2_480],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi2_480,yieldmax_cutxpi2_480],
+                 "xL" : [xLmin_cutxpi2_480,xLmax_cutxpi2_480],
+                 "xpi": [xpimin_cutxpi2_480,xpimax_cutxpi2_480],
+                 "xBj": [xBjmin_cutxpi2_480,xBjmax_cutxpi2_480]
+             },
+             "0.3" :{
+                 "Q2" : [Q2min_cutxpi3_480,Q2max_cutxpi3_480],
+                 "y bin" : [ymin_cutxpi3_480,ymax_cutxpi3_480],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi3_480,yieldmax_cutxpi3_480],
+                 "xL" : [xLmin_cutxpi3_480,xLmax_cutxpi3_480],
+                 "xpi": [xpimin_cutxpi3_480,xpimax_cutxpi3_480],
+                 "xBj": [xBjmin_cutxpi3_480,xBjmax_cutxpi3_480]
+             },
+             "0.4" :{
+                 "Q2" : [Q2min_cutxpi4_480,Q2max_cutxpi4_480],
+                 "y bin" : [ymin_cutxpi4_480,ymax_cutxpi4_480],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi4_480,yieldmax_cutxpi4_480],
+                 "xL" : [xLmin_cutxpi4_480,xLmax_cutxpi4_480],
+                 "xpi": [xpimin_cutxpi4_480,xpimax_cutxpi4_480],
+                 "xBj": [xBjmin_cutxpi4_480,xBjmax_cutxpi4_480]
+             },
+             "0.5" :{
+                 "Q2" : [Q2min_cutxpi5_480,Q2max_cutxpi5_480],
+                 "y bin" : [ymin_cutxpi5_480,ymax_cutxpi5_480],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi5_480,yieldmax_cutxpi5_480],
+                 "xL" : [xLmin_cutxpi5_480,xLmax_cutxpi5_480],
+                 "xpi": [xpimin_cutxpi5_480,xpimax_cutxpi5_480],
+                 "xBj": [xBjmin_cutxpi5_480,xBjmax_cutxpi5_480]
+             },
+             "0.6" :{
+                 "Q2" : [Q2min_cutxpi6_480,Q2max_cutxpi6_480],
+                 "y bin" : [ymin_cutxpi6_480,ymax_cutxpi6_480],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi6_480,yieldmax_cutxpi6_480],
+                 "xL" : [xLmin_cutxpi6_480,xLmax_cutxpi6_480],
+                 "xpi": [xpimin_cutxpi6_480,xpimax_cutxpi6_480],
+                 "xBj": [xBjmin_cutxpi6_480,xBjmax_cutxpi6_480]
+             },
+             "0.7" :{
+                 "Q2" : [Q2min_cutxpi7_480,Q2max_cutxpi7_480],
+                 "y bin" : [ymin_cutxpi7_480,ymax_cutxpi7_480],
+                 "Yield (100 fb^-1)" : [yieldmin_cutxpi7_480,yieldmax_cutxpi7_480],
+                 "xL" : [xLmin_cutxpi7_480,xLmax_cutxpi7_480],
+                 "xpi": [xpimin_cutxpi7_480,xpimax_cutxpi7_480],
+                 "xBj": [xBjmin_cutxpi7_480,xBjmax_cutxpi7_480]
+             }
+        }
+    }
     
     f = plt.figure(figsize=(11.69,8.27))
     plt.scatter(c.applyCuts(y,cutxpi001_15),c.applyCuts(lumi,cutxpi001_15),label='0.001')
@@ -2417,36 +2695,29 @@ def theory_table():
     print(theory_df_table)
     return theory_df_table
     
-
-    
 def main() :
 
     # phase_space()
     # fpivxpi_Plot()
-    # # fpivxpi_Plot_nolog()
-    # fpivt_Plot()
-    # # fpivt_xbin_Plot()
-    # # fpivtPrime_Plot()
-    # # fpivtPrime_xbin_Plot()
-    # # sigmavxpi_Plot()
-    # # plot3D()
-    # plt.show()
-
-    df_table = theory_table()
-
+    fpivt_Plot()
+    x_xl()    
     plt.show()
-    #render dataframe as html
-    html_table = df_table.to_html()
-    csv_table = df_table.to_csv()
 
-    #write html to file
-    text_file = open("theory_table.html", "w")
-    text_file.write(html_table)
-    text_file.close()
+    # df_table = theory_table()
 
-    text_file = open("theory_table.csv", "w")
-    text_file.write(csv_table)
-    text_file.close()
+    # plt.show()
+    # #render dataframe as html
+    # html_table = df_table.to_html()
+    # csv_table = df_table.to_csv()
+
+    # #write html to file
+    # text_file = open("theory_table.html", "w")
+    # text_file.write(html_table)
+    # text_file.close()
+
+    # text_file = open("theory_table.csv", "w")
+    # text_file.write(csv_table)
+    # text_file.close()
 
     
 if __name__=='__main__': main()
