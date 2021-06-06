@@ -14,5 +14,5 @@ else
 fi
 
 echo "Binning data for $kinematics"
-python3 binMCdata.py "$kinematics"
+python3 plot_test.py "$kinematics"
 

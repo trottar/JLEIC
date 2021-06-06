@@ -15,12 +15,13 @@ XMIN=${tmp[0]}
 XMAX=${tmp[1]}
 Q2MIN=${tmp[2]}
 Q2MAX=${tmp[3]}
-# RANNUM=$( date '+%M%S' )
-RANNUM=2373
+RANDNUM=$( date +'%Y%M%S' )
 NEVTS=${tmp[4]}
 PBEAM=${tmp[5]}
 KBEAM=${tmp[6]}
 SMEAR=${tmp[7]}
+
+rm tmp
 
 cd "src/"
 
@@ -54,11 +55,15 @@ else
     exit 2
 fi
 
+LOG=$RANDNUM${SCRIPT:0:-4}.log
+
+{
 root -l<<EOF
 .L $SCRIPT+
-mainx($XMIN,$XMAX,$Q2MIN,$Q2MAX,$RANNUM,$NEVTS,$PBEAM,$KBEAM,$SMEAR)
+mainx($XMIN,$XMAX,$Q2MIN,$Q2MAX,$RANDNUM,$NEVTS,$PBEAM,$KBEAM,$SMEAR)
 EOF
+} 2> $LOG
+
+mv $LOG log/
 
 cd "../"
-
-rm tmp

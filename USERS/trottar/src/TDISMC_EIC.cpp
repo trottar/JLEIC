@@ -211,7 +211,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double p2_pt, p2_z;
   Double_t qMag, pDotq;
 	
-  double TDIS_xbj, TDIS_znq, TDIS_Mx2, TDIS_y;
+  double TDIS_Q2,TDIS_xbj, TDIS_t, TDIS_znq, TDIS_Mx2, TDIS_y;
 
   const Int_t bufsize=32000;
 
@@ -279,7 +279,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   tree->Branch("pXz_Lab", &pXz_Lab, "pXz_Lab/D");
   tree->Branch("EXE_Lab", &EXE_Lab, "EXE_Lab/D");
 	
+  tree->Branch("TDIS_Q2", &TDIS_Q2, "TDIS_Q2/D");
   tree->Branch("TDIS_xbj", &TDIS_xbj, "TDIS_xbj/D");
+  tree->Branch("TDIS_t", &TDIS_t, "TDIS_t/D");
   tree->Branch("TDIS_znq", &TDIS_znq, "TDIS_znq/D");
   tree->Branch("TDIS_Mx2", &TDIS_Mx2, "TDIS_Mx2/D");
   tree->Branch("TDIS_y", &TDIS_y, "TDIS_y/D");
@@ -651,7 +653,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     p2_z = gRandom->Uniform(1.);
 
     //  definition are moved at the beginning of code
-    //		double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
+    TDIS_Q2 = invts.Q2;
+    TDIS_t = invts.tSpectator;
     TDIS_xbj = invts.Q2/(2*pSpectator_RestNew.Dot(qVirtual_Rest));
     TDIS_znq = p2_z*pSpectator_RestNew.Dot(qVirtual_Rest);
     TDIS_Mx2 = (qVirtual_Rest + pSpectator_RestNew).Mag2();

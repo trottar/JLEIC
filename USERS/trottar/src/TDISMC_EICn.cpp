@@ -169,13 +169,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   TFile fRoot(rName,"Recreate", tTitle);
   sprintf(tName,"pi_n");
 
-  TTree *tree = new TTree("Evnts",tTitle);
+  TTree *tree = new TTree("Evts",tTitle);
+  TTree *proctree = new TTree("Process",tTitle);
 
   typedef struct{
     Double_t s_e, s_q,  Q2, xBj, nu, W, p_RT, tempVar,
       pDrest, x_D, y_D, Yplus,  tSpectator, tPrime,
       TwoPdotk, TwoPdotq, MX2,
-      alphaS, pPerpS, pPerpZ, Jacob;
+      alphaS, pPerpS, pPerpZ;
   } Invariants;
   static Invariants invts;
 
@@ -184,74 +185,79 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   //  ************************************************
   // Store physics variable for TDIS into ROOTs
   //  ************************************************
-  double tpi, ypi, fpi, pi_int, xpi; 
+  double tpi, ypi, fpi, pi_int, xpi;
+  double  xL, tmin;
   double sigma_dis;
   double sigma_tdis;
   double f2N;   
   Double_t qMag, pDotq;
 	
-  double TDIS_xbj, TDIS_znq, TDIS_Mx2, TDIS_y;
+  double TDIS_Q2,TDIS_xbj, TDIS_t, TDIS_znq, TDIS_Mx2, TDIS_y;
 
   const Int_t bufsize=32000;
 
   // invariants
-  tree->Branch("invts",&invts,		     "s_e/D:s_q/D:Q2/D:xBj/D:nu/D:W/D:x_D/D:y_D/D:Yplus/D:tSpectator/D:tPrime/D:TwoPdotk/D:TwoPdotq/D:p_RT/D:pDrest/D:tempVar/D:MX2/D:alphaS/D:pPerpS/D:pPerpZ/D");
+  tree->Branch("invts",&invts,"s_e/D:s_q/D:Q2/D:xBj/D:nu/D:W/D:p_RT/D:tempVar/D:pDrest/D:x_D/D:y_D/D:Yplus/D:tSpectator/D:tPrime/D:TwoPdotk/D:TwoPdotq/D:MX2/D:alphaS/D:pPerpS/D:pPerpZ/D");
   // incoming particle electron, deuteron(proton)
   tree->Branch("e_Inc.", &kIncident_Vertex,bufsize,1);
   tree->Branch("P_Inc.",  &PIncident_Vertex, bufsize, 1);
   // outgoing particles (electron, virtual photon, proton1, proton2, pion)
   tree->Branch("e_Scat.", &kScattered_Vertex, bufsize, 1);
   tree->Branch("q_Vir.", &qVirtual_Vertex, bufsize, 1);
-  tree->Branch("p1_Sp.", &pScatterNeutron_Vertex, bufsize, 1);
+  tree->Branch("n_scat.", &pScatterNeutron_Vertex, bufsize, 1);
   tree->Branch("pi.", &pScatterPion_Vertex, bufsize, 1);
 
   // Store physics varaibles into ROOTs
-  tree->Branch("xpi", &xpi, "xpi/D");
-  tree->Branch("ypi", &ypi, "ypi/D");
-  tree->Branch("tpi", &tpi, "tpi/D");
-  tree->Branch("fpi", &fpi, "fpi/D");
-  tree->Branch("pi_int", &pi_int, "pi_int/D");
+  proctree->Branch("xpi", &xpi, "xpi/D");
+  proctree->Branch("ypi", &ypi, "ypi/D");
+  proctree->Branch("tpi", &tpi, "tpi/D");
+  proctree->Branch("fpi", &fpi, "fpi/D");
+  proctree->Branch("xL", &xL, "xL/D");
+  proctree->Branch("tmin", &tmin, "tmin/D");
+  proctree->Branch("pi_int", &pi_int, "pi_int/D");
 	
-  tree->Branch("f2N", &f2N, "f2N/D");
-	
-  tree->Branch("sigma_dis", &sigma_dis, "sigma_dis/D");
-  tree->Branch("sigma_tdis", &sigma_tdis, "sigma_tdis/D");
-
-  // Incident proton
-  tree->Branch("pprx_inc", &pprx_inc, "pprx_inc/D");
-  tree->Branch("ppry_inc", &ppry_inc, "ppry_inc/D");
-  tree->Branch("pprz_inc", &pprz_inc, "pprz_inc/D");
-  tree->Branch("EprE_inc", &EprE_inc, "EprE_inc/D");
-  
-  // TDIS scattered electron information
-  tree->Branch("pex_Lab", &pex_Lab, "pex_Lab/D");
-  tree->Branch("pey_Lab", &pey_Lab, "pey_Lab/D");
-  tree->Branch("pez_Lab", &pez_Lab, "pez_Lab/D");
-  tree->Branch("EeE_Lab", &EeE_Lab, "EeE_Lab/D");
-
-  // TDIS detected pion information
-  tree->Branch("ppix_Lab", &ppix_Lab, "ppix_Lab/D");
-  tree->Branch("ppiy_Lab", &ppiy_Lab, "ppiy_Lab/D");
-  tree->Branch("ppiz_Lab", &ppiz_Lab, "ppiz_Lab/D");
-  tree->Branch("EpiE_Lab", &EpiE_Lab, "EpiE_Lab/D");
-
-  // TDIS spectator neutron information
-  tree->Branch("pnx_Lab", &pnx_Lab, "pnx_Lab/D");
-  tree->Branch("pny_Lab", &pny_Lab, "pny_Lab/D");
-  tree->Branch("pnz_Lab", &pnz_Lab, "pnz_Lab/D");
-  tree->Branch("EnE_Lab", &EnE_Lab, "EnE_Lab/D");
-
-  // missing particle (X) information
-  tree->Branch("pXx_Lab", &pXx_Lab, "pXx_Lab/D");
-  tree->Branch("pXy_Lab", &pXy_Lab, "pXy_Lab/D");
-  tree->Branch("pXz_Lab", &pXz_Lab, "pXz_Lab/D");
-  tree->Branch("EXE_Lab", &EXE_Lab, "EXE_Lab/D");
+  proctree->Branch("f2N", &f2N, "f2N/D");
 
   // TDIS kinematic variables
-  tree->Branch("TDIS_xbj", &TDIS_xbj, "TDIS_xbj/D");
-  tree->Branch("TDIS_znq", &TDIS_znq, "TDIS_znq/D");
-  tree->Branch("TDIS_Mx2", &TDIS_Mx2, "TDIS_Mx2/D");
-  tree->Branch("TDIS_y", &TDIS_y, "TDIS_y/D");
+  proctree->Branch("TDIS_Q2", &TDIS_Q2, "TDIS_Q2/D");
+  proctree->Branch("TDIS_xbj", &TDIS_xbj, "TDIS_xbj/D");
+  proctree->Branch("TDIS_t", &TDIS_t, "TDIS_t/D");
+  proctree->Branch("TDIS_znq", &TDIS_znq, "TDIS_znq/D");
+  proctree->Branch("TDIS_Mx2", &TDIS_Mx2, "TDIS_Mx2/D");
+  proctree->Branch("TDIS_y", &TDIS_y, "TDIS_y/D");
+	
+  proctree->Branch("sigma_dis", &sigma_dis, "sigma_dis/D");
+  proctree->Branch("sigma_tdis", &sigma_tdis, "sigma_tdis/D");
+
+  // Incident proton
+  proctree->Branch("pprx_inc", &pprx_inc, "pprx_inc/D");
+  proctree->Branch("ppry_inc", &ppry_inc, "ppry_inc/D");
+  proctree->Branch("pprz_inc", &pprz_inc, "pprz_inc/D");
+  proctree->Branch("EprE_inc", &EprE_inc, "EprE_inc/D");
+  
+  // TDIS scattered electron information
+  proctree->Branch("pex_Lab", &pex_Lab, "pex_Lab/D");
+  proctree->Branch("pey_Lab", &pey_Lab, "pey_Lab/D");
+  proctree->Branch("pez_Lab", &pez_Lab, "pez_Lab/D");
+  proctree->Branch("EeE_Lab", &EeE_Lab, "EeE_Lab/D");
+
+  // TDIS detected pion information
+  proctree->Branch("ppix_Lab", &ppix_Lab, "ppix_Lab/D");
+  proctree->Branch("ppiy_Lab", &ppiy_Lab, "ppiy_Lab/D");
+  proctree->Branch("ppiz_Lab", &ppiz_Lab, "ppiz_Lab/D");
+  proctree->Branch("EpiE_Lab", &EpiE_Lab, "EpiE_Lab/D");
+
+  // TDIS spectator neutron information
+  proctree->Branch("pnx_Lab", &pnx_Lab, "pnx_Lab/D");
+  proctree->Branch("pny_Lab", &pny_Lab, "pny_Lab/D");
+  proctree->Branch("pnz_Lab", &pnz_Lab, "pnz_Lab/D");
+  proctree->Branch("EnE_Lab", &EnE_Lab, "EnE_Lab/D");
+
+  // missing particle (X) information
+  proctree->Branch("pXx_Lab", &pXx_Lab, "pXx_Lab/D");
+  proctree->Branch("pXy_Lab", &pXy_Lab, "pXy_Lab/D");
+  proctree->Branch("pXz_Lab", &pXz_Lab, "pXz_Lab/D");
+  proctree->Branch("EXE_Lab", &EXE_Lab, "EXE_Lab/D");
 	
   double sig_eThx=0.0, sig_eThy=0.0, sig_iThx=0.0, sig_iThy=0.0;
 
@@ -281,11 +287,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double EScatRest, kScatRest, csTheRest, PhiScatRest, csPhiRest;
   double EScatRest0, kScatRest0, csTheRest0, PhiScatRest0;
 
-  tree->Branch("EScatRest", &EScatRest, "EScatRest/D");
-  tree->Branch("kScatRest", &kScatRest, "kScatRest/D");
-  tree->Branch("PhiScatRest", &PhiScatRest, "PhiScatRest/D");
-  tree->Branch("csPhiRest", &csPhiRest, "csPhiRest/D");
-  tree->Branch("csTheRest", &csTheRest, "csTheRest/D");
+  proctree->Branch("EScatRest", &EScatRest, "EScatRest/D");
+  proctree->Branch("kScatRest", &kScatRest, "kScatRest/D");
+  proctree->Branch("PhiScatRest", &PhiScatRest, "PhiScatRest/D");
+  proctree->Branch("csPhiRest", &csPhiRest, "csPhiRest/D");
+  proctree->Branch("csTheRest", &csTheRest, "csTheRest/D");
 	
   TVector3       UnitXLab, UnitYLab, UnitZLab;
   
@@ -391,7 +397,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       kBeamMC = kBeam*ran3.Gaus(1.0,eDkOverk);
       kBeamMCx= kBeamMC*ran3.Gaus(0.0,sig_eThx);
       kBeamMCy= kBeamMC*ran3.Gaus(0.0,sig_eThy);
-      kBeamMCz=-kBeamMC;  //  Angles are really Tangents
+      kBeamMCz=-kBeamMC;  //  Angles are really tangents
       PBeamMC = PIon*ran3.Gaus(1.0,iDPoverP);
       PBeamMCx= PBeamMC*ran3.Gaus(0.0,sig_iThx); // IP1 configuration
       PBeamMCy= PBeamMC*ran3.Gaus(0.0,sig_iThy);
@@ -553,13 +559,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     qMag = qVirtual_Rest.P();
     pDotq = BoostRest(0)*qVirtual_Rest(0)+BoostRest(1)*qVirtual_Rest(1)+BoostRest(2)*qVirtual_Rest(2);
     p_DT = PIncident_Vertex - (pDotq/qMag/qMag)*qVirtual_Rest;
-    p_ST = pSpectator_Vertex -(pDotq/qMag/qMag)*qVirtual_Rest;		
 
     // Null for proton beam
     pSpectator_Rest  = PIncident_Rest;
     
     //  definition are moved at the beginning of code
-    //		double TDIS_xbj, TDIS_znq,TDIS_Mx2,TDIS_y;
+    TDIS_Q2 = invts.Q2;
     TDIS_xbj = invts.Q2/(2*pSpectator_Rest.Dot(qVirtual_Rest));
     TDIS_znq = p2.p2_z*pSpectator_Rest.Dot(qVirtual_Rest);
     TDIS_Mx2 = (qVirtual_Rest + pSpectator_Rest).Mag2();
@@ -598,16 +603,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     pScatterNeutron_V3 += pS_rest*csThRecoil*UnitZqCM;
     
     pScatterNeutron_Rest.SetVectM(pScatterNeutron_V3,MSpectator);
+
     Jacob     *= 1./(2.*pScatterNeutron_Rest.E());
 
-    PX_Vertex_Rest = kIncident_Rest+PIncident_Rest-(kScattered_Rest+pScatterNeutron_Rest);
+    PX_Vertex_Rest = (kIncident_Rest+PIncident_Rest)-(kScattered_Rest+pScatterNeutron_Rest);
 
     invts.MX2 = PX_Vertex.M2();
     invts.alphaS = ABeam*(pS_rest*csThRecoil+pSpectator_Rest.E())/MIon;
     invts.pPerpS = pS_rest*sqrt(1.-csThRecoil*csThRecoil);
-
-    invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
-    invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;
     
     // alpha cut for select event with minimizing coherrent effects
     if(pow(invts.alphaS-1,2)<0.0001){
@@ -632,16 +635,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // Back to Lab frame
     pScatterNeutron_Vertex = pScatterNeutron_Rest;	  
-    pScatterNeutron_Vertex.Boost(BoostRest);   
+    pScatterNeutron_Vertex.Boost(BoostRest);
+    pSpectator_Vertex = pScatterNeutron_Vertex;
     pScatterPion_Vertex = pScatterPion_Rest;
     pScatterPion_Vertex.Boost(BoostRest);
 
     P_pi = pScatterPion_V3.Mag();
-
-    if ((pScatterNeutron_Vertex.E()+pScatterPion_Vertex.E()) > PBeam){
-    // if ((pScatterNeutron_Vertex.E()) > PBeam){
-      continue;
-    }
     
     pnx_Lab = pScatterNeutron_Vertex.X();
     pny_Lab = pScatterNeutron_Vertex.Y();
@@ -662,22 +661,23 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vpix_Lab = 0.0;
     vpiy_Lab = 0.0;
     vpiz_Lab = 0.0;
-        
+ 
     // For debugging purpose
-    // if (pn_Lab > (PBeam/ABeam) ) { 
-    //   // Unphysical kinematics  // if TDIS spectator momentum larger than 50% ion momentum
-    //   printf("impossible of TDIS spectator momentum= %6.2f \n", ppr_Lab);
-    //   continue;
-    // })
+    if (pn_Lab > (PBeam/ABeam) ) { 
+      // Unphysical kinematics: if TDIS spectator momentum larger than 50% ion momentum
+      //printf("impossible of TDIS spectator momentum= %6.2f \n", pn_Lab);
+      continue;
+    }
 
-    // for debuggin purpose
+    // for debugging purpose
     // cout  << "(7L) pion Vertex, px= " << ppix_Lab << ", py= " << ppiy_Lab <<
     // ", pz= " << ppiz_Lab << ", Epi= " << EpiE_Lab << endl;
 	       
     // Definition of pion variable
-    xpi = TDIS_xbj/(1 - p2.p2_z);
+    xL = (pSpectator_Vertex.Dot(kIncident_Vertex))/(PIncident_Vertex.Dot(kIncident_Vertex));
+    xpi = TDIS_xbj/(1 - xL);
     tpi = (E_pi*E_pi) - (pScatterPion_V3.Mag()*pScatterPion_V3.Mag());
-    ypi = pScatterPion_Rest.Dot(qVirtual_Rest)/(pScatterPion_Rest.Dot(kIncident_Rest));
+    ypi = (pScatterPion_Rest.Dot(qVirtual_Rest))/(pScatterPion_Rest.Dot(kIncident_Rest));
     
     // *****
     // for debugging purpose
@@ -716,7 +716,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       
       //  typ = 5 ! ZEUS parameterization with F2N (proton SF)      
       if (typ == 5){
-	fpi = fpifac*f2piZEUS(TDIS_xbj,invts.Q2,inucl);
+	    fpi = fpifac*f2piZEUS(TDIS_xbj,invts.Q2,inucl);
       }
 
       yy = (P_pi/MSpectator)*cos(theta_p2)+(1/MSpectator)*(MSpectator-sqrt(MSpectator*MSpectator+P_pi*P_pi));
@@ -764,6 +764,20 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       << P_pi << ", xbj= "<< TDIS_xbj << ", theta_p2(deg)= "<< theta_p2 << endl; 
     */
 
+    invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
+    TDIS_t = invts.tSpectator;
+    
+    tmin = (((1-xL)/xL)*((1-xL)/xL))*(MSpectator*MSpectator-xL*MIon*MIon);
+
+    /*
+    if (TDIS_t < tmin){
+      continue;
+    }
+    */
+
+    //cout << "---->t compare (invts vs TDIS) =" << invts.tSpectator << " " << TDIS_t << endl;
+    invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;
+    p_ST = pSpectator_Vertex -(pDotq/qMag/qMag)*qVirtual_Rest;		
     invts.nu = invts.Q2 / (2 * MIon * invts.xBj) ;
     invts.W = MIon*MIon + invts.Q2/invts.xBj -invts.Q2;
     W2 = invts.W*invts.W;
@@ -839,10 +853,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // final state neutron (TDIS)
     OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pnx_Lab << " \t " << pny_Lab << " \t " << pnz_Lab << " \t " << EnE_Lab << " \t " << spmass << " \t " << vnx_Lab  << " \t " << vny_Lab << " \t " << vnz_Lab << endl;  
     
-    MEvts++;
-    
     tree->Fill();
+    proctree->Fill();
     itree->Fill();
+
+    MEvts++;
 
   }
   
