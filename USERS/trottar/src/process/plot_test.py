@@ -14,19 +14,18 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
-import binMCdata as mc
+import bindata as data
 
 def densityPlot(x,y,title,xlabel,ylabel,binx,biny,
-                    xmin=None,xmax=None,ymin=None,ymax=None,cuts=None,figure=None,ax=None,layered=True):
-    xcut = x
-    ycut = y
-    if ax or figure:
+                    xmin=None,xmax=None,ymin=None,ymax=None,cuts=None,fig=None,ax=None,layered=True):
+
+    if ax or fig:
         print("")
     else:
         fig, ax = plt.subplots(tight_layout=True,figsize=(11.69,8.27))
 
     # norm=colors.LogNorm() makes colorbar normed and logarithmic
-    hist = ax.hist2d(xcut, ycut,bins=(binx,biny),norm=colors.LogNorm())
+    hist = ax.hist2d(x, y,bins=(binx,biny),norm=colors.LogNorm())
     if layered is True :
         plt.colorbar(hist[3], ax=ax, spacing='proportional', label='Number of Events')
 
@@ -38,26 +37,32 @@ def densityPlot(x,y,title,xlabel,ylabel,binx,biny,
         
     return fig
 
-plt.scatter(mc.t_qbin,mc.fpi_qbin)
-plt.show()
+fig = plt.figure(figsize=(17,12),facecolor='silver')
 
+ax = fig.add_subplot(331)
+#plt.scatter(data.t_qbin,data.fpi_qbin)
+densityPlot(data.t_qbin,data.fpi_qbin, '$fpi$ vs $t$','$t$','$fpi$', 200, 200, ax=ax, fig=fig)
+
+ax = fig.add_subplot(332)
 #plt.scatter(TDIS_xbj_qbin,fpi_qbin)
-densityPlot(mc.TDIS_xbj_xbin,mc.fpi_qbin, '$fpi$ vs $x$','$x$','$fpi$', 200, 200)
-plt.show()
+densityPlot(data.TDIS_xbj_qbin,data.fpi_qbin, '$fpi$ vs $x$','$x$','$fpi$', 200, 200, ax=ax, fig=fig)
 
-densityPlot(mc.TDIS_xbj_xbin,mc.xL_qbin, '$xL$ vs $x$','$x$','$xL$', 200, 200)
-plt.show()
+ax = fig.add_subplot(333)
+densityPlot(data.TDIS_xbj_qbin,data.xL_qbin, '$xL$ vs $x$','$x$','$xL$', 200, 200, ax=ax, fig=fig)
 
-densityPlot(mc.TDIS_xbj_xbin,mc.t_qbin, '$t$ vs $x$','$x$','$t$', 200, 200)
-plt.show()
+ax = fig.add_subplot(334)
+densityPlot(data.TDIS_xbj_qbin,data.t_qbin, '$t$ vs $x$','$x$','$t$', 200, 200, ax=ax, fig=fig)
 
-densityPlot(mc.xL_xbin,mc.t_qbin, '$t$ vs $xL$','$xL$','$t$', 200, 200)
-plt.show()
+ax = fig.add_subplot(335)
+densityPlot(data.xL_qbin,data.t_qbin, '$t$ vs $xL$','$xL$','$t$', 200, 200, ax=ax, fig=fig)
 
-densityPlot(mc.TDIS_xbj_xbin,mc.Q2_xbin, '$Q^2$ vs $x$','$x$','$Q^{2}$', 200, 200)
-plt.show()
+ax = fig.add_subplot(336)
+densityPlot(data.TDIS_xbj_xbin,data.Q2_xbin, '$Q^2$ vs $x$','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
 
-densityPlot(mc.TDIS_xbj_qbin,mc.Q2_qbin, '$Q^2$ vs $x$','$x$','$Q^{2}$', 200, 200)
+ax = fig.add_subplot(337)
+densityPlot(data.TDIS_xbj_qbin,data.Q2_qbin, '$Q^2$ vs $x$','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
+
+plt.tight_layout()
 plt.show()
 
 '''

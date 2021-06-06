@@ -39,8 +39,8 @@ print("Average (no bin)",np.average(TDIS_xbj_raw))
 xbinwidth = 0.1
 xbins =  np.linspace(0.,1.,1/xbinwidth) 
 qbinwidth = 10
-#qbins =  [60,120,240,480]
-qbins =  np.linspace(0.,1000.,100)
+qbins =  [60,120,240,480]
+#qbins =  np.linspace(0.,1000.,100)
 print("xBj Bins will be", xbins)
 print("Q2 Bins will be", qbins)
 
@@ -58,27 +58,28 @@ def binBool(rawdata,bindata,binwidth):
 xbinVal = np.array(binBool(TDIS_xbj_raw,xbins,xbinwidth))
 qbinVal = np.array(binBool(Q2_raw,qbins,qbinwidth))
 
-TDIS_xbj_xbin = np.array(TDIS_xbj_raw)
-Q2_xbin = np.array(Q2_raw)
-fpi_xbin = np.array(fpi_raw)
-t_xbin = np.array(t_raw)
-xL_xbin = np.array(xL_raw)
-TDIS_xbj_xbin[~xbinVal] = 0.
-Q2_xbin[~xbinVal] = 0.
-fpi_xbin[~xbinVal] = 0.
-t_xbin[~xbinVal] = 0.
-xL_xbin[~xbinVal] = 0.
+def binData(lst, binType):
+    arr_bin  = np.array(lst)
+    arr_bin[~binType] = 0.
+    return arr_bin
 
-TDIS_xbj_qbin = np.array(TDIS_xbj_xbin)
-Q2_qbin = np.array(Q2_xbin)
-fpi_qbin = np.array(fpi_xbin)
-t_qbin = np.array(t_xbin)
-xL_qbin = np.array(xL_xbin)
-TDIS_xbj_qbin[~qbinVal] = 0.
-Q2_qbin[~qbinVal] = 0.
-fpi_qbin[~qbinVal] = 0.
-t_qbin[~qbinVal] = 0.
-xL_qbin[~qbinVal] = 0.
+TDIS_xbj_xbin = binData(TDIS_xbj_raw, xbinVal)
+Q2_xbin = binData(Q2_raw, xbinVal)
+fpi_xbin = binData(fpi_raw, xbinVal)
+t_xbin = binData(t_raw, xbinVal)
+xL_xbin = binData(xL_raw, xbinVal)
+
+TDIS_xbj_qbin = binData(TDIS_xbj_xbin, qbinVal)
+Q2_qbin = binData(Q2_xbin, qbinVal)
+fpi_qbin = binData(fpi_xbin, qbinVal)
+t_qbin = binData(t_xbin, qbinVal)
+xL_qbin = binData(xL_xbin, qbinVal)
+
+TDIS_xbj_qbin = np.trim_zeros(TDIS_xbj_qbin)
+Q2_qbin = np.trim_zeros(Q2_qbin)
+fpi_qbin = np.trim_zeros(fpi_qbin)
+t_qbin = np.trim_zeros(t_qbin)
+xL_qbin = np.trim_zeros(xL_qbin)
 
 '''
 Next step is to restructure MC root files then bin everything
