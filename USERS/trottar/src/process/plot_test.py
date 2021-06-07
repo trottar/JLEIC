@@ -122,8 +122,6 @@ def F2pi(xpi, Q2):
     F2pi=lambda xpi,Q2: griddata(points,values,(np.log10(xpi),np.log10(Q2)))
     return F2pi(xpi,Q2)
 
-print("~",F2pi(xpi,Q2))
-
 # Calculate cross-section using Patrick's interpolate grid
 def ds_dxdQ2dxLdt(x, xL,t):
     points60,values60=np.load('./../../analysis/xsec/pointsxsec60.npy'),np.load('./../../analysis/xsec/valuesxsec60.npy')
@@ -137,8 +135,6 @@ def ds_dxdQ2dxLdt(x, xL,t):
 
     return [sigma60(x,xL,t),sigma120(x,xL,t),sigma240(x,xL,t),sigma480(x,xL,t)]
 
-print("~",ds_dxdQ2dxLdt(xbj,xL,t))
-
 def fpivxpi_Plot():
     
     f = plt.figure(figsize=(11.69,8.27))
@@ -151,7 +147,6 @@ def fpivxpi_Plot():
     xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x4_q3),F2pi(cut.applyCuts(xpi,cut_x4_q3),cut.applyCuts(Q2,cut_x4_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.04-0.05')
     xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x6_q3),F2pi(cut.applyCuts(xpi,cut_x6_q3),cut.applyCuts(Q2,cut_x6_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.06-0.07')
     xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x8_q3),F2pi(cut.applyCuts(xpi,cut_x8_q3),cut.applyCuts(Q2,cut_x8_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.08-0.09')
-    
     plt.plot([0.001,0.01,0.1],[1.2,0.45,0.25], label="GRV fit",color="y")
     plt.xscale('log')
     plt.ylim(-0.1,0.3)
@@ -206,7 +201,6 @@ def fpivxpi_Plot():
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
     ax.set_xticks([1e-2,1e-1])
-
     plt.xlabel('$x_\pi$', fontsize=20)    
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
@@ -220,7 +214,6 @@ ax = fig.add_subplot(331)
 densityPlot(t,fpi, '','$t$','$fpi$', 200, 200, ax=ax, fig=fig)
 
 ax = fig.add_subplot(332)
-#plt.scatter(xbj,fpi)
 densityPlot(xbj,fpi, '','$x$','$fpi$', 200, 200, ax=ax, fig=fig)
 
 ax = fig.add_subplot(333)
@@ -237,7 +230,6 @@ densityPlot(xbj,Q2, '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
 
 ax = fig.add_subplot(337)
 densityPlot(cut.applyCuts(xbj,cut_q),cut.applyCuts(Q2,cut_q), '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
-#plt.scatter(cut.applyCuts(xbj,cut_t_y),cut.applyCuts(Q2,cut_t_y))
 
 ax = fig.add_subplot(338)
 fpivxpi_Plot()

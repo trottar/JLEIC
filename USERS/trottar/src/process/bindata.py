@@ -39,10 +39,10 @@ tpi_raw = d.findKey("tpi")
 xbinwidth = 0.01
 qbinwidth = 10
 tbinwidth = 0.1
-#xbins =  np.linspace(0.,1.,100) 
 xbins  = np.arange(xbinwidth/2,1.,xbinwidth).tolist()
 qbins =  np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
 tbins =  np.arange(tbinwidth/2,1.,tbinwidth).tolist()
+
 print("xBj Bins will be", xbins)
 print("Q2 Bins will be", qbins)
 print("t Bins will be", tbins)
