@@ -21,6 +21,9 @@
 # python cache
 __pycache__
 
+# Jupyter notebook files
+.ipynb_checkpoints
+
 # Don't ignore these files from eic_SF/intro_slides/
 !EICMC_Overview.pdf
 !EICPlot_Overview.pdf
