@@ -12,8 +12,8 @@
 
 // General definition in this header
 #include "TDISMC_EIC.h"
-//#include "structure_functions/tim_hobbs/timhobbs.h"
-#include "structure_functions/sf.h"
+//#include "functions/tim_hobbs/timhobbs.h"
+#include "functions/sf.h"
 #include <time.h>
 #include <vector>
 #include <fstream>
