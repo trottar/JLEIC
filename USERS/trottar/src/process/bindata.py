@@ -21,7 +21,7 @@ import csv
 import dict as d
 
 numEvts = len(d.findKey()) 
-print("The number of events simulated is {}".format(numEvts))
+print("\n\nThe number of events simulated is {}\n\n".format(numEvts))
 #print(d.findKey.__doc__)
 
 TDIS_xbj_raw = d.findKey('TDIS_xbj')
@@ -37,15 +37,19 @@ ypi_raw = d.findKey("ypi")
 tpi_raw = d.findKey("tpi")
 
 xbinwidth = 0.01
-qbinwidth = 10
-tbinwidth = 0.1
+qbinwidth = 10.
+tbinwidth = 0.01
+xLbinwidth = 0.01
+
 xbins  = np.arange(xbinwidth/2,1.,xbinwidth).tolist()
 qbins =  np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
 tbins =  np.arange(tbinwidth/2,1.,tbinwidth).tolist()
+xLbins =  np.arange(xLbinwidth/2,1.,xLbinwidth).tolist()
 
 print("xBj Bins will be", xbins)
 print("Q2 Bins will be", qbins)
 print("t Bins will be", tbins)
+print("xL Bins will be", xLbins,"\n\n")
 
 def binBool(rawdata,bindata,binwidth):
     booldata = []
@@ -60,7 +64,8 @@ def binBool(rawdata,bindata,binwidth):
 
 xbinVal = np.array(binBool(TDIS_xbj_raw,xbins,xbinwidth))
 qbinVal = np.array(binBool(Q2_raw,qbins,qbinwidth))
-tbinVal = np.array(binBool(t_raw,qbins,tbinwidth))
+tbinVal = np.array(binBool(t_raw,tbins,tbinwidth))
+xLbinVal = np.array(binBool(xL_raw,xLbins,xLbinwidth))
 
 def binData(lst, binType):
     arr_bin  = np.array(lst)
@@ -91,55 +96,86 @@ xpi_qbin = binData(xpi_xbin, qbinVal)
 ypi_qbin = binData(ypi_xbin, qbinVal)
 tpi_qbin = binData(tpi_xbin, qbinVal)
 
-TDIS_xbj_qbin = np.trim_zeros(TDIS_xbj_qbin)
-Q2_qbin = np.trim_zeros(Q2_qbin)
-fpi_qbin = np.trim_zeros(fpi_qbin)
-t_qbin = np.trim_zeros(t_qbin)
-xL_qbin = np.trim_zeros(xL_qbin)
-y_qbin = np.trim_zeros(y_qbin)
-sigma_dis_qbin = np.trim_zeros(sigma_dis_qbin)
-f2N_qbin = np.trim_zeros(f2N_qbin)
-xpi_qbin = np.trim_zeros(xpi_qbin)
-ypi_qbin = np.trim_zeros(ypi_qbin)
-tpi_qbin = np.trim_zeros(tpi_qbin)
-
-TDIS_xbj_tbin = binData(TDIS_xbj_xbin, tbinVal)
-Q2_tbin = binData(Q2_xbin, tbinVal)
-fpi_tbin = binData(fpi_xbin, tbinVal)
-t_tbin = binData(t_xbin, tbinVal)
-xL_tbin = binData(xL_xbin, tbinVal)
-y_tbin = binData(y_xbin, tbinVal)
-sigma_dis_tbin = binData(sigma_dis_xbin, tbinVal)
-f2N_tbin = binData(f2N_xbin, tbinVal)
-xpi_tbin = binData(xpi_xbin, tbinVal)
-ypi_tbin = binData(ypi_xbin, tbinVal)
-tpi_tbin = binData(tpi_xbin, tbinVal)
-
+'''
+TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_qbin)
+Q2_bin = np.trim_zeros(Q2_qbin)
+fpi_bin = np.trim_zeros(fpi_qbin)
+t_bin = np.trim_zeros(t_qbin)
+xL_bin = np.trim_zeros(xL_qbin)
+y_bin = np.trim_zeros(y_qbin)
+sigma_dis_bin = np.trim_zeros(sigma_dis_qbin)
+f2N_bin = np.trim_zeros(f2N_qbin)
+xpi_bin = np.trim_zeros(xpi_qbin)
+ypi_bin = np.trim_zeros(ypi_qbin)
+tpi_bin = np.trim_zeros(tpi_qbin)
+'''
+'''
+TDIS_xbj_tbin = binData(TDIS_xbj_qbin, tbinVal)
+Q2_tbin = binData(Q2_qbin, tbinVal)
+fpi_tbin = binData(fpi_qbin, tbinVal)
+t_tbin = binData(t_qbin, tbinVal)
+xL_tbin = binData(xL_qbin, tbinVal)
+y_tbin = binData(y_qbin, tbinVal)
+sigma_dis_tbin = binData(sigma_dis_qbin, tbinVal)
+f2N_tbin = binData(f2N_qbin, tbinVal)
+xpi_tbin = binData(xpi_qbin, tbinVal)
+ypi_tbin = binData(ypi_qbin, tbinVal)
+tpi_tbin = binData(tpi_qbin, tbinVal)
+'''
 TDIS_xbj_tbin = np.trim_zeros(TDIS_xbj_tbin)
-Q2_tbin = np.trim_zeros(Q2_tbin)
-fpi_tbin = np.trim_zeros(fpi_tbin)
-t_tbin = np.trim_zeros(t_tbin)
-xL_tbin = np.trim_zeros(xL_tbin)
-y_tbin = np.trim_zeros(y_tbin)
-sigma_dis_tbin = np.trim_zeros(sigma_dis_tbin)
-f2N_tbin = np.trim_zeros(f2N_tbin)
-xpi_tbin = np.trim_zeros(xpi_tbin)
-ypi_tbin = np.trim_zeros(ypi_tbin)
-tpi_tbin = np.trim_zeros(tpi_tbin)
+Q2_bin = np.trim_zeros(Q2_tbin)
+fpi_bin = np.trim_zeros(fpi_tbin)
+t_bin = np.trim_zeros(t_tbin)
+xL_bin = np.trim_zeros(xL_tbin)
+y_bin = np.trim_zeros(y_tbin)
+sigma_dis_bin = np.trim_zeros(sigma_dis_tbin)
+f2N_bin = np.trim_zeros(f2N_tbin)
+xpi_bin = np.trim_zeros(xpi_tbin)
+ypi_bin = np.trim_zeros(ypi_tbin)
+tpi_bin = np.trim_zeros(tpi_tbin)
+'''
+#'''
+TDIS_xbj_xLbin = binData(TDIS_xbj_qbin, xLbinVal)
+Q2_xLbin = binData(Q2_qbin, xLbinVal)
+fpi_xLbin = binData(fpi_qbin, xLbinVal)
+t_xLbin = binData(t_qbin, xLbinVal)
+xL_xLbin = binData(xL_qbin, xLbinVal)
+y_xLbin = binData(y_qbin, xLbinVal)
+sigma_dis_xLbin = binData(sigma_dis_qbin, xLbinVal)
+f2N_xLbin = binData(f2N_qbin, xLbinVal)
+xpi_xLbin = binData(xpi_qbin, xLbinVal)
+ypi_xLbin = binData(ypi_qbin, xLbinVal)
+tpi_xLbin = binData(tpi_qbin, xLbinVal)
 
-d.tdict['TDIS_xbj'] = TDIS_xbj_qbin
-d.tdict['TDIS_Q2'] = Q2_qbin
-d.tdict['fpi'] = fpi_qbin
-d.tdict['TDIS_t'] = t_qbin
-d.tdict['xL'] = xL_qbin
-d.tdict['TDIS_y'] = y_qbin
-d.tdict['sigma_dis'] = sigma_dis_qbin
-d.tdict['f2N'] = f2N_qbin
-d.tdict['xpi'] = xpi_qbin
-d.tdict['ypi'] = ypi_qbin
-d.tdict['tpi'] = tpi_qbin
+TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_xLbin)
+Q2_bin = np.trim_zeros(Q2_xLbin)
+fpi_bin = np.trim_zeros(fpi_xLbin)
+t_bin = np.trim_zeros(t_xLbin)
+xL_bin = np.trim_zeros(xL_xLbin)
+y_bin = np.trim_zeros(y_xLbin)
+sigma_dis_bin = np.trim_zeros(sigma_dis_xLbin)
+f2N_bin = np.trim_zeros(f2N_xLbin)
+xpi_bin = np.trim_zeros(xpi_xLbin)
+ypi_bin = np.trim_zeros(ypi_xLbin)
+tpi_bin = np.trim_zeros(tpi_xLbin)
+#'''
 
-with open('datafiles/test.csv', 'w') as f:
+if (len(fpi_qbin) == 0):
+    print("Error: {} is null".format("fpi_qbin"))
+else:
+    d.tdict['TDIS_xbj'] = TDIS_xbj_bin
+    d.tdict['TDIS_Q2'] = Q2_bin
+    d.tdict['fpi'] = fpi_bin
+    d.tdict['TDIS_t'] = t_bin
+    d.tdict['xL'] = xL_bin
+    d.tdict['TDIS_y'] = y_bin
+    d.tdict['sigma_dis'] = sigma_dis_bin
+    d.tdict['f2N'] = f2N_bin
+    d.tdict['xpi'] = xpi_bin
+    d.tdict['ypi'] = ypi_bin
+    d.tdict['tpi'] = tpi_bin
+
+with open('datafiles/{0}{1}{2}{3}_{4}.csv'.format('x%0.3f' % xbinwidth,'q%0.1f' % qbinwidth,'t%0.3f' % tbinwidth,'xL%0.3f' % xLbinwidth,d.rootName.strip("../../OUTPUTS/").strip(".root")), 'w') as f:
     w = csv.writer(f)
     w.writerow(d.tdict.keys())
     w.writerows(zip(*d.tdict.values()))

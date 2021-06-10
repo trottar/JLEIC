@@ -767,7 +767,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
     TDIS_t = invts.tSpectator;
     
-    tmin = (((1-xL)/xL)*((1-xL)/xL))*(MSpectator*MSpectator-xL*MIon*MIon);
+    tmin = -(((1-xL)/xL)*((1-xL)/xL))*(MSpectator*MSpectator-xL*MIon*MIon);
 
     /*
     if (TDIS_t < tmin){
@@ -776,7 +776,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     */
 
     //cout << "---->t compare (invts vs TDIS) =" << invts.tSpectator << " " << TDIS_t << endl;
-    invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon;
+    // invts.tPrime     = 2.*pSpectator_Vertex.Dot(PIncident_Vertex) - MIon*MIon; // invts.tPrime = -MSpectator??
+    invts.tPrime     = invts.tSpectator - tmin;
     p_ST = pSpectator_Vertex -(pDotq/qMag/qMag)*qVirtual_Rest;		
     invts.nu = invts.Q2 / (2 * MIon * invts.xBj) ;
     invts.W = MIon*MIon + invts.Q2/invts.xBj -invts.Q2;

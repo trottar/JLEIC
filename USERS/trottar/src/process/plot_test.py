@@ -23,7 +23,8 @@ from sys import path
 sys.path.insert(0,'./cuts/')
 import cuts as c
 
-df = pd.read_csv(r'./datafiles/test.csv')
+#df = pd.read_csv(r'./datafiles/test.csv')
+df = pd.read_csv(r'./datafiles/x0.010q10.0t0.010xL0.010_pi_n_10on135_x0.001-1.000_q1.0-1000.0.csv') # xL bin, no t bin
 print(df)
 
 xbj = df['TDIS_xbj']
@@ -56,24 +57,23 @@ def densityPlot(x,y,title,xlabel,ylabel,binx,biny,
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-
-    inputVal = [x,y]
         
     return fig
 
 # Create cut dictionary
 cutDict = {}
 
-qbinwidth = 10
 xbinwidth = 0.01
-tbinwidth = 0.1
+qbinwidth = 10
+tbinwidth = 0.01
+xLbinwidth = 0.01
 
-Q2binarray = [7,15,30,60,120,240,480,1000]
-#Q2binarray = np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
-for i,x in enumerate(Q2binarray) :
-    Q2tmp = '{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,Q2binarray[i]-qbinwidth/2,Q2binarray[i]+qbinwidth/2)
-    print('{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,Q2binarray[i]-qbinwidth/2,Q2binarray[i]+qbinwidth/2))
-    cutDict.update(eval(Q2tmp))
+qbinarray = [7,15,30,60,120,240,480,1000]
+#qbinarray = np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
+for i,q in enumerate(qbinarray) :
+    qtmp = '{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,qbinarray[i]-qbinwidth/2,qbinarray[i]+qbinwidth/2)
+    print('{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,qbinarray[i]-qbinwidth/2,qbinarray[i]+qbinwidth/2))
+    cutDict.update(eval(qtmp))
 
 xarray = np.arange(xbinwidth/2,1.0,xbinwidth).tolist()
 for i,x in enumerate(xarray):
@@ -81,13 +81,17 @@ for i,x in enumerate(xarray):
     print('{"xcut%i" : ((%0.4f <= xbj) & (xbj <= %0.4f))}' % (i,xarray[i]-xbinwidth/2,xarray[i]+xbinwidth/2))
     cutDict.update(eval(xtmp))
 
-'''
 tarray = np.arange(tbinwidth/2,1.0,tbinwidth).tolist()
-for i,t in enumerate(tarray):
+for i,tval in enumerate(tarray):
     ttmp = '{"tcut%i" : ((%0.4f <= t) & (t <= %0.4f))}' % (i,tarray[i]-tbinwidth/2,tarray[i]+tbinwidth/2)
     print('{"tcut%i" : ((%0.4f <= t) & (t <= %0.4f))}' % (i,tarray[i]-tbinwidth/2,tarray[i]+tbinwidth/2))
     cutDict.update(eval(ttmp))
-'''
+
+xLarray = np.arange(xLbinwidth/2,1.0,xLbinwidth).tolist()
+for i,x in enumerate(xLarray):
+    xLtmp = '{"xLcut%i" : ((%0.4f <= xL) & (xL <= %0.4f))}' % (i,xLarray[i]-xLbinwidth/2,xLarray[i]+xLbinwidth/2)
+    print('{"xLcut%i" : ((%0.4f <= xL) & (xL <= %0.4f))}' % (i,xLarray[i]-xLbinwidth/2,xLarray[i]+xLbinwidth/2))
+    cutDict.update(eval(xLtmp))
 
 ytmp = '{"ycut" : ((0.01 <= y) & (y <= 0.95))}'
 cutDict.update(eval(ytmp))
@@ -95,7 +99,9 @@ cut = c.pyPlot(cutDict)
 
 ycut1 = ["ycut"]
 
-cut_q = ["xcut2","Q2cut3","ycut"] # Q2= 60 GeV^2
+#cut_q = ["Q2cut3","xcut2","ycut"] # Q2= 60 GeV^2
+#cut_q = ["Q2cut3","ycut"] # Q2= 60 GeV^2
+cut_q = ["xLcut90","ycut"] # Q2= 60 GeV^2
 
 cut_x2_q3 = ["xcut2","Q2cut3","ycut"] # Q2= 60 GeV^2
 cut_x4_q3 = ["xcut4","Q2cut3","ycut"] # Q2= 60 GeV^2
@@ -142,7 +148,6 @@ def fpivxpi_Plot():
     plt.style.use('classic')
     
     ax = f.add_subplot(221)
-    #xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_q),cut.applyCuts(fpi,cut_q),label='$Q^2$=?? $GeV^2$',c='red')
     xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x2_q3),F2pi(cut.applyCuts(xpi,cut_x2_q3),cut.applyCuts(Q2,cut_x2_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.02-0.03')
     xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x4_q3),F2pi(cut.applyCuts(xpi,cut_x4_q3),cut.applyCuts(Q2,cut_x4_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.04-0.05')
     xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x6_q3),F2pi(cut.applyCuts(xpi,cut_x6_q3),cut.applyCuts(Q2,cut_x6_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.06-0.07')
@@ -239,49 +244,3 @@ ax = fig.add_subplot(339)
 
 plt.tight_layout()
 plt.show()
-
-'''
-Leftover code
-
-#densityPlot(TDIS_xbj_raw,xL_raw, '$xL$ vs $x$','$x$','$xL$', 200, 200)
-#plt.show()
-
-#densityPlot(TDIS_xbj_raw,t_raw, '$t$ vs $x$','$x$','$t$', 200, 200)
-#plt.show()
-
-#densityPlot(xL_raw,t_raw, '$t$ vs $xL$','$xL$','$t$', 200, 200)
-#plt.show()
-
-#plt.scatter(TDIS_xbj_raw,fpi_raw)
-#plt.show()
-
-#plt.scatter(TDIS_xbj_raw,Q2_raw)
-#plt.show()
-
-#densityPlot(TDIS_xbj_raw,Q2_raw, '$Q^2$ vs $x$','$x$','$Q^{2}$', 200, 200)
-#plt.show()
-
-# Bins data weighted by Q2
-Q2 = (np.histogram(Q2_raw, qbins, weights=Q2_raw)[0] / np.histogram(Q2_raw, qbins)[0])
-TDIS_xbj = (np.histogram(TDIS_xbj_raw, qbins, weights=Q2_raw)[0] / np.histogram(TDIS_xbj_raw, qbins)[0])
-fpi = (np.histogram(fpi_raw, qbins, weights=Q2_raw)[0] / np.histogram(fpi_raw, qbins)[0])
-print("\n\n",TDIS_xbj)
-print(fpi)
-print(Q2,"\n\n")
-
-#plt.scatter(TDIS_xbj,fpi)
-#plt.show()
-
-#plt.scatter(TDIS_xbj,Q2)
-#plt.show()
-
-# Bins data weighted by TDIS_xbj
-Q2 = (np.histogram(Q2_raw, xbins, weights=TDIS_xbj_raw)[0] / np.histogram(Q2_raw, xbins)[0])
-TDIS_xbj = (np.histogram(TDIS_xbj_raw, xbins, weights=TDIS_xbj_raw)[0] / np.histogram(TDIS_xbj_raw, xbins)[0])
-t = (np.histogram(t_raw, xbins,weights=TDIS_xbj_raw)[0] / np.histogram(t_raw, xbins)[0])
-fpi = (np.histogram(fpi_raw, xbins, weights=TDIS_xbj_raw)[0] / np.histogram(fpi_raw, xbins)[0])
-print(TDIS_xbj)
-print(fpi)
-print(t)
-print(Q2)
-'''

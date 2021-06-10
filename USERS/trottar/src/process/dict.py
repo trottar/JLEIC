@@ -31,8 +31,8 @@ for i,val in enumerate(bnames):
     print("{0} = {1}".format(val,tdata[val].array()))
     tdict[val] = tdata[val].array()
 
-print("Tree dictionary of all branches:")
-print("{}".format(tdict))
+#print("Tree dictionary of all branches:")
+#print("{}".format(tdict)
 
 def findKey(key='invts'):
     """

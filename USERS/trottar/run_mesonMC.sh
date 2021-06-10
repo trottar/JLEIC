@@ -66,4 +66,6 @@ EOF
 
 mv $LOG log/
 
+mv *.d *.so *.pcm lib/
+
 cd "../"
