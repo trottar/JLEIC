@@ -54,12 +54,6 @@ How to run:
     
     Pion with neutron final state selected
     
-    Warning in <TTree::Bronch>: TLorentzVector cannot be split, resetting splitlevel to 0
-    Warning in <TTree::Bronch>: TLorentzVector cannot be split, resetting splitlevel to 0
-    Warning in <TTree::Bronch>: TLorentzVector cannot be split, resetting splitlevel to 0
-    Warning in <TTree::Bronch>: TLorentzVector cannot be split, resetting splitlevel to 0
-    Warning in <TTree::Bronch>: TLorentzVector cannot be split, resetting splitlevel to 0
-    Warning in <TTree::Bronch>: TLorentzVector cannot be split, resetting splitlevel to 0
     Your kinematics: [xBj_min:xBj_max] = [ 0.001000: 1.000000] 
     Your kinematics: [Q2_min:Q2_max] = [ 1.000000:1100.000000] 
     Incident Ion Mass   0.93827 GeV 

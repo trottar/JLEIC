@@ -29,27 +29,27 @@ if [[ $INPUT == "k/lambda" ]]; then
     echo
     echo "Kaon with lambda final state selected"
     echo
-    SCRIPT="TDISMC_EIC_lambda.cpp"
+    SCRIPT="EIC_mesonMC_Lambda.cpp"
 elif [[ $INPUT == "k/sigma" ]]; then
     echo
     echo "Kaon with sigma final state selected"
     echo
-    SCRIPT="TDISMC_EIC_sigma.cpp"
+    SCRIPT="EIC_mesonMC_Sigma.cpp"
 elif [[ $INPUT == "pi/p" ]]; then
     echo
     echo "Pion with proton final state selected"
     echo
-    SCRIPT="TDISMC_EIC.cpp"
+    SCRIPT="EIC_mesonMC.cpp"
 elif [[ $INPUT == "pi/n" ]]; then
     echo
     echo "Pion with neutron final state selected"
     echo
-    SCRIPT="TDISMC_EICn.cpp"
+    SCRIPT="EIC_mesonMC_n.cpp"
 elif [[ $INPUT == "bare" ]]; then
     echo
     echo "Bare run (pion with neutron final state) selected. No physics calculations beyond kinematics."
     echo
-    SCRIPT="TDISMC_bare.cpp"
+    SCRIPT="EIC_mesonMC_bare.cpp"
 else
     echo "Please select final states (i.e. pi/p, pi/n, k/lambda)"
     exit 2

@@ -11,7 +11,7 @@
  */
 
 // General definition in this header
-#include "TDISMC_EIC.h"
+#include "EIC_mesonMC.h"
 //#include "structure_functions/tim_hobbs/timhobbs.h"
 #include "structure_functions/sf.h"
 #include <time.h>

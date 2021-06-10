@@ -7,7 +7,7 @@
  */
 
 // General definition in this header
-#include "TDISMC_EIC.h"
+#include "EIC_mesonMC.h"
 #include "tim_hobbs/timhobbs.h" //! no need to call because parametrization by fit
 #include <time.h>
 #include <TCanvas.h>

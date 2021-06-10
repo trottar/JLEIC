@@ -121,7 +121,7 @@ f2N_tbin = binData(f2N_qbin, tbinVal)
 xpi_tbin = binData(xpi_qbin, tbinVal)
 ypi_tbin = binData(ypi_qbin, tbinVal)
 tpi_tbin = binData(tpi_qbin, tbinVal)
-'''
+
 TDIS_xbj_tbin = np.trim_zeros(TDIS_xbj_tbin)
 Q2_bin = np.trim_zeros(Q2_tbin)
 fpi_bin = np.trim_zeros(fpi_tbin)

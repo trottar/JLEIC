@@ -101,7 +101,7 @@ ycut1 = ["ycut"]
 
 #cut_q = ["Q2cut3","xcut2","ycut"] # Q2= 60 GeV^2
 #cut_q = ["Q2cut3","ycut"] # Q2= 60 GeV^2
-cut_q = ["xLcut90","ycut"] # Q2= 60 GeV^2
+cut_q = ["xLcut90","xcut1","ycut"] # Q2= 60 GeV^2
 
 cut_x2_q3 = ["xcut2","Q2cut3","ycut"] # Q2= 60 GeV^2
 cut_x4_q3 = ["xcut4","Q2cut3","ycut"] # Q2= 60 GeV^2
