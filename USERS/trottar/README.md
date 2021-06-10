@@ -8,9 +8,9 @@ Source codes:
 ====================================
 Located in **src** directory...
 
-**TDISMC_EIC.cpp**         :  pion structure function with ep scattering at JLEIC <br>
-**TDISMC_EICn.cpp**        :  pion structure function with eD scattering at JLEIC <br>
-**TDISMC_EICK.cpp**        :  kaon structure function with ep scattering at JLEIC <br>
+**TDISMC_EIC.cpp**         :  pion structure function with ep scattering <br>
+**TDISMC_EICn.cpp**        :  pion structure function with eD scattering <br>
+**TDISMC_EICK.cpp**        :  kaon structure function with ep scattering <br>
 **cteq/**                  :  cteqpdf.h and data based call files (c++ wrapper) <br>
 **cteq-tbls/**             :  nucleon PDFs table <br>
 **structure_functions/**   :  various regularization form for pion SF/FF
