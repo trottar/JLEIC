@@ -97,7 +97,7 @@ xpi_qbin = binData(xpi_xbin, qbinVal)
 ypi_qbin = binData(ypi_xbin, qbinVal)
 tpi_qbin = binData(tpi_xbin, qbinVal)
 
-'''
+#'''
 TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_qbin)
 Q2_bin = np.trim_zeros(Q2_qbin)
 fpi_bin = np.trim_zeros(fpi_qbin)
@@ -109,7 +109,7 @@ f2N_bin = np.trim_zeros(f2N_qbin)
 xpi_bin = np.trim_zeros(xpi_qbin)
 ypi_bin = np.trim_zeros(ypi_qbin)
 tpi_bin = np.trim_zeros(tpi_qbin)
-'''
+#'''
 '''
 TDIS_xbj_tbin = binData(TDIS_xbj_qbin, tbinVal)
 Q2_tbin = binData(Q2_qbin, tbinVal)
@@ -136,7 +136,7 @@ xpi_bin = np.trim_zeros(xpi_tbin)
 ypi_bin = np.trim_zeros(ypi_tbin)
 tpi_bin = np.trim_zeros(tpi_tbin)
 '''
-#'''
+'''
 TDIS_xbj_xLbin = binData(TDIS_xbj_qbin, xLbinVal)
 Q2_xLbin = binData(Q2_qbin, xLbinVal)
 fpi_xLbin = binData(fpi_qbin, xLbinVal)
@@ -160,7 +160,7 @@ f2N_bin = np.trim_zeros(f2N_xLbin)
 xpi_bin = np.trim_zeros(xpi_xLbin)
 ypi_bin = np.trim_zeros(ypi_xLbin)
 tpi_bin = np.trim_zeros(tpi_xLbin)
-#'''
+'''
 
 # Total integrated luminosity
 d.tdict["tot_int_lumi"] = lumi.Lumi(sigma_tdis_bin,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)

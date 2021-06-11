@@ -69,6 +69,9 @@ qbinwidth = 10
 tbinwidth = 0.01
 xLbinwidth = 0.01
 
+#xlmin,xlmax = 0.8000,0.8100
+xlmin,xlmax = 0.8400,0.8500
+
 qbinarray = [7,15,30,60,120,240,480,1000]
 #qbinarray = np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
 for i,q in enumerate(qbinarray) :
@@ -127,12 +130,18 @@ cut_x8_q6 = ["xcut8","Q2cut6","ycut"] # Q2= 480 GeV^2
 cut7 = ["Q2cut0","ycut"]
 cut15 = ["Q2cut1","ycut"]
 cut30 = ["Q2cut2","ycut"]
-cut60 = ["Q2cut3","ycut"]
-cut120 = ["Q2cut4","ycut"]
-cut240 = ["Q2cut5","ycut"]
-cut480 = ["Q2cut6","ycut"]
-cut1000 = ["Q2cut7","ycut"]
-
+'''
+cut60 = ["Q2cut3","xLcut80","ycut"]
+cut120 = ["Q2cut4","xLcut80","ycut"]
+cut240 = ["Q2cut5","xLcut80","ycut"]
+cut480 = ["Q2cut6","xLcut80","ycut"]
+cut1000 = ["Q2cut7","xLcut80","ycut"]
+'''
+cut60 = ["Q2cut3","xLcut85","ycut"]
+cut120 = ["Q2cut4","xLcut85","ycut"]
+cut240 = ["Q2cut5","xLcut85","ycut"]
+cut480 = ["Q2cut6","xLcut85","ycut"]
+cut1000 = ["Q2cut7","xLcut85","ycut"]
 def F2pi(xpi, Q2):
     points,values=np.load('./../../analysis/interpGrids/xpiQ2.npy'),np.load('./../../analysis/interpGrids/F2pi.npy')
     F2pi=lambda xpi,Q2: griddata(points,values,(np.log10(xpi),np.log10(Q2)))
@@ -206,6 +215,7 @@ def fpivxpi_Plot():
     ax.set_xticks([1e-2,1e-1])
 
     plt.xlabel('$x_\pi$', fontsize=20)    
+    plt.title("{0} $\leq$ xL $\leq$ {1}".format(xlmin,xlmax))
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
 
@@ -222,7 +232,7 @@ ax = fig.add_subplot(332)
 densityPlot(xbj,fpi, '','$x$','$fpi$', 200, 200, ax=ax, fig=fig)
 
 ax = fig.add_subplot(333)
-densityPlot(xbj,xL, '','$x$','$xL$', 200, 200, ax=ax, fig=fig)
+denplt = densityPlot(cut.applyCuts(xbj,cut60),cut.applyCuts(xL,cut60), '','$x$','$xL$', 200, 200, ax=ax, fig=fig)
 
 ax = fig.add_subplot(334)
 densityPlot(xbj,t, '','$x$','$t$', 200, 200, ax=ax, fig=fig)
@@ -240,6 +250,9 @@ ax = fig.add_subplot(338)
 fpivxpi_Plot()
 
 ax = fig.add_subplot(339)
+plt.plot(np.average(cut.applyCuts(xbj,cut60)),np.average(cut.applyCuts(xL,cut60)))
+plt.title("{0}{1}".format.(np.average(cut.applyCuts(xbj,cut60)),np.average(cut.applyCuts(xL,cut60))))
+print("~~~~",np.average(cut.applyCuts(xbj,cut60)),np.average(cut.applyCuts(xL,cut60)))
 
 
 plt.tight_layout()
