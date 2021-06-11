@@ -73,9 +73,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
   // Define particle properties
   double emass =  mElectron, prmass = MProton, MSpectator = MNeutron,
-    spmass = MSpectator, mPion = mPip, pimass = mPion;
+    spmass = MSpectator, mPion = mPip, pimass = mPion, photonmass = 0.;
   int e_particle_charge = -1, pr_particle_charge = 1, sp_particle_charge = 0, pi_particle_charge = 1;
-  int e_particle_id = 11, pr_particle_id =  2212, sp_particle_id = 2112, pi_particle_id = 211;
+  int e_particle_id = 11, pr_particle_id =  2212, sp_particle_id = 2112, pi_particle_id = 211, photon_particle_id = 22;
 
   // Number of incident and final state particles of reaction
   int NumPtls = 5;
@@ -103,6 +103,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double ppix_Lab,ppiy_Lab,ppiz_Lab,EpiE_Lab ;
   double_t vpix_Lab,vpiy_Lab,vpiz_Lab ;
   double_t vpix_Res,vpiy_Res,vpiz_Res ;
+
+  // Virtual photon information
+  double pphotonx_Res,pphotony_Res,pphotonz_Res,EphotonE_Res;
+  double pphotonx_Lab,pphotony_Lab,pphotonz_Lab,EphotonE_Lab ;
+  double_t vphotonx_Lab,vphotony_Lab,vphotonz_Lab ;
+  double_t vphotonx_Res,vphotony_Res,vphotonz_Res ;
  
   // TDIS spectator neutron information
   double pnx_Lab,pny_Lab,pnz_Lab,EnE_Lab ;
@@ -343,7 +349,16 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output lund file for GEANT4 use
-  ofstream OUT (Form("../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+  ofstream OUT_lund (Form("../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+  ofstream OUT_pythia (Form("../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_pythia.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+
+  // Pythia output header
+  OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "SIMPLE Event FILE" << endl;
+  OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "============================================" << endl;
+  OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "I, ievent, nParticles" << endl;
+  OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "============================================" << endl;
+  OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "I" << "\t" << "K(I,1)" << "\t" << "K(I,2)" << "\t" << "K(I,3)" << "\t" << "K(I,4)" << "\t" << "K(I,5)" << "\t" << "P(I,1)" << "\t" << "P(I,2)" << "\t" << "P(I,3)" << "\t" << "P(I,4)" << "\t" << "P(I,5)" << "\t" << "V(I,1)" << "\t" << "V(I,2)" << "\t" << "V(I,3)" << "\t" << endl;
+  OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "============================================" << endl;
 
   // Get LorentzVector for the pScattered Proton for TDIS in rest frame
   TLorentzVector pScatterNeutron_Rest;
@@ -652,6 +667,16 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vnz_Lab = 0.0;
     
     pn_Lab = sqrt(pnx_Lab*pnx_Lab+pny_Lab*pny_Lab+pnz_Lab*pnz_Lab);
+
+    pphotonx_Lab = qVirtual_Vertex.X();
+    pphotony_Lab = qVirtual_Vertex.Y();
+    pphotonz_Lab = qVirtual_Vertex.Z();
+    EphotonE_Lab = sqrt(pphotonx_Lab*pphotonx_Lab+pphotony_Lab*pphotony_Lab+pphotonz_Lab*pphotonz_Lab+photonmass*photonmass);
+    
+    vphotonx_Lab = 0.0;
+    vphotony_Lab = 0.0;
+    vphotonz_Lab = 0.0;
+ 
       
     ppix_Lab = pScatterPion_Vertex.X();
     ppiy_Lab = pScatterPion_Vertex.Y();
@@ -708,7 +733,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
       if (typ == 3){
       fpi = fpifac*f2pitexp(P_pi, TDIS_xbj,theta_p2/D2R);
       }
-      
       //  typ = 4 ! Paul-Villas FORM FACTOR (L=0.27,dis=1,FLAG=0)      
       if (typ == 4){
       fpi = fpifac*f2pipaulvillas(P_pi, TDIS_xbj, theta_p2/D2R);
@@ -839,21 +863,57 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vey_Lab = 0.0;
     vez_Lab = 0.0;
 
-    OUT << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xpi << " \t" << ypi << " \t"  << tpi  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
+    /************************************************************************************
+     * 
+     * GEANT4 input
+     * Legacy LUND format (https://gemc.jlab.org/gemc/html/documentation/generator/lund.html)
+     * 
+     * **********************************************************************************/
+
+    OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xpi << " \t" << ypi << " \t"  << tpi  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
       
     // incoming particles
-    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "1" << " \t " << e_particle_charge << " \t " << "0" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << kBeamMCx << " \t " << kBeamMCy << " \t " << kBeamMCz << " \t " << kBeamMC << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "1" << " \t " << e_particle_charge << " \t " << "0" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << kBeamMCx << " \t " << kBeamMCy << " \t " << kBeamMCz << " \t " << kBeamMC << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
 
-    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "2" << " \t " << pr_particle_charge << " \t " << "0" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMC*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "2" << " \t " << pr_particle_charge << " \t " << "0" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMC*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
 
     // daughter particles
     // the scattered electron
-    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << "1" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << "1" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
     // final state pion
-    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
     // final state neutron (TDIS)
-    OUT << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pnx_Lab << " \t " << pny_Lab << " \t " << pnz_Lab << " \t " << EnE_Lab << " \t " << spmass << " \t " << vnx_Lab  << " \t " << vny_Lab << " \t " << vnz_Lab << endl;  
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pnx_Lab << " \t " << pny_Lab << " \t " << pnz_Lab << " \t " << EnE_Lab << " \t " << spmass << " \t " << vnx_Lab  << " \t " << vny_Lab << " \t " << vnz_Lab << endl;  
     
+
+    /************************************************************************************
+     * 
+     * Fun4All inputs (https://wiki.bnl.gov/eicug/images/6/6b/Fun4all_format_help.pdf)
+     * Pythia6 format (https://eic.github.io/software/pythia6.html#output-file-structure)
+     * Example (https://github.com/eic/eicsmeardetectors/blob/master/tests/simple_gen.txt)
+     * 
+     * **********************************************************************************/
+    OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "0" << "\t" << MEvts << "\t" << "1" << "\t" << endl;
+    OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "============================================" << endl;
+      
+    // incoming particles
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "1" << " \t " << "21" << " \t " << e_particle_id << " \t " << "0" << " \t " << "3" <<  " \t "<< "4" << " \t " << kBeamMCx << " \t " << kBeamMCy << " \t " << kBeamMCz << " \t " << kBeamMC << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t " << PBeamMCx << " \t " << PBeamMCy << " \t " << PBeamMC << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
+    // Crossing angle 
+    //OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "" << " \t " << "5" <<  " \t "<< "6" << " \t "<< scientific << PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMC*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
+
+    // daughter particles
+    // Virtual photon
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "3" << " \t " << "21" << " \t " << photon_particle_id << " \t " << "1" << " \t " << "0" <<  " \t "<< "0" <<  " \t " << pphotonx_Lab << " \t " << pphotony_Lab << " \t " << pphotonz_Lab << " \t " << EphotonE_Lab << " \t " << photonmass << " \t " << vphotonx_Lab  << " \t " << vphotony_Lab << " \t " << vphotonz_Lab << endl; 
+    //OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "3" << " \t " << "21" << " \t " << photon_particle_id << " \t " << "1" << " \t " << "0" <<  " \t "<< "0" <<  " \t " << pphotonx_Lab << " \t " << pphotony_Lab << " \t " << pphotonz_Lab << " \t " << EphotonE_Lab << " \t " << pphotonx_Lab << " \t " << vphotonx_Lab  << " \t " << vphotony_Lab << " \t " << vphotonz_Lab << endl; // Photon mass as px???
+    // the scattered electron
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "4" << " \t " << "1" << " \t " << e_particle_id << " \t " << "1" << " \t " << "0" <<  " \t "<< "0" <<  " \t " << pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
+        // final state neutron (TDIS)
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "5" << " \t " << "1" << " \t " << sp_particle_id << " \t " << "2" << " \t " << "0" <<  " \t "<< "0" <<  " \t " << pnx_Lab << " \t " << pny_Lab << " \t " << pnz_Lab << " \t " << EnE_Lab << " \t " << spmass << " \t " << vnx_Lab  << " \t " << vny_Lab << " \t " << vnz_Lab << endl;  
+    // final state pion
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "6" << " \t " << "1" << " \t " << pi_particle_id << " \t " << "2" << " \t " << "0" <<  " \t "<< "0" <<  " \t " << ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
+    OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "=============== Event finished ===============" << endl;
+
     tree->Fill();
     proctree->Fill();
     itree->Fill();
@@ -866,7 +926,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   fRoot.Close();
   printf("Total of %d events out of %d Trials \n",MEvts,NEvts);
   
-  OUT.close();
+  OUT_lund.close();
+  OUT_pythia.close();
 
   return MEvts;
 }

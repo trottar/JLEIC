@@ -39,6 +39,7 @@ xpi = df['xpi']
 #xpi = xbj/(1.-xL)
 ypi = df['ypi']
 tpi = df['tpi']
+lumi = df['tot_int_lumi']
 
 
 def densityPlot(x,y,title,xlabel,ylabel,binx,biny,
@@ -123,6 +124,15 @@ cut_x4_q6 = ["xcut4","Q2cut6","ycut"] # Q2= 480 GeV^2
 cut_x6_q6= ["xcut6","Q2cut6","ycut"] # Q2= 480 GeV^2
 cut_x8_q6 = ["xcut8","Q2cut6","ycut"] # Q2= 480 GeV^2
 
+cut7 = ["Q2cut0","ycut"]
+cut15 = ["Q2cut1","ycut"]
+cut30 = ["Q2cut2","ycut"]
+cut60 = ["Q2cut3","ycut"]
+cut120 = ["Q2cut4","ycut"]
+cut240 = ["Q2cut5","ycut"]
+cut480 = ["Q2cut6","ycut"]
+cut1000 = ["Q2cut7","ycut"]
+
 def F2pi(xpi, Q2):
     points,values=np.load('./../../analysis/interpGrids/xpiQ2.npy'),np.load('./../../analysis/interpGrids/F2pi.npy')
     F2pi=lambda xpi,Q2: griddata(points,values,(np.log10(xpi),np.log10(Q2)))
@@ -148,10 +158,7 @@ def fpivxpi_Plot():
     plt.style.use('classic')
     
     ax = f.add_subplot(221)
-    xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x2_q3),F2pi(cut.applyCuts(xpi,cut_x2_q3),cut.applyCuts(Q2,cut_x2_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.02-0.03')
-    xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x4_q3),F2pi(cut.applyCuts(xpi,cut_x4_q3),cut.applyCuts(Q2,cut_x4_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.04-0.05')
-    xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x6_q3),F2pi(cut.applyCuts(xpi,cut_x6_q3),cut.applyCuts(Q2,cut_x6_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.06-0.07')
-    xpiscat3 = ax.scatter(cut.applyCuts(xpi,cut_x8_q3),F2pi(cut.applyCuts(xpi,cut_x8_q3),cut.applyCuts(Q2,cut_x8_q3)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.08-0.09')
+    xpiscat4 = ax.errorbar(cut.applyCuts(xpi,cut60),cut.applyCuts(fpi,cut60),yerr=np.sqrt(cut.applyCuts(lumi,cut60))/cut.applyCuts(lumi,cut60),fmt='.',label='$Q^2$=60 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
     plt.plot([0.001,0.01,0.1],[1.2,0.45,0.25], label="GRV fit",color="y")
     plt.xscale('log')
     plt.ylim(-0.1,0.3)
@@ -165,10 +172,7 @@ def fpivxpi_Plot():
     plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
     
     ax = f.add_subplot(222)
-    xpiscat4 = ax.scatter(cut.applyCuts(xpi,cut_x2_q4),F2pi(cut.applyCuts(xpi,cut_x2_q4),cut.applyCuts(Q2,cut_x2_q4)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.02-0.03')
-    xpiscat4 = ax.scatter(cut.applyCuts(xpi,cut_x4_q4),F2pi(cut.applyCuts(xpi,cut_x4_q4),cut.applyCuts(Q2,cut_x4_q4)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.04-0.05')
-    xpiscat4 = ax.scatter(cut.applyCuts(xpi,cut_x6_q4),F2pi(cut.applyCuts(xpi,cut_x6_q4),cut.applyCuts(Q2,cut_x6_q4)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.06-0.07')
-    xpiscat4 = ax.scatter(cut.applyCuts(xpi,cut_x8_q4),F2pi(cut.applyCuts(xpi,cut_x8_q4),cut.applyCuts(Q2,cut_x8_q4)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.08-0.09')
+    xpiscat5 = ax.errorbar(cut.applyCuts(xpi,cut120),cut.applyCuts(fpi,cut120),yerr=np.sqrt(cut.applyCuts(lumi,cut120))/cut.applyCuts(lumi,cut120),fmt='.',label='$Q^2$=120 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.5,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
     plt.ylim(-0.1,0.3)
@@ -180,10 +184,7 @@ def fpivxpi_Plot():
     ax.set_xticks([1e-2,1e-1])
     
     ax = f.add_subplot(223)
-    xpiscat5 = ax.scatter(cut.applyCuts(xpi,cut_x2_q5),F2pi(cut.applyCuts(xpi,cut_x2_q5),cut.applyCuts(Q2,cut_x2_q5)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.02-0.03')
-    xpiscat5 = ax.scatter(cut.applyCuts(xpi,cut_x4_q5),F2pi(cut.applyCuts(xpi,cut_x4_q5),cut.applyCuts(Q2,cut_x4_q5)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.04-0.05')
-    xpiscat5 = ax.scatter(cut.applyCuts(xpi,cut_x6_q5),F2pi(cut.applyCuts(xpi,cut_x6_q5),cut.applyCuts(Q2,cut_x6_q5)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.06-0.07')
-    xpiscat5 = ax.scatter(cut.applyCuts(xpi,cut_x8_q5),F2pi(cut.applyCuts(xpi,cut_x8_q5),cut.applyCuts(Q2,cut_x8_q5)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.08-0.09')
+    xpiscat6 = ax.errorbar(cut.applyCuts(xpi,cut240),cut.applyCuts(fpi,cut240),yerr=np.sqrt(cut.applyCuts(lumi,cut240))/cut.applyCuts(lumi,cut240),fmt='.',label='$Q^2$=240 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
     plt.ylim(-0.1,0.3)
@@ -194,10 +195,7 @@ def fpivxpi_Plot():
     ax.set_xticks([1e-2,1e-1])
 
     ax = f.add_subplot(224)
-    xpiscat6 = ax.scatter(cut.applyCuts(xpi,cut_x2_q6),F2pi(cut.applyCuts(xpi,cut_x2_q6),cut.applyCuts(Q2,cut_x2_q6)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.02-0.03')
-    xpiscat6 = ax.scatter(cut.applyCuts(xpi,cut_x4_q6),F2pi(cut.applyCuts(xpi,cut_x4_q6),cut.applyCuts(Q2,cut_x4_q6)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.04-0.05')
-    xpiscat6 = ax.scatter(cut.applyCuts(xpi,cut_x6_q6),F2pi(cut.applyCuts(xpi,cut_x6_q6),cut.applyCuts(Q2,cut_x6_q6)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.06-0.07')
-    xpiscat6 = ax.scatter(cut.applyCuts(xpi,cut_x8_q6),F2pi(cut.applyCuts(xpi,cut_x8_q6),cut.applyCuts(Q2,cut_x8_q6)),label='$Q^2$=60 $GeV^2$, $x_{\pi}$ = 0.08-0.09')
+    xpiscat7 = ax.errorbar(cut.applyCuts(xpi,cut480),cut.applyCuts(fpi,cut480),yerr=np.sqrt(cut.applyCuts(lumi,cut480))/cut.applyCuts(lumi,cut480),fmt='.',label='$Q^2$=480 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
     plt.xscale('log')
     plt.ylim(-0.1,0.3)
@@ -206,11 +204,13 @@ def fpivxpi_Plot():
     ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.set_yticks([-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3])
     ax.set_xticks([1e-2,1e-1])
+
     plt.xlabel('$x_\pi$', fontsize=20)    
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
 
     plt.style.use('default')
+
 
 fig = plt.figure(figsize=(17,12),facecolor='silver')
 
@@ -234,7 +234,7 @@ ax = fig.add_subplot(336)
 densityPlot(xbj,Q2, '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
 
 ax = fig.add_subplot(337)
-densityPlot(cut.applyCuts(xbj,cut_q),cut.applyCuts(Q2,cut_q), '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
+densityPlot(cut.applyCuts(xbj,cut60),cut.applyCuts(Q2,cut60), '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
 
 ax = fig.add_subplot(338)
 fpivxpi_Plot()

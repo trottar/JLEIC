@@ -19,6 +19,7 @@ import matplotlib.colors as colors
 import csv
 
 import dict as d
+import luminosity as lumi
 
 numEvts = len(d.findKey()) 
 print("\n\nThe number of events simulated is {}\n\n".format(numEvts))
@@ -30,7 +31,7 @@ Q2_raw = d.findKey('TDIS_Q2')
 t_raw = d.findKey('TDIS_t')
 xL_raw = d.findKey('xL')
 y_raw = d.findKey('TDIS_y')
-sigma_dis_raw = d.findKey("sigma_dis")
+sigma_tdis_raw = d.findKey("sigma_tdis")
 f2N_raw = d.findKey("f2N")
 xpi_raw = d.findKey("xpi")
 ypi_raw = d.findKey("ypi")
@@ -78,7 +79,7 @@ fpi_xbin = binData(fpi_raw, xbinVal)
 t_xbin = binData(t_raw, xbinVal)
 xL_xbin = binData(xL_raw, xbinVal)
 y_xbin = binData(y_raw, xbinVal)
-sigma_dis_xbin = binData(sigma_dis_raw, xbinVal)*(1e-5) # used to compare to HERA cross-section
+sigma_tdis_xbin = binData(sigma_tdis_raw, xbinVal)*(1e-5) # used to compare to HERA cross-section
 f2N_xbin = binData(f2N_raw, xbinVal)
 xpi_xbin = binData(xpi_raw, xbinVal)
 ypi_xbin = binData(ypi_raw, xbinVal)
@@ -90,7 +91,7 @@ fpi_qbin = binData(fpi_xbin, qbinVal)
 t_qbin = binData(t_xbin, qbinVal)
 xL_qbin = binData(xL_xbin, qbinVal)
 y_qbin = binData(y_xbin, qbinVal)
-sigma_dis_qbin = binData(sigma_dis_xbin, qbinVal)
+sigma_tdis_qbin = binData(sigma_tdis_xbin, qbinVal)
 f2N_qbin = binData(f2N_xbin, qbinVal)
 xpi_qbin = binData(xpi_xbin, qbinVal)
 ypi_qbin = binData(ypi_xbin, qbinVal)
@@ -103,7 +104,7 @@ fpi_bin = np.trim_zeros(fpi_qbin)
 t_bin = np.trim_zeros(t_qbin)
 xL_bin = np.trim_zeros(xL_qbin)
 y_bin = np.trim_zeros(y_qbin)
-sigma_dis_bin = np.trim_zeros(sigma_dis_qbin)
+sigma_tdis_bin = np.trim_zeros(sigma_tdis_qbin)
 f2N_bin = np.trim_zeros(f2N_qbin)
 xpi_bin = np.trim_zeros(xpi_qbin)
 ypi_bin = np.trim_zeros(ypi_qbin)
@@ -116,11 +117,12 @@ fpi_tbin = binData(fpi_qbin, tbinVal)
 t_tbin = binData(t_qbin, tbinVal)
 xL_tbin = binData(xL_qbin, tbinVal)
 y_tbin = binData(y_qbin, tbinVal)
-sigma_dis_tbin = binData(sigma_dis_qbin, tbinVal)
+sigma_tdis_tbin = binData(sigma_tdis_qbin, tbinVal)
 f2N_tbin = binData(f2N_qbin, tbinVal)
 xpi_tbin = binData(xpi_qbin, tbinVal)
 ypi_tbin = binData(ypi_qbin, tbinVal)
 tpi_tbin = binData(tpi_qbin, tbinVal)
+
 
 TDIS_xbj_tbin = np.trim_zeros(TDIS_xbj_tbin)
 Q2_bin = np.trim_zeros(Q2_tbin)
@@ -128,7 +130,7 @@ fpi_bin = np.trim_zeros(fpi_tbin)
 t_bin = np.trim_zeros(t_tbin)
 xL_bin = np.trim_zeros(xL_tbin)
 y_bin = np.trim_zeros(y_tbin)
-sigma_dis_bin = np.trim_zeros(sigma_dis_tbin)
+sigma_tdis_bin = np.trim_zeros(sigma_tdis_tbin)
 f2N_bin = np.trim_zeros(f2N_tbin)
 xpi_bin = np.trim_zeros(xpi_tbin)
 ypi_bin = np.trim_zeros(ypi_tbin)
@@ -141,7 +143,7 @@ fpi_xLbin = binData(fpi_qbin, xLbinVal)
 t_xLbin = binData(t_qbin, xLbinVal)
 xL_xLbin = binData(xL_qbin, xLbinVal)
 y_xLbin = binData(y_qbin, xLbinVal)
-sigma_dis_xLbin = binData(sigma_dis_qbin, xLbinVal)
+sigma_tdis_xLbin = binData(sigma_tdis_qbin, xLbinVal)
 f2N_xLbin = binData(f2N_qbin, xLbinVal)
 xpi_xLbin = binData(xpi_qbin, xLbinVal)
 ypi_xLbin = binData(ypi_qbin, xLbinVal)
@@ -153,12 +155,16 @@ fpi_bin = np.trim_zeros(fpi_xLbin)
 t_bin = np.trim_zeros(t_xLbin)
 xL_bin = np.trim_zeros(xL_xLbin)
 y_bin = np.trim_zeros(y_xLbin)
-sigma_dis_bin = np.trim_zeros(sigma_dis_xLbin)
+sigma_tdis_bin = np.trim_zeros(sigma_tdis_xLbin)
 f2N_bin = np.trim_zeros(f2N_xLbin)
 xpi_bin = np.trim_zeros(xpi_xLbin)
 ypi_bin = np.trim_zeros(ypi_xLbin)
 tpi_bin = np.trim_zeros(tpi_xLbin)
 #'''
+
+# Total integrated luminosity
+d.tdict["tot_int_lumi"] = lumi.Lumi(sigma_tdis_bin,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
+tot_int_lumi_bin = d.findKey("tot_int_lumi")
 
 if (len(fpi_qbin) == 0):
     print("Error: {} is null".format("fpi_qbin"))
@@ -169,11 +175,12 @@ else:
     d.tdict['TDIS_t'] = t_bin
     d.tdict['xL'] = xL_bin
     d.tdict['TDIS_y'] = y_bin
-    d.tdict['sigma_dis'] = sigma_dis_bin
+    d.tdict['sigma_tdis'] = sigma_tdis_bin
     d.tdict['f2N'] = f2N_bin
     d.tdict['xpi'] = xpi_bin
     d.tdict['ypi'] = ypi_bin
     d.tdict['tpi'] = tpi_bin
+    d.tdict['tot_int_lumi'] = tot_int_lumi_bin
 
 with open('datafiles/{0}{1}{2}{3}_{4}.csv'.format('x%0.3f' % xbinwidth,'q%0.1f' % qbinwidth,'t%0.3f' % tbinwidth,'xL%0.3f' % xLbinwidth,d.rootName.strip("../../OUTPUTS/").strip(".root")), 'w') as f:
     w = csv.writer(f)
