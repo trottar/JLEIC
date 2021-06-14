@@ -142,6 +142,7 @@ cut120 = ["Q2cut4","xLcut85","ycut"]
 cut240 = ["Q2cut5","xLcut85","ycut"]
 cut480 = ["Q2cut6","xLcut85","ycut"]
 cut1000 = ["Q2cut7","xLcut85","ycut"]
+
 def F2pi(xpi, Q2):
     points,values=np.load('./../../analysis/interpGrids/xpiQ2.npy'),np.load('./../../analysis/interpGrids/F2pi.npy')
     F2pi=lambda xpi,Q2: griddata(points,values,(np.log10(xpi),np.log10(Q2)))
@@ -165,6 +166,7 @@ def fpivxpi_Plot():
     f = plt.figure(figsize=(11.69,8.27))
     plt.rcParams.update({'font.size': 15})
     plt.style.use('classic')
+    plt.title("{0} $\leq$ xL $\leq$ {1}".format(xlmin,xlmax))
     
     ax = f.add_subplot(221)
     xpiscat4 = ax.errorbar(cut.applyCuts(xpi,cut60),cut.applyCuts(fpi,cut60),yerr=np.sqrt(cut.applyCuts(lumi,cut60))/cut.applyCuts(lumi,cut60),fmt='.',label='$Q^2$=60 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
@@ -215,45 +217,54 @@ def fpivxpi_Plot():
     ax.set_xticks([1e-2,1e-1])
 
     plt.xlabel('$x_\pi$', fontsize=20)    
-    plt.title("{0} $\leq$ xL $\leq$ {1}".format(xlmin,xlmax))
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.0,wspace=0.0)
 
     plt.style.use('default')
 
+def phaseSpace_Plots():
 
-fig = plt.figure(figsize=(17,12),facecolor='silver')
+    fig = plt.figure(figsize=(17,12),facecolor='silver')
 
-ax = fig.add_subplot(331)
-#plt.scatter(t,fpi)
-densityPlot(t,fpi, '','$t$','$fpi$', 200, 200, ax=ax, fig=fig)
+    ax = fig.add_subplot(331)
+    #plt.scatter(t,fpi)
+    densityPlot(t,fpi, '','$t$','$fpi$', 200, 200, ax=ax, fig=fig)
 
-ax = fig.add_subplot(332)
-densityPlot(xbj,fpi, '','$x$','$fpi$', 200, 200, ax=ax, fig=fig)
+    ax = fig.add_subplot(332)
+    densityPlot(xbj,fpi, '','$x$','$fpi$', 200, 200, ax=ax, fig=fig)
 
-ax = fig.add_subplot(333)
-denplt = densityPlot(cut.applyCuts(xbj,cut60),cut.applyCuts(xL,cut60), '','$x$','$xL$', 200, 200, ax=ax, fig=fig)
+    ax = fig.add_subplot(333)
+    denplt = densityPlot(xbj,xL, '','$x$','$xL$', 200, 200, ax=ax, fig=fig)
 
-ax = fig.add_subplot(334)
-densityPlot(xbj,t, '','$x$','$t$', 200, 200, ax=ax, fig=fig)
+    ax = fig.add_subplot(334)
+    densityPlot(xbj,t, '','$x$','$t$', 200, 200, ax=ax, fig=fig)
 
-ax = fig.add_subplot(335)
-densityPlot(xL,t, '','$xL$','$t$', 200, 200, ax=ax, fig=fig)
+    ax = fig.add_subplot(335)
+    densityPlot(xL,t, '','$xL$','$t$', 200, 200, ax=ax, fig=fig)
 
-ax = fig.add_subplot(336)
-densityPlot(xbj,Q2, '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
+    ax = fig.add_subplot(336)
+    densityPlot(xbj,Q2, '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
 
-ax = fig.add_subplot(337)
-densityPlot(cut.applyCuts(xbj,cut60),cut.applyCuts(Q2,cut60), '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
+    ax = fig.add_subplot(337)
+    densityPlot(cut.applyCuts(xbj,cut60),cut.applyCuts(Q2,cut60), '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
 
-ax = fig.add_subplot(338)
-fpivxpi_Plot()
+    ax = fig.add_subplot(338)
+    plt.scatter([np.average(cut.applyCuts(xbj,cut60))],[np.average(cut.applyCuts(xL,cut60))],label='$Q^2$=60 $GeV^2$')
+    plt.scatter([np.average(cut.applyCuts(xbj,cut120))],[np.average(cut.applyCuts(xL,cut120))],label='$Q^2$=120 $GeV^2$')
+    plt.scatter([np.average(cut.applyCuts(xbj,cut240))],[np.average(cut.applyCuts(xL,cut240))],label='$Q^2$=240 $GeV^2$')
+    plt.scatter([np.average(cut.applyCuts(xbj,cut480))],[np.average(cut.applyCuts(xL,cut480))],label='$Q^2$=480 $GeV^2$')
+    plt.legend()
+    plt.xlabel('x')
+    plt.ylabel('xL')
+    #plt.title("x = {0:0.3f}, xL = {1:0.3f}".format(np.average(cut.applyCuts(xbj,cut60)),np.average(cut.applyCuts(xL,cut60))))
+    #print("~~~~",np.average(cut.applyCuts(xbj,cut60)),np.average(cut.applyCuts(xL,cut60)))
 
-ax = fig.add_subplot(339)
-plt.plot(np.average(cut.applyCuts(xbj,cut60)),np.average(cut.applyCuts(xL,cut60)))
-plt.title("{0}{1}".format.(np.average(cut.applyCuts(xbj,cut60)),np.average(cut.applyCuts(xL,cut60))))
-print("~~~~",np.average(cut.applyCuts(xbj,cut60)),np.average(cut.applyCuts(xL,cut60)))
+    ax = fig.add_subplot(339)
 
+    plt.tight_layout()
 
-plt.tight_layout()
-plt.show()
+def main() :
+    fpivxpi_Plot()
+    phaseSpace_Plots()
+    plt.show()
+if __name__=='__main__': main()

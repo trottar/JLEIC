@@ -22,11 +22,11 @@ def Lumi(cross_sec,xbinwidth,qbinwidth,tbinwidth,xLbinwidth):
     evts_all = len(cross_sec)*[len(cross_sec)]
 
     lumi = [(e)/((s)*(qbinwidth)*(xbinwidth)*(tbinwidth)*(xLbinwidth)) for e,s in zip(evts_all,sig_all)]
-    print("---------------------------------\n")
+    #print("---------------------------------\n")
     # print("\nLuminosity: ", lumi)
 
     nevt = [100/(l*1e-6) for l in lumi] # The 1e-6 converts properly, integrated luminosiy: 100 fb^-1
     nevt  = np.asarray(nevt)
-    print("\nEvents expected running at 100 $fb^{-1}$: ", nevt)
+    #print("\nEvents expected running at 100 $fb^{-1}$: ", nevt)
 
     return nevt
