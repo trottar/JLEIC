@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2020-03-02 04:22:08 trottar"
+# Time-stamp: "2021-06-14 20:03:46 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -13,9 +13,9 @@
 
 import sys
 
-mcinputs="inputs/kinematics.input"
-f    = open(mcinputs)
-fout = open('tmp','wb')
+bininputs="inputs/bins.input"
+f    = open(bininputs)
+fout = open('tmp2','wb')
 
 def main():
     for line in f:

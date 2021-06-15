@@ -15,7 +15,7 @@ import uproot as up
 import sys
 
 kinematics = sys.argv[1]
-rootName="../../OUTPUTS/%s.root" % kinematics
+rootName="./OUTPUTS/%s.root" % kinematics # Note: this is relative to the bash script NOT this python script!
 
 tName = "Process"
 print("Reading tree {} in file {}".format(tName, rootName))

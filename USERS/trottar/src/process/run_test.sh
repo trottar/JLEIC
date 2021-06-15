@@ -28,7 +28,9 @@ if [[ $b_flag = "true" ]]; then
   python3 bindata.py "$kinematics"
 fi
 
+ANALYSIS="../../analysis/"
+
 if [[ $p_flag = "true" ]]; then
     echo "Plotting data for $kinematics"
-    python3 plot_test.py "$kinematics"
+    python3 ${ANALYSIS}plot_test.py "$kinematics"
 fi

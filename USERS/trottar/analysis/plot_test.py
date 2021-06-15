@@ -20,11 +20,20 @@ from scipy.interpolate import griddata
 
 import sys
 from sys import path
-sys.path.insert(0,'./cuts/')
+sys.path.insert(1,'./src/process/cuts/') # Note: this is relative to the bash script NOT this python script!
 import cuts as c
 
-#df = pd.read_csv(r'./datafiles/test.csv')
-df = pd.read_csv(r'./datafiles/x0.010q10.0t0.010xL0.010_pi_n_10on135_x0.001-1.000_q1.0-1000.0.csv') # xL bin, no t bin
+kinematics = sys.argv[1]
+
+xbinwidth = float(sys.argv[2])
+qbinwidth = float(sys.argv[3])
+tbinwidth = float(sys.argv[4])
+xLbinwidth = float(sys.argv[5])
+
+#xlmin,xlmax = 0.8000,0.8100
+xlmin,xlmax = 0.8400,0.8500
+
+df = pd.read_csv(r'./src/process/datafiles/x{0:0.3f}q{1:0.1f}t{2:0.3f}xL{3:0.3f}_{4}.csv'.format(xbinwidth,qbinwidth,tbinwidth,xLbinwidth,kinematics)) # xL bin, no t bin
 print(df)
 
 xbj = df['TDIS_xbj']
@@ -40,7 +49,6 @@ xpi = df['xpi']
 ypi = df['ypi']
 tpi = df['tpi']
 lumi = df['tot_int_lumi']
-
 
 def densityPlot(x,y,title,xlabel,ylabel,binx,biny,
                     xmin=None,xmax=None,ymin=None,ymax=None,cuts=None,fig=None,ax=None,layered=True):
@@ -64,14 +72,6 @@ def densityPlot(x,y,title,xlabel,ylabel,binx,biny,
 # Create cut dictionary
 cutDict = {}
 
-xbinwidth = 0.01
-qbinwidth = 10
-tbinwidth = 0.01
-xLbinwidth = 0.01
-
-#xlmin,xlmax = 0.8000,0.8100
-xlmin,xlmax = 0.8400,0.8500
-
 qbinarray = [7,15,30,60,120,240,480,1000]
 #qbinarray = np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
 for i,q in enumerate(qbinarray) :
@@ -87,8 +87,8 @@ for i,x in enumerate(xarray):
 
 tarray = np.arange(tbinwidth/2,1.0,tbinwidth).tolist()
 for i,tval in enumerate(tarray):
-    ttmp = '{"tcut%i" : ((%0.4f <= t) & (t <= %0.4f))}' % (i,tarray[i]-tbinwidth/2,tarray[i]+tbinwidth/2)
-    print('{"tcut%i" : ((%0.4f <= t) & (t <= %0.4f))}' % (i,tarray[i]-tbinwidth/2,tarray[i]+tbinwidth/2))
+    ttmp = '{"tcut%i" : ((%0.4f <= -t) & (-t <= %0.4f))}' % (i,tarray[i]-tbinwidth/2,tarray[i]+tbinwidth/2)
+    print('{"tcut%i" : ((%0.4f <= -t) & (-t <= %0.4f))}' % (i,tarray[i]-tbinwidth/2,tarray[i]+tbinwidth/2))
     cutDict.update(eval(ttmp))
 
 xLarray = np.arange(xLbinwidth/2,1.0,xLbinwidth).tolist()
@@ -137,12 +137,20 @@ cut240 = ["Q2cut5","xLcut80","ycut"]
 cut480 = ["Q2cut6","xLcut80","ycut"]
 cut1000 = ["Q2cut7","xLcut80","ycut"]
 '''
+
 cut60 = ["Q2cut3","xLcut85","ycut"]
 cut120 = ["Q2cut4","xLcut85","ycut"]
 cut240 = ["Q2cut5","xLcut85","ycut"]
 cut480 = ["Q2cut6","xLcut85","ycut"]
 cut1000 = ["Q2cut7","xLcut85","ycut"]
 
+'''
+cut60 = ["Q2cut3","ycut"]
+cut120 = ["Q2cut4","ycut"]
+cut240 = ["Q2cut5","ycut"]
+cut480 = ["Q2cut6","ycut"]
+cut1000 = ["Q2cut7","ycut"]
+'''
 def F2pi(xpi, Q2):
     points,values=np.load('./../../analysis/interpGrids/xpiQ2.npy'),np.load('./../../analysis/interpGrids/F2pi.npy')
     F2pi=lambda xpi,Q2: griddata(points,values,(np.log10(xpi),np.log10(Q2)))

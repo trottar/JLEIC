@@ -16,7 +16,7 @@ import numpy as np
 import awkward as ak
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
-import csv, math, warnings
+import sys,csv, math, warnings
 
 import dict as d
 import luminosity as lumi
@@ -25,6 +25,11 @@ import function_progressbar as bar
 numEvts = len(d.findKey()) 
 print("\n\nThe number of events simulated is {}\n\n".format(numEvts))
 #print(d.findKey.__doc__)
+
+xbinwidth = float(sys.argv[2])
+qbinwidth = float(sys.argv[3])
+tbinwidth = float(sys.argv[4])
+xLbinwidth = float(sys.argv[5])
 
 @bar.progress_wrapped(360, tstep=0.2, tqdm_kwargs={})
 def binData():
@@ -39,11 +44,6 @@ def binData():
     xpi_raw = d.findKey("xpi")
     ypi_raw = d.findKey("ypi")
     tpi_raw = d.findKey("tpi")
-
-    xbinwidth = 0.01
-    qbinwidth = 10.
-    tbinwidth = 0.01
-    xLbinwidth = 0.01
 
     xbins  = np.arange(xbinwidth/2,1.,xbinwidth).tolist()
     qbins =  np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
@@ -191,7 +191,7 @@ def binData():
         d.tdict['tpi'] = tpi_bin
         d.tdict['tot_int_lumi'] = tot_int_lumi_bin
 
-    with open('datafiles/{0}{1}{2}{3}_{4}.csv'.format('x%0.3f' % xbinwidth,'q%0.1f' % qbinwidth,'t%0.3f' % tbinwidth,'xL%0.3f' % xLbinwidth,d.rootName.strip("../../OUTPUTS/").strip(".root")), 'w') as f:
+    with open('./src/process/datafiles/{0}{1}{2}{3}_{4}.csv'.format('x%0.3f' % xbinwidth,'q%0.1f' % qbinwidth,'t%0.3f' % tbinwidth,'xL%0.3f' % xLbinwidth,d.rootName.strip("./OUTPUTS/").strip(".root")), 'w') as f:
         w = csv.writer(f)
         w.writerow(d.tdict.keys())
         w.writerows(zip(*d.tdict.values()))
