@@ -1,4 +1,4 @@
-# JLEIC
+# EIC_mesonMC
 
 The space and momentum distribution of hadronic constituents (gluons,
 sea quarks) inside the nucleon is of utmost importance in studies of QCD.
@@ -21,5 +21,5 @@ hadronic structure at large values of x. The results of the simulations may
 also guide the detector design for such measurements.
 
 
-* eic_SF/ for meson MC
+* mesonMC/ for meson MC
 * USERS/ for user directories
