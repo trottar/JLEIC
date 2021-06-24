@@ -21,5 +21,5 @@ hadronic structure at large values of x. The results of the simulations may
 also guide the detector design for such measurements.
 
 
-* mesonMC/ for meson MC
-* USERS/ for user directories
+* [mesonMC](mesonMC/) for meson fast Monte Carlo
+* [USERS](USERS/) for user directories
