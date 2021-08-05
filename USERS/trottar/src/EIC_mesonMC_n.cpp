@@ -58,8 +58,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   kBeam = kbeam;
 
   Bool_t iran;
-  Bool_t icross = true;
-  //Bool_t icross = false;
   
   if(smear){
     iran=kTRUE;      // TRUE==include incident beam emittance
@@ -80,10 +78,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   int e_particle_id = 11, pr_particle_id =  2212, sp_particle_id = 2112, pi_particle_id = 211, photon_particle_id = 22;
 
   // Number of incident and final state particles of reaction
-  int NumPtls = 5;
-
-  // 1 for proton, 2 for neutron incident
-  int inucl = 1;
+  int NumPtls = 5, inucl = 1;
 
   // Incident electron information
   double pex_inc,pey_inc,pez_inc,EeE_inc ;
@@ -171,11 +166,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   
   double weight_tdis;
   
-  // char tTitle[80], tName[18], rName[32];
-  char tTitle[80], tName[18], rName[60];
+  // char tTitle[80], tName[18], rName[60];
+  char tTitle[80], tName[18], rName[62];
   
-  sprintf(tTitle,"p(e,e'\u03C0n)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
+  sprintf(tTitle,"p(e,e'\u03C0n)X Event Generation %3.1f GeV/c x%4.1f GeV/c",kBeam, PBeam);
+  sprintf(rName,"../OUTPUTS/pi_n_%.1fon%.1f_x%.4f-%.4f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
 
   TFile fRoot(rName,"Recreate", tTitle);
   sprintf(tName,"pi_n");
@@ -203,7 +198,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double f2N;   
   Double_t qMag, pDotq;
 	
-  double TDIS_Q2,TDIS_xbj, TDIS_t, TDIS_znq, TDIS_Mx2, TDIS_y;
+  double TDIS_Q2, TDIS_xbj, TDIS_t, TDIS_znq, TDIS_Mx2, TDIS_y;
 
   const Int_t bufsize=32000;
 
@@ -286,12 +281,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   
   double PIon = PBeam*ZBeam;
 
-  double s_e0;
-  if (icross){
-    s_e0 = 2.*kBeam*(sqrt(PIon*PIon+MIon*MIon)+PIon*cos(CrossingTheta))+ MIon*MIon + mElectron*mElectron;
-  }else{
-    s_e0 = 2.*kBeam*(sqrt(PIon*PIon+MIon*MIon)+PIon)+ MIon*MIon + mElectron*mElectron;
-  }
+  double s_e0 = 2.*kBeam*(sqrt(PIon*PIon+MIon*MIon)+PIon*cos(CrossingTheta))+ MIon*MIon + mElectron*mElectron;
   
   printf("Your kinematics: [xBj_min:xBj_max] = [%9.6f:%9.6f] \n", xMin,xMax);
   printf("Your kinematics: [Q2_min:Q2_max] = [%9.6f:%9.6f] \n", Q2Min,Q2Max);
@@ -336,10 +326,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   
   kIncident_0.SetXYZM(0.0,0.0,-kBeam,mElectron);
 
-  if (icross){
+  if(smear){
     PIncident_0.SetXYZM(PIon*sin(CrossingTheta)*cos(CrossingPhi),PIon*sin(CrossingTheta)*sin(CrossingPhi),PIon*cos(CrossingTheta),MIon);
   }else{
-    PIncident_0.SetXYZM(0.,0.,PBeam,MIon);
+    PIncident_0.SetXYZM(PIon*-sin(CrossingTheta),0.,PIon*cos(CrossingTheta),MIon); // New IP6 specs
   }
   
   TTree *itree = new TTree("Meta",tTitle);
@@ -370,8 +360,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output lund file for GEANT4 use
-  ofstream OUT_lund (Form("../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
-  ofstream OUT_pythia (Form("../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_pythia.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+  ofstream OUT_lund (Form("../OUTPUTS/pi_n_%.1fon%.1f_x%.4f-%.4f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+  ofstream OUT_pythia (Form("../OUTPUTS/pi_n_%.1fon%.1f_x%.4f-%.4f_q%.1f-%.1f_pythia.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
 
   // Pythia output header
   OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "SIMPLE Event FILE" << endl;
@@ -462,10 +452,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     PIncident_Vertex.SetXYZM(PBeamMCx, PBeamMCy, PBeamMCz, MIon);// Set 4-momentum of incident ion beam
     
     //  Crossing angle ehric with smearing
-    if (icross){
-      PIncident_Vertex.RotateY(CrossingTheta);
-      PIncident_Vertex.RotateZ(CrossingPhi);
-    }
+    PIncident_Vertex.RotateY(CrossingTheta);
+    PIncident_Vertex.RotateZ(CrossingPhi);
 		
     // Calculation of invariant variable from two beam particles (s_e, s_q) with smearing
     invts.TwoPdotk = 2.*PIncident_Vertex.Dot(kIncident_Vertex);
@@ -590,6 +578,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     qMag = qVirtual_Rest.P();
     pDotq = BoostRest(0)*qVirtual_Rest(0)+BoostRest(1)*qVirtual_Rest(1)+BoostRest(2)*qVirtual_Rest(2);
     p_DT = PIncident_Vertex - (pDotq/qMag/qMag)*qVirtual_Rest;
+    p_ST = pSpectator_Vertex -(pDotq/qMag/qMag)*qVirtual_Rest;	
 
     // Null for proton beam
     pSpectator_Rest  = PIncident_Rest;
@@ -693,7 +682,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vphotony_Lab = 0.0;
     vphotonz_Lab = 0.0;
  
-      
     ppix_Lab = pScatterPion_Vertex.X();
     ppiy_Lab = pScatterPion_Vertex.Y();
     ppiz_Lab = pScatterPion_Vertex.Z();
@@ -896,6 +884,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vey_Lab = 0.0;
     vez_Lab = 0.0;
 
+    // HERE!!!
+    /*
+    if ((kScattered_Vertex.Theta() < 1.5) || (kScattered_Vertex.Theta() > 1.8)){
+      continue;
+    }
+    */
+
     /************************************************************************************
      * 
      * GEANT4 input
@@ -908,11 +903,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // incoming particles
     OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "1" << " \t " << e_particle_charge << " \t " << "0" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << kBeamMCx << " \t " << kBeamMCy << " \t " << kBeamMCz << " \t " << kBeamMC << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
 
-    if (icross){
-      OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "2" << " \t " << pr_particle_charge << " \t " << "0" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMC*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
-    }else{
-      OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "2" << " \t " << pr_particle_charge << " \t " << "0" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << PBeamMCx << " \t " << PBeamMCy << " \t " << PBeamMCz << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
-    }
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "2" << " \t " << pr_particle_charge << " \t " << "0" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMC*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
     
 
     // daughter particles
@@ -923,7 +914,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // final state neutron (TDIS)
     OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pnx_Lab << " \t " << pny_Lab << " \t " << pnz_Lab << " \t " << EnE_Lab << " \t " << spmass << " \t " << vnx_Lab  << " \t " << vny_Lab << " \t " << vnz_Lab << endl;  
     
-
     /************************************************************************************
      * 
      * Fun4All inputs (https://wiki.bnl.gov/eicug/images/6/6b/Fun4all_format_help.pdf)
@@ -937,13 +927,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // incoming particles
     OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "1" << " \t " << "21" << " \t " << e_particle_id << " \t " << "0" << " \t " << "3" <<  " \t "<< "4" << " \t " << pex_inc << " \t " << pey_inc << " \t " << pez_inc << " \t " << EeE_inc << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
 
-    if (icross){
-      // Crossing angle 
-      //OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMCz*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
-      OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< pprx_inc+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << ppry_inc+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << pprz_inc*cos(CrossingTheta) << " \t " << EprE_inc << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
-    }else{
-      OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< pprx_inc << " \t " << ppry_inc << " \t " << pprz_inc << " \t " << EprE_inc << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
-    }
+    // Crossing angle 
+    //OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMCz*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< pprx_inc+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << ppry_inc+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << pprz_inc*cos(CrossingTheta) << " \t " << EprE_inc << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
 
     // daughter particles
     // Virtual photon

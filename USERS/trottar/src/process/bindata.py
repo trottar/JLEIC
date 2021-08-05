@@ -31,8 +31,8 @@ qbinwidth = float(sys.argv[3])
 tbinwidth = float(sys.argv[4])
 xLbinwidth = float(sys.argv[5])
 
-@bar.progress_wrapped(360, tstep=0.2, tqdm_kwargs={})
-def binData():
+@bar.progress_wrapped(numEvts/8750, tstep=0.2, tqdm_kwargs={})
+def processData():
     TDIS_xbj_raw = d.findKey('TDIS_xbj')
     fpi_raw = d.findKey('fpi')
     Q2_raw = d.findKey('TDIS_Q2')
@@ -57,19 +57,25 @@ def binData():
 
     def binBool(rawdata,bindata,binwidth):
         booldata = []
+        binevt = []
         for i,r in enumerate(rawdata):
+            j=0
             for b in bindata:
                 if (b-(binwidth/20) < r < b+(binwidth/20)):
                     booldata.append(True)
+                    j+=1
                     break
             if i+1 != len(booldata):
                 booldata.append(False)
-        return booldata
+            binevt.append(j)
+        return [booldata,binevt]
 
-    xbinVal = np.array(binBool(TDIS_xbj_raw,xbins,xbinwidth))
-    qbinVal = np.array(binBool(Q2_raw,qbins,qbinwidth))
-    tbinVal = np.array(binBool(t_raw,tbins,tbinwidth))
-    xLbinVal = np.array(binBool(xL_raw,xLbins,xLbinwidth))
+    xbinVal = np.array(binBool(TDIS_xbj_raw,xbins,xbinwidth)[0])
+    qbinVal = np.array(binBool(Q2_raw,qbins,qbinwidth)[0])
+    tbinVal = np.array(binBool(t_raw,tbins,tbinwidth)[0])
+    xLbinVal = np.array(binBool(xL_raw,xLbins,xLbinwidth)[0])
+
+    binevt = np.trim_zeros(binBool(TDIS_xbj_raw,xbins,xbinwidth)[1])
 
     def binData(lst, binType):
         arr_bin  = np.array(lst)
@@ -172,7 +178,7 @@ def binData():
     warnings.filterwarnings("ignore",category=RuntimeWarning)
 
     # Total integrated luminosity
-    d.tdict["tot_int_lumi"] = lumi.Lumi(tot_sigma_bin,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
+    d.tdict["tot_int_lumi"] = lumi.Lumi(tot_sigma_bin,binevt,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
     tot_int_lumi_bin = d.findKey("tot_int_lumi")
 
     if (len(fpi_qbin) == 0):
@@ -197,5 +203,5 @@ def binData():
         w.writerows(zip(*d.tdict.values()))
 
 def main() :
-    binData()
+    processData()
 if __name__=='__main__': main()
