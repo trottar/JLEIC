@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-06-05 23:49:10 trottar"
+# Time-stamp: "2021-08-05 14:02:51 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -42,7 +42,7 @@ Q2 = df['TDIS_Q2']
 t = df['TDIS_t']
 xL = df['xL']
 y = df['TDIS_y']
-sigma_dis = df['sigma_dis']
+sigma_tdis = df['sigma_tdis']
 f2N = df['f2N']
 xpi = df['xpi']
 xpi2 = xbj/(1.-xL)
