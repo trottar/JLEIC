@@ -33,17 +33,30 @@ xLbinwidth = float(sys.argv[5])
 
 @bar.progress_wrapped(numEvts/8750, tstep=0.2, tqdm_kwargs={})
 def processData():
-    TDIS_xbj_raw = d.findKey(b'TDIS_xbj')
-    fpi_raw = d.findKey(b'fpi')
-    Q2_raw = d.findKey(b'TDIS_Q2')
-    t_raw = d.findKey(b'TDIS_t')
-    xL_raw = d.findKey(b'xL')
-    y_raw = d.findKey(b'TDIS_y')
-    sigma_tdis_raw = d.findKey(b'sigma_tdis')
-    f2N_raw = d.findKey(b'f2N')
-    xpi_raw = d.findKey(b'xpi')
-    ypi_raw = d.findKey(b'ypi')
-    tpi_raw = d.findKey(b'tpi')
+    # python < 3.7.4
+    #TDIS_xbj_raw = d.findKey(b'TDIS_xbj')
+    #fpi_raw = d.findKey(b'fpi')
+    #Q2_raw = d.findKey(b'TDIS_Q2')
+    #t_raw = d.findKey(b'TDIS_t')
+    #xL_raw = d.findKey(b'xL')
+    #y_raw = d.findKey(b'TDIS_y')
+    #sigma_tdis_raw = d.findKey(b'sigma_tdis')
+    #f2N_raw = d.findKey(b'f2N')
+    #xpi_raw = d.findKey(b'xpi')
+    #ypi_raw = d.findKey(b'ypi')
+    #tpi_raw = d.findKey(b'tpi')
+
+    TDIS_xbj_raw = d.findKey('TDIS_xbj')
+    fpi_raw = d.findKey('fpi')
+    Q2_raw = d.findKey('TDIS_Q2')
+    t_raw = d.findKey('TDIS_t')
+    xL_raw = d.findKey('xL')
+    y_raw = d.findKey('TDIS_y')
+    sigma_tdis_raw = d.findKey('sigma_tdis')
+    f2N_raw = d.findKey('f2N')
+    xpi_raw = d.findKey('xpi')
+    ypi_raw = d.findKey('ypi')
+    tpi_raw = d.findKey('tpi')
 
     xbins  = np.arange(xbinwidth/2,1.,xbinwidth).tolist()
     qbins =  np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
@@ -59,24 +72,63 @@ def processData():
         booldata = []
         binevt = []
         for i,r in enumerate(rawdata):
-            j=0
-            for b in bindata:
+            for j,b in enumerate(bindata):
                 if (b-(binwidth/20) < r < b+(binwidth/20)):
                     booldata.append(True)
-                    j+=1
+                    binevt.append(j)
                     break
             if i+1 != len(booldata):
                 booldata.append(False)
-            binevt.append(j)
+                binevt.append(-1)
         return [booldata,binevt]
 
-    xbinVal = np.array(binBool(TDIS_xbj_raw,xbins,xbinwidth)[0])
+    def evtsPerBin(binevt,bindata):
+        evtBin = []
+        #print(binevt[1])
+        for i,e in enumerate(binevt):
+            for j,b in enumerate(bindata):
+                if e == j:
+                    evtBin.append(binevt.count(j)+10)
+                    break
+            if i+1 != len(evtBin): 
+                evtBin.append(0.)
+        '''
+        print(evtBin[1])
+        tmp = []
+        tmp2 = []
+        for val in evtBin:
+            if val == 0:
+                tmp.append(1)
+        for evt in binevt:
+            if evt == -1:
+                tmp2.append(1)
+        print(len(tmp),len(tmp2))
+        '''
+        return evtBin
+
+    xboolval = binBool(TDIS_xbj_raw,xbins,xbinwidth)
+    '''
+    tmp = []
+    tmp2 = []
+    for evt in zip(xboolval[0],xboolval[1]):
+        #if evt[1] == -1 and evt[0] == True:
+        if evt[0] == False:
+            tmp.append(1)
+        if evt[1] == -1:
+            tmp2.append(1)
+    print(len(tmp),len(tmp2))
+    '''
+    xbinVal = np.array(xboolval[0])
     qbinVal = np.array(binBool(Q2_raw,qbins,qbinwidth)[0])
     tbinVal = np.array(binBool(t_raw,tbins,tbinwidth)[0])
     xLbinVal = np.array(binBool(xL_raw,xLbins,xLbinwidth)[0])
 
-    binevt = np.trim_zeros(binBool(TDIS_xbj_raw,xbins,xbinwidth)[1])
-
+    binevt_raw = evtsPerBin(xboolval[1],xbins)
+    '''
+    print(">>>>",len(xboolval[0]))
+    print(">>>>",len(xboolval[1]))
+    print("~~~",len(binevt_raw))
+    '''
     def binData(lst, binType):
         arr_bin  = np.array(lst)
         arr_bin[~binType] = 0.
@@ -94,6 +146,8 @@ def processData():
     ypi_xbin = binData(ypi_raw, xbinVal)
     tpi_xbin = binData(tpi_raw, xbinVal)
 
+    binevt_xbin = binData(binevt_raw, xbinVal)
+
     TDIS_xbj_qbin = binData(TDIS_xbj_xbin, qbinVal)
     Q2_qbin = binData(Q2_xbin, qbinVal)
     fpi_qbin = binData(fpi_xbin, qbinVal)
@@ -106,6 +160,23 @@ def processData():
     ypi_qbin = binData(ypi_xbin, qbinVal)
     tpi_qbin = binData(tpi_xbin, qbinVal)
 
+    binevt_qbin = binData(binevt_xbin, qbinVal)
+
+    '''
+    TDIS_xbj_bin = TDIS_xbj_qbin
+    Q2_bin = Q2_qbin
+    fpi_bin = fpi_qbin
+    t_bin = t_qbin
+    xL_bin = xL_qbin
+    y_bin = y_qbin
+    sigma_tdis_bin = sigma_tdis_qbin
+    f2N_bin = f2N_qbin
+    xpi_bin = xpi_qbin
+    ypi_bin = ypi_qbin
+    tpi_bin = tpi_qbin
+
+    binevt = binevt_qbin
+    '''
     #'''
     TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_qbin)
     Q2_bin = np.trim_zeros(Q2_qbin)
@@ -118,6 +189,8 @@ def processData():
     xpi_bin = np.trim_zeros(xpi_qbin)
     ypi_bin = np.trim_zeros(ypi_qbin)
     tpi_bin = np.trim_zeros(tpi_qbin)
+
+    binevt = np.trim_zeros(binevt_qbin)
     #'''
     '''
     TDIS_xbj_tbin = binData(TDIS_xbj_qbin, tbinVal)
@@ -180,7 +253,18 @@ def processData():
     # Total integrated luminosity
     d.tdict["tot_int_lumi"] = lumi.Lumi(tot_sigma_bin,binevt,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
     tot_int_lumi_bin = d.findKey("tot_int_lumi")
-
+    '''
+    print(">>>",len(TDIS_xbj_bin))
+    tmp = []
+    tmp2 = []
+    for evt in zip(TDIS_xbj_bin,binevt):
+        #if evt[1] == -1 and evt[0] == True:
+        if evt[0] == 0.:
+            tmp.append(1)
+        if evt[1] == 0.:
+            tmp2.append(1)
+    print(len(tmp),len(tmp2))
+    '''
     if (len(fpi_qbin) == 0):
         print("Error: {} is null".format("fpi_qbin"))
     else:

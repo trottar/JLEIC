@@ -137,20 +137,19 @@ cut240 = ["Q2cut5","xLcut80","ycut"]
 cut480 = ["Q2cut6","xLcut80","ycut"]
 cut1000 = ["Q2cut7","xLcut80","ycut"]
 '''
-
+'''
 cut60 = ["Q2cut3","xLcut85","ycut"]
 cut120 = ["Q2cut4","xLcut85","ycut"]
 cut240 = ["Q2cut5","xLcut85","ycut"]
 cut480 = ["Q2cut6","xLcut85","ycut"]
 cut1000 = ["Q2cut7","xLcut85","ycut"]
-
 '''
 cut60 = ["Q2cut3","ycut"]
 cut120 = ["Q2cut4","ycut"]
 cut240 = ["Q2cut5","ycut"]
 cut480 = ["Q2cut6","ycut"]
 cut1000 = ["Q2cut7","ycut"]
-'''
+#'''
 
 def F2pi(xpi, Q2):
     points,values=np.load('./analysis/interpGrids/xpiQ2.npy'),np.load('./analysis/interpGrids/F2pi.npy')
@@ -239,10 +238,10 @@ def phaseSpace_Plots():
 
     ax = fig.add_subplot(331)
     #plt.scatter(t,fpi)
-    densityPlot(t,fpi, '','$t$','$fpi$', 200, 200, ax=ax, fig=fig)
+    #densityPlot(t,fpi, '','$t$','$fpi$', 200, 200, ax=ax, fig=fig)
 
     ax = fig.add_subplot(332)
-    densityPlot(xbj,fpi, '','$x$','$fpi$', 200, 200, ax=ax, fig=fig)
+    #densityPlot(xbj,fpi, '','$x$','$fpi$', 200, 200, ax=ax, fig=fig)
 
     ax = fig.add_subplot(333)
     denplt = densityPlot(xbj,xL, '','$x$','$xL$', 200, 200, ax=ax, fig=fig)
@@ -276,6 +275,6 @@ def phaseSpace_Plots():
 
 def main() :
     fpivxpi_Plot()
-    #phaseSpace_Plots()
+    phaseSpace_Plots()
     plt.show()
 if __name__=='__main__': main()

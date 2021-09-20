@@ -19,7 +19,6 @@ def Lumi(cross_sec,binevt,xbinwidth,qbinwidth,tbinwidth,xLbinwidth):
 
     # all binned events
     sig_all = cross_sec*1e5 # the 1e5 corrects the scaling up top
-    #evts_all = len(cross_sec)*[len(cross_sec)]
     evts_all = binevt
 
     lumi = [(e)/((s)*(qbinwidth)*(xbinwidth)*(tbinwidth)*(xLbinwidth)) for e,s in zip(evts_all,sig_all)]

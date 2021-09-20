@@ -23,7 +23,9 @@ tdata = up.open(rootName)[tName]
 
 bnames = tdata.keys()
 print ("Tree has the following branches:")
-print ("  [{}]".format(b', '.join(bnames)))
+print ("  [{}]".format(', '.join(bnames)))
+# python < 3.7.4
+#print ("  [{}]".format(b', '.join(bnames)))
 
 tdict = {}
 print("Tree has the following data in it's branches:")
