@@ -112,7 +112,7 @@ fi
 
 cd "../"
 
-eonP="${KBEAM:0:-2}on${PBEAM:0:-2}"
+eonP="${KBEAM}on${PBEAM}"
 xq="x${XMIN}-${XMAX}_q${Q2MIN}-${Q2MAX}"
 
 if [ $particle = "pion" ]; then

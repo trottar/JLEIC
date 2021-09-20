@@ -1,17 +1,30 @@
-#XMIN=0.001
-#XMAX=1.000
-#Q2MIN=1.0
-#Q2MAX=1000.0
-#NEVTS=15000000
-#PBEAM=135.0
-#KBEAM=10.0
-#SMEAR=true
-#
-XMIN=0.001
-XMAX=1.000
+###################################################
+#Make sure x is 4 decimal places and Q2/BEAM is 1.#
+###################################################
+# 10on135
+XMIN=0.0010
+XMAX=1.0000
 Q2MIN=1.0
 Q2MAX=1000.0
-NEVTS=15000
-PBEAM=41.0
-KBEAM=5.0
+NEVTS=15000000
+PBEAM=135.0
+KBEAM=10.0
 SMEAR=true
+# 10on100
+#XMIN=0.0010
+#XMAX=1.0000
+#Q2MIN=100.0
+#Q2MAX=1000.0
+#NEVTS=1000000
+#PBEAM=100.0
+#KBEAM=10.0
+#SMEAR=true
+# For Fun4All, no smear (make sure crossing is changed)
+#XMIN=0.0010
+#XMAX=1.0000
+#Q2MIN=1.0
+#Q2MAX=1000.0
+#NEVTS=5000000
+#PBEAM=275.0
+#KBEAM=18.0
+#SMEAR=false

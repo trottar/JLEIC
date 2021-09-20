@@ -78,10 +78,10 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   int e_particle_id = 11, pr_particle_id =  2212, sp_particle_id = 2112, pi_particle_id = 211, photon_particle_id = 22;
 
   // Number of incident and final state particles of reaction
-  int NumPtls = 5;
+  int NumPtls = 5, inucl = 1;
 
-  // 1 for proton, 2 for neutron incident
-  int inucl = 1;
+  // Incident electron information
+  double pex_inc,pey_inc,pez_inc,EeE_inc ;
 
   // Incident proton information
   double pprx_inc,ppry_inc,pprz_inc,EprE_inc ;
@@ -166,11 +166,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   
   double weight_tdis;
   
-  // char tTitle[80], tName[18], rName[32];
-  char tTitle[80], tName[18], rName[60];
+  // char tTitle[80], tName[18], rName[60];
+  char tTitle[80], tName[18], rName[62];
   
-  sprintf(tTitle,"p(e,e'\u03C0n)X Event Generation %3.0f GeV/c x%4.0f GeV/c",kBeam, PBeam);
-  sprintf(rName,"../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
+  sprintf(tTitle,"p(e,e'\u03C0n)X Event Generation %3.1f GeV/c x%4.1f GeV/c",kBeam, PBeam);
+  sprintf(rName,"../OUTPUTS/pi_n_%.1fon%.1f_x%.4f-%.4f_q%.1f-%.1f.root", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max);
 
   TFile fRoot(rName,"Recreate", tTitle);
   sprintf(tName,"pi_n");
@@ -198,7 +198,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double f2N;   
   Double_t qMag, pDotq;
 	
-  double TDIS_Q2,TDIS_xbj, TDIS_t, TDIS_znq, TDIS_Mx2, TDIS_y;
+  double TDIS_Q2, TDIS_xbj, TDIS_t, TDIS_znq, TDIS_Mx2, TDIS_y;
 
   const Int_t bufsize=32000;
 
@@ -234,6 +234,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 	
   proctree->Branch("sigma_dis", &sigma_dis, "sigma_dis/D");
   proctree->Branch("sigma_tdis", &sigma_tdis, "sigma_tdis/D");
+
+  // Incident electron
+  proctree->Branch("pex_inc", &pex_inc, "pex_inc/D");
+  proctree->Branch("pey_inc", &pey_inc, "pey_inc/D");
+  proctree->Branch("pez_inc", &pez_inc, "pez_inc/D");
+  proctree->Branch("EeE_inc", &EeE_inc, "EeE_inc/D");
 
   // Incident proton
   proctree->Branch("pprx_inc", &pprx_inc, "pprx_inc/D");
@@ -274,6 +280,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double uu, uv, uw, ux, uy, norm;
   
   double PIon = PBeam*ZBeam;
+
   double s_e0 = 2.*kBeam*(sqrt(PIon*PIon+MIon*MIon)+PIon*cos(CrossingTheta))+ MIon*MIon + mElectron*mElectron;
   
   printf("Your kinematics: [xBj_min:xBj_max] = [%9.6f:%9.6f] \n", xMin,xMax);
@@ -318,8 +325,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   TLorentzVector kIncident_0, PIncident_0; // unsmeared
   
   kIncident_0.SetXYZM(0.0,0.0,-kBeam,mElectron);
-  PIncident_0.SetXYZM(PIon*sin(CrossingTheta)*cos(CrossingPhi),
-		      PIon*sin(CrossingTheta)*sin(CrossingPhi),PIon*cos(CrossingTheta),MIon);
+
+  if(smear){
+    PIncident_0.SetXYZM(PIon*sin(CrossingTheta)*cos(CrossingPhi),PIon*sin(CrossingTheta)*sin(CrossingPhi),PIon*cos(CrossingTheta),MIon);
+  }else{
+    PIncident_0.SetXYZM(PIon*-sin(CrossingTheta),0.,PIon*cos(CrossingTheta),MIon); // New IP6 specs
+  }
   
   TTree *itree = new TTree("Meta",tTitle);
   itree->Branch("e0.", &kIncident_0,bufsize,1);
@@ -349,8 +360,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   double pS_rest, csThRecoil, phiRecoil;
 
   //name of output lund file for GEANT4 use
-  ofstream OUT_lund (Form("../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
-  ofstream OUT_pythia (Form("../OUTPUTS/pi_n_%.0fon%.0f_x%.3f-%.3f_q%.1f-%.1f_pythia.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+  ofstream OUT_lund (Form("../OUTPUTS/pi_n_%.1fon%.1f_x%.4f-%.4f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+  ofstream OUT_pythia (Form("../OUTPUTS/pi_n_%.1fon%.1f_x%.4f-%.4f_q%.1f-%.1f_pythia.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
 
   // Pythia output header
   OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "SIMPLE Event FILE" << endl;
@@ -460,13 +471,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     kIncident_Rest = kIncident_Vertex;
     kIncident_Rest.Boost(-BoostRest);
 
-    pprx_inc = PIncident_Vertex.X();
-    ppry_inc = PIncident_Vertex.Y();
-    pprz_inc = PIncident_Vertex.Z();
-    
-    // EprE_inc = PIncident_Vertex.E();
-    EprE_inc = sqrt(pprx_inc*pprx_inc+ppry_inc*ppry_inc+pprz_inc*pprz_inc+MProton*MProton);
-
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
     /*
@@ -574,6 +578,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     qMag = qVirtual_Rest.P();
     pDotq = BoostRest(0)*qVirtual_Rest(0)+BoostRest(1)*qVirtual_Rest(1)+BoostRest(2)*qVirtual_Rest(2);
     p_DT = PIncident_Vertex - (pDotq/qMag/qMag)*qVirtual_Rest;
+    p_ST = pSpectator_Vertex -(pDotq/qMag/qMag)*qVirtual_Rest;	
 
     // Null for proton beam
     pSpectator_Rest  = PIncident_Rest;
@@ -677,7 +682,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vphotony_Lab = 0.0;
     vphotonz_Lab = 0.0;
  
-      
     ppix_Lab = pScatterPion_Vertex.X();
     ppiy_Lab = pScatterPion_Vertex.Y();
     ppiz_Lab = pScatterPion_Vertex.Z();
@@ -700,6 +704,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 	       
     // Definition of pion variable
     xL = (pSpectator_Vertex.Dot(kIncident_Vertex))/(PIncident_Vertex.Dot(kIncident_Vertex));
+    //xL = gRandom->Uniform(1.);
     xpi = TDIS_xbj/(1 - xL);
     tpi = (E_pi*E_pi) - (pScatterPion_V3.Mag()*pScatterPion_V3.Mag());
     ypi = (pScatterPion_Rest.Dot(qVirtual_Rest))/(pScatterPion_Rest.Dot(kIncident_Rest));
@@ -789,9 +794,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     */
 
     invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
-    TDIS_t = invts.tSpectator;
+    //TDIS_t = invts.tSpectator;
     
     tmin = -(((1-xL)/xL)*((1-xL)/xL))*(MSpectator*MSpectator-xL*MIon*MIon);
+
+    TDIS_t = -((xL*EprE_inc*pScatterNeutron_Vertex.Theta()*xL*EprE_inc*pScatterNeutron_Vertex.Theta())/xL)-tmin;
 
     /*
     if (TDIS_t < tmin){
@@ -842,6 +849,20 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 	  
     //  invts.nu*2. + kScattered_Rest.E() : initial electron energy in rest frame		
 		
+    pex_inc = kIncident_Vertex.X();
+    pey_inc = kIncident_Vertex.Y();
+    pez_inc = kIncident_Vertex.Z();
+    
+    // EprE_inc = PIncident_Vertex.E();
+    EeE_inc = sqrt(pex_inc*pex_inc+pey_inc*pey_inc+pez_inc*pez_inc+mElectron*mElectron);
+
+    pprx_inc = PIncident_Vertex.X();
+    ppry_inc = PIncident_Vertex.Y();
+    pprz_inc = PIncident_Vertex.Z();
+    
+    // EprE_inc = PIncident_Vertex.E();
+    EprE_inc = sqrt(pprx_inc*pprx_inc+ppry_inc*ppry_inc+pprz_inc*pprz_inc+MProton*MProton);
+
     PX_Vertex = kIncident_Vertex+PIncident_Vertex-kScattered_Vertex-pSpectator_Vertex;
 	  
     // store the electron 4-vector in rest frame
@@ -863,6 +884,13 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vey_Lab = 0.0;
     vez_Lab = 0.0;
 
+    // HERE!!!
+    /*
+    if ((kScattered_Vertex.Theta() < 1.5) || (kScattered_Vertex.Theta() > 1.8)){
+      continue;
+    }
+    */
+
     /************************************************************************************
      * 
      * GEANT4 input
@@ -876,6 +904,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "1" << " \t " << e_particle_charge << " \t " << "0" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << kBeamMCx << " \t " << kBeamMCy << " \t " << kBeamMCz << " \t " << kBeamMC << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
 
     OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "2" << " \t " << pr_particle_charge << " \t " << "0" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMC*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
+    
 
     // daughter particles
     // the scattered electron
@@ -885,7 +914,6 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // final state neutron (TDIS)
     OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pnx_Lab << " \t " << pny_Lab << " \t " << pnz_Lab << " \t " << EnE_Lab << " \t " << spmass << " \t " << vnx_Lab  << " \t " << vny_Lab << " \t " << vnz_Lab << endl;  
     
-
     /************************************************************************************
      * 
      * Fun4All inputs (https://wiki.bnl.gov/eicug/images/6/6b/Fun4all_format_help.pdf)
@@ -897,15 +925,15 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "============================================" << endl;
       
     // incoming particles
-    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "1" << " \t " << "21" << " \t " << e_particle_id << " \t " << "0" << " \t " << "3" <<  " \t "<< "4" << " \t " << kBeamMCx << " \t " << kBeamMCy << " \t " << kBeamMCz << " \t " << kBeamMC << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
-    //OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t " << PBeamMCx << " \t " << PBeamMCy << " \t " << PBeamMC << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "1" << " \t " << "21" << " \t " << e_particle_id << " \t " << "0" << " \t " << "3" <<  " \t "<< "4" << " \t " << pex_inc << " \t " << pey_inc << " \t " << pez_inc << " \t " << EeE_inc << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
+
     // Crossing angle 
-    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMC*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
+    //OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMCz*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< pprx_inc+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << ppry_inc+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << pprz_inc*cos(CrossingTheta) << " \t " << EprE_inc << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
 
     // daughter particles
     // Virtual photon
     OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "3" << " \t " << "21" << " \t " << photon_particle_id << " \t " << "1" << " \t " << "0" <<  " \t "<< "0" <<  " \t " << pphotonx_Lab << " \t " << pphotony_Lab << " \t " << pphotonz_Lab << " \t " << EphotonE_Lab << " \t " << photonmass << " \t " << vphotonx_Lab  << " \t " << vphotony_Lab << " \t " << vphotonz_Lab << endl; 
-    //OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "3" << " \t " << "21" << " \t " << photon_particle_id << " \t " << "1" << " \t " << "0" <<  " \t "<< "0" <<  " \t " << pphotonx_Lab << " \t " << pphotony_Lab << " \t " << pphotonz_Lab << " \t " << EphotonE_Lab << " \t " << pphotonx_Lab << " \t " << vphotonx_Lab  << " \t " << vphotony_Lab << " \t " << vphotonz_Lab << endl; // Photon mass as px???
     // the scattered electron
     OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "4" << " \t " << "1" << " \t " << e_particle_id << " \t " << "1" << " \t " << "0" <<  " \t "<< "0" <<  " \t " << pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
         // final state neutron (TDIS)
