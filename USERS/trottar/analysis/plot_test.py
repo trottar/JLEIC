@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-08-05 14:02:51 trottar"
+# Time-stamp: "2021-10-01 09:09:44 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -130,13 +130,13 @@ cut_x8_q6 = ["xcut8","Q2cut6","ycut"] # Q2= 480 GeV^2
 cut7 = ["Q2cut0","ycut"]
 cut15 = ["Q2cut1","ycut"]
 cut30 = ["Q2cut2","ycut"]
-'''
+#'''
 cut60 = ["Q2cut3","xLcut80","ycut"]
 cut120 = ["Q2cut4","xLcut80","ycut"]
 cut240 = ["Q2cut5","xLcut80","ycut"]
 cut480 = ["Q2cut6","xLcut80","ycut"]
 cut1000 = ["Q2cut7","xLcut80","ycut"]
-'''
+#'''
 '''
 cut60 = ["Q2cut3","xLcut85","ycut"]
 cut120 = ["Q2cut4","xLcut85","ycut"]
@@ -144,12 +144,13 @@ cut240 = ["Q2cut5","xLcut85","ycut"]
 cut480 = ["Q2cut6","xLcut85","ycut"]
 cut1000 = ["Q2cut7","xLcut85","ycut"]
 '''
+'''
 cut60 = ["Q2cut3","ycut"]
 cut120 = ["Q2cut4","ycut"]
 cut240 = ["Q2cut5","ycut"]
 cut480 = ["Q2cut6","ycut"]
 cut1000 = ["Q2cut7","ycut"]
-#'''
+'''
 
 def F2pi(xpi, Q2):
     points,values=np.load('./analysis/interpGrids/xpiQ2.npy'),np.load('./analysis/interpGrids/F2pi.npy')
@@ -237,7 +238,7 @@ def phaseSpace_Plots():
     fig = plt.figure(figsize=(17,12),facecolor='silver')
 
     ax = fig.add_subplot(331)
-    #plt.scatter(t,fpi)
+    plt.scatter(cut.applyCuts(t,cut60),cut.applyCuts(fpi,cut60))
     #densityPlot(t,fpi, '','$t$','$fpi$', 200, 200, ax=ax, fig=fig)
 
     ax = fig.add_subplot(332)
@@ -256,7 +257,7 @@ def phaseSpace_Plots():
     densityPlot(xbj,Q2, '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
 
     ax = fig.add_subplot(337)
-    densityPlot(cut.applyCuts(xbj,cut60),cut.applyCuts(Q2,cut60), '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
+    #densityPlot(cut.applyCuts(xbj,cut60),cut.applyCuts(Q2,cut60), '','$x$','$Q^{2}$', 200, 200, ax=ax, fig=fig)
 
     ax = fig.add_subplot(338)
     plt.scatter([np.average(cut.applyCuts(xbj,cut60))],[np.average(cut.applyCuts(xL,cut60))],label='$Q^2$=60 $GeV^2$')

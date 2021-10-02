@@ -1,7 +1,7 @@
 /*
  * Description: Defines constants, cross sections, and smearing of fermi motion 
  * ================================================================
- * Time-stamp: "2020-09-23 11:59:19 trottar"
+ * Time-stamp: "2021-10-01 07:15:12 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -40,7 +40,8 @@ using std::ios;
 int NEvts = 0; // Defined in kinematics.input
 
 // maximum value of spectator particle
-const double pSMax=  0.3; // 300 Mev/c
+//const double pSMax=  0.3; // 300 Mev/c
+const double pSMax=  1.; // testing, this changes the range of the t-distro and range of neutron energy
 
 //  Physical Constants
 const double MProton   = 0.93827203;

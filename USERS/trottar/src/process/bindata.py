@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-08-05 13:48:29 trottar"
+# Time-stamp: "2021-10-01 07:28:28 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -34,29 +34,29 @@ xLbinwidth = float(sys.argv[5])
 @bar.progress_wrapped(numEvts/8750, tstep=0.2, tqdm_kwargs={})
 def processData():
     # python < 3.7.4
-    #TDIS_xbj_raw = d.findKey(b'TDIS_xbj')
-    #fpi_raw = d.findKey(b'fpi')
-    #Q2_raw = d.findKey(b'TDIS_Q2')
-    #t_raw = d.findKey(b'TDIS_t')
-    #xL_raw = d.findKey(b'xL')
-    #y_raw = d.findKey(b'TDIS_y')
-    #sigma_tdis_raw = d.findKey(b'sigma_tdis')
-    #f2N_raw = d.findKey(b'f2N')
-    #xpi_raw = d.findKey(b'xpi')
-    #ypi_raw = d.findKey(b'ypi')
-    #tpi_raw = d.findKey(b'tpi')
+    TDIS_xbj_raw = d.findKey(b'TDIS_xbj')
+    fpi_raw = d.findKey(b'fpi')
+    Q2_raw = d.findKey(b'TDIS_Q2')
+    t_raw = d.findKey(b'TDIS_t')
+    xL_raw = d.findKey(b'xL')
+    y_raw = d.findKey(b'TDIS_y')
+    sigma_tdis_raw = d.findKey(b'sigma_tdis')
+    f2N_raw = d.findKey(b'f2N')
+    xpi_raw = d.findKey(b'xpi')
+    ypi_raw = d.findKey(b'ypi')
+    tpi_raw = d.findKey(b'tpi')
 
-    TDIS_xbj_raw = d.findKey('TDIS_xbj')
-    fpi_raw = d.findKey('fpi')
-    Q2_raw = d.findKey('TDIS_Q2')
-    t_raw = d.findKey('TDIS_t')
-    xL_raw = d.findKey('xL')
-    y_raw = d.findKey('TDIS_y')
-    sigma_tdis_raw = d.findKey('sigma_tdis')
-    f2N_raw = d.findKey('f2N')
-    xpi_raw = d.findKey('xpi')
-    ypi_raw = d.findKey('ypi')
-    tpi_raw = d.findKey('tpi')
+    # TDIS_xbj_raw = d.findKey('TDIS_xbj')
+    # fpi_raw = d.findKey('fpi')
+    # Q2_raw = d.findKey('TDIS_Q2')
+    # t_raw = d.findKey('TDIS_t')
+    # xL_raw = d.findKey('xL')
+    # y_raw = d.findKey('TDIS_y')
+    # sigma_tdis_raw = d.findKey('sigma_tdis')
+    # f2N_raw = d.findKey('f2N')
+    # xpi_raw = d.findKey('xpi')
+    # ypi_raw = d.findKey('ypi')
+    # tpi_raw = d.findKey('tpi')
 
     xbins  = np.arange(xbinwidth/2,1.,xbinwidth).tolist()
     qbins =  np.arange(qbinwidth/2,1000.,qbinwidth).tolist()

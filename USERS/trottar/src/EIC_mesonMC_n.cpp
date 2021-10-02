@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged neutron and pi+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-11-09 20:25:43 trottar"
+ * Time-stamp: "2021-10-01 08:15:46 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -343,8 +343,14 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   static	MonteCarlo mc;
   mc.nEvts = NEvts;
   mc.PhSpFct   = (Q2Max-Q2Min)*(log(xMax)-log(xMin))*4.*pi*pow((pSMax),3)/3.;
-  itree->Branch("MC", &mc, "nEvts/I:PhSpFct/F");
-
+  itree->Branch("Monte Carlo", &mc, "nEvts/I:PhSpFct/F");
+  
+  typedef struct {
+    Double_t tSpectator, NdotP, EZ, XY;
+  } Debug;
+  static	Debug db;
+  itree->Branch("Debug", &db, "tSpectator/D:NdotP/D:EZ/D:XY/D");  
+  
   typedef struct {
     Double_t p2_pt, p2_z,
       phi_p2, theta_p2,
@@ -374,6 +380,9 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   // Get LorentzVector for the pScattered Proton for TDIS in rest frame
   TLorentzVector pScatterNeutron_Rest;
 
+  itree->Branch("pIncRest.",  &PIncident_Rest, bufsize, 1);
+  itree->Branch("nScatRest.",  &pScatterNeutron_Rest, bufsize, 1);
+  
   double pn_Lab;
 
   // *****************************************************************************
@@ -491,7 +500,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     invts.x_D  = invts.xBj*(MProton/MIon);
     invts.y_D  = invts.Q2/(invts.x_D*invts.TwoPdotk);
     invts.Yplus = 1 + ((1-invts.y_D)*(1-invts.y_D));
-
+    
     // **** for debugging purpose
     // for the dubugging purpose: OK, CHECKED
     if (invts.y_D>=(1.0-2.*mElectron*MIon/invts.TwoPdotk) ) {
@@ -578,8 +587,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     qMag = qVirtual_Rest.P();
     pDotq = BoostRest(0)*qVirtual_Rest(0)+BoostRest(1)*qVirtual_Rest(1)+BoostRest(2)*qVirtual_Rest(2);
     p_DT = PIncident_Vertex - (pDotq/qMag/qMag)*qVirtual_Rest;
-    p_ST = pSpectator_Vertex -(pDotq/qMag/qMag)*qVirtual_Rest;	
-
+    p_ST = pSpectator_Vertex -(pDotq/qMag/qMag)*qVirtual_Rest;
+    
     // Null for proton beam
     pSpectator_Rest  = PIncident_Rest;
     
@@ -588,8 +597,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     TDIS_xbj = invts.Q2/(2*pSpectator_Rest.Dot(qVirtual_Rest));
     TDIS_znq = p2.p2_z*pSpectator_Rest.Dot(qVirtual_Rest);
     TDIS_Mx2 = (qVirtual_Rest + pSpectator_Rest).Mag2();
-    TDIS_y   = (pSpectator_Rest.Dot(qVirtual_Rest))/(pSpectator_Rest.Dot(kIncident_Rest));
-
+    TDIS_y   = (pSpectator_Rest.Dot(qVirtual_Rest))/(pSpectator_Rest.Dot(kIncident_Rest));    
+    
     //***
     // For debugging purpose:
     /*
@@ -610,7 +619,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     E_p2 = sqrt ( P_p2*P_p2 + MProton*MProton);
   
     // Define scattered proton kinematics
-    // Generate pSpectator Spherically Symmetric in rest frame     
+    // Generate pSpectator Spherically Symmetric in rest frame
     uw       = ran3.Uniform();
     pS_rest   = (pSMax)*pow(uw,1./3.); // uniform in 3p^2 dp = d(p^3), pSMax=0.3
     ux       = ran3.Uniform();
@@ -618,9 +627,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     uy       = ran3.Uniform();
     phiRecoil  = pi*(2.*uy-1.);
     
-    pScatterNeutron_V3  = pS_rest*sin(acos(csThRecoil))*(cos(phiRecoil)*UnitXqCM
-							+ sin(phiRecoil)*UnitYqCM);
-    pScatterNeutron_V3 += pS_rest*csThRecoil*UnitZqCM;
+    pScatterNeutron_V3  = pS_rest*sin(acos(csThRecoil))*(cos(phiRecoil)*UnitXqCM + sin(phiRecoil)*UnitYqCM);
+    pScatterNeutron_V3 += pS_rest*cos(phiRecoil)*UnitZqCM;
     
     pScatterNeutron_Rest.SetVectM(pScatterNeutron_V3,MSpectator);
 
@@ -631,12 +639,12 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     invts.MX2 = PX_Vertex.M2();
     invts.alphaS = ABeam*(pS_rest*csThRecoil+pSpectator_Rest.E())/MIon;
     invts.pPerpS = pS_rest*sqrt(1.-csThRecoil*csThRecoil);
-    
+
     // alpha cut for select event with minimizing coherrent effects
     if(pow(invts.alphaS-1,2)<0.0001){
       continue;
     }
-	  
+    
     // for the debugging purpose: SEEMS NOT CRAZY NUMBER....
     // if (TMath::Sqrt(TDIS_Mx2) > PBeam/2){
     //   cout << "---->TDIS missing mass =" << TMath::Sqrt(TDIS_Mx2)  << endl;
@@ -654,12 +662,21 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     pScatterPion_V3.SetXYZ(Px_pi,Py_pi,Pz_pi);
 
     // Back to Lab frame
-    pScatterNeutron_Vertex = pScatterNeutron_Rest;	  
+    pScatterNeutron_Vertex = pScatterNeutron_Rest;
     pScatterNeutron_Vertex.Boost(BoostRest);
     pSpectator_Vertex = pScatterNeutron_Vertex;
     pScatterPion_Vertex = pScatterPion_Rest;
     pScatterPion_Vertex.Boost(BoostRest);
 
+    //db.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
+    //db.tSpectator = (PIncident_Vertex - pSpectator_Vertex)*(PIncident_Vertex - pSpectator_Vertex);
+    //db.tSpectator = ((PIncident_Vertex.E() - pSpectator_Vertex.E())*(PIncident_Vertex.E() - pSpectator_Vertex.E())-((PIncident_Vertex.X() - pSpectator_Vertex.X())*(PIncident_Vertex.X() - pSpectator_Vertex.X())+(PIncident_Vertex.Y() - pSpectator_Vertex.Y())*(PIncident_Vertex.Y() - pSpectator_Vertex.Y())+(PIncident_Vertex.Z() - pSpectator_Vertex.Z())*(PIncident_Vertex.Z() - pSpectator_Vertex.Z())));
+    
+    db.EZ = ((PIncident_Vertex.E() - pSpectator_Vertex.E())*(PIncident_Vertex.E() - pSpectator_Vertex.E())-((PIncident_Vertex.Z() - pSpectator_Vertex.Z())*(PIncident_Vertex.Z() - pSpectator_Vertex.Z())));
+    db.XY = ((PIncident_Vertex.X() - pSpectator_Vertex.X())*(PIncident_Vertex.X() - pSpectator_Vertex.X())+(PIncident_Vertex.Y() - pSpectator_Vertex.Y())*(PIncident_Vertex.Y() - pSpectator_Vertex.Y()));
+    db.tSpectator = db.EZ-db.XY;
+    db.NdotP = pSpectator_Vertex.Dot(PIncident_Vertex);
+    
     P_pi = pScatterPion_V3.Mag();
     
     pnx_Lab = pScatterNeutron_Vertex.X();
@@ -690,7 +707,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     vpix_Lab = 0.0;
     vpiy_Lab = 0.0;
     vpiz_Lab = 0.0;
- 
+
     // For debugging purpose
     if (pn_Lab > (PBeam/ABeam) ) { 
       // Unphysical kinematics: if TDIS spectator momentum larger than 50% ion momentum
@@ -794,11 +811,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     */
 
     invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
-    //TDIS_t = invts.tSpectator;
+    TDIS_t = invts.tSpectator;
     
     tmin = -(((1-xL)/xL)*((1-xL)/xL))*(MSpectator*MSpectator-xL*MIon*MIon);
 
-    TDIS_t = -((xL*EprE_inc*pScatterNeutron_Vertex.Theta()*xL*EprE_inc*pScatterNeutron_Vertex.Theta())/xL)-tmin;
+    //TDIS_t = -((xL*EprE_inc*pScatterNeutron_Vertex.Theta()*xL*EprE_inc*pScatterNeutron_Vertex.Theta())/xL)-tmin;
 
     /*
     if (TDIS_t < tmin){

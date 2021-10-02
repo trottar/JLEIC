@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-08-05 13:43:57 trottar"
+# Time-stamp: "2021-10-01 07:27:14 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -23,9 +23,9 @@ tdata = up.open(rootName)[tName]
 
 bnames = tdata.keys()
 print ("Tree has the following branches:")
-print ("  [{}]".format(', '.join(bnames)))
+#print ("  [{}]".format(', '.join(bnames)))
 # python < 3.7.4
-#print ("  [{}]".format(b', '.join(bnames)))
+print ("  [{}]".format(b', '.join(bnames)))
 
 tdict = {}
 print("Tree has the following data in it's branches:")
