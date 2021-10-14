@@ -36,6 +36,7 @@ b_flag = "Q2"
 @bar.progress_wrapped(numEvts/8750, tstep=0.2, tqdm_kwargs={})
 def processData():
     # python < 3.7.4
+    '''
     TDIS_xbj_raw = d.findKey(b'TDIS_xbj')
     fpi_raw = d.findKey(b'fpi')
     Q2_raw = d.findKey(b'TDIS_Q2')
@@ -47,18 +48,19 @@ def processData():
     xpi_raw = d.findKey(b'xpi')
     ypi_raw = d.findKey(b'ypi')
     tpi_raw = d.findKey(b'tpi')
+    '''
 
-    # TDIS_xbj_raw = d.findKey('TDIS_xbj')
-    # fpi_raw = d.findKey('fpi')
-    # Q2_raw = d.findKey('TDIS_Q2')
-    # t_raw = d.findKey('TDIS_t')
-    # xL_raw = d.findKey('xL')
-    # y_raw = d.findKey('TDIS_y')
-    # sigma_tdis_raw = d.findKey('sigma_tdis')
-    # f2N_raw = d.findKey('f2N')
-    # xpi_raw = d.findKey('xpi')
-    # ypi_raw = d.findKey('ypi')
-    # tpi_raw = d.findKey('tpi')
+    TDIS_xbj_raw = d.findKey('TDIS_xbj')
+    fpi_raw = d.findKey('fpi')
+    Q2_raw = d.findKey('TDIS_Q2')
+    t_raw = d.findKey('TDIS_t')
+    xL_raw = d.findKey('xL')
+    y_raw = d.findKey('TDIS_y')
+    sigma_tdis_raw = d.findKey('sigma_tdis')
+    f2N_raw = d.findKey('f2N')
+    xpi_raw = d.findKey('xpi')
+    ypi_raw = d.findKey('ypi')
+    tpi_raw = d.findKey('tpi')
 
     xbins  = np.arange(xbinwidth/2,1.,xbinwidth).tolist()
     qbins =  np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
@@ -146,7 +148,7 @@ def processData():
     t_xbin = binData(t_raw, xbinVal)
     xL_xbin = binData(xL_raw, xbinVal)
     y_xbin = binData(y_raw, xbinVal)
-    sigma_tdis_xbin = binData(sigma_tdis_raw, xbinVal)*(1e-5) # used to compare to HERA cross-section
+    sigma_tdis_xbin = binData(sigma_tdis_raw, xbinVal)
     f2N_xbin = binData(f2N_raw, xbinVal)
     xpi_xbin = binData(xpi_raw, xbinVal)
     ypi_xbin = binData(ypi_raw, xbinVal)
@@ -251,6 +253,7 @@ def processData():
 
     # Total integrated luminosity
     d.tdict["tot_int_lumi"] = lumi.Lumi(tot_sigma_bin,binevt,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
+
     tot_int_lumi_bin = d.findKey("tot_int_lumi")
     '''
     print(">>>",len(TDIS_xbj_bin))

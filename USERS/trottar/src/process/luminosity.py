@@ -18,10 +18,10 @@ def Lumi(cross_sec,binevt,xbinwidth,qbinwidth,tbinwidth,xLbinwidth):
     # Luminosity
 
     # all binned events
-    sig_all = cross_sec*1e5 # the 1e5 corrects the scaling up top
-    evts_all = binevt
+    sig_all = cross_sec
 
-    lumi = [(e)/((s)*(qbinwidth)*(xbinwidth)*(tbinwidth)*(xLbinwidth)) for e,s in zip(evts_all,sig_all)]
+    # lumi = [(e)/((s)*(qbinwidth)*(xbinwidth)*(tbinwidth)*(xLbinwidth)) for e,s in zip(binevt,sig_all)]
+    lumi = [(e)/((s)*(qbinwidth)*(xbinwidth)*(xLbinwidth)) for e,s in zip(binevt,sig_all)]
     #print("---------------------------------\n")
     # print("\nLuminosity: ", lumi)
 
