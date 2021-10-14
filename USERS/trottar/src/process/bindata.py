@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-10-01 07:28:28 trottar"
+# Time-stamp: "2021-10-06 03:05:41 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -30,6 +30,8 @@ xbinwidth = float(sys.argv[2])
 qbinwidth = float(sys.argv[3])
 tbinwidth = float(sys.argv[4])
 xLbinwidth = float(sys.argv[5])
+
+b_flag = "Q2"
 
 @bar.progress_wrapped(numEvts/8750, tstep=0.2, tqdm_kwargs={})
 def processData():
@@ -93,6 +95,7 @@ def processData():
             if i+1 != len(evtBin): 
                 evtBin.append(0.)
         '''
+        # Debug
         print(evtBin[1])
         tmp = []
         tmp2 = []
@@ -108,6 +111,7 @@ def processData():
 
     xboolval = binBool(TDIS_xbj_raw,xbins,xbinwidth)
     '''
+    # Debug
     tmp = []
     tmp2 = []
     for evt in zip(xboolval[0],xboolval[1]):
@@ -125,6 +129,7 @@ def processData():
 
     binevt_raw = evtsPerBin(xboolval[1],xbins)
     '''
+    # Debug
     print(">>>>",len(xboolval[0]))
     print(">>>>",len(xboolval[1]))
     print("~~~",len(binevt_raw))
@@ -134,6 +139,7 @@ def processData():
         arr_bin[~binType] = 0.
         return arr_bin
 
+    # x binning
     TDIS_xbj_xbin = binData(TDIS_xbj_raw, xbinVal)
     Q2_xbin = binData(Q2_raw, xbinVal)
     fpi_xbin = binData(fpi_raw, xbinVal)
@@ -148,6 +154,7 @@ def processData():
 
     binevt_xbin = binData(binevt_raw, xbinVal)
 
+    # Q2 binning
     TDIS_xbj_qbin = binData(TDIS_xbj_xbin, qbinVal)
     Q2_qbin = binData(Q2_xbin, qbinVal)
     fpi_qbin = binData(fpi_xbin, qbinVal)
@@ -162,87 +169,79 @@ def processData():
 
     binevt_qbin = binData(binevt_xbin, qbinVal)
 
-    '''
-    TDIS_xbj_bin = TDIS_xbj_qbin
-    Q2_bin = Q2_qbin
-    fpi_bin = fpi_qbin
-    t_bin = t_qbin
-    xL_bin = xL_qbin
-    y_bin = y_qbin
-    sigma_tdis_bin = sigma_tdis_qbin
-    f2N_bin = f2N_qbin
-    xpi_bin = xpi_qbin
-    ypi_bin = ypi_qbin
-    tpi_bin = tpi_qbin
+    if b_flag == "Q2":
+        # Final bins
+        TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_qbin)
+        Q2_bin = np.trim_zeros(Q2_qbin)
+        fpi_bin = np.trim_zeros(fpi_qbin)
+        t_bin = np.trim_zeros(t_qbin)
+        xL_bin = np.trim_zeros(xL_qbin)
+        y_bin = np.trim_zeros(y_qbin)
+        sigma_tdis_bin = np.trim_zeros(sigma_tdis_qbin)
+        f2N_bin = np.trim_zeros(f2N_qbin)
+        xpi_bin = np.trim_zeros(xpi_qbin)
+        ypi_bin = np.trim_zeros(ypi_qbin)
+        tpi_bin = np.trim_zeros(tpi_qbin)
+        
+        binevt = np.trim_zeros(binevt_qbin)
+        
+    if b_flag == "t":
+        TDIS_xbj_tbin = binData(TDIS_xbj_qbin, tbinVal)
+        Q2_tbin = binData(Q2_qbin, tbinVal)
+        fpi_tbin = binData(fpi_qbin, tbinVal)
+        t_tbin = binData(t_qbin, tbinVal)
+        xL_tbin = binData(xL_qbin, tbinVal)
+        y_tbin = binData(y_qbin, tbinVal)
+        sigma_tdis_tbin = binData(sigma_tdis_qbin, tbinVal)
+        f2N_tbin = binData(f2N_qbin, tbinVal)
+        xpi_tbin = binData(xpi_qbin, tbinVal)
+        ypi_tbin = binData(ypi_qbin, tbinVal)
+        tpi_tbin = binData(tpi_qbin, tbinVal)
 
-    binevt = binevt_qbin
-    '''
-    #'''
-    TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_qbin)
-    Q2_bin = np.trim_zeros(Q2_qbin)
-    fpi_bin = np.trim_zeros(fpi_qbin)
-    t_bin = np.trim_zeros(t_qbin)
-    xL_bin = np.trim_zeros(xL_qbin)
-    y_bin = np.trim_zeros(y_qbin)
-    sigma_tdis_bin = np.trim_zeros(sigma_tdis_qbin)
-    f2N_bin = np.trim_zeros(f2N_qbin)
-    xpi_bin = np.trim_zeros(xpi_qbin)
-    ypi_bin = np.trim_zeros(ypi_qbin)
-    tpi_bin = np.trim_zeros(tpi_qbin)
+        binevt_tbin = binData(binevt_qbin, tbinVal)
 
-    binevt = np.trim_zeros(binevt_qbin)
-    #'''
-    '''
-    TDIS_xbj_tbin = binData(TDIS_xbj_qbin, tbinVal)
-    Q2_tbin = binData(Q2_qbin, tbinVal)
-    fpi_tbin = binData(fpi_qbin, tbinVal)
-    t_tbin = binData(t_qbin, tbinVal)
-    xL_tbin = binData(xL_qbin, tbinVal)
-    y_tbin = binData(y_qbin, tbinVal)
-    sigma_tdis_tbin = binData(sigma_tdis_qbin, tbinVal)
-    f2N_tbin = binData(f2N_qbin, tbinVal)
-    xpi_tbin = binData(xpi_qbin, tbinVal)
-    ypi_tbin = binData(ypi_qbin, tbinVal)
-    tpi_tbin = binData(tpi_qbin, tbinVal)
+        TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_tbin)
+        Q2_bin = np.trim_zeros(Q2_tbin)
+        fpi_bin = np.trim_zeros(fpi_tbin)
+        t_bin = np.trim_zeros(t_tbin)
+        xL_bin = np.trim_zeros(xL_tbin)
+        y_bin = np.trim_zeros(y_tbin)
+        sigma_tdis_bin = np.trim_zeros(sigma_tdis_tbin)
+        f2N_bin = np.trim_zeros(f2N_tbin)
+        xpi_bin = np.trim_zeros(xpi_tbin)
+        ypi_bin = np.trim_zeros(ypi_tbin)
+        tpi_bin = np.trim_zeros(tpi_tbin)
 
+        binevt = np.trim_zeros(binevt_tbin)
 
-    TDIS_xbj_tbin = np.trim_zeros(TDIS_xbj_tbin)
-    Q2_bin = np.trim_zeros(Q2_tbin)
-    fpi_bin = np.trim_zeros(fpi_tbin)
-    t_bin = np.trim_zeros(t_tbin)
-    xL_bin = np.trim_zeros(xL_tbin)
-    y_bin = np.trim_zeros(y_tbin)
-    sigma_tdis_bin = np.trim_zeros(sigma_tdis_tbin)
-    f2N_bin = np.trim_zeros(f2N_tbin)
-    xpi_bin = np.trim_zeros(xpi_tbin)
-    ypi_bin = np.trim_zeros(ypi_tbin)
-    tpi_bin = np.trim_zeros(tpi_tbin)
-    '''
-    '''
-    TDIS_xbj_xLbin = binData(TDIS_xbj_qbin, xLbinVal)
-    Q2_xLbin = binData(Q2_qbin, xLbinVal)
-    fpi_xLbin = binData(fpi_qbin, xLbinVal)
-    t_xLbin = binData(t_qbin, xLbinVal)
-    xL_xLbin = binData(xL_qbin, xLbinVal)
-    y_xLbin = binData(y_qbin, xLbinVal)
-    sigma_tdis_xLbin = binData(sigma_tdis_qbin, xLbinVal)
-    f2N_xLbin = binData(f2N_qbin, xLbinVal)
-    xpi_xLbin = binData(xpi_qbin, xLbinVal)
-    ypi_xLbin = binData(ypi_qbin, xLbinVal)
-    tpi_xLbin = binData(tpi_qbin, xLbinVal)
+    if b_flag == "xL":
+        TDIS_xbj_xLbin = binData(TDIS_xbj_qbin, xLbinVal)
+        Q2_xLbin = binData(Q2_qbin, xLbinVal)
+        fpi_xLbin = binData(fpi_qbin, xLbinVal)
+        t_xLbin = binData(t_qbin, xLbinVal)
+        xL_xLbin = binData(xL_qbin, xLbinVal)
+        y_xLbin = binData(y_qbin, xLbinVal)
+        sigma_tdis_xLbin = binData(sigma_tdis_qbin, xLbinVal)
+        f2N_xLbin = binData(f2N_qbin, xLbinVal)
+        xpi_xLbin = binData(xpi_qbin, xLbinVal)
+        ypi_xLbin = binData(ypi_qbin, xLbinVal)
+        tpi_xLbin = binData(tpi_qbin, xLbinVal)
 
-    TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_xLbin)
-    Q2_bin = np.trim_zeros(Q2_xLbin)
-    fpi_bin = np.trim_zeros(fpi_xLbin)
-    t_bin = np.trim_zeros(t_xLbin)
-    xL_bin = np.trim_zeros(xL_xLbin)
-    y_bin = np.trim_zeros(y_xLbin)
-    sigma_tdis_bin = np.trim_zeros(sigma_tdis_xLbin)
-    f2N_bin = np.trim_zeros(f2N_xLbin)
-    xpi_bin = np.trim_zeros(xpi_xLbin)
-    ypi_bin = np.trim_zeros(ypi_xLbin)
-    tpi_bin = np.trim_zeros(tpi_xLbin)
-    '''
+        binevt_xLbin = binData(binevt_qbin, xLbinVal)
+    
+        TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_xLbin)
+        Q2_bin = np.trim_zeros(Q2_xLbin)
+        fpi_bin = np.trim_zeros(fpi_xLbin)
+        t_bin = np.trim_zeros(t_xLbin)
+        xL_bin = np.trim_zeros(xL_xLbin)
+        y_bin = np.trim_zeros(y_xLbin)
+        sigma_tdis_bin = np.trim_zeros(sigma_tdis_xLbin)
+        f2N_bin = np.trim_zeros(f2N_xLbin)
+        xpi_bin = np.trim_zeros(xpi_xLbin)
+        ypi_bin = np.trim_zeros(ypi_xLbin)
+        tpi_bin = np.trim_zeros(tpi_xLbin)
+
+        binevt = np.trim_zeros(binevt_xLbin)
 
     # Calculated values
     tot_sigma_bin = (sigma_tdis_bin)*((TDIS_xbj_bin*(Q2_bin*Q2_bin)*(137)*(137))/(2*math.pi*(1+(y_bin*y_bin))))

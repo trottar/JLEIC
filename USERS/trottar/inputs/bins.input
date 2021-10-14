@@ -1,7 +1,7 @@
 xbinwidth=0.01
 qbinwidth=10.0
-tbinwidth=0.01
-xLbinwidth=0.01
+tbinwidth=0.10
+xLbinwidth=0.10
 #
 #xbinwidth=0.1
 #qbinwidth=100.0
