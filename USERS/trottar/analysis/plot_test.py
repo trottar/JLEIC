@@ -73,7 +73,7 @@ def densityPlot(x,y,title,xlabel,ylabel,binx,biny,
 # Create cut dictionary
 cutDict = {}
 
-qbinarray = [3.5,7.0,15.0,30.0,60.0,120.0,240.0,480.0,1000.0]
+qbinarray = [7.0,15.0,30.0,60.0,120.0,240.0,480.0,1000.0]
 #qbinarray = np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
 for i,q in enumerate(qbinarray) :
     qtmp = '{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,qbinarray[i]-qbinwidth/2,qbinarray[i]+qbinwidth/2)
@@ -83,7 +83,7 @@ for i,q in enumerate(qbinarray) :
 xarray = np.arange(xbinwidth/2,1.0,xbinwidth).tolist()
 for i,x in enumerate(xarray):
     xtmp = '{"xcut%i" : ((%0.4f <= xbj) & (xbj <= %0.4f))}' % (i,xarray[i]-xbinwidth/2,xarray[i]+xbinwidth/2)
-    print('{"xcut%i" : ((%0.4f <= xbj) & (xbj <= %0.4f))}' % (i,xarray[i]-xbinwidth/2,xarray[i]+xbinwidth/2))
+    #print('{"xcut%i" : ((%0.4f <= xbj) & (xbj <= %0.4f))}' % (i,xarray[i]-xbinwidth/2,xarray[i]+xbinwidth/2))
     cutDict.update(eval(xtmp))
 
 tarray = np.arange(tbinwidth/2,1.0,tbinwidth).tolist()
@@ -105,35 +105,32 @@ cut = c.pyPlot(cutDict)
 ycut1 = ["ycut"]
 
 if xlmin == 0.8400 or xlmax == 0.8500:
-    cut3p5 = ["Q2cut0","xLcut85","ycut"]
-    cut7 = ["Q2cut1","xLcut85","ycut"]
-    cut15 = ["Q2cut2","xLcut85","ycut"]
-    cut30 = ["Q2cut3","xLcut85","ycut"]
-    cut60 = ["Q2cut4","xLcut85","ycut"]
-    cut120 = ["Q2cut5","xLcut85","ycut"]
-    cut240 = ["Q2cut6","xLcut85","ycut"]
-    cut480 = ["Q2cut7","xLcut85","ycut"]
-    cut1000 = ["Q2cut8","xLcut85","ycut"]
+    cut7 = ["Q2cut0","xLcut85","ycut"]
+    cut15 = ["Q2cut1","xLcut85","ycut"]
+    cut30 = ["Q2cut2","xLcut85","ycut"]
+    cut60 = ["Q2cut3","xLcut85","ycut"]
+    cut120 = ["Q2cut4","xLcut85","ycut"]
+    cut240 = ["Q2cut5","xLcut85","ycut"]
+    cut480 = ["Q2cut6","xLcut85","ycut"]
+    cut1000 = ["Q2cut7","xLcut85","ycut"]
 elif xlmin == 0.8000 or xlmax == 0.8100:
-    cut3p5 = ["Q2cut0","xLcut80","ycut"]
-    cut7 = ["Q2cut1","xLcut80","ycut"]
-    cut15 = ["Q2cut2","xLcut80","ycut"]
-    cut30 = ["Q2cut3","xLcut80","ycut"]
-    cut60 = ["Q2cut4","xLcut80","ycut"]
-    cut120 = ["Q2cut5","xLcut80","ycut"]
-    cut240 = ["Q2cut6","xLcut80","ycut"]
-    cut480 = ["Q2cut7","xLcut80","ycut"]
-    cut1000 = ["Q2cut8","xLcut80","ycut"]
+    cut7 = ["Q2cut0","xLcut80","ycut"]
+    cut15 = ["Q2cut1","xLcut80","ycut"]
+    cut30 = ["Q2cut2","xLcut80","ycut"]
+    cut60 = ["Q2cut3","xLcut80","ycut"]
+    cut120 = ["Q2cut4","xLcut80","ycut"]
+    cut240 = ["Q2cut5","xLcut80","ycut"]
+    cut480 = ["Q2cut6","xLcut80","ycut"]
+    cut1000 = ["Q2cut7","xLcut80","ycut"]
 else:
-    cut3p5 = ["Q2cut0","ycut","tcut6"]
-    cut7 = ["Q2cut1","ycut","tcut6"]
-    cut15 = ["Q2cut2","ycut","tcut6"]
-    cut30 = ["Q2cut3","ycut","tcut6"]
-    cut60 = ["Q2cut4","ycut","tcut6"]
-    cut120 = ["Q2cut5","ycut","tcut6"]
-    cut240 = ["Q2cut6","ycut","tcut6"]
-    cut480 = ["Q2cut7","ycut","tcut6"]
-    cut1000 = ["Q2cut8","ycut","tcut6"]
+    cut7 = ["Q2cut0","ycut","tcut6"]
+    cut15 = ["Q2cut1","ycut","tcut6"]
+    cut30 = ["Q2cut2","ycut","tcut6"]
+    cut60 = ["Q2cut3","ycut","tcut6"]
+    cut120 = ["Q2cut4","ycut","tcut6"]
+    cut240 = ["Q2cut5","ycut","tcut6"]
+    cut480 = ["Q2cut6","ycut","tcut6"]
+    cut1000 = ["Q2cut7","ycut","tcut6"]
 
 def F2pi(xpi, Q2):
     points,values=np.load('./analysis/interpGrids/xpiQ2.npy'),np.load('./analysis/interpGrids/F2pi.npy')
@@ -323,18 +320,6 @@ def TheoryTable():
         out_t = out_t.reindex(sorted(out_t.columns), axis=1)
         return out_t
 
-    cut3p5Dict = {
-
-        "Q2-3p5" : cut.applyCuts(Q2,cut3p5),
-        "xbj-3p5" : cut.applyCuts(xbj,cut3p5),
-        "xpi-3p5" : cut.applyCuts(xpi,cut3p5),
-        "xL-3p5" : cut.applyCuts(xL,cut3p5),
-        "y-3p5" : cut.applyCuts(y,cut3p5),
-        "lumi-3p5" : cut.applyCuts(lumi,cut3p5),
-    }
-
-    cut3p5Table = dict2df(cut3p5Dict)
-
     cut7Dict = {
 
         "Q2-7" : cut.applyCuts(Q2,cut7),
@@ -433,11 +418,11 @@ def TheoryTable():
     
     # Merge pandas df
     dataDict = {}
-    for d in (cut3p5Table,cut7Table,cut15Table,cut30Table,cut60Table,cut120Table,cut240Table,cut480Table,cut1000Table):
+    for d in (cut7Table,cut15Table,cut30Table,cut60Table,cut120Table,cut240Table,cut480Table,cut1000Table):
         dataDict.update(d)
     data ={i : dataDict[i] for i in sorted(dataDict.keys())}
 
-    theory_table = dict2df(dataDict).sort_values(['Q2-3p5','Q2-7','Q2-15','Q2-30','Q2-60','Q2-120','Q2-240','Q2-480','Q2-1000'])
+    theory_table = dict2df(dataDict).sort_values(['Q2-7','Q2-15','Q2-30','Q2-60','Q2-120','Q2-240','Q2-480','Q2-1000'])
     print("Table created...\n",theory_table)
 
     return theory_table

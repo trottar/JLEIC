@@ -23,9 +23,11 @@ tdata = up.open(rootName)[tName]
 
 bnames = tdata.keys()
 print ("Tree has the following branches:")
-print ("  [{}]".format(', '.join(bnames)))
-# python < 3.7.4
-#print ("  [{}]".format(b', '.join(bnames)))
+if sys.version_info > (3,7):
+    print ("  [{}]".format(', '.join(bnames)))
+else:
+    # python < 3.7.4
+    print ("  [{}]".format(b', '.join(bnames)))
 
 tdict = {}
 print("Tree has the following data in it's branches:")
