@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged neutron and pi+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2021-10-01 08:15:46 trottar"
+ * Time-stamp: "2021-10-18 14:39:53 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -368,6 +368,15 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
   //name of output lund file for GEANT4 use
   ofstream OUT_lund (Form("../OUTPUTS/pi_n_%.1fon%.1f_x%.4f-%.4f_q%.1f-%.1f_lund.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
   ofstream OUT_pythia (Form("../OUTPUTS/pi_n_%.1fon%.1f_x%.4f-%.4f_q%.1f-%.1f_pythia.dat", kBeam, PBeam,xMin,xMax,Q2Min,Q2Max), ios::trunc);
+
+  // Adjusted LUND header
+  OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "Adjusted LUND Type" << endl;
+  OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "============================================" << endl;
+  OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "Event Index" << endl;
+  OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "============================================" << endl;
+  OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  "Number of Particles" << " \t "  << "xBj" << " \t " << "Q2"  << " \t " << "s_e"  << " \t " << "1.0" << " \t " << "xpi" << " \t" << "ypi" << " \t"  << "tpi"  << " \t"  <<  " \t" << "sigma_dis" << " \t" << "sigma_tdis" << endl;
+  OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "Particle Index" << " \t " << "Particle Charge" << " \t " << "Particle States (0-initial, 1-final)" << " \t " << "Particle ID" << " \t " << "Index of Parent" <<  " \t "<< "Index of First Daughter" << " \t " << "x-momentum" << " \t " << "y-momentum" << " \t " << "z-momentum" << " \t " << "Particle energy" << " \t " << "Particle Mass" << " \t " << "x-vertex"  << " \t " << "y-momentum" << " \t " << "z-momentum" << endl;
+  OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "============================================" << endl;
 
   // Pythia output header
   OUT_pythia << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "SIMPLE Event FILE" << endl;
@@ -914,7 +923,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
      * Legacy LUND format (https://gemc.jlab.org/gemc/html/documentation/generator/lund.html)
      * 
      * **********************************************************************************/
-
+    /*
     OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xpi << " \t" << ypi << " \t"  << tpi  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
       
     // incoming particles
@@ -930,7 +939,32 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
     // final state neutron (TDIS)
     OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pnx_Lab << " \t " << pny_Lab << " \t " << pnz_Lab << " \t " << EnE_Lab << " \t " << spmass << " \t " << vnx_Lab  << " \t " << vny_Lab << " \t " << vnz_Lab << endl;  
+    */
+    /************************************************************************************
+     * 
+     * DD4Hep input
+     * Adjusted LUND format (https://gemc.jlab.org/gemc/html/documentation/generator/lund.html)
+     * Includes initial particle 4-momentum and a flag for initial particles
+     * 
+     * **********************************************************************************/
+    OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  << MEvts << "\t" << endl  ;
+    OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "============================================" << endl;
+    OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  <<"                 "  <<  NumPtls << " \t " <<  scientific  << invts.xBj << " \t " << invts.Q2  << " \t " << invts.s_e  << " \t " << "1.0" << " \t " << xpi << " \t" << ypi << " \t"  << tpi  << " \t"  <<  " \t" << sigma_dis << " \t" << sigma_tdis << endl;
+      
+    // incoming particles
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "1" << " \t " << e_particle_charge << " \t " << "0" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << kBeamMCx << " \t " << kBeamMCy << " \t " << kBeamMCz << " \t " << kBeamMC << " \t " << emass << " \t " << ve0X_Lab  << " \t " << ve0Y_Lab << " \t " << ve0Z_Lab << endl; 
+
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "2" << " \t " << pr_particle_charge << " \t " << "0" << " \t " << pr_particle_id << " \t " << "0" <<  " \t "<< "1" << " \t "<< scientific << PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMC*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
     
+
+    // daughter particles
+    // the scattered electron
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) << "\t" << "3" << " \t " << e_particle_charge << " \t " << "1" << " \t " << e_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pex_Lab << " \t " << pey_Lab << " \t " << pez_Lab << " \t " << EeE_Lab << " \t " << emass << " \t " << vex_Lab  << " \t " << vey_Lab << " \t " << vez_Lab << endl; 
+    // final state pion
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "4" << " \t " << pi_particle_charge << " \t " << "1" << " \t " << pi_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << ppix_Lab << " \t " << ppiy_Lab << " \t " << ppiz_Lab << " \t " << EpiE_Lab << " \t " << mPion << " \t " << vpix_Lab  << " \t " << vpiy_Lab << " \t " << vpiz_Lab << endl; 
+    // final state neutron (TDIS)
+    OUT_lund << setiosflags(ios::left) << setiosflags(ios::fixed) <<  "\t" << "5" << " \t " << sp_particle_charge << " \t " << "1" << " \t " << sp_particle_id << " \t " << "0" <<  " \t "<< "1" <<  " \t "<< scientific << pnx_Lab << " \t " << pny_Lab << " \t " << pnz_Lab << " \t " << EnE_Lab << " \t " << spmass << " \t " << vnx_Lab  << " \t " << vny_Lab << " \t " << vnz_Lab << endl;  
+      
     /************************************************************************************
      * 
      * Fun4All inputs (https://wiki.bnl.gov/eicug/images/6/6b/Fun4all_format_help.pdf)
@@ -946,7 +980,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // Crossing angle 
     //OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< PBeamMCx+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << PBeamMCy+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << PBeamMCz*cos(CrossingTheta) << " \t " << PBeamMC << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
-    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< pprx_inc+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << ppry_inc+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << pprz_inc*cos(CrossingTheta) << " \t " << EprE_inc << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl; 
+    OUT_pythia << setiosflags(ios::left) << setiosflags(ios::fixed) << "2" << " \t " << "21" << " \t " << pr_particle_id << " \t " << "0" << " \t " << "5" <<  " \t "<< "6" << " \t "<< pprx_inc+PBeamMC*sin(CrossingTheta)*cos(CrossingPhi) << " \t " << ppry_inc+PBeamMC*sin(CrossingTheta)*sin(CrossingPhi) << " \t " << pprz_inc*cos(CrossingTheta) << " \t " << EprE_inc << " \t " << MProton << " \t " << vp0X_Lab  << " \t " << vp0Y_Lab << " \t " << vp0Z_Lab << endl;
+    OUT_lund << setiosflags(ios::left)  << setiosflags(ios::fixed)  << "=============== Event finished ===============" << endl;
 
     // daughter particles
     // Virtual photon

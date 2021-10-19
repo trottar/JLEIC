@@ -253,6 +253,7 @@ def processData():
 
     # Total integrated luminosity
     d.tdict["tot_int_lumi"] = lumi.Lumi(tot_sigma_bin,binevt,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
+    #d.tdict["tot_int_lumi"] = lumi.Lumi(sigma_tdis_bin,binevt,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
 
     tot_int_lumi_bin = d.findKey("tot_int_lumi")
     '''
