@@ -637,7 +637,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     phiRecoil  = pi*(2.*uy-1.);
     
     pScatterNeutron_V3  = pS_rest*sin(acos(csThRecoil))*(cos(phiRecoil)*UnitXqCM + sin(phiRecoil)*UnitYqCM);
-    pScatterNeutron_V3 += pS_rest*cos(phiRecoil)*UnitZqCM;
+    //pScatterNeutron_V3 += pS_rest*cos(phiRecoil)*UnitZqCM;
+    pScatterNeutron_V3 += pS_rest*csThRecoil*UnitZqCM;
     
     pScatterNeutron_Rest.SetVectM(pScatterNeutron_V3,MSpectator);
 

@@ -40,8 +40,8 @@ using std::ios;
 int NEvts = 0; // Defined in kinematics.input
 
 // maximum value of spectator particle
-//const double pSMax=  0.3; // 300 Mev/c
-const double pSMax=  1.; // testing, this changes the range of the t-distro and range of neutron energy
+const double pSMax=  0.3; // 300 Mev/c
+//const double pSMax=  1.; // testing, this changes the range of the t-distro and range of neutron energy
 
 //  Physical Constants
 const double MProton   = 0.93827203;
@@ -72,8 +72,8 @@ const  double D2R    = PI/(180.0);
 
 const double ZBeam =   1.;
 const double ABeam =   1.;           // 1 for proton beam, 2 for deuteron beam
-const double CrossingTheta = 0.050; // JLEIC angle
-//const double CrossingTheta = 0.025; // IP6
+//const double CrossingTheta = 0.050; // JLEIC angle
+const double CrossingTheta = 0.025; // IP6
 //const double CrossingTheta = 0.035; // IP8
 //const double CrossingTheta = 0.0; // zero crossing for Fun4All
 const double CrossingPhi   = 0.0;
