@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-10-06 03:42:19 trottar"
+# Time-stamp: "2021-10-20 11:52:27 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -30,9 +30,8 @@ qbinwidth = float(sys.argv[3])
 tbinwidth = float(sys.argv[4])
 xLbinwidth = float(sys.argv[5])
 
-#xlmin,xlmax = 0.8000,0.8100
-#xlmin,xlmax = 0.8400,0.8500
-xlmin,xlmax = 0,0
+#xLselection, tselection = "xLcut8","tcut1"
+xLselection, tselection = "",""
 
 df = pd.read_csv(r'./src/process/datafiles/x{0:0.3f}q{1:0.1f}t{2:0.3f}xL{3:0.3f}_{4}.csv'.format(xbinwidth,qbinwidth,tbinwidth,xLbinwidth,kinematics)) # xL bin, no t bin
 print(df)
@@ -72,65 +71,70 @@ def densityPlot(x,y,title,xlabel,ylabel,binx,biny,
 
 # Create cut dictionary
 cutDict = {}
+cutnameDict= { "" : "All xL and t"}
 
-qbinarray = [7.0,15.0,30.0,60.0,120.0,240.0,480.0,1000.0]
+qbinarray = [7.0,15.0,30.0,60.0,120.0,240.0,480.0,1000.0]+np.arange(qbinwidth/2,6,qbinwidth).tolist()
 #qbinarray = np.arange(qbinwidth/2,1000.,qbinwidth).tolist()
 for i,q in enumerate(qbinarray) :
     qtmp = '{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,qbinarray[i]-qbinwidth/2,qbinarray[i]+qbinwidth/2)
-    print('{"Q2cut%i" : ((%0.1f <= Q2) & (Q2 <= %0.1f))}' % (i,qbinarray[i]-qbinwidth/2,qbinarray[i]+qbinwidth/2))
     cutDict.update(eval(qtmp))
+    cutnameDict.update({"Q2cut{}".format(i) : "(({0:0.1f} <= Q2) & (Q2 <= {1:0.1f}))".format(qbinarray[i]-qbinwidth/2,qbinarray[i]+qbinwidth/2)})
 
 xarray = np.arange(xbinwidth/2,1.0,xbinwidth).tolist()
 for i,x in enumerate(xarray):
     xtmp = '{"xcut%i" : ((%0.4f <= xbj) & (xbj <= %0.4f))}' % (i,xarray[i]-xbinwidth/2,xarray[i]+xbinwidth/2)
-    #print('{"xcut%i" : ((%0.4f <= xbj) & (xbj <= %0.4f))}' % (i,xarray[i]-xbinwidth/2,xarray[i]+xbinwidth/2))
     cutDict.update(eval(xtmp))
 
 tarray = np.arange(tbinwidth/2,1.0,tbinwidth).tolist()
 for i,tval in enumerate(tarray):
     ttmp = '{"tcut%i" : ((-%0.4f >= t) & (t >= -%0.4f))}' % (i,tarray[i]-tbinwidth/2,tarray[i]+tbinwidth/2)
-    print('{"tcut%i" : ((-%0.4f >= t) & (t >= -%0.4f))}' % (i,tarray[i]-tbinwidth/2,tarray[i]+tbinwidth/2))
     cutDict.update(eval(ttmp))
+    cutnameDict.update({"tcut{}".format(i) : "((-{0:0.1f} >= t) & (t >= -{1:0.1f}))".format(tarray[i]-tbinwidth/2,tarray[i]+tbinwidth/2)})
 
 xLarray = np.arange(xLbinwidth/2,1.0,xLbinwidth).tolist()
 for i,x in enumerate(xLarray):
     xLtmp = '{"xLcut%i" : ((%0.4f <= xL) & (xL <= %0.4f))}' % (i,xLarray[i]-xLbinwidth/2,xLarray[i]+xLbinwidth/2)
-    print('{"xLcut%i" : ((%0.4f <= xL) & (xL <= %0.4f))}' % (i,xLarray[i]-xLbinwidth/2,xLarray[i]+xLbinwidth/2))
     cutDict.update(eval(xLtmp)) 
+    cutnameDict.update({"xLcut{}".format(i) : "(({0:0.1f} <= xL) & (xL <= {1:0.1f}))".format(xLarray[i]-xLbinwidth/2,xLarray[i]+xLbinwidth/2)})
     
 ytmp = '{"ycut" : ((0.01 <= y) & (y <= 0.95))}'
 cutDict.update(eval(ytmp))
 cut = c.pyPlot(cutDict)    
 
+cutname_table = pd.DataFrame(cutnameDict, columns=cutnameDict.keys(), index=[0])
+cutname_table = cutname_table.reindex(sorted(cutname_table.columns), axis=1)
+print("\n\nBin selection...")
+print(cutname_table.transpose(),"\n\n")
+
+xLcutName = cutname_table[xLselection].to_string(index=False).replace("<=","$\leq$").replace("xL) & (xL","xL").strip("(").strip(")")
+tcutName = cutname_table[tselection].to_string(index=False).replace(">=","$\geq$").replace("t) & (t","t").strip("(").strip(")")
+
 ycut1 = ["ycut"]
 
-if xlmin == 0.8400 or xlmax == 0.8500:
-    cut7 = ["Q2cut0","xLcut85","ycut"]
-    cut15 = ["Q2cut1","xLcut85","ycut"]
-    cut30 = ["Q2cut2","xLcut85","ycut"]
-    cut60 = ["Q2cut3","xLcut85","ycut"]
-    cut120 = ["Q2cut4","xLcut85","ycut"]
-    cut240 = ["Q2cut5","xLcut85","ycut"]
-    cut480 = ["Q2cut6","xLcut85","ycut"]
-    cut1000 = ["Q2cut7","xLcut85","ycut"]
-elif xlmin == 0.8000 or xlmax == 0.8100:
-    cut7 = ["Q2cut0","xLcut80","ycut"]
-    cut15 = ["Q2cut1","xLcut80","ycut"]
-    cut30 = ["Q2cut2","xLcut80","ycut"]
-    cut60 = ["Q2cut3","xLcut80","ycut"]
-    cut120 = ["Q2cut4","xLcut80","ycut"]
-    cut240 = ["Q2cut5","xLcut80","ycut"]
-    cut480 = ["Q2cut6","xLcut80","ycut"]
-    cut1000 = ["Q2cut7","xLcut80","ycut"]
+if xLselection != "" or tselection != "":
+    cut7 = ["Q2cut0","ycut","{}".format(xLselection),"{}".format(tselection)]
+    cut15 = ["Q2cut1","ycut","{}".format(xLselection),"{}".format(tselection)]
+    cut30 = ["Q2cut2","ycut","{}".format(xLselection),"{}".format(tselection)]
+    cut60 = ["Q2cut3","ycut","{}".format(xLselection),"{}".format(tselection)]
+    cut120 = ["Q2cut4","ycut","{}".format(xLselection),"{}".format(tselection)]
+    cut240 = ["Q2cut5","ycut","{}".format(xLselection),"{}".format(tselection)]
+    cut480 = ["Q2cut6","ycut","{}".format(xLselection),"{}".format(tselection)]
+    cut1000 = ["Q2cut7","ycut","{}".format(xLselection),"{}".format(tselection)]
 else:
-    cut7 = ["Q2cut0","ycut","tcut6"]
-    cut15 = ["Q2cut1","ycut","tcut6"]
-    cut30 = ["Q2cut2","ycut","tcut6"]
-    cut60 = ["Q2cut3","ycut","tcut6"]
-    cut120 = ["Q2cut4","ycut","tcut6"]
-    cut240 = ["Q2cut5","ycut","tcut6"]
-    cut480 = ["Q2cut6","ycut","tcut6"]
-    cut1000 = ["Q2cut7","ycut","tcut6"]
+    cut1 = ["Q2cut8","ycut"]
+    cut2 = ["Q2cut9","ycut"]
+    cut3 = ["Q2cut10","ycut"]
+    cut4 = ["Q2cut11","ycut"]
+    cut5 = ["Q2cut12","ycut"]
+    cut6 = ["Q2cut13","ycut"]
+    cut7 = ["Q2cut0","ycut"]
+    cut15 = ["Q2cut1","ycut"]
+    cut30 = ["Q2cut2","ycut"]
+    cut60 = ["Q2cut3","ycut"]
+    cut120 = ["Q2cut4","ycut"]
+    cut240 = ["Q2cut5","ycut"]
+    cut480 = ["Q2cut6","ycut"]
+    cut1000 = ["Q2cut7","ycut"]
 
 def F2pi(xpi, Q2):
     points,values=np.load('./analysis/interpGrids/xpiQ2.npy'),np.load('./analysis/interpGrids/F2pi.npy')
@@ -160,7 +164,7 @@ def dsigma_Plot():
     plt.style.use('classic')
 
     ax = f.add_subplot(221)
-    xpiscat4 = ax.errorbar(xpi,dsigma[0],yerr=np.sqrt(lumi)/lumi,fmt='.',label='$Q^2$=60 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
+    xpiscat4 = ax.errorbar(cut.applyCuts(xpi,cut60),cut.applyCuts(dsigma[0],cut60),yerr=np.sqrt(cut.applyCuts(lumi,cut60))/cut.applyCuts(lumi,cut60),fmt='.',label='$Q^2$=60 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
     plt.xscale('log')
     #plt.ylim(0.,0.3)
     plt.xlim(1e-2,1.)
@@ -170,7 +174,6 @@ def dsigma_Plot():
     #ax.set_yticks([0.0,0.1,0.2,0.3])
     ax.set_xticks([1.,1e-1])
     
-    plt.title("{0} $\leq$ xL $\leq$ {1}".format(xlmin,xlmax))
     plt.ylabel(r'$\frac{d\sigma}{dxdQ^2dx_Ldt}$', fontsize=20)
     
     ax = f.add_subplot(222)
@@ -183,6 +186,8 @@ def dsigma_Plot():
     ax.xaxis.set_major_formatter(plt.NullFormatter())
     #ax.set_yticks([0.1,0.2,0.3])
     ax.set_xticks([1.,1e-1])
+
+    plt.title("{0}\n{1}".format(xLcutName,tcutName))
     
     ax = f.add_subplot(223)
     xpiscat6 = ax.errorbar(cut.applyCuts(xpi,cut240),cut.applyCuts(dsigma[2],cut240),yerr=np.sqrt(cut.applyCuts(lumi,cut240))/cut.applyCuts(lumi,cut240),fmt='.',label='$Q^2$=240 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
@@ -229,7 +234,6 @@ def fpivxpi_Plot():
     ax.set_yticks([0.0,0.1,0.2,0.3])
     ax.set_xticks([1.,1e-1])
     
-    plt.title("{0} $\leq$ xL $\leq$ {1}".format(xlmin,xlmax))
     plt.ylabel('$F^{\pi}_{2}$', fontsize=20)
     
     ax = f.add_subplot(222)
@@ -244,6 +248,8 @@ def fpivxpi_Plot():
     ax.set_yticks([0.1,0.2,0.3])
     ax.set_xticks([1.,1e-1])
     
+    plt.title("{0}\n{1}".format(xLcutName,tcutName))
+
     ax = f.add_subplot(223)
     xpiscat6 = ax.errorbar(cut.applyCuts(xpi,cut240),cut.applyCuts(fpi,cut240),yerr=np.sqrt(cut.applyCuts(lumi,cut240))/cut.applyCuts(lumi,cut240),fmt='.',label='$Q^2$=240 $GeV^2$',ecolor='cyan',capsize=2, capthick=2)
     plt.plot([0.01,0.1,0.3],[0.55,0.25,0.15], label="GRV fit",color="y")
@@ -319,6 +325,79 @@ def TheoryTable():
         out_t = pd.DataFrame(inp_d, columns=inp_d.keys())
         out_t = out_t.reindex(sorted(out_t.columns), axis=1)
         return out_t
+
+    if xLselection == "" or tselection == "":
+        cut1Dict = {
+
+            "Q2-1" : cut.applyCuts(Q2,cut1),
+            "xbj-1" : cut.applyCuts(xbj,cut1),
+            "xpi-1" : cut.applyCuts(xpi,cut1),
+            "xL-1" : cut.applyCuts(xL,cut1),
+            "y-1" : cut.applyCuts(y,cut1),
+            "lumi-1" : cut.applyCuts(lumi,cut1),
+        }        
+
+        cut1Table = dict2df(cut1Dict)
+
+        cut2Dict = {
+
+            "Q2-2" : cut.applyCuts(Q2,cut2),
+            "xbj-2" : cut.applyCuts(xbj,cut2),
+            "xpi-2" : cut.applyCuts(xpi,cut2),
+            "xL-2" : cut.applyCuts(xL,cut2),
+            "y-2" : cut.applyCuts(y,cut2),
+            "lumi-2" : cut.applyCuts(lumi,cut2),
+        }        
+
+        cut2Table = dict2df(cut2Dict)
+
+        cut3Dict = {
+
+            "Q2-3" : cut.applyCuts(Q2,cut3),
+            "xbj-3" : cut.applyCuts(xbj,cut3),
+            "xpi-3" : cut.applyCuts(xpi,cut3),
+            "xL-3" : cut.applyCuts(xL,cut3),
+            "y-3" : cut.applyCuts(y,cut3),
+            "lumi-3" : cut.applyCuts(lumi,cut3),
+        }        
+
+        cut3Table = dict2df(cut3Dict)
+
+        cut4Dict = {
+
+            "Q2-4" : cut.applyCuts(Q2,cut4),
+            "xbj-4" : cut.applyCuts(xbj,cut4),
+            "xpi-4" : cut.applyCuts(xpi,cut4),
+            "xL-4" : cut.applyCuts(xL,cut4),
+            "y-4" : cut.applyCuts(y,cut4),
+            "lumi-4" : cut.applyCuts(lumi,cut4),
+        }        
+
+        cut4Table = dict2df(cut4Dict)
+
+        cut5Dict = {
+
+            "Q2-5" : cut.applyCuts(Q2,cut5),
+            "xbj-5" : cut.applyCuts(xbj,cut5),
+            "xpi-5" : cut.applyCuts(xpi,cut5),
+            "xL-5" : cut.applyCuts(xL,cut5),
+            "y-5" : cut.applyCuts(y,cut5),
+            "lumi-5" : cut.applyCuts(lumi,cut5),
+        }        
+
+        cut5Table = dict2df(cut5Dict)
+
+        cut6Dict = {
+
+            "Q2-6" : cut.applyCuts(Q2,cut6),
+            "xbj-6" : cut.applyCuts(xbj,cut6),
+            "xpi-6" : cut.applyCuts(xpi,cut6),
+            "xL-6" : cut.applyCuts(xL,cut6),
+            "y-6" : cut.applyCuts(y,cut6),
+            "lumi-6" : cut.applyCuts(lumi,cut6),
+        }        
+
+        cut6Table = dict2df(cut6Dict)
 
     cut7Dict = {
 
@@ -415,26 +494,36 @@ def TheoryTable():
     }
 
     cut1000Table = dict2df(cut1000Dict)
-    
-    # Merge pandas df
-    dataDict = {}
-    for d in (cut7Table,cut15Table,cut30Table,cut60Table,cut120Table,cut240Table,cut480Table,cut1000Table):
-        dataDict.update(d)
-    data ={i : dataDict[i] for i in sorted(dataDict.keys())}
 
-    theory_table = dict2df(dataDict).sort_values(['Q2-7','Q2-15','Q2-30','Q2-60','Q2-120','Q2-240','Q2-480','Q2-1000'])
-    print("Table created...\n",theory_table)
+    if xLselection == "" or tselection == "":
+        # Merge pandas df
+        dataDict = {}
+        for d in (cut1Table,cut2Table,cut3Table,cut4Table,cut5Table,cut6Table,cut7Table,cut15Table,cut30Table,cut60Table,cut120Table,cut240Table,cut480Table,cut1000Table):
+            dataDict.update(d)
+        data ={i : dataDict[i] for i in sorted(dataDict.keys())}        
+        theory_table = dict2df(dataDict).sort_values(['Q2-1','Q2-2','Q2-3','Q2-4','Q2-5','Q2-6','Q2-7','Q2-15','Q2-30','Q2-60','Q2-120','Q2-240','Q2-480','Q2-1000'])
+        print("Table created...\n",theory_table)
+        print("\n\n",theory_table['xpi-1'].dropna().min())
+        print("\n\n",theory_table['Q2-1'].dropna().min())        
+    else:
+        # Merge pandas df
+        dataDict = {}
+        for d in (cut7Table,cut15Table,cut30Table,cut60Table,cut120Table,cut240Table,cut480Table,cut1000Table):
+            dataDict.update(d)
+        data ={i : dataDict[i] for i in sorted(dataDict.keys())}
+        theory_table = dict2df(dataDict).sort_values(['Q2-7','Q2-15','Q2-30','Q2-60','Q2-120','Q2-240','Q2-480','Q2-1000'])
+        print("Table created...\n",theory_table)
 
     return theory_table
     
 def main() :
     
-    dsigma_Plot()
-    fpivxpi_Plot()
-    phaseSpace_Plots()
-    plt.show()
+    #dsigma_Plot()
+    #fpivxpi_Plot()
+    #phaseSpace_Plots()
+    #plt.show()
 
-    out_f = "OUTPUTS/theory_table.csv"
+    out_f = "OUTPUTS/theory_table_{}.csv".format(kinematics)
     theory_table = TheoryTable()
     theory_table.to_csv(out_f, index=False, header=True, mode='w+')
     

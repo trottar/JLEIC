@@ -74,17 +74,14 @@ def processData():
 
     def binBool(rawdata,bindata,binwidth):
         booldata = []
-        binevt = []
         for i,r in enumerate(rawdata):
             for j,b in enumerate(bindata):
                 if (b-(binwidth/20) < r < b+(binwidth/20)):
                     booldata.append(True)
-                    binevt.append(j)
                     break
             if i+1 != len(booldata):
                 booldata.append(False)
-                binevt.append(-1)
-        return [booldata,binevt]
+        return booldata
 
     def evtsPerBin(binevt,bindata):
         evtBin = []
@@ -111,25 +108,11 @@ def processData():
         '''
         return evtBin
 
-    xboolval = binBool(TDIS_xbj_raw,xbins,xbinwidth)
-    '''
-    # Debug
-    tmp = []
-    tmp2 = []
-    for evt in zip(xboolval[0],xboolval[1]):
-        #if evt[1] == -1 and evt[0] == True:
-        if evt[0] == False:
-            tmp.append(1)
-        if evt[1] == -1:
-            tmp2.append(1)
-    print(len(tmp),len(tmp2))
-    '''
-    xbinVal = np.array(xboolval[0])
-    qbinVal = np.array(binBool(Q2_raw,qbins,qbinwidth)[0])
-    tbinVal = np.array(binBool(t_raw,tbins,tbinwidth)[0])
-    xLbinVal = np.array(binBool(xL_raw,xLbins,xLbinwidth)[0])
+    xbinVal = np.array(binBool(TDIS_xbj_raw,xbins,xbinwidth))
+    qbinVal = np.array(binBool(Q2_raw,qbins,qbinwidth))
+    tbinVal = np.array(binBool(t_raw,tbins,tbinwidth))
+    xLbinVal = np.array(binBool(xL_raw,xLbins,xLbinwidth))
 
-    binevt_raw = evtsPerBin(xboolval[1],xbins)
     '''
     # Debug
     print(">>>>",len(xboolval[0]))
@@ -154,8 +137,6 @@ def processData():
     ypi_xbin = binData(ypi_raw, xbinVal)
     tpi_xbin = binData(tpi_raw, xbinVal)
 
-    binevt_xbin = binData(binevt_raw, xbinVal)
-
     # Q2 binning
     TDIS_xbj_qbin = binData(TDIS_xbj_xbin, qbinVal)
     Q2_qbin = binData(Q2_xbin, qbinVal)
@@ -168,8 +149,6 @@ def processData():
     xpi_qbin = binData(xpi_xbin, qbinVal)
     ypi_qbin = binData(ypi_xbin, qbinVal)
     tpi_qbin = binData(tpi_xbin, qbinVal)
-
-    binevt_qbin = binData(binevt_xbin, qbinVal)
 
     if b_flag == "Q2":
         # Final bins
@@ -185,8 +164,6 @@ def processData():
         ypi_bin = np.trim_zeros(ypi_qbin)
         tpi_bin = np.trim_zeros(tpi_qbin)
         
-        binevt = np.trim_zeros(binevt_qbin)
-        
     if b_flag == "t":
         TDIS_xbj_tbin = binData(TDIS_xbj_qbin, tbinVal)
         Q2_tbin = binData(Q2_qbin, tbinVal)
@@ -200,8 +177,6 @@ def processData():
         ypi_tbin = binData(ypi_qbin, tbinVal)
         tpi_tbin = binData(tpi_qbin, tbinVal)
 
-        binevt_tbin = binData(binevt_qbin, tbinVal)
-
         TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_tbin)
         Q2_bin = np.trim_zeros(Q2_tbin)
         fpi_bin = np.trim_zeros(fpi_tbin)
@@ -213,8 +188,6 @@ def processData():
         xpi_bin = np.trim_zeros(xpi_tbin)
         ypi_bin = np.trim_zeros(ypi_tbin)
         tpi_bin = np.trim_zeros(tpi_tbin)
-
-        binevt = np.trim_zeros(binevt_tbin)
 
     if b_flag == "xL":
         TDIS_xbj_xLbin = binData(TDIS_xbj_qbin, xLbinVal)
@@ -228,8 +201,6 @@ def processData():
         xpi_xLbin = binData(xpi_qbin, xLbinVal)
         ypi_xLbin = binData(ypi_qbin, xLbinVal)
         tpi_xLbin = binData(tpi_qbin, xLbinVal)
-
-        binevt_xLbin = binData(binevt_qbin, xLbinVal)
     
         TDIS_xbj_bin = np.trim_zeros(TDIS_xbj_xLbin)
         Q2_bin = np.trim_zeros(Q2_xLbin)
@@ -243,8 +214,6 @@ def processData():
         ypi_bin = np.trim_zeros(ypi_xLbin)
         tpi_bin = np.trim_zeros(tpi_xLbin)
 
-        binevt = np.trim_zeros(binevt_xLbin)
-
     # Calculated values
     tot_sigma_bin = (sigma_tdis_bin)*((TDIS_xbj_bin*(Q2_bin*Q2_bin)*(137)*(137))/(2*math.pi*(1+(y_bin*y_bin))))
 
@@ -252,8 +221,7 @@ def processData():
     warnings.filterwarnings("ignore",category=RuntimeWarning)
 
     # Total integrated luminosity
-    d.tdict["tot_int_lumi"] = lumi.Lumi(tot_sigma_bin,binevt,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
-    #d.tdict["tot_int_lumi"] = lumi.Lumi(sigma_tdis_bin,binevt,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
+    d.tdict["tot_int_lumi"] = lumi.Lumi(sigma_tdis_bin,xbinwidth,qbinwidth,tbinwidth,xLbinwidth)
 
     tot_int_lumi_bin = d.findKey("tot_int_lumi")
     '''
