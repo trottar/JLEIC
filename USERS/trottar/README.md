@@ -71,7 +71,7 @@ In the **[OUTPUTS](OUTPUTS)** directory are the ROOT and LUND outputs for the si
 
 Physics Documents:
 ====================================
-Located in **docs/** directory...
+Located in **[docs/](docs)** directory...
 
 **[Chekanov_LN_e-p_HERA_2002.pdf](docs/Chekanov_LN_e-p_HERA_2002.pdf)** : Leading neutron production in e + p collisions at HERA (2002) S. Chekanov, et al.
 **[Aguilar_pi-k_structure_EIC_2019.pdf](docs/Aguilar_pi-k_structure_EIC_2019.pdf)** : Pion and Kaon Structure at the Electron-Ion Collider (2019) A. C. Aguilar, et al.
