@@ -2,7 +2,7 @@
  * fracture fuction to obtain the pion structure function
  * 
  * The original code is written by FORTRAN 
- * Cpp conerting by K.Park and Richard Trotta
+ * Cpp converting by K.Park and Richard Trotta
  * 
  * Motivation:
  * Changing the pion FF with various assumption based on the pion exchange model

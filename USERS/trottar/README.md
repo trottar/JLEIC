@@ -6,21 +6,21 @@ gcc compiler (general)
 
 Source codes:
 ====================================
-Located in **src** directory...
+Located in **[src](src)** directory...
 
-**TDISMC_EIC.cpp**         :  pion structure function with ep scattering <br>
-**TDISMC_EICn.cpp**        :  pion structure function with eD scattering <br>
-**TDISMC_EICK.cpp**        :  kaon structure function with ep scattering <br>
-**cteq/**                  :  cteqpdf.h and data based call files (c++ wrapper) <br>
-**cteq-tbls/**             :  nucleon PDFs table <br>
-**structure_functions/**   :  various regularization form for pion SF/FF
+**[EIC_mesonMC_n.cpp](src/EIC_mesonMC_n.cpp)**        :  Leading neutron, pion structure function with ep scattering <br>
+**[EIC_mesonMC_Lambda.cpp](src/EIC_mesonMC_Lambda.cpp)**        :  Leading lambda, kaon structure function with ep scattering <br>
+**[EIC_mesonMC_Sigma.cpp](src/EIC_mesonMC_Sigma.cpp)**        :  Leading sigma, kaon structure function with ep scattering <br>
+**[cteq/](src/cteq/)**                  :  cteqpdf.h and data based call files (c++ wrapper) <br>
+**[cteq-tbls/](src/cteq-tbls/)**             :  nucleon PDFs table <br>
+**[functions/](src/functions/)**   :  various functions (e.g., structure and splitting)
 
 
 How to change inputs:
 ====================================
-Located in **inputs** directory...
+Located in **[inputs](inputs)** directory...
 
-**kinematics.inputs** : edit this document to change simulation kinematics (e.g. number of events, x range, Q2 range, pbeam, kbeam)
+**[kinematics.inputs](inputs/kinematics.inputs)** : edit this document to change simulation kinematics (e.g. number of events, x range, Q2 range, pbeam, kbeam)
 
 All other constants are changed in **src/TDISMC_EIC.h**
 
@@ -42,13 +42,14 @@ All other constants are changed in **src/TDISMC_EIC.h**
 
 How to run:
 ====================================
-**./run_batch.sh <final_state\>** : Final states...(pi/p, pi/n, k/lambda)
+**./run_mesonMC.sh <flags\> <final_state\>** : Final states...(pi/p, pi/n, k/lambda)
 
 &#8595; Below you can see an example for a pion and neutron final state simulation &#8595;
 
 
 ```python
-!./run_mesonMC.sh pi/n
+!./run_mesonMC.sh -g pi/n
+! -g, event generator flag
 ```
 
     
@@ -66,14 +67,15 @@ How to run:
 
 ROOT and LUND outputs:
 ====================================
-In the **OUTPUTS** directory are the ROOT and LUND outputs for the simulation for further analysis.
+In the **[OUTPUTS](OUTPUTS)** directory are the ROOT and LUND outputs for the simulation for further analysis.
 
-
-Running GEANT4
+Physics Documents:
 ====================================
-Located in **g4e_files/** directory...
+Located in **docs/** directory...
 
-**./run_g4e.sh** : Will run the python script for the GEANT4 simulation from the TDIS_lund.dat file <br>
-**eic_g4e.py**   : This python script will run GEANT4 simulation for the lund file specified for detector='jleic' and beamline='erhic'
+**[Chekanov_LN_e-p_HERA_2002.pdf](docs/Chekanov_LN_e-p_HERA_2002.pdf)** : Leading neutron production in e + p collisions at HERA (2002) S. Chekanov, et al.
+**[Aguilar_pi-k_structure_EIC_2019.pdf](docs/Aguilar_pi-k_structure_EIC_2019.pdf)** : Pion and Kaon Structure at the Electron-Ion Collider (2019) A. C. Aguilar, et al.
+**[fixed_collider_physics.pdf](docs/fixed_collider_physics.pdf)** : Comparison of fixed to collider physics by Richard L. Trotta
+**[meson_split_function.pdf](meson_split_function.pdf)** : Summary of splitting functions used in **[barry_split_func.py](src/functions/split_functions/barry_split_func.py)** by Patrick Barry & Richard L. Trotta
 
-*This code is maintained by Richard Trotta (trotta@cua.edu).*
+*This code is maintained by Richard L. Trotta (trottar.iii@gmail.com).*

@@ -2,7 +2,7 @@
  * Description: Electron on Proton beam, tagged lambda and K+ final states 
  *              Please see README for instructions
  * ================================================================
- * Time-stamp: "2020-09-23 14:43:39 trottar"
+ * Time-stamp: "2023-01-11 12:59:28 trottar"
  * ================================================================
  *
  * Author:  Kijun Park and Richard L. Trotta III <trotta@cua.edu>
@@ -649,7 +649,8 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
 
     // Back to Lab frame
     pScatterLambda_Vertex = pScatterLambda_Rest;	  
-    pScatterLambda_Vertex.Boost(BoostRest);   
+    pScatterLambda_Vertex.Boost(BoostRest);
+    pSpectator_Vertex = pScatterLambda_Vertex;
     pScatterKaon_Vertex = pScatterKaon_Rest;
     pScatterKaon_Vertex.Boost(BoostRest);
 
@@ -698,7 +699,7 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     // Definition of kaon variable
     xL = (pSpectator_Vertex.Dot(kIncident_Vertex))/(PIncident_Vertex.Dot(kIncident_Vertex));
     //xL = gRandom->Uniform(1.);
-    xk = TDIS_xbj/(1 - p2.p2_z);
+    xk = TDIS_xbj/(1 - xL);
     tk = (E_k*E_k) - (pScatterKaon_V3.Mag()*pScatterKaon_V3.Mag());
     yk = pScatterKaon_Rest.Dot(qVirtual_Rest)/(pScatterKaon_Rest.Dot(kIncident_Rest));
     
@@ -745,11 +746,11 @@ int mainx(double xMin,double xMax, double Q2Min,double Q2Max, double rnum, const
     */
 
     invts.tSpectator = MIon*MIon+MSpectator*MSpectator - 2.*pSpectator_Vertex.Dot(PIncident_Vertex);
-    //TDIS_t = invts.tSpectator;
+    TDIS_t = invts.tSpectator;
     
     tmin = -(((1-xL)/xL)*((1-xL)/xL))*(MSpectator*MSpectator-xL*MIon*MIon);
 
-    TDIS_t = -((xL*EprE_inc*pScatterLambda_Vertex.Theta()*xL*EprE_inc*pScatterLambda_Vertex.Theta())/xL)-tmin;
+    //TDIS_t = -((xL*EprE_inc*pScatterLambda_Vertex.Theta()*xL*EprE_inc*pScatterLambda_Vertex.Theta())/xL)-tmin;
 		
     /*
     if (TDIS_t < tmin){
