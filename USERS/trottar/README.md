@@ -73,9 +73,10 @@ Physics Documents:
 ====================================
 Located in **[docs/](docs)** directory...
 
-**[Chekanov_LN_e-p_HERA_2002.pdf](docs/Chekanov_LN_e-p_HERA_2002.pdf)** : Leading neutron production in e + p collisions at HERA (2002) S. Chekanov, et al.
-**[Aguilar_pi-k_structure_EIC_2019.pdf](docs/Aguilar_pi-k_structure_EIC_2019.pdf)** : Pion and Kaon Structure at the Electron-Ion Collider (2019) A. C. Aguilar, et al.
-**[fixed_collider_physics.pdf](docs/fixed_collider_physics.pdf)** : Comparison of fixed to collider physics by Richard L. Trotta
-**[meson_split_function.pdf](meson_split_function.pdf)** : Summary of splitting functions used in **[barry_split_func.py](src/functions/split_functions/barry_split_func.py)** by Patrick Barry & Richard L. Trotta
-
+**[Chekanov_LN_e-p_HERA_2002.pdf](docs/Chekanov_LN_e-p_HERA_2002.pdf)** : Leading neutron production in e + p collisions at HERA (2002) S. Chekanov, et al. <br>
+**[Aguilar_pi-k_structure_EIC_2019.pdf](docs/Aguilar_pi-k_structure_EIC_2019.pdf)** : Pion and Kaon Structure at the Electron-Ion Collider (2019) A. C. Aguilar, et al.  <br>
+**[fixed_collider_physics.pdf](docs/fixed_collider_physics.pdf)** : Comparison of fixed to collider physics by Richard L. Trotta  <br>
+**[meson_split_function.pdf](meson_split_function.pdf)** : Summary of splitting functions used in **[barry_split_func.py](src/functions/split_functions/barry_split_func.py)** by Patrick Barry & Richard L. Trotta  <br>
+	
+	
 *This code is maintained by Richard L. Trotta (trottar.iii@gmail.com).*
